@@ -1,0 +1,234 @@
+
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useParams } from 'react-router-dom';
+import './index.css';
+
+import { TenantProvider, useTenant } from './context/TenantContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
+
+import RegisterPage from './pages/RegisterPage';
+import LoginPage from './pages/LoginPage';
+import HomePage from './pages/HomePage'; // For logged-in users
+import Loader from './components/Loader';
+import WhatsappNumberRegistrationPage from './pages/WhatsappNumberRegistrationPage';
+import ProjectManagementPage from './pages/ProjectManagementPage';
+import AdminDashboardPage from './pages/admin/AdminDashboardPage';
+import ProtectedRoute from './routes/ProtectedRoute';
+import SuperAdminDashboard from './pages/admin/SuperAdminDashboard';
+import TenantUsersPage from './pages/admin/TenantUsersPage';
+import TenantSettingsPage from './pages/admin/TenantSettingsPage';
+import UserLayout from './layout/UserLayout';
+import AdminLayout from './layout/AdminLayout';
+import ProjectDashboard from './components/ProjectDashboard/ProjectDashboard';
+import ContactPage from './pages/ContactPage';
+import { ProjectProvider } from './context/ProjectProvider';
+import ProjectDetail from './components/ProjectDashboard/ProjectDetail';
+import GroupPage from './pages/GroupPage';
+import TemplatePage from './pages/TemplatePage';
+import CreateTemplate from './components/template/CreateTemplate';
+import LiveChatPage from './pages/LiveChatPage';
+import SendMessagePage from './pages/BroadCasting';
+
+
+const AdminRoute = ({ children }) => (
+  <ProtectedRoute roles={["super_admin", "tenant_admin"]}>
+    <AdminLayout>{children}</AdminLayout>
+  </ProtectedRoute>
+);
+
+const SuperAdminRoute = ({ children }) => (
+  <ProtectedRoute roles={["super_admin"]}>
+    <AdminLayout>{children}</AdminLayout>
+  </ProtectedRoute>
+);
+
+const UserRoute = ({ sidebar, children }) => {
+  return (
+    <ProtectedRoute roles={["user"]}>
+      <UserLayout sidebar={sidebar}>{children}</UserLayout>
+    </ProtectedRoute>
+  );
+};
+const TeamMemberRoute = ({ sidebar, children }) => (
+  <ProtectedRoute roles={["team-member"]}>
+    <UserLayout sidebar={sidebar}>{children}</UserLayout>
+  </ProtectedRoute>
+);
+
+const ProjectRouteWrapper = ({ component: Component }) => {
+  const { id } = useParams();
+
+  // Save the current project ID to localStorage whenever it changes
+  useEffect(() => {
+    if (id) {
+      localStorage.setItem("currentProjectId", id);
+    }
+  }, [id]);
+
+  return (
+    <ProtectedRoute roles={["user", "team-member"]}>
+      <ProjectProvider
+        projectId={id || localStorage.getItem("currentProjectId")}
+      >
+        <UserLayout sidebar={true}>
+          <Component />
+        </UserLayout>
+      </ProjectProvider>
+    </ProtectedRoute>
+  );
+};
+function AppContent() {
+  const { loading: tenantLoading, error: tenantError } = useTenant();
+  const { loading: authLoading, isLoggedIn } = useAuth(); // ✅ HOOK at top-level
+
+  if (tenantLoading || authLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Loader size="lg" color="primary" />
+        <p className="ml-4 text-gray-700">Loading website configuration...</p>
+      </div>
+    );
+  }
+
+  if (tenantError) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center text-center">
+        <div className="p-8 bg-white rounded-xl shadow-lg">
+          <h2 className="text-2xl font-bold text-error mb-4">Error Loading Site</h2>
+          <p className="text-gray-700">Failed to fetch site configuration. Please try again later.</p>
+          <p className="text-gray-500 text-sm mt-2">({tenantError.message || 'Unknown error'})</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <Routes>
+      <Route path="/register" element={<RegisterPage />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route
+        path="/dashboard"
+        element={
+          <AdminRoute>
+            <HomePage />
+          </AdminRoute>
+        }
+      />
+       <Route
+            path="/admin-dashboard"
+            element={
+              <AdminRoute>
+                <AdminDashboardPage />
+              </AdminRoute>
+            }
+          />
+           <Route
+            path="/add-tenant-admin"
+            element={
+              <SuperAdminRoute>
+                <SuperAdminDashboard />
+              </SuperAdminRoute>
+            }
+          />
+
+          <Route
+            path="/users"
+            element={
+              <AdminRoute>
+                <TenantUsersPage />
+              </AdminRoute>
+            }
+          />
+
+          <Route
+            path="/tenant-settings"
+            element={
+              <AdminRoute>
+                <TenantSettingsPage />
+              </AdminRoute>
+            }
+          />
+
+      <Route
+        path="/add-whatsapp-number"
+        element={
+          <UserRoute sidebar={false}>
+            <WhatsappNumberRegistrationPage />
+          </UserRoute>
+        }
+      />
+      <Route
+        path="/projects"
+        element={
+          <UserRoute sidebar={false}>
+            <ProjectManagementPage />
+          </UserRoute>
+        }
+      />
+      <Route
+            path="/project/:id/dashboard"
+            element={<ProjectRouteWrapper component={ProjectDashboard} />}
+          />
+      <Route
+            path="/project/:id/project-details"
+            element={<ProjectRouteWrapper component={ProjectDetail} />}
+          />
+
+          <Route
+            path="/project/:id/group"
+            element={<ProjectRouteWrapper component={GroupPage} />}
+          />
+          <Route
+            path="/project/:id/contacts"
+            element={<ProjectRouteWrapper component={ContactPage} />}
+          />
+          <Route
+            path="/project/:id/templates"
+            element={<ProjectRouteWrapper component={TemplatePage} />}
+          />
+          <Route
+            path="/project/:id/templates/create"
+            element={<ProjectRouteWrapper component={CreateTemplate} />}
+          />
+           <Route
+            path="/project/:id/broadcasting"
+            element={<ProjectRouteWrapper component={SendMessagePage} />}
+          />
+          <Route
+            path="/project/:id/chat"
+            element={<ProjectRouteWrapper component={LiveChatPage} />}
+          />
+      <Route
+        path="/"
+        element={<Navigate to={isLoggedIn ? "/dashboard" : "/login"} replace />} // ✅ safe now
+      />
+      <Route
+        path="*"
+        element={
+          <div className="min-h-screen bg-gray-50 flex items-center justify-center text-center">
+            <div className="p-8 bg-white rounded-xl shadow-lg">
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">404 - Page Not Found</h2>
+              <p className="text-gray-700">The page you're looking for doesn't exist.</p>
+              <a href="/" className="text-primary-500 hover:underline mt-4 inline-block">Go to Home</a>
+            </div>
+          </div>
+        }
+      />
+    </Routes>
+  );
+}
+
+
+function App() {
+  return (
+    <Router>
+      <TenantProvider>
+        <AuthProvider>
+          <AppContent />
+        </AuthProvider>
+      </TenantProvider>
+    </Router>
+  );
+}
+
+export default App;
