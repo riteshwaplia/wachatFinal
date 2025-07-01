@@ -38,6 +38,7 @@ api.interceptors.request.use(
     return Promise.reject(error);
   }
 );
+axios.defaults.withCredentials = true;
 
 // --- 4. Response Interceptors: Process incoming responses ---
 api.interceptors.response.use(

@@ -266,25 +266,28 @@ const CreateTemplate = () => {
     }
 
     // BODY component
-    const body = template.components.find((c) => c.type === "BODY");
-    if (body?.text) {
-      const bodyComponent = {
-        type: "BODY",
-        text: body.text.replace(/<[^>]*>/g, ""), // Convert Rich Text to plain text for Meta
-      };
+  const body = template.components.find((c) => c.type === "BODY");
+if (body?.text) {
+  const plainText = body.text.replace(/<[^>]*>/g, ""); // Remove HTML tags
+  const bodyComponent = {
+    type: "BODY",
+    text: plainText,
+  };
 
-      // Add examples for body variables based on RichTextEditor's extracted variables
-      if (body.variables && body.variables.length > 0) {
-          // Assuming `variables` from RichTextEditor gives us variable names like '{{1}}'
-          // We need to provide example values for all variables in order
-          // This typically comes from user input in variableExamples, or default examples
-          const exampleBodyText = body.variables.map(varId => variableExamples[varId] || `Example ${varId}`);
-          bodyComponent.example = {
-            body_text: [exampleBodyText], // Meta expects an array of arrays if multiple text lines with vars
-          };
-      }
-      finalComponents.push(bodyComponent);
-    }
+  // Extract all variables like {{1}}, {{user_name}}, etc.
+  const variablesInText = extractVariables(plainText);
+  
+  if (variablesInText.length > 0) {
+    // Create example values only for each variable
+    const exampleValues = variablesInText.map(varId => variableExamples[varId] || `Example_${varId}`);
+
+    bodyComponent.example = {
+      body_text: [exampleValues] // Must be an array of arrays
+    };
+  }
+
+  finalComponents.push(bodyComponent);
+}
 
     // FOOTER component
     const footer = template.components.find((c) => c.type === "FOOTER");
