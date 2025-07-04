@@ -15,7 +15,7 @@ import api from "../../utils/api"; // Assuming this is your configured axios ins
 const TEMPLATE_CATEGORIES = [
   { label: "Marketing", value: "MARKETING" },
   { label: "Utility", value: "UTILITY" },
-  { label: "Authentication", value: "AUTHENTICATION" },
+  // { label: "Authentication", value: "AUTHENTICATION" },
 ];
 
 const HEADER_TYPES = [
@@ -56,7 +56,7 @@ const CreateTemplate = () => {
   const [template, setTemplate] = useState({
     name: "",
     language: "",
-    category: "UTILITY", // Default category
+    category: "MARKETING", // Default category
     components: [
       {
         type: "HEADER",

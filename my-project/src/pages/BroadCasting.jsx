@@ -1,740 +1,364 @@
-import React, { useState, useEffect } from "react";
-import api from "../utils/api"; // Using api directly for clarity, assuming api utility is an api instance
-import { useParams, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext"; // Adjust import path if AuthContext is elsewhere
-import io from "socket.io-client";
+import React, { useState, useEffect } from 'react';
+import api from '../utils/api';
+import { useNavigate, useParams } from 'react-router-dom';
+import { FiChevronRight, FiExternalLink, FiDownload } from 'react-icons/fi';
 
-// IMPORTANT: Ensure this matches your backend Socket.IO port
-const VITE_SOCKET_IO_URL = import.meta.env.VITE_SOCKET_IO_URL || 'http://localhost:5001'; // Assuming your server runs on 5001
+const BulkMessagingDashboard = () => {
+  const router = useNavigate();
+  const [broadcasts, setBroadcasts] = useState([]);
+  const [selectedBroadcast, setSelectedBroadcast] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    total: 0,
+    delivered: 0,
+    read: 0,
+    failed: 0
+  });
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const params = useParams();
+  const projectId = params.id;
 
-const socket = io(VITE_SOCKET_IO_URL, {
-  transports: ["websocket", "polling"],
-});
-
-// Helper function to clean template components before sending to Meta
-// This removes the "format" key from individual parameters which Meta's API does not expect.
-const cleanTemplateComponents = (components) => {
-  if (!components) return [];
-  try {
-    const parsedComponents = typeof components === 'string' ? JSON.parse(components) : components;
-    return parsedComponents.map(component => {
-      if (component.parameters && Array.isArray(component.parameters)) {
-        component.parameters = component.parameters.map(param => {
-          const newParam = { ...param };
-          if (newParam.format !== undefined) {
-            delete newParam.format; // Remove the problematic 'format' key
-          }
-          return newParam;
-        });
-      }
-      return component;
-    });
-  } catch (e) {
-    console.error("Error parsing or cleaning template components JSON:", e);
-    return []; // Return empty array on error
-  }
-};
-
-
-const SendMessagePage = () => {
-  const { user, token } = useAuth();
-  const { id:projectId } = useParams(); // FIX: Changed from 'id' to 'projectId'
-  const navigate = useNavigate();
-  const customer_name = user?.username || user?.email || "User"; // Use username or email
-
-  const [message, setMessage] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("single"); // 'single' or 'bulk'
-
-  // Single message state
-  const [singleRecipient, setSingleRecipient] = useState("");
-  const [singleMessageType, setSingleMessageType] = useState("text");
-  const [singleMessageText, setSingleMessageText] = useState("");
-  const [singleMessageTemplateName, setSingleMessageTemplateName] = useState("");
-  const [singleMessageTemplateLanguage, setSingleMessageTemplateLanguage] = useState("en_US");
-  const [singleMessageTemplateComponents, setSingleMessageTemplateComponents] = useState(""); // Will be JSON string
-
-  const [singleMessageMediaLink, setSingleMessageMediaLink] = useState("");
-  const [singleMessageMediaId, setSingleMessageMediaId] = useState("");
-  const [singleMessageMediaFilename, setSingleMessageMediaFilename] = useState("");
-  const [singleMessageMediaCaption, setSingleMessageMediaCaption] = useState(""); // Added caption field
-
-  // Bulk message state
-  const [bulkTemplateName, setBulkTemplateName] = useState("");
-  const [bulkTemplateLanguage, setBulkTemplateLanguage] = useState("en_US");
-  const [bulkTemplateComponents, setBulkTemplateComponents] = useState(""); // Will be JSON string
-  const [bulkContactsFile, setBulkContactsFile] = useState(null);
-
-  const [templates, setTemplates] = useState([]);
-  const [contacts, setContacts] = useState([]); // This state is not directly used in the current UI logic
-
-  // Real-time message status
-  const [latestMessageStatus, setLatestMessageStatus] = useState(null);
-  const [recentMessageUpdates, setRecentMessageUpdates] = useState([]);
-const project = localStorage.getItem("currentProject")
-    ? JSON.parse(localStorage.getItem("currentProject"))
-    : null;
-  const businessProfileId = project?.businessProfileId._id || null;
-  const config = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
-
-
-
-
-  const fetchTemplatesAndContacts = async () => {
-    setIsLoading(true);
-    try {
-      // Use projectDetails.businessProfileId._id for fetching templates
-      // Ensure projectDetails is loaded before this call
-     
-      const templatesRes = await api.get("/templates", { // Use api directly with /api/
-        ...config,
-        params: {
-          businessProfileId: businessProfileId,
-        },
-      });
-      setTemplates(templatesRes.data.data || []);
-      // Contacts are not directly used in this page's logic for now
-      // const contactsRes = await api.get(`/api/projects/${projectId}/contacts`, config);
-      // setContacts(contactsRes.data.data || []);
-      setMessage(''); // Clear previous messages if successful
-    } catch (error) {
-      console.error(
-        "Error fetching templates/contacts:",
-        error.response?.data?.message || error.message
-      );
-      setMessage(
-        `Error fetching resources: ${
-          error.response?.data?.message || "Failed to fetch templates/contacts."
-        }`
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
+  // Fetch broadcast jobs on component mount
   useEffect(() => {
-    if (!user) {
-      navigate("/login", { replace: true });
-      return;
-    }
-  }, [ navigate, projectId]); // Depend on projectId as well
-
-  useEffect(() => {
-    // Fetch templates and contacts ONLY after projectDetails is available
-    if (businessProfileId) {
-        fetchTemplatesAndContacts();
-
-        socket.emit("joinRoom", user._id);
-        socket.emit("joinRoom", `project-${projectId}`);
-
-        socket.on("messageStatusUpdate", (data) => {
-            console.log("Received message status update:", data);
-            setLatestMessageStatus(data);
-            setRecentMessageUpdates((prevUpdates) => {
-                const newUpdates = [
-                    { ...data, receivedAt: new Date().toLocaleTimeString() },
-                    ...prevUpdates,
-                ];
-                return newUpdates.slice(0, 5);
-            });
-        });
-
-        return () => {
-            socket.off("messageStatusUpdate");
-            socket.emit("leaveRoom", user._id);
-            socket.emit("leaveRoom", `project-${projectId}`);
-        };
-    }
-  }, [token, projectId, navigate]); // Rerun when projectDetails is set
-
-  // Effect to populate single template components when singleMessageTemplateName changes
-  useEffect(() => {
-    if (singleMessageTemplateName && templates.length > 0) {
-      const selectedTpl = templates.find(
-        (tpl) => tpl.name === singleMessageTemplateName
-      );
-      if (selectedTpl) {
-        // Stringify components and set to state, also set language
-        setSingleMessageTemplateComponents(JSON.stringify(selectedTpl.components || [], null, 2));
-        setSingleMessageTemplateLanguage(selectedTpl.language || "en_US");
-      }
-    } else {
-      // Clear if no template selected
-      setSingleMessageTemplateComponents("");
-      setSingleMessageTemplateLanguage("en_US");
-    }
-  }, [singleMessageTemplateName, templates]);
-
-  // Effect to populate bulk template components when bulkTemplateName changes
-  useEffect(() => {
-    if (bulkTemplateName && templates.length > 0) {
-      const selectedTpl = templates.find(
-        (tpl) => tpl.name === bulkTemplateName
-      );
-      if (selectedTpl) {
-        setBulkTemplateComponents(JSON.stringify(selectedTpl.components || [], null, 2));
-        setBulkTemplateLanguage(selectedTpl.language || "en_US");
-      }
-    } else {
-      setBulkTemplateComponents("");
-      setBulkTemplateLanguage("en_US");
-    }
-  }, [bulkTemplateName, templates]);
-
-
-  const handleSingleMessageSubmit = async (e) => {
-    e.preventDefault();
-    setMessage("");
-    setIsLoading(true);
-    setLatestMessageStatus(null);
-    setRecentMessageUpdates([]);
-
-    let payloadMessage = {};
-    if (singleMessageType === "text") {
-      payloadMessage = { body: singleMessageText }; // Use 'body' for text as per Meta API
-    } else if (singleMessageType === "template") {
+    const fetchBroadcasts = async () => {
       try {
-        // Clean components before sending
-        const cleanedComponents = cleanTemplateComponents(singleMessageTemplateComponents);
-        payloadMessage = {
-          name: singleMessageTemplateName,
-          language: { code: singleMessageTemplateLanguage },
-          components: cleanedComponents, // Use cleaned components
-        };
-      } catch (err) {
-        setMessage("Error parsing or cleaning template components JSON. Please check JSON format.");
-        setIsLoading(false);
-        return;
+        const response = await api.get(`/projects/${projectId}/messages/bulk-send-jobs`);
+        setBroadcasts(response.data.data);
+        
+        // Calculate stats
+        const stats = response.data.data.reduce((acc, job) => {
+          acc.total += job.totalContacts || 0;
+          acc.delivered += job.totalSent || 0;
+          acc.read += job.readCount || 0;
+          acc.failed += job.totalFailed || 0;
+          return acc;
+        }, { total: 0, delivered: 0, read: 0, failed: 0 });
+        
+        setStats(stats);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching broadcasts:', error);
+        setLoading(false);
       }
-    } else if (
-      singleMessageType === "image" ||
-      singleMessageType === "document"
-    ) {
-      payloadMessage = {
-        link: singleMessageMediaLink,
-        id: singleMessageMediaId,
-        caption: singleMessageMediaCaption, // Include caption
-      };
-      if (singleMessageType === "document") {
-        payloadMessage.filename = singleMessageMediaFilename;
-      }
-    }
+    };
 
+    fetchBroadcasts();
+  }, [projectId]);
+
+  // Fetch detailed broadcast data
+  const fetchBroadcastDetails = async (broadcastId) => {
     try {
-      const res = await api.post( // Use api directly with /api/
-        `/projects/${projectId}/messages/send`,
-        {
-          to: singleRecipient,
-          type: singleMessageType,
-          message: payloadMessage,
-        },
-        config
-      );
-      setMessage(
-        res.data.message ||
-          "Message sent successfully! Awaiting status updates..."
-      );
-      setLatestMessageStatus({
-        to: singleRecipient,
-        newStatus: "sent",
-        metaMessageId: res.data.data.apiResponse?.messages?.[0]?.id || "N/A",
-        sentAt: new Date().toLocaleTimeString(),
-        type: singleMessageType,
-      });
-
-      // Clear form
-      setSingleRecipient("");
-      setSingleMessageText("");
-      setSingleMessageTemplateName(""); // This will trigger useEffect to clear components too
-      setSingleMessageTemplateLanguage("en_US");
-      setSingleMessageMediaLink("");
-      setSingleMessageMediaId("");
-      setSingleMessageMediaFilename("");
-      setSingleMessageMediaCaption(""); // Clear caption
+      const response = await api.get(`/projects/${projectId}/messages/bulk-send-jobs/${broadcastId}`);
+      setSelectedBroadcast(response.data.data);
+      setIsModalOpen(true);
     } catch (error) {
-      console.error(
-        "Error sending single message:",
-        error.response?.data?.message || error.message
-      );
-      setMessage(
-        `Error: ${error.response?.data?.message || "Failed to send message."}`
-      );
-    } finally {
-      setIsLoading(false);
+      console.error('Error fetching broadcast details:', error);
     }
   };
 
-  const handleBulkFileChange = (e) => {
-    setBulkContactsFile(e.target.files[0]);
+  // Create new broadcast
+  const createNewBroadcast = () => {
+    router(`/project/${projectId}/broadcasting/send-bulk`);
   };
 
-  const handleBulkMessageSubmit = async (e) => {
-    e.preventDefault();
-    setMessage("");
-    setIsLoading(true);
-    setLatestMessageStatus(null);
-    setRecentMessageUpdates([]);
-
-    if (!bulkContactsFile) {
-      setMessage("Please select an Excel/CSV file for bulk sending.");
-      setIsLoading(false);
-      return;
-    }
-
-    let cleanedBulkComponents = [];
-    try {
-        cleanedBulkComponents = cleanTemplateComponents(bulkTemplateComponents);
-    } catch (err) {
-        setMessage("Error parsing or cleaning bulk template components JSON. Please check JSON format.");
-        setIsLoading(false);
-        return;
-    }
-
-
-    const formData = new FormData();
-    formData.append("file", bulkContactsFile);
-    formData.append("templateName", bulkTemplateName);
-    formData.append(
-      "message",
-      JSON.stringify({
-        language: { code: bulkTemplateLanguage },
-        components: cleanedBulkComponents, // Use cleaned components
-      })
-    );
-
-    try {
-      const res = await api.post( // Use api directly with /api/
-        `/projects/${projectId}/messages/bulk-messages`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      setMessage(
-        res.data.message ||
-          "Bulk messages initiated. Awaiting status updates..."
-      );
-      setBulkContactsFile(null);
-      document.getElementById("bulkContactsFile").value = "";
-      setBulkTemplateName(""); // This will trigger useEffect to clear components too
-      setBulkTemplateLanguage("en_US");
-    } catch (error) {
-      console.error(
-        "Error sending bulk messages:",
-        error.response?.data?.message || error.message
-      );
-      setMessage(
-        `Error: ${
-          error.response?.data?.message || "Failed to send bulk messages."
-        }`
-      );
-    } finally {
-      setIsLoading(false);
-    }
+  // Close modal
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedBroadcast(null);
   };
 
- 
+  // Format date
+  const formatDate = (dateString) => {
+    const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  };
 
   return (
-    <div className="max-w-6xl mx-auto p-6 bg-white rounded-lg shadow-md mt-8">
-    
-
-      {message && (
-        <div
-          className={`p-3 mb-4 rounded-md ${
-            message.startsWith("Error")
-              ? "bg-red-100 text-red-700"
-              : "bg-green-100 text-green-700"
-          }`}
-        >
-          {message}
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Header with stats and new broadcast button */}
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800">Broadcast Center</h1>
+          <p className="mt-1 text-sm text-gray-500">
+            Manage your bulk message campaigns
+          </p>
         </div>
-      )}
-
-      {/* Tab Navigation */}
-      <div className="flex border-b border-gray-200 mb-6">
         <button
-          className={`py-2 px-4 font-medium ${
-            activeTab === "single"
-              ? "text-blue-600 border-b-2 border-blue-600"
-              : "text-gray-500 hover:text-gray-700"
-          }`}
-          onClick={() => setActiveTab("single")}
+          onClick={createNewBroadcast}
+          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
         >
-          Send Single Message
-        </button>
-        <button
-          className={`py-2 px-4 font-medium ${
-            activeTab === "bulk"
-              ? "text-blue-600 border-b-2 border-blue-600"
-              : "text-gray-500 hover:text-gray-700"
-          }`}
-          onClick={() => setActiveTab("bulk")}
-        >
-          Send Bulk Messages
+          + New Broadcast
         </button>
       </div>
 
-      {/* Real-time Message Status Section */}
-      <div className="mb-10 p-4 border border-blue-400 rounded-lg bg-blue-50">
-        <h3 className="text-2xl font-semibold text-gray-700 mb-4">
-          Real-time Message Status Updates
-        </h3>
-        {latestMessageStatus ? (
-          <div className="text-lg text-gray-800">
-            <p className="font-bold">Latest Update:</p>
-            <p>
-              To: <span className="font-mono">{latestMessageStatus.to}</span>
-            </p>
-            <p>
-              Status:{" "}
-              <span
-                className={`font-semibold ${
-                  latestMessageStatus.newStatus === "delivered"
-                    ? "text-green-600"
-                    : latestMessageStatus.newStatus === "read"
-                    ? "text-blue-600"
-                    : latestMessageStatus.newStatus === "failed"
-                    ? "text-red-600"
-                    : "text-yellow-600"
-                }`}
-              >
-                {latestMessageStatus.newStatus.toUpperCase()}
-              </span>
-            </p>
-            <p className="text-sm text-gray-600">
-              Meta ID: {latestMessageStatus.metaMessageId}
-            </p>
-            <p className="text-sm text-gray-600">
-              Type: {latestMessageStatus.type}
-            </p>
-            <p className="text-sm text-gray-600">
-              Time:{" "}
-              {latestMessageStatus.receivedAt ||
-                new Date().toLocaleTimeString()}
-            </p>
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-4 mb-8">
+        <div className="bg-white p-4 rounded-lg border border-gray-200">
+          <div className="flex items-center">
+            <div className="bg-blue-100 p-3 rounded-full">
+              <svg className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-500">Total Messages</p>
+              <p className="text-2xl font-semibold text-gray-900">{stats.total}</p>
+            </div>
           </div>
-        ) : (
-          <p className="text-gray-600">Awaiting message status updates...</p>
-        )}
+        </div>
 
-        {recentMessageUpdates.length > 0 && (
-          <div className="mt-4">
-            <h4 className="text-lg font-semibold text-gray-700 mb-2">
-              Recent Updates:
-            </h4>
-            <ul className="space-y-2 text-sm">
-              {recentMessageUpdates.map((update, index) => (
-                <li
-                  key={index}
-                  className="bg-blue-100 p-2 rounded-md border border-blue-200"
-                >
-                  To: <span className="font-mono text-xs">{update.to}</span> |
-                  Status:{" "}
-                  <span
-                    className={`font-semibold ${
-                      update.newStatus === "delivered"
-                        ? "text-green-600"
-                        : update.newStatus === "read"
-                        ? "text-blue-600"
-                        : update.newStatus === "failed"
-                        ? "text-red-600"
-                        : "text-yellow-600"
-                    }`}
-                  >
-                    {update.newStatus.toUpperCase()}
-                  </span>{" "}
-                  at {update.receivedAt}
-                </li>
-              ))}
-            </ul>
+        <div className="bg-white p-4 rounded-lg border border-gray-200">
+          <div className="flex items-center">
+            <div className="bg-green-100 p-3 rounded-full">
+              <svg className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-500">Delivered</p>
+              <p className="text-2xl font-semibold text-gray-900">{stats.delivered}</p>
+            </div>
           </div>
-        )}
+        </div>
+
+        <div className="bg-white p-4 rounded-lg border border-gray-200">
+          <div className="flex items-center">
+            <div className="bg-blue-100 p-3 rounded-full">
+              <svg className="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-500">Read</p>
+              <p className="text-2xl font-semibold text-gray-900">{stats.read}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white p-4 rounded-lg border border-gray-200">
+          <div className="flex items-center">
+            <div className="bg-red-100 p-3 rounded-full">
+              <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-500">Failed</p>
+              <p className="text-2xl font-semibold text-gray-900">{stats.failed}</p>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Single Message Tab Content */}
-      {activeTab === "single" && (
-        <div className="mb-10 p-4 border border-teal-200 rounded-lg bg-teal-50">
-          <h3 className="text-2xl font-semibold text-gray-700 mb-4">
-            Send Single Message
-          </h3>
-          <form onSubmit={handleSingleMessageSubmit} className="space-y-4">
-            <div>
-              <label className="block text-gray-700">
-                Recipient Phone Number (e.g., 91xxxxxxxxxx):
-              </label>
-              <input
-                type="text"
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                value={singleRecipient}
-                onChange={(e) => setSingleRecipient(e.target.value)}
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700">Message Type:</label>
-              <select
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                value={singleMessageType}
-                onChange={(e) => setSingleMessageType(e.target.value)}
+      {/* Broadcast List */}
+      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-200">
+          <h3 className="text-lg font-medium text-gray-900">Recent Broadcasts</h3>
+        </div>
+        <div className="divide-y divide-gray-200">
+          {loading ? (
+            <div className="p-6 text-center">Loading broadcasts...</div>
+          ) : broadcasts.length === 0 ? (
+            <div className="p-6 text-center text-gray-500">No broadcasts found</div>
+          ) : (
+            broadcasts.map((broadcast) => (
+              <div 
+                key={broadcast._id} 
+                className="p-6 hover:bg-gray-50 cursor-pointer transition-colors duration-150"
+                onClick={() => fetchBroadcastDetails(broadcast._id)}
               >
-                <option value="text">Text</option>
-                <option value="template">Template</option>
-                <option value="image">Image (Link/ID)</option>
-                <option value="document">Document (Link/ID)</option>
-              </select>
-            </div>
-
-            {singleMessageType === "text" && (
-              <div>
-                <label className="block text-gray-700">Text Message:</label>
-                <textarea
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                  rows="3"
-                  value={singleMessageText}
-                  onChange={(e) => setSingleMessageText(e.target.value)}
-                  required
-                ></textarea>
-              </div>
-            )}
-
-            {singleMessageType === "template" && (
-              <div className="space-y-3">
-                <div>
-                  <label className="block text-gray-700">Template Name:</label>
-                  <select
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                    value={singleMessageTemplateName}
-                    onChange={(e) =>
-                      setSingleMessageTemplateName(e.target.value)
-                    }
-                    required
-                  >
-                    <option value="">Select a Template</option>
-                    {templates.map((tpl) => (
-                      <option key={tpl._id} value={tpl.name}>
-                        {tpl.name} ({tpl.language}) - {tpl.metaStatus}
-                      </option>
-                    ))}
-                  </select>
-                  {templates.length === 0 && <p className="text-sm text-red-500 mt-1">No templates found for this project's linked WhatsApp account. Sync from Meta via the Template Management page.</p>}
-                </div>
-                <div>
-                  <label className="block text-gray-700">
-                    Template Language Code (e.g., en_US):
-                  </label>
-                  <input
-                    type="text"
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                    value={singleMessageTemplateLanguage}
-                    onChange={(e) =>
-                      setSingleMessageTemplateLanguage(e.target.value)
-                    }
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-gray-700">
-                    Template Components (JSON Array for Parameters):
-                  </label>
-                  <textarea
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 font-mono text-sm"
-                    rows="5"
-                    value={singleMessageTemplateComponents}
-                    onChange={(e) =>
-                      setSingleMessageTemplateComponents(e.target.value)
-                    }
-                    placeholder={`[
-  {
-    "type": "HEADER",
-    "parameters": [
-      { "type": "text", "text": "{{your_header_variable_name}}" }
-    ]
-  },
-  {
-    "type": "BODY",
-    "parameters": [
-      { "type": "text", "text": "{{your_body_variable1_name}}" },
-      { "type": "text", "text": "{{your_body_variable2_name}}" }
-    ]
-  }
-]`}
-                  ></textarea>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Define `parameters` array for HEADER, BODY, or BUTTON
-                    components. For template with placeholders like , these variables will be replaced by fields from your contacts (e.g., 'Name', 'OrderId').
-                    The JSON here should match the structure Meta expects, but use `{{variable_name}}` for dynamic content.
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {(singleMessageType === "image" ||
-              singleMessageType === "document") && (
-              <div className="space-y-3">
-                <div>
-                  <label className="block text-gray-700">
-                    {singleMessageType} Link (URL):
-                  </label>
-                  <input
-                    type="url"
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                    value={singleMessageMediaLink}
-                    onChange={(e) => setSingleMessageMediaLink(e.target.value)}
-                    placeholder="https://example.com/media.jpg OR media ID"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Provide either a direct URL or a media ID.
-                  </p>
-                </div>
-                <div>
-                  <label className="block text-gray-700">
-                    {singleMessageType} ID (Meta API Media ID):
-                  </label>
-                  <input
-                    type="text"
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                    value={singleMessageMediaId}
-                    onChange={(e) => setSingleMessageMediaId(e.target.value)}
-                    placeholder="e.g., 1234567890123456"
-                  />
-                </div>
-                <div>
-                  <label className="block text-gray-700">Caption (Optional):</label>
-                  <input
-                    type="text"
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                    value={singleMessageMediaCaption}
-                    onChange={(e) => setSingleMessageMediaCaption(e.target.value)}
-                    placeholder="Enter caption for your media"
-                  />
-                </div>
-                {singleMessageType === "document" && (
+                <div className="flex items-center justify-between">
                   <div>
-                    <label className="block text-gray-700">
-                      Filename (for Document):
-                    </label>
-                    <input
-                      type="text"
-                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                      value={singleMessageMediaFilename}
-                      onChange={(e) =>
-                        setSingleMessageMediaFilename(e.target.value)
-                      }
-                      placeholder="MyDocument.pdf"
-                    />
+                    <h4 className="font-medium text-gray-900">{broadcast.templateName || 'Untitled Broadcast'}</h4>
+                    <div className="mt-1 flex items-center text-sm text-gray-500">
+                      <span>{formatDate(broadcast.createdAt)}</span>
+                      <span className="mx-2">•</span>
+                      <span>{broadcast.totalContacts || 0} recipients</span>
+                    </div>
                   </div>
-                )}
+                  <div className="flex items-center">
+                    <div className="mr-4">
+                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                        broadcast.status === 'completed' ? 'bg-green-100 text-green-800' :
+                        broadcast.status === 'failed' ? 'bg-red-100 text-red-800' :
+                        'bg-yellow-100 text-yellow-800'
+                      }`}>
+                        {broadcast.status}
+                      </span>
+                    </div>
+                    <FiChevronRight className="h-5 w-5 text-gray-400" />
+                  </div>
+                </div>
+                <div className="mt-3 flex space-x-4 text-sm">
+                  <div className="flex items-center text-green-600">
+                    <span className="font-medium">{broadcast.totalSent || 0}</span>
+                    <span className="ml-1">Delivered</span>
+                  </div>
+                  <div className="flex items-center text-blue-500">
+                    <span className="font-medium">{broadcast.readCount || 0}</span>
+                    <span className="ml-1">Read</span>
+                  </div>
+                  <div className="flex items-center text-red-600">
+                    <span className="font-medium">{broadcast.totalFailed || 0}</span>
+                    <span className="ml-1">Failed</span>
+                  </div>
+                </div>
               </div>
-            )}
-
-            <button
-              type="submit"
-              className="bg-teal-600 text-white px-6 py-2 rounded-lg shadow hover:bg-teal-700 transition duration-300"
-              disabled={isLoading}
-            >
-              {isLoading ? "Sending..." : "Send Single Message"}
-            </button>
-          </form>
+            ))
+          )}
         </div>
-      )}
+      </div>
 
-      {/* Bulk Message Tab Content */}
-      {activeTab === "bulk" && (
-        <div className="mb-10 p-4 border border-purple-200 rounded-lg bg-purple-50">
-          <h3 className="text-2xl font-semibold text-gray-700 mb-4">
-            Send Bulk Template Messages
-          </h3>
-          <form onSubmit={handleBulkMessageSubmit} className="space-y-4">
-            <div>
-              <label className="block text-gray-700">
-                Template Name for Bulk Send:
-              </label>
-              <select
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                value={bulkTemplateName}
-                onChange={(e) => setBulkTemplateName(e.target.value)}
-                required
-              >
-                <option value="">Select an Approved Template</option>
-                {templates.map((tpl) => (
-                  <option key={tpl._id} value={tpl.name}>
-                    {tpl.name} ({tpl.language}) - {tpl.metaStatus}
-                  </option>
-                ))}
-              </select>
-              {templates.length === 0 && <p className="text-sm text-red-500 mt-1">No templates found for this project's linked WhatsApp account. Sync from Meta via the Template Management page.</p>}
-              <p className="text-xs text-gray-500 mt-1">
-                Only approved templates will be used. Ensure your selected
-                template is suitable for dynamic variables.
-              </p>
+      {/* Broadcast Details Modal */}
+      {isModalOpen && selectedBroadcast && (
+        <div className="fixed inset-0 overflow-y-auto z-50">
+          <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div className="fixed inset-0 transition-opacity" aria-hidden="true">
+              <div className="absolute inset-0 bg-gray-500 opacity-75" onClick={closeModal}></div>
             </div>
-            <div>
-              <label className="block text-gray-700">
-                Template Language Code (e.g., en_US):
-              </label>
-              <input
-                type="text"
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                value={bulkTemplateLanguage}
-                onChange={(e) => setBulkTemplateLanguage(e.target.value)}
-                required
-              />
+            <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+              <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div className="sm:flex sm:items-start">
+                  <div className="mt-3 text-center sm:mt-0 sm:text-left w-full">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="text-lg leading-6 font-medium text-gray-900">
+                          {selectedBroadcast.jobDetails.templateName}
+                        </h3>
+                        <p className="mt-1 text-sm text-gray-500">
+                          Created on {formatDate(selectedBroadcast.jobDetails.createdAt)}
+                        </p>
+                      </div>
+                      <button
+                        onClick={closeModal}
+                        className="text-gray-400 hover:text-gray-500"
+                      >
+                        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+
+                    <div className="mt-6 grid grid-cols-1 gap-y-4 gap-x-8 sm:grid-cols-2">
+                      <div>
+                        <p className="text-sm font-medium text-gray-500">Template Name</p>
+                        <p className="mt-1 text-sm text-gray-900">{selectedBroadcast.jobDetails.templateName}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-500">Language</p>
+                        <p className="mt-1 text-sm text-gray-900">{selectedBroadcast.jobDetails.language}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-500">Total Recipients</p>
+                        <p className="mt-1 text-sm text-gray-900">{selectedBroadcast.jobDetails.totalContacts}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-500">Status</p>
+                        <p className="mt-1">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            selectedBroadcast.jobDetails.status === 'completed' ? 'bg-green-100 text-green-800' :
+                            selectedBroadcast.jobDetails.status === 'failed' ? 'bg-red-100 text-red-800' :
+                            'bg-yellow-100 text-yellow-800'
+                          }`}>
+                            {selectedBroadcast.jobDetails.status}
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-6">
+                      <h4 className="text-sm font-medium text-gray-500 mb-2">Status Breakdown</h4>
+                      <div className="grid grid-cols-3 gap-4">
+                        <div className="bg-green-50 p-3 rounded-lg text-center">
+                          <p className="text-2xl font-semibold text-green-600">{selectedBroadcast.jobDetails.totalSent || 0}</p>
+                          <p className="text-xs text-green-800">Delivered</p>
+                        </div>
+                        <div className="bg-blue-50 p-3 rounded-lg text-center">
+                          <p className="text-2xl font-semibold text-blue-600">{selectedBroadcast.jobDetails.readCount || 0}</p>
+                          <p className="text-xs text-blue-800">Read</p>
+                        </div>
+                        <div className="bg-red-50 p-3 rounded-lg text-center">
+                          <p className="text-2xl font-semibold text-red-600">{selectedBroadcast.jobDetails.totalFailed || 0}</p>
+                          <p className="text-xs text-red-800">Failed</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-6">
+                      <div className="flex justify-between items-center mb-3">
+                        <h4 className="text-sm font-medium text-gray-500">Message Details</h4>
+                        <button className="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                          <FiDownload className="mr-2 h-4 w-4" />
+                          Export CSV
+                        </button>
+                      </div>
+                      <div className="overflow-y-auto max-h-96 border border-gray-200 rounded-lg">
+                        <table className="min-w-full divide-y divide-gray-200">
+                          <thead className="bg-gray-50">
+                            <tr>
+                              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Recipient
+                              </th>
+                              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Status
+                              </th>
+                              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Time
+                              </th>
+                              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Actions
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody className="bg-white divide-y divide-gray-200">
+                            {selectedBroadcast.messages.slice(0, 10).map((message) => (
+                              <tr key={message._id}>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                  {message.to}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                    message.status === 'delivered' ? 'bg-green-100 text-green-800' :
+                                    message.status === 'read' ? 'bg-blue-100 text-blue-800' :
+                                    'bg-red-100 text-red-800'
+                                  }`}>
+                                    {message.status}
+                                  </span>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                  {formatDate(message.updatedAt)}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                  <button className="text-blue-600 hover:text-blue-900">
+                                    <FiExternalLink className="h-4 w-4" />
+                                  </button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button
+                  type="button"
+                  className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                  onClick={closeModal}
+                >
+                  Close
+                </button>
+              </div>
             </div>
-            <div>
-              <label className="block text-gray-700">
-                Template Components for Variables (JSON Array):
-              </label>
-              <textarea
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 font-mono text-sm"
-                rows="5"
-                value={bulkTemplateComponents}
-                onChange={(e) => setBulkTemplateComponents(e.target.value)}
-              
-              ></textarea>
-               <p className="text-xs text-gray-500 mt-1">
-                    Define `parameters` array with `text` fields using double curly braces 
-                    These will be replaced by column headers from your Excel/CSV file (e.g., 'Name', 'OrderId').
-                    If this field is left empty, the service will attempt to fetch components from the locally stored template for the given name.
-                </p>
-            </div>
-            <div>
-              <label className="block text-gray-700">
-                Upload Contacts File (Excel/CSV):
-              </label>
-              <input
-                type="file"
-                id="bulkContactsFile"
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 bg-white"
-                onChange={handleBulkFileChange}
-                accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
-                required
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                File must contain 'countrycode' and 'mobilenumber' columns.
-                Other columns (e.g., 'name', 'order_id') will be used to fill
-                template variables.
-              </p>
-            </div>
-            <button
-              type="submit"
-              className="bg-purple-600 text-white px-6 py-2 rounded-lg shadow hover:bg-purple-700 transition duration-300"
-              disabled={isLoading}
-            >
-              {isLoading ? "Sending..." : "Send Bulk Messages"}
-            </button>
-          </form>
+          </div>
         </div>
       )}
     </div>
   );
 };
 
-export default SendMessagePage;
+export default BulkMessagingDashboard;

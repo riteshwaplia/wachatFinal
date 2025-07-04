@@ -27,7 +27,8 @@ import GroupPage from './pages/GroupPage';
 import TemplatePage from './pages/TemplatePage';
 import CreateTemplate from './components/template/CreateTemplate';
 import LiveChatPage from './pages/LiveChatPage';
-import SendMessagePage from './pages/BroadCasting';
+import BulkMessagingDashboard from './pages/BroadCasting';
+import SendMessagePage from './components/broadcasting/SendBulkMessage';
 
 
 const AdminRoute = ({ children }) => (
@@ -192,6 +193,10 @@ function AppContent() {
           />
            <Route
             path="/project/:id/broadcasting"
+            element={<ProjectRouteWrapper component={BulkMessagingDashboard} />}
+          />
+           <Route
+            path="/project/:id/broadcasting/send-bulk"
             element={<ProjectRouteWrapper component={SendMessagePage} />}
           />
           <Route

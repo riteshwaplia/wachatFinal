@@ -34,7 +34,8 @@ const WhatsappNumberRegistrationPage = () => {
     const [formData, setFormData] = useState({
         name: '',
         wabaId: '',
-        accessToken: ''
+        accessToken: '',
+        metaAppId:""
     });
 
     const [isAddBusinessModalOpen, setIsAddBusinessModalOpen] = useState(false);
@@ -132,7 +133,8 @@ const WhatsappNumberRegistrationPage = () => {
             const res = await api.post('/users/business-profiles', {
                 name: formData.name,
                 metaBusinessId: formData.wabaId,
-                metaAccessToken: formData.accessToken
+                metaAccessToken: formData.accessToken,
+                metaAppId: formData.metaAppId
             });
 
             updateState({
@@ -143,7 +145,7 @@ const WhatsappNumberRegistrationPage = () => {
             
             // Refresh profiles and reset form
             await fetchBusinessProfiles();
-            setFormData({ name: '', wabaId: '', accessToken: '' });
+            setFormData({ name: '', wabaId: '', accessToken: '' ,metaAppId: ''});
             setIsAddBusinessModalOpen(false);
             
         } catch (error) {
@@ -349,6 +351,14 @@ const WhatsappNumberRegistrationPage = () => {
                         label="WhatsApp Business Account ID"
                         name="wabaId"
                         value={formData.wabaId}
+                        onChange={handleFormChange}
+                        placeholder="e.g., 123456789012345"
+                        required
+                    />
+                    <InputField
+                        label="WhatsApp Business App ID"
+                        name="metaAppId"
+                        value={formData.metaAppId}
                         onChange={handleFormChange}
                         placeholder="e.g., 123456789012345"
                         required

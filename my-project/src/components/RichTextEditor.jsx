@@ -26,6 +26,7 @@ const RichTextEditor = ({ onChange, value }) => {
       quill.clipboard.dangerouslyPasteHTML(value || "");
       isInitialized.current = true;
     }
+
   }, [quill, value]);
 
   // Handle text changes
@@ -152,12 +153,18 @@ const RichTextEditor = ({ onChange, value }) => {
   };
 
   return (
-    <div className="border border-none rounded text-text bg-bg p-2" dir="ltr">
-      <div ref={quillRef} />
+    <div className="border border-none rounded text-text bg-bg p-2" dir="">
       <div className=" rounded">
         {/* Quill Editor */}
         <div>
-          <div style={{ width: "full", height: "200Px" }} ref={quillRef} />
+          <div
+            style={{
+              width: "full",
+              height: "200Px",
+              direction: "ltr", // Explicitly set direction
+            }}
+            ref={quillRef}
+          />
         </div>
         {/* Controls */}
         <div className="flex gap-2 mt-3 flex-wrap">

@@ -9,7 +9,7 @@ const DynamicButtonsBuilder = ({ onChange }) => {
     QUICK_REPLY: "QUICK_REPLY",
     URL: "URL",
     PHONE_NUMBER: "PHONE_NUMBER",
-    COPY_CODE: "POSTBACK", // Using POSTBACK for copy code functionality
+    // COPY_CODE: "POSTBACK", // Using POSTBACK for copy code functionality
   };
 
   const checkIfButtonExists = (type) => {
@@ -95,24 +95,62 @@ const DynamicButtonsBuilder = ({ onChange }) => {
 
       <select
         id="buttonType"
-        className="bg-inputbg p-2 rounded-md border border-border text-black"
+        className="bg-white p-3 pr-8 rounded-lg border-2 border-gray-100 text-gray-800 font-medium 
+            shadow-sm hover:border-primary-400 focus:border-primary-500 focus:ring-2 
+            focus:ring-primary-200 transition-all duration-200 cursor-pointer
+            w-full max-w-xs appearance-none"
         onChange={(e) => handleAddButton(e.target.value)}
         value=""
         defaultValue=""
-        style={{ WebkitAppearance: "none" }}
+        style={{
+          backgroundImage:
+            "url(\"data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23333436'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e\")",
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "right 0.75rem center",
+          backgroundSize: "1em",
+        }}
       >
-        <option value="" disabled hidden>
-          Add Button
+        <option value="" disabled hidden className="text-gray-400 italic">
+          ✨ Add Button ✨
         </option>
 
-        <optgroup label="Quick Replies">
-          <option value={validButtonTypes.QUICK_REPLY}>📝 Quick Reply</option>
+        <optgroup
+          label="Quick Replies"
+          className="text-sm text-gray-500 font-medium border-t border-gray-100"
+        >
+          <option
+            value={validButtonTypes.QUICK_REPLY}
+            className="py-2 px-3 hover:bg-primary-50 hover:text-primary-700 transition-colors"
+          >
+            <span className="flex items-center gap-2">
+              <span className="text-lg">📝</span>
+              <span>Quick Reply</span>
+            </span>
+          </option>
         </optgroup>
 
-        <optgroup label="Call-to-action Buttons">
-          <option value={validButtonTypes.URL}>🌐 Visit Website</option>
-          <option value={validButtonTypes.PHONE_NUMBER}>📞 Call Phone</option>
-          <option value={validButtonTypes.COPY_CODE}>🔁 Copy Code</option>
+        <optgroup
+          label="Call-to-action"
+          className="text-sm text-gray-500 font-medium border-t border-gray-100"
+        >
+          <option
+            value={validButtonTypes.URL}
+            className="py-2 px-3 hover:bg-primary-50 hover:text-primary-700 transition-colors"
+          >
+            <span className="flex items-center gap-2">
+              <span className="text-lg">🌐</span>
+              <span>Visit Website</span>
+            </span>
+          </option>
+          <option
+            value={validButtonTypes.PHONE_NUMBER}
+            className="py-2 px-3 hover:bg-primary-50 hover:text-primary-700 transition-colors"
+          >
+            <span className="flex items-center gap-2">
+              <span className="text-lg">📞</span>
+              <span>Call Phone</span>
+            </span>
+          </option>
         </optgroup>
       </select>
 
@@ -157,7 +195,7 @@ const DynamicButtonsBuilder = ({ onChange }) => {
             />
           )}
 
-          {btn.type === validButtonTypes.COPY_CODE && (
+          {/* {btn.type === validButtonTypes.COPY_CODE && (
             <input
               type="text"
               placeholder="Offer Code"
@@ -165,16 +203,16 @@ const DynamicButtonsBuilder = ({ onChange }) => {
               onChange={(e) => handleChange(index, "payload", e.target.value)}
               className="w-full bg-inputbg text-text p-2 border rounded"
             />
-          )}
+          )} */}
         </div>
       ))}
 
-      <div>
+      {/* <div>
         <h3 className="text-md font-semibold mt-4 mb-1">Generated Buttons:</h3>
         <pre className="bg-gray-800 text-white p-3 rounded text-sm whitespace-pre-wrap">
           {JSON.stringify(buttons, null, 2)}
         </pre>
-      </div>
+      </div> */}
     </div>
   );
 };
