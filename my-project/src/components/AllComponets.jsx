@@ -1,22 +1,21 @@
 // src/App.jsx
 import React, { useState } from 'react';
-import './index.css';
 
 // Import all your components
-import Button from './components/Button';
-import InputField from './components/InputField';
-import TextArea from './components/TextArea';
-import Checkbox from './components/Checkbox';
-import RadioButton from './components/RadioButton';
-import ToggleSwitch from './components/ToggleSwitch';
-import SelectField from './components/SelectField';
-import Card from './components/Card';
-import Alert from './components/Alert';
-import Avatar from './components/Avatar';    // NEW
-import Badge from './components/Badge';      // NEW
-import Loader from './components/Loader';    // NEW
-import Navbar from './components/Navbar';    // NEW
-import Modal from './components/Modal';      // NEW
+import Button from './Button';
+import InputField from './InputField';
+import TextArea from './TextArea';
+import Checkbox from './Checkbox';
+import RadioButton from './RadioButton';
+import ToggleSwitch from './ToggleSwitch';
+import SelectField from './SelectField';
+import Card from './Card';
+import Alert from './Alert';
+import Avatar from './Avatar';    // NEW
+import Badge from './Badge';      // NEW
+import Loader from './Loader';    // NEW
+import Navbar from './Navbar';    // NEW
+import Modal from './Modal';      // NEW
 
 
 function AllComponents() {

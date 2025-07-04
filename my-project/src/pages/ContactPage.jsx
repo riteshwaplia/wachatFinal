@@ -235,7 +235,7 @@ const ContactPage = () => {
     }
 
     return (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="md:max-w-7xl  w-full  mx-auto  md:px-6 lg:px-8 py-8">
             {/* Header Section */}
             <div className="mb-8">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -245,7 +245,7 @@ const ContactPage = () => {
                             Manage your project contacts and communication lists
                         </p>
                     </div>
-                    <div className="flex items-center space-x-3">
+                    <div className="flex items-center space-x-1 md:space-x-3">
                         <Button
                             onClick={() => { setEditingContact(null); setIsModalOpen(true); }}
                             variant="primary"
@@ -274,10 +274,10 @@ const ContactPage = () => {
             {/* Tab Navigation */}
             <div className="mb-6">
                 <div className="border-b border-gray-200">
-                    <nav className="-mb-px flex space-x-8">
+                    <nav className="-mb-px flex space-x-1 md:space-x-8">
                         <button
                             onClick={() => setActiveTab('contactList')}
-                            className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
+                            className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-1 lg:space-x-2 ${
                                 activeTab === 'contactList'
                                     ? 'border-primary-500 text-primary-600'
                                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -288,18 +288,18 @@ const ContactPage = () => {
                         </button>
                         <button
                             onClick={() => setActiveTab('blockList')}
-                            className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
+                            className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-1 lg:space-x-2 ${
                                 activeTab === 'blockList'
                                     ? 'border-primary-500 text-primary-600'
                                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                             }`}
                         >
-                            <Ban size={18} />
+                            <Ban size={18}/>
                             <span>Block List ({blacklistedContacts.length})</span>
                         </button>
                         <button
                             onClick={() => setActiveTab('uploadCSV')}
-                            className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
+                            className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-1 lg:space-x-2 ${
                                 activeTab === 'uploadCSV'
                                     ? 'border-primary-500 text-primary-600'
                                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -339,7 +339,7 @@ const ContactPage = () => {
             </div>
 
             {/* Tab Content */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-auto scrollbar-custom overflow-y-scroll">
                 {/* Contact List Tab */}
                 {activeTab === 'contactList' && (
                     <div>
@@ -370,9 +370,9 @@ const ContactPage = () => {
                                 </Button>
                             </div>
                         ) : (
-                            <div className="overflow-hidden">
-                                <table className="min-w-full divide-y divide-gray-200">
-                                    <thead className="bg-gray-50">
+                            <div >
+                                <table className="min-w-full divide-y  divide-gray-200">
+                                    <thead className="bg-gray-50 overflow-auto">
                                         <tr>
                                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
                                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Details</th>
@@ -534,7 +534,7 @@ const ContactPage = () => {
 
                 {/* Upload CSV Tab */}
                 {activeTab === 'uploadCSV' && (
-                    <div className="p-8">
+                    <div className="lg:p-8">
                         <div className="max-w-3xl mx-auto">
                             <div className="text-center mb-8">
                                 <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-primary-100 mb-4">

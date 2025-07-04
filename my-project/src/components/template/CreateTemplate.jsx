@@ -66,7 +66,7 @@ const CreateTemplate = () => {
       },
       {
         type: "BODY",
-        text: "", // Rich text / plain text body
+        text: "Hello", // Rich text / plain text body
         variables: [], // Array of variable names/indices extracted from text
       },
       {
@@ -516,13 +516,16 @@ if (body?.text) {
                   </label>
                   <Input
                     type="text"
-                    value={variableExamples[varId] || ""}
-                    onChange={(e) =>
-                      handleVariableExampleChange(varId, e.target.value)
-                    }
+                    value={`Example${varId}`}
+                    // onChange={(e) =>
+                    //   handleVariableExampleChange(varId, e.target.value)
+                    // }
                     placeholder={`Enter example for {{${varId}}}`}
                     className="mt-1"
+                    readonly
+                    disabled
                   />
+                  
                 </div>
               ))}
             </div>

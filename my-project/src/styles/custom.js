@@ -7,7 +7,7 @@ export const customSelectStyles = {
     border: state.isFocused 
       ? "2px solid var(--color-primary-500, #2980B9)" 
       : "1px solid var(--color-gray-300, #D1D6DE)",
-    borderRadius: "0.75rem", // Tailwind's 'xl'
+    borderRadius: "0.3rem", // Tailwind's 'xl'
     padding: "0.375rem", // Tailwind's 'p-1.5'
     boxShadow: state.isFocused 
       ? "0 0 0 3px rgba(41, 128, 185, 0.2)" // primary-500 with opacity

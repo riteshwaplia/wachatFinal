@@ -534,8 +534,22 @@ const LiveChatPage = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!["image/jpeg", "image/png", "application/pdf"].includes(file.type)) {
-      alert("Only JPEG, PNG, or PDF files are allowed");
+    if (
+      ![
+        "image/jpeg",
+        "image/png",
+        "application/pdf",
+        "audio/mpeg",
+        "audio/mp3",
+        "audio/wav",
+        "video/mp4",
+        "video/webm",
+        "video/quicktime",
+      ].includes(file.type)
+    ) {
+      alert(
+        "Only JPEG, PNG, PDF, audio (MP3/WAV), or video (MP4/WebM) files are allowed"
+      );
       return;
     }
 
@@ -590,10 +604,13 @@ const LiveChatPage = () => {
       setMessage("Please select a template.");
       return;
     }
-    if ((messageType === "image" || messageType === "document") && !mediaFile) {
-      setMessage(`Please select a ${messageType} file.`);
-      return;
-    }
+  if (
+  (["image", "document", "audio", "video"].includes(messageType)) &&
+  !mediaFile
+) {
+  setMessage(`Please select a ${messageType} file.`);
+  return;
+}
 
     setIsSending(true);
     setMessage("");
@@ -625,27 +642,29 @@ const LiveChatPage = () => {
             templateComponents: JSON.stringify([]), // Add components if needed
           };
           break;
-        case "image":
-        case "document":
-          if (!uploadedMediaData || !uploadedMediaData.id) {
-            throw new Error("Media not uploaded properly. Please try again.");
-          }
+      case "image":
+  case "document":
+  case "audio":
+  case "video":
+    if (!uploadedMediaData || !uploadedMediaData.id) {
+      throw new Error("Media not uploaded properly. Please try again.");
+    }
 
-          payload = {
-            ...payload,
-            mediaId: uploadedMediaData.id,
-            ...(messageType === "document" && {
-              mediaFilename: mediaFile.name,
-            }),
-            ...(newMessageText.trim() && {
-              mediaCaption: newMessageText.trim(),
-            }),
-          };
-          break;
+    payload = {
+      ...payload,
+      mediaId: uploadedMediaData.id,
+      ...(["document", "audio", "video"].includes(messageType) && {
+        mediaFilename: mediaFile.name,
+      }),
+      ...(newMessageText.trim() && {
+        mediaCaption: newMessageText.trim(),
+      }),
+    };
+    break;
 
-        default:
-          throw new Error("Unsupported message type");
-      }
+  default:
+    throw new Error("Unsupported message type");
+}
 
       // Send the message to the backend
       const response = await api.post(endpoint, payload, {
@@ -877,13 +896,13 @@ const LiveChatPage = () => {
   };
   // Render media preview in chat
   const renderMediaPreview = () => {
-    if (!mediaFile) return null;
+    if (!uploadedMediaData) return null;
 
-    if (mediaFile.type.startsWith("image/")) {
+    if (uploadedMediaData.type.startsWith("image/")) {
       return (
         <div className="relative mb-2">
           <img
-            src={mediaPreview}
+            src={uploadedMediaData}
             alt="Preview"
             className="max-w-xs max-h-40 rounded-lg"
           />
@@ -1195,143 +1214,143 @@ const LiveChatPage = () => {
                   </div>
                 ))
               )}{" "}
-                           <div ref={messagesEndRef} /> {/* For auto-scrolling */}
-
+              <div ref={messagesEndRef} /> {/* For auto-scrolling */}
             </div>
-           <form
-  onSubmit={handleSendMessage}
-  className="p-4 border-t border-gray-200 bg-gray-50"
->
-  {/* Message Type Selector */}
-  <div className="flex flex-wrap gap-2 mb-3">
-    {["text", "template", "image", "video", "audio"].map((type) => (
-      <button
-        key={type}
-        type="button"
-        className={`px-3 py-1 text-sm rounded ${
-          messageType === type ? "bg-blue-500 text-white" : "bg-gray-200"
-        }`}
-        onClick={() => {
-          setMessageType(type);
-          if (["video", "audio"].includes(type)) {
-            fileInputRef.current?.click();
-          }
-        }}
-      >
-        {type.charAt(0).toUpperCase() + type.slice(1)}
-      </button>
-    ))}
+            <form
+              onSubmit={handleSendMessage}
+              className="p-4 border-t border-gray-200 bg-gray-50"
+            >
+              {/* Message Type Selector */}
+              <div className="flex flex-wrap gap-2 mb-3">
+                {["text", "template", "image", "video", "audio"].map((type) => (
+                  <button
+                    key={type}
+                    type="button"
+                    className={`px-3 py-1 text-sm rounded ${
+                      messageType === type
+                        ? "bg-blue-500 text-white"
+                        : "bg-gray-200"
+                    }`}
+                    onClick={() => {
+                      setMessageType(type);
+                      if (["video", "audio"].includes(type)) {
+                        fileInputRef.current?.click();
+                      }
+                    }}
+                  >
+                    {type.charAt(0).toUpperCase() + type.slice(1)}
+                  </button>
+                ))}
 
-    {/* Image Upload (Direct input) */}
-    {messageType === "image" && (
-      <input
-        type="file"
-        onChange={handleFileUpload}
-        accept="image/*"
-        className="text-sm px-3 py-1 bg-white border rounded cursor-pointer"
-      />
-    )}
+                {/* Image Upload (Direct input) */}
+                {messageType === "image" && (
+                  <input
+                    type="file"
+                    onChange={handleFileUpload}
+                    accept="image/*"
+                    className="text-sm px-3 py-1 bg-white border rounded cursor-pointer"
+                  />
+                )}
 
-    {/* Hidden File Upload (For video/audio triggered programmatically) */}
-    <input
-      type="file"
-      ref={fileInputRef}
-      onChange={handleFileUpload}
-      accept={
-        messageType === "video"
-          ? "video/*"
-          : messageType === "audio"
-          ? "audio/*"
-          : "*"
-      }
-      className="hidden"
-    />
-  </div>
+                {/* Hidden File Upload (For video/audio triggered programmatically) */}
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileUpload}
+                  accept={
+                    messageType === "video"
+                      ? "video/*"
+                      : messageType === "audio"
+                      ? "audio/*"
+                      : "*"
+                  }
+                  className="hidden"
+                />
+              </div>
 
-  {/* Template Dropdown */}
-  {messageType === "template" && (
-    <div className="mb-2">
-      <select
-        className="w-full p-2 border rounded"
-        value={templateName}
-        onChange={(e) => setTemplateName(e.target.value)}
-        disabled={isSending}
-      >
-        <option value="">Select a template</option>
-        {templates.map((template) => (
-          <option key={template.name} value={template.name}>
-            {template.name} ({template.language})
-          </option>
-        ))}
-      </select>
-    </div>
-  )}
+              {/* Template Dropdown */}
+              {messageType === "template" && (
+                <div className="mb-2">
+                  <select
+                    className="w-full p-2 border rounded"
+                    value={templateName}
+                    onChange={(e) => setTemplateName(e.target.value)}
+                    disabled={isSending}
+                  >
+                    <option value="">Select a template</option>
+                    {templates.map((template) => (
+                      <option key={template.name} value={template.name}>
+                        {template.name} ({template.language})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
-  {/* Media Preview (If any) */}
-  {renderMediaPreview()}
+              {/* Media Preview (If any) */}
+              {/* {renderMediaPreview()} */}
 
-  {/* Message Input + Send */}
-  <div className="flex items-center space-x-3 mt-2">
-    <input
-      type="text"
-      className="flex-grow border border-gray-300 rounded-lg shadow-sm p-3 focus:ring-blue-500 focus:border-blue-500"
-      placeholder={
-        messageType === "text"
-          ? "Type a message..."
-          : messageType === "template"
-          ? "Add template parameters..."
-          : "Add a caption (optional)..."
-      }
-      value={newMessageText}
-      onChange={(e) => setNewMessageText(e.target.value)}
-      disabled={isSending}
-    />
-    <button
-      type="submit"
-      className="bg-blue-600 text-white p-3 rounded-lg shadow hover:bg-blue-700 transition duration-300 flex items-center justify-center"
-      disabled={isSending}
-    >
-      {isSending ? (
-        <svg
-          className="animate-spin h-5 w-5 text-white"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
-          <circle
-            className="opacity-25"
-            cx="12"
-            cy="12"
-            r="10"
-            stroke="currentColor"
-            strokeWidth="4"
-          ></circle>
-          <path
-            className="opacity-75"
-            fill="currentColor"
-            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-          ></path>
-        </svg>
-      ) : (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-6 w-6"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M14 5l7 7m0 0l-7 7m7-7H3"
-          />
-        </svg>
-      )}
-    </button>
-  </div>
-</form>
-
+              {/* Message Input + Send */}
+              <div className="flex items-center space-x-3 mt-2">
+                <input
+                  type="text"
+                  className="flex-grow border border-gray-300 rounded-lg shadow-sm p-3 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder={
+                    messageType === "text"
+                      ? "Type a message..."
+                      : messageType === "template"
+                      ? "Add template parameters..."
+                      : "Add a caption (optional)..."
+                  }
+                  value={newMessageText}
+                  onChange={(e) => setNewMessageText(e.target.value)}
+                  disabled={isSending}
+                />
+                <button
+                  type="submit"
+                  className="bg-blue-600 text-white p-3 rounded-lg shadow hover:bg-blue-700 transition duration-300 flex items-center justify-center"
+                  disabled={isSending}
+                >
+                  {isSending ? (
+                    <svg
+                      className="animate-spin h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                  ) : (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-6 w-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M14 5l7 7m0 0l-7 7m7-7H3"
+                      />
+                    </svg>
+                  )}
+                </button>
+              </div>
+            </form>
           </>
         ) : (
           <div className="flex-grow flex items-center justify-center text-gray-500">

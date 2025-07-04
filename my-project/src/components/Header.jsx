@@ -4,25 +4,25 @@ import { useAuth } from '../context/AuthContext';
 import { useTenant } from '../context/TenantContext';
 import { Menu, X, ChevronRight, ChevronLeft } from 'lucide-react';
 import Avatar from './Avatar';
-
+ 
 const Header = ({ onToggleSidebar }) => {
   const { user, isLoggedIn, logout } = useAuth();
   const { siteConfig } = useTenant();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
+ 
   const handleLogout = () => {
     logout();
     setIsDropdownOpen(false);
   };
-
+ 
   return (
-    <header className="bg-white shadow-sm py-3 px-4 md:px-6 flex items-center justify-between sticky top-0 z-20">
+    <header className="bg-white shadow-sm py-3 px-4 md:px-6 flex items-center justify-between sticky top-0 z-20 w-[100vw] md:w-auto ">
       {/* Mobile menu button and brand */}
       <div className="flex items-center space-x-4">
         <button
           onClick={onToggleSidebar}
-          className="p-1 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors lg:hidden"
+          className="p-1 rounded-md  z-40 cursor-pointer text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors lg:hidden"
           aria-label="Toggle sidebar"
         >
           {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
@@ -34,7 +34,7 @@ const Header = ({ onToggleSidebar }) => {
           </span>
         </Link>
       </div>
-
+ 
       {/* User dropdown */}
       <div className="relative">
         {isLoggedIn ? (
@@ -56,7 +56,7 @@ const Header = ({ onToggleSidebar }) => {
                 {isDropdownOpen ? <ChevronRight className="ml-1 transform rotate-90" size={16} /> : <ChevronRight className="ml-1" size={16} />}
               </span>
             </button>
-
+ 
             {isDropdownOpen && (
               <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg py-1 z-50 border border-gray-200">
                 <div className="px-4 py-3 border-b border-gray-200">
@@ -64,7 +64,7 @@ const Header = ({ onToggleSidebar }) => {
                   <p className="text-xs text-gray-500 truncate">{user?.email}</p>
                 </div>
                 <Link
-                  to="/profile"
+                  to="/user/profile"
                   className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   onClick={() => setIsDropdownOpen(false)}
                 >
@@ -107,5 +107,6 @@ const Header = ({ onToggleSidebar }) => {
     </header>
   );
 };
-
+ 
 export default Header;
+ 

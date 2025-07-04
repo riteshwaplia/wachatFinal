@@ -29,6 +29,7 @@ import CreateTemplate from './components/template/CreateTemplate';
 import LiveChatPage from './pages/LiveChatPage';
 import BulkMessagingDashboard from './pages/BroadCasting';
 import SendMessagePage from './components/broadcasting/SendBulkMessage';
+import AllComponents from './components/AllComponets';
 
 
 const AdminRoute = ({ children }) => (
@@ -206,6 +207,10 @@ function AppContent() {
       <Route
         path="/"
         element={<Navigate to={isLoggedIn ? "/dashboard" : "/login"} replace />} // ✅ safe now
+      />
+      <Route
+        path="/allcomponents"
+        element={<AllComponents/>} // ✅ safe now
       />
       <Route
         path="*"
