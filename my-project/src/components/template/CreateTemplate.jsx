@@ -11,6 +11,9 @@ import {
 import { useParams } from "react-router-dom";
 import TemplatePreview from "./TemplatePreview";
 import api from "../../utils/api"; // Assuming this is your configured axios instance
+import { BackButton } from "../BackButton";
+import Badge from "../Badge";
+import Modal from "../Modal";
 
 const TEMPLATE_CATEGORIES = [
   { label: "Marketing", value: "MARKETING" },
@@ -36,7 +39,7 @@ const CreateTemplate = () => {
   const params = useParams();
   const id = params.id; // This 'id' is likely the projectId from the URL
   const projectId = id; // Renaming for clarity
-
+  const [loading, setLoading] = useState(false); // For loading state
   const variableCounter = useRef(1); // For unique variable numbering
   const [variableExamples, setVariableExamples] = useState({}); // For text header variable examples
 
@@ -93,7 +96,9 @@ const CreateTemplate = () => {
     const format = selected?.value || "";
     setTemplate((prev) => {
       const updatedComponents = [...prev.components];
-      const headerComponent = updatedComponents.find((c) => c.type === "HEADER");
+      const headerComponent = updatedComponents.find(
+        (c) => c.type === "HEADER"
+      );
       if (headerComponent) {
         headerComponent.format = format;
         headerComponent.text = ""; // Reset text content
@@ -112,22 +117,31 @@ const CreateTemplate = () => {
     const value = e.target.value; // For text inputs
 
     if (file) {
+      setLoading(true); // Set loading state while uploading
       setImage(URL.createObjectURL(file)); // Set preview image
       try {
         // Ensure businessProfileId and projectId are available before upload
         if (!businessProfileId || !projectId) {
-          console.error("Missing businessProfileId or projectId for media upload.");
+          console.error(
+            "Missing businessProfileId or projectId for media upload."
+          );
           // You might want to show a user-facing error here
           return;
         }
         // Call the upload media API
-        const uploadResponse = await uploadMedaiData(file, businessProfileId, projectId);
+        const uploadResponse = await uploadMedaiData(
+          file,
+          businessProfileId,
+          projectId
+        );
         console.log("Media Upload Response:", uploadResponse);
-
+        setLoading(false); // Reset loading state after upload
         if (uploadResponse.success) {
           setTemplate((prev) => {
             const updatedComponents = [...prev.components];
-            const headerComponent = updatedComponents.find((c) => c.type === "HEADER");
+            const headerComponent = updatedComponents.find(
+              (c) => c.type === "HEADER"
+            );
             if (headerComponent) {
               // Store the Meta Media ID directly on the header component
               headerComponent.mediaHandle = uploadResponse.data.id;
@@ -140,8 +154,8 @@ const CreateTemplate = () => {
             };
           });
         } else {
-            console.error("Media upload failed:", uploadResponse.message);
-            // Handle specific upload errors (e.g., show to user)
+          console.error("Media upload failed:", uploadResponse.message);
+          // Handle specific upload errors (e.g., show to user)
         }
       } catch (error) {
         console.error("Error during media upload process:", error);
@@ -242,10 +256,13 @@ const CreateTemplate = () => {
         const headerVars = extractVariables(header.text);
         if (headerVars.length > 0) {
           headerComponent.example = {
-            header_text: headerVars.map((varId) => variableExamples[varId] || `Example ${varId}`),
+            header_text: headerVars.map(
+              (varId) => variableExamples[varId] || `Example ${varId}`
+            ),
           };
         }
-      } else { // IMAGE, VIDEO, DOCUMENT header
+      } else {
+        // IMAGE, VIDEO, DOCUMENT header
         if (header.mediaHandle) {
           // This `mediaHandle` is for our local DB storage/validation
           // Meta API expects the `example` field for template creation
@@ -256,38 +273,42 @@ const CreateTemplate = () => {
             header_handle: header.mediaHandle, // Meta expects string ID directly
           };
         } else {
-            console.warn(`Attempted to create a ${header.format} header without a mediaHandle.`);
-            // Frontend validation should ideally prevent reaching here, but as a safeguard.
-            alert(`Media ID is required for ${header.format} header.`);
-            return;
+          console.warn(
+            `Attempted to create a ${header.format} header without a mediaHandle.`
+          );
+          // Frontend validation should ideally prevent reaching here, but as a safeguard.
+          alert(`Media ID is required for ${header.format} header.`);
+          return;
         }
       }
       finalComponents.push(headerComponent);
     }
 
     // BODY component
-  const body = template.components.find((c) => c.type === "BODY");
-if (body?.text) {
-  const plainText = body.text.replace(/<[^>]*>/g, ""); // Remove HTML tags
-  const bodyComponent = {
-    type: "BODY",
-    text: plainText,
-  };
+    const body = template.components.find((c) => c.type === "BODY");
+    if (body?.text) {
+      const plainText = body.text.replace(/<[^>]*>/g, ""); // Remove HTML tags
+      const bodyComponent = {
+        type: "BODY",
+        text: plainText,
+      };
 
-  // Extract all variables like {{1}}, {{user_name}}, etc.
-  const variablesInText = extractVariables(plainText);
-  
-  if (variablesInText.length > 0) {
-    // Create example values only for each variable
-    const exampleValues = variablesInText.map(varId => variableExamples[varId] || `Example_${varId}`);
+      // Extract all variables like {{1}}, {{user_name}}, etc.
+      const variablesInText = extractVariables(plainText);
 
-    bodyComponent.example = {
-      body_text: [exampleValues] // Must be an array of arrays
-    };
-  }
+      if (variablesInText.length > 0) {
+        // Create example values only for each variable
+        const exampleValues = variablesInText.map(
+          (varId) => variableExamples[varId] || `Example_${varId}`
+        );
 
-  finalComponents.push(bodyComponent);
-}
+        bodyComponent.example = {
+          body_text: [exampleValues], // Must be an array of arrays
+        };
+      }
+
+      finalComponents.push(bodyComponent);
+    }
 
     // FOOTER component
     const footer = template.components.find((c) => c.type === "FOOTER");
@@ -309,14 +330,16 @@ if (body?.text) {
 
         if (btn.type === "URL") {
           base.url = btn.url;
-          if (btn.exampleUrl) { // Add example URL if provided
-             base.example = [btn.exampleUrl];
+          if (btn.exampleUrl) {
+            // Add example URL if provided
+            base.example = [btn.exampleUrl];
           }
-        } else if (btn.type === "PHONE_NUMBER") { // Renamed from POSTBACK in source
+        } else if (btn.type === "PHONE_NUMBER") {
+          // Renamed from POSTBACK in source
           base.phone_number = btn.payload; // Payload typically holds the phone number
         } else if (btn.type === "QUICK_REPLY") {
-             // Quick reply buttons don't have extra fields beyond type and text
-             // Meta API for templates doesn't usually take a 'payload' for quick replies in template definition
+          // Quick reply buttons don't have extra fields beyond type and text
+          // Meta API for templates doesn't usually take a 'payload' for quick replies in template definition
         }
         return base;
       });
@@ -335,16 +358,24 @@ if (body?.text) {
       // id: id, // ID is for update, not create. Remove this for create.
       businessProfileId, // Required for template creation
     };
-
+    setLoading(true); // Set loading state while creating template
     try {
       console.log("Template Create Payload:", JSON.stringify(payload, null, 2));
       const res = await api.post("/templates", payload); // Assuming api.post is configured for /api/templates
       console.log("Template created successfully:", res.data);
+      setLoading(false); // Reset loading state after creation
       alert(res.data.message || "Template created successfully!");
       // Optionally reset form or navigate
     } catch (error) {
-      console.error("Error creating template:", error.response?.data || error.message);
-      alert(`Error creating template: ${error.response?.data?.message || error.message}`);
+      console.error(
+        "Error creating template:",
+        error.response?.data || error.message
+      );
+      alert(
+        `Error creating template: ${
+          error.response?.data?.message || error.message
+        }`
+      );
     }
   };
 
@@ -361,17 +392,26 @@ if (body?.text) {
 
   const validateTemplate = () => {
     const errors = {};
-    const headerComponent = template.components.find((c) => c.type === "HEADER");
+    const headerComponent = template.components.find(
+      (c) => c.type === "HEADER"
+    );
     const bodyComponent = template.components.find((c) => c.type === "BODY");
-    const footerComponent = template.components.find((c) => c.type === "FOOTER");
-    const buttonsComponent = template.components.find((c) => c.type === "BUTTONS");
+    const footerComponent = template.components.find(
+      (c) => c.type === "FOOTER"
+    );
+    const buttonsComponent = template.components.find(
+      (c) => c.type === "BUTTONS"
+    );
 
     if (!template.name) errors.name = "Template name is required.";
     if (!template.category) errors.category = "Category is required.";
     if (!template.language) errors.language = "Language is required.";
 
     // Body validation
-    if (!bodyComponent?.text || bodyComponent.text.replace(/<[^>]*>/g, "").trim() === "") {
+    if (
+      !bodyComponent?.text ||
+      bodyComponent.text.replace(/<[^>]*>/g, "").trim() === ""
+    ) {
       errors.body = "Body content is required.";
     } else if (characterCount > 1024) {
       errors.body = "Body exceeds 1024 character limit.";
@@ -379,32 +419,40 @@ if (body?.text) {
 
     // Header validation (if format is selected)
     if (headerComponent?.format) {
-        if (headerComponent.format === "TEXT" && (!headerComponent.text || headerComponent.text.trim() === "")) {
-            errors.headerText = "Header text is required for TEXT header.";
-        } else if (["IMAGE", "VIDEO", "DOCUMENT"].includes(headerComponent.format)) {
-            if (!headerComponent.mediaHandle) {
-                errors.headerMedia = `Media file must be uploaded for ${headerComponent.format} header.`;
-            }
+      if (
+        headerComponent.format === "TEXT" &&
+        (!headerComponent.text || headerComponent.text.trim() === "")
+      ) {
+        errors.headerText = "Header text is required for TEXT header.";
+      } else if (
+        ["IMAGE", "VIDEO", "DOCUMENT"].includes(headerComponent.format)
+      ) {
+        if (!headerComponent.mediaHandle) {
+          errors.headerMedia = `Media file must be uploaded for ${headerComponent.format} header.`;
         }
+      }
     }
 
     // Buttons validation
     if (buttonsComponent?.buttons?.length) {
-        for (const btn of buttonsComponent.buttons) {
-            if (!btn.text || btn.text.trim() === "") {
-                errors.buttons = "Button text is required for all buttons.";
-                break;
-            }
-            if (btn.type === "URL" && (!btn.url || btn.url.trim() === "")) {
-                errors.buttons = "URL is required for URL buttons.";
-                break;
-            }
-            if (btn.type === "PHONE_NUMBER" && (!btn.payload || btn.payload.trim() === "")) {
-                errors.buttons = "Phone number is required for PHONE_NUMBER buttons.";
-                break;
-            }
-            // Add other button type validations as needed
+      for (const btn of buttonsComponent.buttons) {
+        if (!btn.text || btn.text.trim() === "") {
+          errors.buttons = "Button text is required for all buttons.";
+          break;
         }
+        if (btn.type === "URL" && (!btn.url || btn.url.trim() === "")) {
+          errors.buttons = "URL is required for URL buttons.";
+          break;
+        }
+        if (
+          btn.type === "PHONE_NUMBER" &&
+          (!btn.payload || btn.payload.trim() === "")
+        ) {
+          errors.buttons = "Phone number is required for PHONE_NUMBER buttons.";
+          break;
+        }
+        // Add other button type validations as needed
+      }
     }
 
     return {
@@ -415,10 +463,15 @@ if (body?.text) {
 
   const { isValid, errors } = validateTemplate(); // Re-run validation on render for up-to-date errors
 
-  const headerComponentInState = template.components.find((c) => c.type === "HEADER");
-  const footerComponentInState = template.components.find((c) => c.type === "FOOTER");
-  const buttonsComponentInState = template.components.find((c) => c.type === "BUTTONS");
-
+  const headerComponentInState = template.components.find(
+    (c) => c.type === "HEADER"
+  );
+  const footerComponentInState = template.components.find(
+    (c) => c.type === "FOOTER"
+  );
+  const buttonsComponentInState = template.components.find(
+    (c) => c.type === "BUTTONS"
+  );
 
   const insertVariable = () => {
     // Only insert into text header
@@ -440,189 +493,240 @@ if (body?.text) {
     }
   };
 
+
+  const [showWhyModal, setShowWhyModal] = useState(false);
+
   return (
-    <div className="flex w-full gap-4">
-      <form onSubmit={handleSubmit} className="p-2 w-3/5 flex flex-col gap-4">
-        <Input
-          placeholder="Template Name"
-          label="Template Name "
-          required
-          value={template.name}
-          onChange={(e) => {
-            const modifiedValue = e.target.value.replace(/ /g, "_"); // space to underscore
-            handleInputChange("name", modifiedValue);
-          }}
-          error={errors.name}
-        />
+    <>
+      {" "}
+      <BackButton text="back" />
+      <div className="flex w-full gap-4">
+        <form onSubmit={handleSubmit} className="p-2 w-3/5 flex flex-col gap-4">
+          <Input
+            placeholder="Template Name"
+            label="Template Name "
+            required
+            value={template.name}
+            onChange={(e) => {
+              const modifiedValue = e.target.value.replace(/ /g, "_"); // space to underscore
+              handleInputChange("name", modifiedValue);
+            }}
+            error={errors.name}
+            disabled={loading} // Disable input while loading
+          />
 
-        <CustomSelect
-          label="Template Category "
-          required
-          options={TEMPLATE_CATEGORIES}
-          placeholder="Select Template Category"
-          value={TEMPLATE_CATEGORIES.find(
-            (opt) => opt.value === template.category
-          )}
-          onChange={(selected) =>
-            handleInputChange("category", selected?.value)
-          }
-          error={errors.category}
-        />
-        <CustomSelect
-          label="Select Language "
-          required
-          options={languages}
-          placeholder="Select Language"
-          value={languages.find((opt) => opt.value === template.language)}
-          onChange={(selected) =>
-            handleInputChange("language", selected?.value)
-          }
-          error={errors.language}
-        />
-
-        {/* Header Section */}
-        <div className="space-y-4">
           <CustomSelect
-            label="Select Header Type"
-            options={HEADER_TYPES}
-            placeholder="Select Header Type"
-            value={HEADER_TYPES.find(
-              (opt) => opt.value === headerComponentInState?.format
+            label="Template Category "
+            required
+            options={TEMPLATE_CATEGORIES}
+            placeholder="Select Template Category"
+            value={TEMPLATE_CATEGORIES.find(
+              (opt) => opt.value === template.category
             )}
-            onChange={handleHeaderTypeChange}
+            onChange={(selected) =>
+              handleInputChange("category", selected?.value)
+            }
+            error={errors.category}
+            disabled={loading} // Disable input while loading
+          />
+          <CustomSelect
+            label="Select Language "
+            required
+            options={languages}
+            placeholder="Select Language"
+            value={languages.find((opt) => opt.value === template.language)}
+            onChange={(selected) =>
+              handleInputChange("language", selected?.value)
+            }
+            error={errors.language}
+            disabled={loading} // Disable input while loading
           />
 
-          {headerComponentInState?.format === "TEXT" && (
-            <div>
-              <Input
-                type="text"
-                placeholder="Enter header text"
-                value={headerComponentInState.text}
-                onChange={handleHeaderContentChange}
-                maxLength={60}
-                error={errors.headerText}
-              />
-              <button
-                onClick={insertVariable}
-                className="px-2 py-1 bg-blue-600 text-white rounded text-sm mt-2"
-                type="button"
-              >
-                Add Variable
-              </button>
-              {extractVariables(headerComponentInState.text).map((varId) => (
-                <div key={varId} className="mt-2">
-                  <label className="text-sm font-medium">
-                    Example for <code>{`{{${varId}}}`}</code>
-                  </label>
-                  <Input
-                    type="text"
-                    value={`Example${varId}`}
-                    // onChange={(e) =>
-                    //   handleVariableExampleChange(varId, e.target.value)
-                    // }
-                    placeholder={`Enter example for {{${varId}}}`}
-                    className="mt-1"
-                    readonly
-                    disabled
-                  />
-                  
-                </div>
-              ))}
-            </div>
-          )}
-
-          {["DOCUMENT", "IMAGE", "VIDEO"].includes(
-            headerComponentInState?.format || ""
-          ) && (
-            <div className="space-y-2">
-              <input
-                type="file"
-                accept={
-                  headerComponentInState?.format === "IMAGE"
-                    ? "image/*"
-                    : headerComponentInState?.format === "VIDEO"
-                    ? "video/*"
-                    : ".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt"
-                }
-                onChange={handleHeaderContentChange}
-                className="w-full border p-2 rounded"
-              />
-              {headerComponentInState?.mediaHandle && (
-                <div className="text-sm text-green-600">
-                  ✓ Media uploaded successfully (ID: {headerComponentInState.mediaHandle})
-                </div>
+          {/* Header Section */}
+          <div className="space-y-4">
+            <CustomSelect
+              label="Select Header Type"
+              options={HEADER_TYPES}
+              placeholder="Select Header Type"
+              value={HEADER_TYPES.find(
+                (opt) => opt.value === headerComponentInState?.format
               )}
-              {errors.headerMedia && (
-                <div className="text-sm text-red-500 mt-1">{errors.headerMedia}</div>
-              )}
-            </div>
-          )}
-        </div>
+              onChange={handleHeaderTypeChange}
+            />
 
-        {/* Body Section */}
-        <div className="w-full"> {/* Changed w-96 to w-full for better responsiveness */}
-          <label className="block font-semibold mb-1">
-            Body <span className="text-rose-400">* </span>
-          </label>
-          <RichTextEditor
-            label="Body *"
-            onChange={handleBodyChange}
-            value={template.components.find((c) => c.type === "BODY")?.text}
-            error={errors.body}
-            maxLength={1024} // Enforce max length visually
-          />
-          <div
-            className={`text-sm mt-1 ${
-              characterCount > 1024 ? "text-red-500" : "text-gray-500"
-            }`}
-          >
-            Characters: {characterCount}/1024
-            {characterCount > 1024 && " - Exceeds WhatsApp limit"}
+            {headerComponentInState?.format === "TEXT" && (
+              <div>
+                <Input
+                  type="text"
+                  placeholder="Enter header text"
+                  value={headerComponentInState.text}
+                  onChange={handleHeaderContentChange}
+                  maxLength={60}
+                  error={errors.headerText}
+                />
+                <button
+                  onClick={insertVariable}
+                  className="px-2 py-1 bg-blue-600 text-white rounded text-sm mt-2"
+                  type="button"
+                  disabled={loading} // Disable button while loading
+                >
+                  Add Variable
+                </button>
+                {extractVariables(headerComponentInState.text).map((varId) => (
+                  <div key={varId} className="mt-2">
+                    <label className="text-sm font-medium">
+                      Example for <code>{`{{${varId}}}`}</code>
+                    </label>
+
+   <div className="flex items-center gap-2">
+  <Input
+    type="text"
+    value={`Example${varId}`}
+    placeholder={`Enter example for {{${varId}}}`}
+    className="mt-1"
+    readOnly
+    disabled
+  />
+  <button
+    type="button"
+    onClick={() => setShowWhyModal(true)}
+    className="text-sm text-blue-600 underline hover:text-blue-800"
+  >
+    Why?
+  </button>
+</div>
+
+
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {["DOCUMENT", "IMAGE", "VIDEO"].includes(
+              headerComponentInState?.format || ""
+            ) && (
+              <div className="space-y-2">
+                <input
+                  type="file"
+                  accept={
+                    headerComponentInState?.format === "IMAGE"
+                      ? "image/*"
+                      : headerComponentInState?.format === "VIDEO"
+                      ? "video/*"
+                      : ".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt"
+                  }
+                  onChange={handleHeaderContentChange}
+                  className="w-full border p-2 rounded"
+                />
+                {headerComponentInState?.mediaHandle && (
+                  <div className="text-sm text-green-600">
+                    ✓ Media uploaded successfully (ID:{" "}
+                    {headerComponentInState.mediaHandle})
+                  </div>
+                )}
+                {errors.headerMedia && (
+                  <div className="text-sm text-red-500 mt-1">
+                    {errors.headerMedia}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
-          {errors.body && (
-            <div className="text-sm text-red-500 mt-1">{errors.body}</div>
-          )}
-        </div>
 
-        {/* Footer Section */}
-        <Input
-          placeholder="Footer text (optional)"
-          label="Footer"
-          value={footerComponentInState?.text || ""}
-          onChange={handleFooterChange}
-          maxLength={60}
-        />
+          {/* Body Section */}
+          <div className="w-full">
+            {" "}
+            {/* Changed w-96 to w-full for better responsiveness */}
+            <label className="block font-semibold mb-1">
+              Body <span className="text-rose-400">* </span>
+            </label>
+            <RichTextEditor
+              label="Body *"
+              onChange={handleBodyChange}
+              value={template.components.find((c) => c.type === "BODY")?.text}
+              error={errors.body}
+              maxLength={1024} // Enforce max length visually
+            />
+            <div
+              className={`text-sm mt-1 ${
+                characterCount > 1024 ? "text-red-500" : "text-gray-500"
+              }`}
+            >
+              Characters: {characterCount}/1024
+              {characterCount > 1024 && " - Exceeds WhatsApp limit"}
+            </div>
+            {errors.body && (
+              <div className="text-sm text-red-500 mt-1">{errors.body}</div>
+            )}
+          </div>
 
-        {/* Buttons Section */}
-        <DynamicButtonsBuilder
-          buttons={buttonsComponentInState?.buttons || []}
-          onChange={handleButtonsChange}
-          error={errors.buttons}
-        />
-         {errors.buttons && (
+          {/* Footer Section */}
+          <Input
+            placeholder="Footer text (optional)"
+            label="Footer"
+            value={footerComponentInState?.text || ""}
+            onChange={handleFooterChange}
+            maxLength={60}
+          />
+
+          {/* Buttons Section */}
+          <DynamicButtonsBuilder
+            buttons={buttonsComponentInState?.buttons || []}
+            onChange={handleButtonsChange}
+            error={errors.buttons}
+          />
+          {errors.buttons && (
             <div className="text-sm text-red-500 mt-1">{errors.buttons}</div>
           )}
 
+          <button
+            type="submit"
+            disabled={!isValid || !businessProfileId} // Disable if not valid or no business profile selected
+            className={`px-4 py-2 rounded text-white ${
+              // Changed text-text to text-white
+              isValid && businessProfileId
+                ? "bg-green-600 hover:bg-green-700"
+                : "bg-gray-400 cursor-not-allowed"
+            }`}
+          >
+            Create Template
+          </button>
+        </form>
 
-        <button
-          type="submit"
-          disabled={!isValid || !businessProfileId} // Disable if not valid or no business profile selected
-          className={`px-4 py-2 rounded text-white ${ // Changed text-text to text-white
-            isValid && businessProfileId
-              ? "bg-green-600 hover:bg-green-700"
-              : "bg-gray-400 cursor-not-allowed"
-          }`}
-        >
-          Create Template
-        </button>
-      </form>
-
-      {/* Preview Section */}
-      <div className="p-2 w-2/5 mt-4">
-        <h2 className="text-xl font-semibold mb-4">Preview</h2>
-        <TemplatePreview template={template} image={image} variableExamples={variableExamples} />
+        {/* Preview Section */}
+        <div className="p-2 w-2/5 mt-4">
+          <h2 className="text-xl font-semibold mb-4">Preview</h2>
+          <TemplatePreview
+            template={template}
+            image={image}
+            variableExamples={variableExamples}
+          />
+        </div>
       </div>
-    </div>
+
+      <Modal
+  isOpen={showWhyModal}
+  onClose={() => setShowWhyModal(false)}
+  title="Why example text is important?"
+  size="lg"
+>
+  <p className="text-sm text-gray-700 leading-relaxed">
+    💡 To improve the chances of your WhatsApp template being approved by Meta,
+    it’s recommended to provide example text for the header variable during template creation.
+    This helps Meta understand your use case and reduces the risk of rejection.
+    <br /><br />
+    When sending bulk messages, if your template uses a header variable (of type <strong>TEXT</strong>),
+    you can include dynamic content using a <strong>header_text</strong> column in your Excel file.
+    <br /><br />
+    <strong>Example:</strong><br />
+    If your header says: <em>"Your order  is confirmed"</em><br />
+    Then in Excel, use: <code>header_text: Order #12345</code>
+    <br /><br />
+    This makes your message more personalized and improves approval likelihood.
+  </p>
+</Modal>
+
+    </>
   );
 };
 
