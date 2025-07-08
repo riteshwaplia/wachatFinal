@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
-import UserSidebar from '../components/UserSidebar';
+import StaticSidebar from '../components/StaticSideBar';
  
-const UserLayout = ({ children, sidebar = true }) => {
+const UserProfileLayout = ({ children, sidebar = true }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
  
   useEffect(() => {
@@ -28,10 +28,8 @@ sidebarOpen&&  <div onClick={()=>
      }
       {/* User Sidebar */}
       {sidebar && (
-        <UserSidebar
- 
+        <StaticSidebar
           isOpen={sidebarOpen}
-        isOff={()=>(setSidebarOpen(false))}
           onToggle={() => setSidebarOpen(!sidebarOpen)}
         />
       )}
@@ -48,7 +46,7 @@ sidebarOpen&&  <div onClick={()=>
            if (window.innerWidth < 768) {
       setSidebarOpen(false);
     }}
-        } className="flex-grow md:p-4 overflow-hidden md:p-6 lg:p-8 transition-all duration-300 w-[100vw] md:w-auto  ">
+        } className="flex-grow md:p-4 p-2  overflow-hidden md:p-6 lg:p-8 transition-all duration-300 w-[100vw] md:w-auto  ">
           {children}
         </main>
       </div>
@@ -56,4 +54,5 @@ sidebarOpen&&  <div onClick={()=>
   );
 };
  
-export default UserLayout;
+export default UserProfileLayout;
+ 

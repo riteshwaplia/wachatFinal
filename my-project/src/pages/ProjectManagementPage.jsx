@@ -47,8 +47,8 @@ const ProjectCard = ({ project, onEdit, onDelete, onClick }) => {
             </p>
           </div>
         </div>
-        <div className="flex space-x-2 ml-4">
-          <button
+        <div className="flex space-x-2 md:ml-4 ml-1">
+           <button
             onClick={(e) => {
               e.stopPropagation();
               onEdit(project);
@@ -277,11 +277,12 @@ const ProjectManagementPage = () => {
   return (
     <div className="flex min-h-screen bg-gray-50">
       {/* Mobile Filter Sidebar */}
-      <div
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transform ${
+<div
+        className={`fixed inset-y-0 left-0 z-50 w-64  bg-white shadow-xl transform ${
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
         } transition-transform duration-300 lg:hidden`}
       >
+ 
         <div className="p-4 border-b border-gray-200 flex justify-between items-center bg-primary-500 text-white">
           <h3 className="font-medium">Filter Projects</h3>
           <button
@@ -308,12 +309,11 @@ const ProjectManagementPage = () => {
             ))}
           </select>
         </div>
-      </div>
+      </div> 
 
       {/* Main Content */}
       <div className="flex-1">
-        <div className="container mx-auto px-4 py-8">
-          {/* Header Section */}
+        <div className="container mx-auto md:px-4 md:py-8 px-2 py-2">          {/* Header Section */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
             <div className="flex items-center">
               <button

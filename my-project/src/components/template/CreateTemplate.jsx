@@ -500,7 +500,7 @@ const CreateTemplate = () => {
     <>
       {" "}
       <BackButton text="back" />
-      <div className="flex w-full gap-4">
+      <div className="md:flex  w-full gap-4">
         <form onSubmit={handleSubmit} className="p-2 w-3/5 flex flex-col gap-4">
           <Input
             placeholder="Template Name"
@@ -694,7 +694,7 @@ const CreateTemplate = () => {
         </form>
 
         {/* Preview Section */}
-        <div className="p-2 w-2/5 mt-4">
+        <div className="p-2 md:w-2/5 mt-4">
           <h2 className="text-xl font-semibold mb-4">Preview</h2>
           <TemplatePreview
             template={template}

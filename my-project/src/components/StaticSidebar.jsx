@@ -11,66 +11,23 @@ import {
   MessageSquare,
   Phone,
   ChevronLeft,
-  ChevronRight,
-  StepForward
+  ChevronRight
 } from 'lucide-react';
 import { useTenant } from '../context/TenantContext';
+import { FaUserCog } from "react-icons/fa";
+import { TbLockPassword } from "react-icons/tb";
+import { IoBusiness } from "react-icons/io5";
  
-const UserSidebar = ({ isOpen, onToggle,isOff }) => {
+const StaticSidebar = ({ isOpen, onToggle }) => {
   const location = useLocation();
   const { id } = useParams();
   const { siteConfig } = useTenant();
  
-  const navItems = [
-    ...(id ? [{
-      label: 'Project Dashboard',
-      path: `/project/${id}/dashboard`,
-      icon: <LayoutDashboard size={18} />
-    }] : []),
- 
-    ...(id ? [
-      {
-        label: 'Project Details',
-        path: `/project/${id}/project-details`,
-        icon: <Briefcase size={18} />
-      },
-      {
-        label: 'Contacts',
-        path: `/project/${id}/contacts`,
-        icon: <Phone size={18} />
-      },
-      {
-        label: 'Groups',
-        path: `/project/${id}/group`,
-        icon: <Users size={18} />
-      },
-      {
-        label: 'Templates',
-        path: `/project/${id}/templates`,
-        icon: <MessageSquare size={18} />
-      },
-      {
-        label: 'Team Members',
-        path: `/team/members`,
-        icon: <Users size={18} />
-      },
-      {
-        label: 'Broadcasting',
-        path: `/project/${id}/broadcasting`,
-        icon: <Mail size={18} />
-      },
-      {
-        label: 'Live Chat',
-        path: `/project/${id}/chat`,
-        icon: <MessageSquare size={18} />
-      },
-      {
-        label: 'flow builder',
-        path: `/project/${id}/flow-builder`,
-        icon: <StepForward size={18} />
-      }
-    ] : []),
-  ];
+const navItems = [
+  { id: 'tab1', label: 'User Profile',path:"/user/profile", icon: <FaUserCog size={18} /> },
+  { id: 'tab2', label: 'Update Password',path:"/user/update-password", icon: <TbLockPassword size={18} /> },
+  { id: 'tab3', label: 'Business Details', icon: <IoBusiness size={18} /> },
+];
  
   const isActive = (path) => {
     if (path === '/projects') {
@@ -114,14 +71,6 @@ const UserSidebar = ({ isOpen, onToggle,isOff }) => {
       <nav className="flex-1 overflow-y-auto py-4 px-2">
         {navItems.map((item) => (
           <Link
-          onClick={()=>
-          {
-            if(window.innerWidth<768)
-            {
-              isOff()
-            }
-          }
-          }
             key={item.path}
             to={item.path}
             className={`flex items-center space-x-3 px-3 py-3 rounded-lg transition-all duration-200 mb-1 ${
@@ -170,4 +119,4 @@ const UserSidebar = ({ isOpen, onToggle,isOff }) => {
   );
 };
  
-export default UserSidebar;
+export default StaticSidebar;

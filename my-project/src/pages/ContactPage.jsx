@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
-
+import { FiUploadCloud } from "react-icons/fi";
 // Import custom UI components
 import Card from '../components/Card';
 import Button from '../components/Button';
@@ -42,6 +42,8 @@ const ContactPage = () => {
     const [contacts, setContacts] = useState([]);
     const [blacklistedContacts, setBlacklistedContacts] = useState([]);
     const [groups, setGroups] = useState([]);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [selectedContactId, setSelectedContactId] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
 
     // UI states
@@ -55,13 +57,13 @@ const ContactPage = () => {
     const [activeTab, setActiveTab] = useState('contactList');
 
     // Filter contacts based on search term
-    const filteredContacts = contacts.filter(contact => 
+    const filteredContacts = contacts.filter(contact =>
         contact.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         contact.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         contact.mobileNumber?.includes(searchTerm)
     );
 
-    const filteredBlacklistedContacts = blacklistedContacts.filter(contact => 
+    const filteredBlacklistedContacts = blacklistedContacts.filter(contact =>
         contact.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         contact.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         contact.mobileNumber?.includes(searchTerm)
@@ -125,14 +127,14 @@ const ContactPage = () => {
                 isBlocked: formData.isBlocked,
             };
 
-            const endpoint = editingContact 
+            const endpoint = editingContact
                 ? `/projects/${projectId}/contacts/updateContact/${editingContact._id}`
                 : `/projects/${projectId}/contacts`;
-            
+
             const method = editingContact ? 'put' : 'post';
-            
+
             const res = await api[method](endpoint, payload);
-            
+
             setMessage(res.data.message || `Contact ${editingContact ? 'updated' : 'created'} successfully!`);
             setMessageType('success');
             setIsModalOpen(false);
@@ -148,11 +150,16 @@ const ContactPage = () => {
     };
 
     // --- Contact Actions ---
-    const handleDeleteContact = async (contactId) => {
-        if (window.confirm('Are you sure you want to delete this contact?')) {
-            setIsLoading(true);
+    const handleDeleteClick = (contactId) => {
+    setSelectedContactId(contactId);
+    setShowConfirmModal(true);
+};
+
+    const handleDeleteContact = async () => {
+        // if (window.confirm('Are you sure you want to delete this contact?')) {
+        //     setIsLoading(true);
             try {
-                const res = await api.delete(`/projects/${projectId}/contacts/deleteContact/${contactId}`);
+                const res = await api.delete(`/projects/${projectId}/contacts/deleteContact/${selectedContactId}`);
                 setMessage(res.data.message || 'Contact deleted successfully!');
                 setMessageType('success');
                 fetchData();
@@ -162,19 +169,21 @@ const ContactPage = () => {
                 setMessageType('error');
             } finally {
                 setIsLoading(false);
+                 setShowConfirmModal(false);
+        setSelectedContactId(null);
             }
         }
-    };
+    // };
 
     const handleBlockUnblockContact = async (contactId, isBlocking) => {
         const confirmMsg = isBlocking ? 'Block this contact?' : 'Unblock this contact?';
         if (window.confirm(confirmMsg)) {
             setIsLoading(true);
             try {
-                const endpoint = isBlocking 
+                const endpoint = isBlocking
                     ? `/projects/${projectId}/contacts/blackListContact/${contactId}`
                     : `/projects/${projectId}/contacts/removeBlackListContact/${contactId}`;
-                
+
                 const res = await api.put(endpoint, {});
                 setMessage(res.data.message || `Contact ${isBlocking ? 'blocked' : 'unblocked'} successfully!`);
                 setMessageType('success');
@@ -210,7 +219,7 @@ const ContactPage = () => {
             const res = await api.post(`/projects/${projectId}/contacts/uploadContact`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
-            
+
             setMessage(res.data.message || 'Contacts imported successfully!');
             setMessageType('success');
             setFile(null);
@@ -235,7 +244,25 @@ const ContactPage = () => {
     }
 
     return (
-        <div className="md:max-w-7xl  w-full  mx-auto  md:px-6 lg:px-8 py-8">
+        <div className="md:max-w-7xl  p-3 w-full  mx-auto  md:px-6 lg:px-8 py-8">
+            {
+            <Modal
+                        isOpen={showConfirmModal}
+                        onClose={() => setShowConfirmModal(false)}
+                        title="Delete Contact"
+                        size="sm" // Can be 'sm', 'md', 'lg'
+                      >
+                        <p className='mb-4  text-xl text-red-500 '>Are you sure you want to delete this contact?</p>
+                        <div className="flex justify-end space-x-3">
+                          <Button variant="outline" onClick={() => setShowConfirmModal(false)}>
+                            Cancel
+                          </Button>
+                          <Button variant="primary" onClick={()=>handleDeleteContact()}>
+                            Confirm
+                          </Button>
+                        </div>
+                      </Modal>
+            }
             {/* Header Section */}
             <div className="mb-8">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -277,33 +304,30 @@ const ContactPage = () => {
                     <nav className="-mb-px flex space-x-1 md:space-x-8">
                         <button
                             onClick={() => setActiveTab('contactList')}
-                            className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-1 lg:space-x-2 ${
-                                activeTab === 'contactList'
+                            className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-1 lg:space-x-2 ${activeTab === 'contactList'
                                     ? 'border-primary-500 text-primary-600'
                                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                            }`}
+                                }`}
                         >
                             <Users size={18} />
                             <span>Contacts ({contacts.length})</span>
                         </button>
                         <button
                             onClick={() => setActiveTab('blockList')}
-                            className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-1 lg:space-x-2 ${
-                                activeTab === 'blockList'
+                            className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-1 lg:space-x-2 ${activeTab === 'blockList'
                                     ? 'border-primary-500 text-primary-600'
                                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                            }`}
+                                }`}
                         >
-                            <Ban size={18}/>
+                            <Ban size={18} />
                             <span>Block List ({blacklistedContacts.length})</span>
                         </button>
                         <button
                             onClick={() => setActiveTab('uploadCSV')}
-                            className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-1 lg:space-x-2 ${
-                                activeTab === 'uploadCSV'
+                            className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-1 lg:space-x-2 ${activeTab === 'uploadCSV'
                                     ? 'border-primary-500 text-primary-600'
                                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                            }`}
+                                }`}
                         >
                             <Upload size={18} />
                             <span>Import Contacts</span>
@@ -436,7 +460,9 @@ const ContactPage = () => {
                                                             <Ban size={16} />
                                                         </Button>
                                                         <Button
-                                                            onClick={() => handleDeleteContact(contact._id)}
+                                                            onClick={() => handleDeleteClick(contact._id)
+                                                                //  handleDeleteContact(contact._id)
+                                                                }
                                                             variant="ghost"
                                                             size="sm"
                                                             className="text-gray-600 hover:text-red-600"
@@ -513,7 +539,9 @@ const ContactPage = () => {
                                                             <Unlink size={16} />
                                                         </Button>
                                                         <Button
-                                                            onClick={() => handleDeleteContact(contact._id)}
+                                                            onClick={() =>handleDeleteClick(contact._id)
+                                                                //  handleDeleteContact(contact._id)
+                                                                }
                                                             variant="ghost"
                                                             size="sm"
                                                             className="text-gray-600 hover:text-red-600"
@@ -535,7 +563,7 @@ const ContactPage = () => {
                 {/* Upload CSV Tab */}
                 {activeTab === 'uploadCSV' && (
                     <div className="lg:p-8">
-                        <div className="max-w-3xl mx-auto">
+                        <div className="w-full mx-auto">
                             <div className="text-center mb-8">
                                 <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-primary-100 mb-4">
                                     <Upload className="h-6 w-6 text-primary-600" />
@@ -549,29 +577,32 @@ const ContactPage = () => {
                             <div className="bg-gray-50 rounded-lg p-6 border-2 border-dashed border-gray-300 mb-8">
                                 <form onSubmit={handleUploadContacts} className="space-y-6">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        <label className="block text-center text-xl text-sm font-medium text-gray-700 mb-2">
                                             Select file
                                         </label>
-                                        <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border border-gray-300 rounded-md">
+                                        <div className="mt-1 flex justify-center px-6 py-3 pt-5 pb-6 border border-gray-300 rounded-md">
                                             <div className="space-y-1 text-center">
                                                 <div className="flex text-sm text-gray-600 justify-center">
                                                     <label
                                                         htmlFor="excelFile"
                                                         className="relative cursor-pointer bg-white rounded-md font-medium text-primary-600 hover:text-primary-500 focus-within:outline-none"
                                                     >
-                                                        <span>Upload a file</span>
+                                                        <div className='border px-2 py-2 bg-blue-100 flex items-center gap-2 rounded inline-block'>Upload a file
+                                                            <FiUploadCloud />
+                                                        </div>
                                                         <input
                                                             id="excelFile"
                                                             name="excelFile"
                                                             type="file"
-                                                            className="sr-only"
+                                                            className="sr-only "
                                                             onChange={handleFileChange}
                                                             accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
                                                             required
                                                         />
                                                     </label>
-                                                    <p className="pl-1">or drag and drop</p>
+                                               
                                                 </div>
+                                                     <div className="pl-1 block text-sm ">or drag and drop</div>
                                                 <p className="text-xs text-gray-500">
                                                     CSV or Excel files up to 10MB
                                                 </p>
@@ -670,6 +701,10 @@ const ContactPage = () => {
                     setIsModalOpen(false);
                     setEditingContact(null);
                 }}
+
+
+
+
                 title={editingContact ? 'Edit Contact' : 'Create New Contact'}
                 size="lg"
             >

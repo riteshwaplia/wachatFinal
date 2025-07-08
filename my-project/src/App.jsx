@@ -30,6 +30,7 @@ import LiveChatPage from './pages/LiveChatPage';
 import BulkMessagingDashboard from './pages/BroadCasting';
 import SendMessagePage from './components/broadcasting/SendBulkMessage';
 import AllComponents from './components/AllComponets';
+import FlowBuilder from './components/FlowBuilder/FlowBuilder';
 
 
 const AdminRoute = ({ children }) => (
@@ -204,6 +205,16 @@ function AppContent() {
             path="/project/:id/chat"
             element={<ProjectRouteWrapper component={LiveChatPage} />}
           />
+          <Route
+            path="/project/:id/flow-builder"
+            element={<ProjectRouteWrapper component={FlowBuilder} />}
+          />
+          <Route
+            path="/project/:id/flow-builder/:flowId"
+            element={<ProjectRouteWrapper component={FlowBuilder} />}
+          />
+           {/* <Route path="/projects/:projectId/flow-builder" element={<FlowBuilder />} />
+            <Route path="/projects/:projectId/flow-builder/:flowId" element={<FlowBuilder />} /> For editing existing flow */}
       <Route
         path="/"
         element={<Navigate to={isLoggedIn ? "/dashboard" : "/login"} replace />} // ✅ safe now

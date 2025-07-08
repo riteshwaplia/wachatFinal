@@ -572,7 +572,7 @@ const projectId = id; // Use the projectId from URL parameters
 
     fetchDashboardData();
   }, [projectId]); // Re-fetch data when projectId changes
-
+console.log("project dashboard data", dashboardData);
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-100 p-6 font-inter">

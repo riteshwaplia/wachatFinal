@@ -15,7 +15,7 @@ const ToggleSwitch = ({
   const dotStyles = 'absolute left-1 top-1 w-4 h-4 rounded-full bg-white transition-transform duration-200 ease-in-out';
 
   return (
-    <div className={`flex items-center space-x-3 mb-4 ${className}`}>
+    <div className={`flex items-center  ${className}`}>
       <label htmlFor={id} className="relative inline-block">
         <input
           id={id}

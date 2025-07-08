@@ -9,7 +9,7 @@ import {
   FiRotateCcw,
   FiPlus,
   FiCheck,
-  FiX,
+  FiX,  
   FiChevronDown,
   FiSearch,
 } from "react-icons/fi";
@@ -20,6 +20,8 @@ import Alert from "../components/Alert";
 import LoadingSpinner from "../components/Loader";
 
 const GroupPage = () => {
+     const [showConfirmModal, setShowConfirmModal] = useState(false);
+      const [groupId, setGroupId] = useState(null);
   const { user, token } = useAuth();
   const { id: projectId } = useParams();
   const navigate = useNavigate();
@@ -118,8 +120,12 @@ const GroupPage = () => {
   };
 
   // Delete group
-  const handleDelete = async (groupId) => {
-    if (window.confirm("Are you sure you want to delete this group?")) {
+  const handleDeleteClick = (groupId) => {
+    setGroupId(groupId);
+    setShowConfirmModal(true);
+};
+  const handleDelete = async () => {
+    // if (window.confirm("Are you sure you want to delete this group?")) {
       try {
         const res = await api.delete(
           `/projects/${projectId}/groups/${groupId}`,
@@ -130,7 +136,11 @@ const GroupPage = () => {
       } catch (error) {
         handleError(error, "deleting group");
       }
-    }
+      finally{
+         setShowConfirmModal(false);
+        setGroupId  (null);
+      }
+    // }
   };
 
   // Bulk actions
@@ -209,6 +219,25 @@ const GroupPage = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {
+      showConfirmModal &&
+            <Modal
+                              isOpen={showConfirmModal}
+                              onClose={() => setShowConfirmModal(false)}
+                              title="Delete Contact"
+                              size="sm" // Can be 'sm', 'md', 'lg'
+                            >
+                              <p className='mb-4  text-xl text-red-500 '>Are you sure you want to delete this contact?</p>
+                              <div className="flex justify-end space-x-3">
+                                <Button variant="outline" onClick={() => setShowConfirmModal(false)}>
+                                  Cancel
+                                </Button>
+                                <Button variant="primary" onClick={()=>handleDelete()}>
+                                  Confirm
+                                </Button> 
+                              </div>
+                            </Modal>
+      }
       {/* Header Section */}
       <div className="mb-8">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -516,7 +545,7 @@ const GroupPage = () => {
                         )}
                       </Button>
                       <Button
-                        onClick={() => handleDelete(group._id)}
+                        onClick={() => handleDeleteClick(group._id)}
                         variant="ghost"
                         size="sm"
                         className="text-gray-600 hover:text-red-600"
