@@ -44,8 +44,8 @@ const SendMessagePage = () => {
 
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("single"); // 'single' or 'bulk'
-
+  const [activeTab, setActiveTab] = useState("group"); // 'single' or 'bulk'
+  
   // Single message state
   const [singleRecipient, setSingleRecipient] = useState("");
   const [singleMessageType, setSingleMessageType] = useState("text");
@@ -362,13 +362,13 @@ const project = localStorage.getItem("currentProject")
       <div className="flex border-b border-gray-200 mb-6">
         <button
           className={`py-2 px-4 font-medium ${
-            activeTab === "single"
+            activeTab === "group"
               ? "text-blue-600 border-b-2 border-blue-600"
               : "text-gray-500 hover:text-gray-700"
           }`}
-          onClick={() => setActiveTab("single")}
+          onClick={() => setActiveTab("group")}
         >
-          Send Single Message
+          Send message to group 
         </button>
         <button
           className={`py-2 px-4 font-medium ${
@@ -460,7 +460,7 @@ const project = localStorage.getItem("currentProject")
       </div>
 
       {/* Single Message Tab Content */}
-      {activeTab === "single" && (
+      {activeTab === "group" && (
         <div className="mb-10 p-4 border border-teal-200 rounded-lg bg-teal-50">
           <h3 className="text-2xl font-semibold text-gray-700 mb-4">
             Send Single Message

@@ -49,11 +49,11 @@ const UserSidebar = ({ isOpen, onToggle,isOff }) => {
         path: `/project/${id}/templates`,
         icon: <MessageSquare size={18} />
       },
-      {
-        label: 'Team Members',
-        path: `/team/members`,
-        icon: <Users size={18} />
-      },
+      // {
+      //   label: 'Team Members',
+      //   path: `/team/members`,
+      //   icon: <Users size={18} />
+      // },
       {
         label: 'Broadcasting',
         path: `/project/${id}/broadcasting`,

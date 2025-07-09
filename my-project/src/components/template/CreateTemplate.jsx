@@ -14,6 +14,7 @@ import api from "../../utils/api"; // Assuming this is your configured axios ins
 import { BackButton } from "../BackButton";
 import Badge from "../Badge";
 import Modal from "../Modal";
+import Button from "../Button";
 
 const TEMPLATE_CATEGORIES = [
   { label: "Marketing", value: "MARKETING" },
@@ -412,7 +413,7 @@ const CreateTemplate = () => {
       !bodyComponent?.text ||
       bodyComponent.text.replace(/<[^>]*>/g, "").trim() === ""
     ) {
-      errors.body = "Body content is required.";
+      errors.body = "Body is required. / add space( ) after varible";
     } else if (characterCount > 1024) {
       errors.body = "Body exceeds 1024 character limit.";
     }
@@ -493,7 +494,6 @@ const CreateTemplate = () => {
     }
   };
 
-
   const [showWhyModal, setShowWhyModal] = useState(false);
 
   return (
@@ -552,6 +552,7 @@ const CreateTemplate = () => {
                 (opt) => opt.value === headerComponentInState?.format
               )}
               onChange={handleHeaderTypeChange}
+              disabled={loading}
             />
 
             {headerComponentInState?.format === "TEXT" && (
@@ -565,40 +566,51 @@ const CreateTemplate = () => {
                   error={errors.headerText}
                 />
                 <button
-                  onClick={insertVariable}
-                  className="px-2 py-1 bg-blue-600 text-white rounded text-sm mt-2"
+                  onClick={
+                    extractVariables(headerComponentInState.text).length === 0
+                      ? insertVariable
+                      : undefined
+                  }
+                  className={`px-2 py-1 rounded text-sm mt-2 ${
+                    extractVariables(headerComponentInState.text).length === 0
+                      ? "bg-blue-600 text-white hover:bg-blue-700"
+                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  }`}
                   type="button"
-                  disabled={loading} // Disable button while loading
+                  disabled={
+                    loading ||
+                    extractVariables(headerComponentInState.text).length > 0
+                  }
                 >
                   Add Variable
                 </button>
-                {extractVariables(headerComponentInState.text).map((varId) => (
-                  <div key={varId} className="mt-2">
-                    <label className="text-sm font-medium">
-                      Example for <code>{`{{${varId}}}`}</code>
-                    </label>
 
-   <div className="flex items-center gap-2">
-  <Input
-    type="text"
-    value={`Example${varId}`}
-    placeholder={`Enter example for {{${varId}}}`}
-    className="mt-1"
-    readOnly
-    disabled
-  />
-  <button
-    type="button"
-    onClick={() => setShowWhyModal(true)}
-    className="text-sm text-blue-600 underline hover:text-blue-800"
-  >
-    Why?
-  </button>
-</div>
-
-
-                  </div>
-                ))}
+                {extractVariables(headerComponentInState.text)
+                  .slice(0, 1)
+                  .map((varId) => (
+                    <div key={varId} className="mt-2">
+                      <label className="text-sm font-medium">
+                        Example for <code>{`{{${varId}}}`}</code>
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <Input
+                          type="text"
+                          value={`Example${varId}`}
+                          placeholder={`Enter example for {{${varId}}}`}
+                          className="mt-1"
+                          readOnly
+                          disabled
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowWhyModal(true)}
+                          className="text-sm text-blue-600 underline hover:text-blue-800"
+                        >
+                          Why?
+                        </button>
+                      </div>
+                    </div>
+                  ))}
               </div>
             )}
 
@@ -617,11 +629,12 @@ const CreateTemplate = () => {
                   }
                   onChange={handleHeaderContentChange}
                   className="w-full border p-2 rounded"
+                  disabled={loading || headerComponentInState?.mediaHandle}
                 />
                 {headerComponentInState?.mediaHandle && (
                   <div className="text-sm text-green-600">
-                    ✓ Media uploaded successfully (ID:{" "}
-                    {headerComponentInState.mediaHandle})
+                    ✓ Media uploaded successfully
+                    {/* {headerComponentInState.mediaHandle}) */}
                   </div>
                 )}
                 {errors.headerMedia && (
@@ -646,6 +659,7 @@ const CreateTemplate = () => {
               value={template.components.find((c) => c.type === "BODY")?.text}
               error={errors.body}
               maxLength={1024} // Enforce max length visually
+              loading={loading}
             />
             <div
               className={`text-sm mt-1 ${
@@ -679,9 +693,9 @@ const CreateTemplate = () => {
             <div className="text-sm text-red-500 mt-1">{errors.buttons}</div>
           )}
 
-          <button
+          <Button
             type="submit"
-            disabled={!isValid || !businessProfileId} // Disable if not valid or no business profile selected
+            disabled={!isValid || !businessProfileId || loading} // Disable if not valid or no business profile selected
             className={`px-4 py-2 rounded text-white ${
               // Changed text-text to text-white
               isValid && businessProfileId
@@ -690,7 +704,7 @@ const CreateTemplate = () => {
             }`}
           >
             Create Template
-          </button>
+          </Button>
         </form>
 
         {/* Preview Section */}
@@ -703,29 +717,35 @@ const CreateTemplate = () => {
           />
         </div>
       </div>
-
       <Modal
-  isOpen={showWhyModal}
-  onClose={() => setShowWhyModal(false)}
-  title="Why example text is important?"
-  size="lg"
->
-  <p className="text-sm text-gray-700 leading-relaxed">
-    💡 To improve the chances of your WhatsApp template being approved by Meta,
-    it’s recommended to provide example text for the header variable during template creation.
-    This helps Meta understand your use case and reduces the risk of rejection.
-    <br /><br />
-    When sending bulk messages, if your template uses a header variable (of type <strong>TEXT</strong>),
-    you can include dynamic content using a <strong>header_text</strong> column in your Excel file.
-    <br /><br />
-    <strong>Example:</strong><br />
-    If your header says: <em>"Your order  is confirmed"</em><br />
-    Then in Excel, use: <code>header_text: Order #12345</code>
-    <br /><br />
-    This makes your message more personalized and improves approval likelihood.
-  </p>
-</Modal>
-
+        isOpen={showWhyModal}
+        onClose={() => setShowWhyModal(false)}
+        title="Why example text is important?"
+        size="lg"
+      >
+        <p className="text-sm text-gray-700 leading-relaxed">
+          💡 To improve the chances of your WhatsApp template being approved by
+          Meta, it’s recommended to provide example text for the header variable
+          during template creation. This helps Meta understand your use case and
+          reduces the risk of rejection.
+          <br />
+          <br />
+          When sending bulk messages, if your template uses a header variable
+          (of type <strong>TEXT</strong>), you can include dynamic content using
+          a <strong>header_text</strong> column in your Excel file.
+          <br />
+          <br />
+          <strong>Example:</strong>
+          <br />
+          If your header says: <em>"Your order is confirmed"</em>
+          <br />
+          Then in Excel, use: <code>header_text: Order #12345</code>
+          <br />
+          <br />
+          This makes your message more personalized and improves approval
+          likelihood.
+        </p>
+      </Modal>
     </>
   );
 };

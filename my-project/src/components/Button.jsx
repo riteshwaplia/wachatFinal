@@ -1,17 +1,19 @@
 // src/components/Button.jsx
 import React from 'react';
-import PropTypes from 'prop-types'; // Recommended for type checking props
+import PropTypes from 'prop-types';
+import { FiLoader } from 'react-icons/fi'; // Using Feather Icons for spinner
 
 const Button = ({
   children,
   onClick,
-  variant = 'primary', // primary, secondary, accent, outline, text
-  size = 'md', // sm, md, lg
+  variant = 'primary',
+  size = 'md',
   disabled = false,
-  className = '', // For additional custom classes
+  loading = false,
+  className = '',
   ...props
 }) => {
-  let baseStyles = 'font-semibold rounded-lg transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-opacity-75';
+  let baseStyles = 'font-semibold rounded-lg transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-opacity-75 flex items-center justify-center';
   let variantStyles = '';
   let sizeStyles = '';
 
@@ -24,7 +26,7 @@ const Button = ({
     sizeStyles = 'py-2.5 px-6 text-base';
   }
 
-  // Variant styles based on our custom Tailwind colors
+  // Variant styles
   switch (variant) {
     case 'secondary':
       variantStyles = 'bg-secondary-500 hover:bg-secondary-600 active:bg-secondary-700 text-white focus:ring-secondary-500';
@@ -43,30 +45,44 @@ const Button = ({
       break;
   }
 
-  // Disabled styles
-  if (disabled) {
+  // Disabled and loading styles
+  if (disabled || loading) {
     variantStyles = 'bg-gray-300 text-gray-500 cursor-not-allowed';
   }
 
+  // Handle click with loading state
+  const handleClick = (e) => {
+    if (!loading && !disabled && onClick) {
+      onClick(e);
+    }
+  };
+
   return (
     <button
-      onClick={onClick}
-      disabled={disabled}
+      onClick={handleClick}
+      disabled={disabled || loading}
       className={`${baseStyles} ${variantStyles} ${sizeStyles} ${className}`}
       {...props}
     >
-      {children}
+      {loading ? (
+        <>
+          <FiLoader className="animate-spin mr-2" />
+          {children}
+        </>
+      ) : (
+        children
+      )}
     </button>
   );
 };
 
-// PropTypes for better development experience and validation
 Button.propTypes = {
   children: PropTypes.node.isRequired,
   onClick: PropTypes.func,
   variant: PropTypes.oneOf(['primary', 'secondary', 'accent', 'outline', 'text']),
   size: PropTypes.oneOf(['sm', 'md', 'lg']),
   disabled: PropTypes.bool,
+  loading: PropTypes.bool,
   className: PropTypes.string,
 };
 

@@ -6,7 +6,7 @@ import { FiBold, FiItalic } from "react-icons/fi";
 import { FaCode, FaStrikethrough } from "react-icons/fa";
 import Input from "../components/InputField";
 
-const RichTextEditor = ({ onChange, value }) => {
+const RichTextEditor = ({ onChange, value ,loading}) => {
   const { quill, quillRef } = useQuill({
     theme: "snow",
     modules: {

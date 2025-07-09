@@ -11,13 +11,13 @@ const AdminSidebar = () => {
     const { siteConfig } = useTenant(); // Access siteConfig
 
     const navItems = [
-        { label: 'Dashboard', path: '/admin-dashboard', icon: <LayoutDashboard size={18} /> },
+        { label: 'Dashboard', path: '/admin/admin-dashboard', icon: <LayoutDashboard size={18} /> },
         // Show 'All Tenants' link only for super_admin
         ...(user?.role === 'super_admin'
-            ? [{ label: 'All Tenants', path: '/add-tenant-admin', icon: <Building size={18} /> }]
+            ? [{ label: 'All Tenants', path: '/admin/add-tenant-admin', icon: <Building size={18} /> }]
             : []),
-        { label: 'Users', path: '/users', icon: <Users size={18} /> },
-        { label: 'Tenant Settings', path: '/tenant-settings', icon: <Settings size={18} /> },
+        { label: 'Users', path: '/admin/users', icon: <Users size={18} /> },
+        { label: 'Tenant Settings', path: '/admin/tenant-settings', icon: <Settings size={18} /> },
         // Add more admin-specific navigation items as needed
     ];
 

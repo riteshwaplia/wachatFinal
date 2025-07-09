@@ -92,7 +92,7 @@ const BulkMessagingDashboard = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-4 mb-8">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 mb-8">
         <div className="bg-white p-4 rounded-lg border border-gray-200">
           <div className="flex items-center">
             <div className="bg-blue-100 p-3 rounded-full">
@@ -121,7 +121,7 @@ const BulkMessagingDashboard = () => {
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
+        {/* <div className="bg-white p-4 rounded-lg border border-gray-200">
           <div className="flex items-center">
             <div className="bg-blue-100 p-3 rounded-full">
               <svg className="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -134,7 +134,7 @@ const BulkMessagingDashboard = () => {
               <p className="text-2xl font-semibold text-gray-900">{stats.read}</p>
             </div>
           </div>
-        </div>
+        </div> */}
 
         <div className="bg-white p-4 rounded-lg border border-gray-200">
           <div className="flex items-center">
@@ -195,10 +195,10 @@ const BulkMessagingDashboard = () => {
                     <span className="font-medium">{broadcast.totalSent || 0}</span>
                     <span className="ml-1">Delivered</span>
                   </div>
-                  <div className="flex items-center text-blue-500">
+                  {/* <div className="flex items-center text-blue-500">
                     <span className="font-medium">{broadcast.readCount || 0}</span>
                     <span className="ml-1">Read</span>
-                  </div>
+                  </div> */}
                   <div className="flex items-center text-red-600">
                     <span className="font-medium">{broadcast.totalFailed || 0}</span>
                     <span className="ml-1">Failed</span>
@@ -270,15 +270,15 @@ const BulkMessagingDashboard = () => {
 
                     <div className="mt-6">
                       <h4 className="text-sm font-medium text-gray-500 mb-2">Status Breakdown</h4>
-                      <div className="grid grid-cols-3 gap-4">
+                      <div className="grid grid-cols-2 gap-4">
                         <div className="bg-green-50 p-3 rounded-lg text-center">
                           <p className="text-2xl font-semibold text-green-600">{selectedBroadcast.jobDetails.totalSent || 0}</p>
                           <p className="text-xs text-green-800">Delivered</p>
                         </div>
-                        <div className="bg-blue-50 p-3 rounded-lg text-center">
+                        {/* <div className="bg-blue-50 p-3 rounded-lg text-center">
                           <p className="text-2xl font-semibold text-blue-600">{selectedBroadcast.jobDetails.readCount || 0}</p>
                           <p className="text-xs text-blue-800">Read</p>
-                        </div>
+                        </div> */}
                         <div className="bg-red-50 p-3 rounded-lg text-center">
                           <p className="text-2xl font-semibold text-red-600">{selectedBroadcast.jobDetails.totalFailed || 0}</p>
                           <p className="text-xs text-red-800">Failed</p>
@@ -289,10 +289,10 @@ const BulkMessagingDashboard = () => {
                     <div className="mt-6">
                       <div className="flex justify-between items-center mb-3">
                         <h4 className="text-sm font-medium text-gray-500">Message Details</h4>
-                        <button className="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        {/* <button className="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                           <FiDownload className="mr-2 h-4 w-4" />
                           Export CSV
-                        </button>
+                        </button> */}
                       </div>
                       <div className="overflow-y-auto max-h-96 border border-gray-200 rounded-lg">
                         <table className="min-w-full divide-y divide-gray-200">
@@ -307,9 +307,9 @@ const BulkMessagingDashboard = () => {
                               <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Time
                               </th>
-                              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              {/* <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Actions
-                              </th>
+                              </th> */}
                             </tr>
                           </thead>
                           <tbody className="bg-white divide-y divide-gray-200">
@@ -330,11 +330,11 @@ const BulkMessagingDashboard = () => {
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                   {formatDate(message.updatedAt)}
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                {/* <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                   <button className="text-blue-600 hover:text-blue-900">
                                     <FiExternalLink className="h-4 w-4" />
                                   </button>
-                                </td>
+                                </td> */}
                               </tr>
                             ))}
                           </tbody>

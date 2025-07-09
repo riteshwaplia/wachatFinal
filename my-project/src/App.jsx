@@ -110,7 +110,7 @@ function AppContent() {
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route
-        path="/dashboard"
+        path="('/admin/dashboard"
         element={
           <AdminRoute>
             <HomePage />
@@ -118,7 +118,7 @@ function AppContent() {
         }
       />
        <Route
-            path="/admin-dashboard"
+            path="/admin/admin-dashboard"
             element={
               <AdminRoute>
                 <AdminDashboardPage />
@@ -126,7 +126,7 @@ function AppContent() {
             }
           />
            <Route
-            path="/add-tenant-admin"
+            path="/admin/add-tenant-admin"
             element={
               <SuperAdminRoute>
                 <SuperAdminDashboard />
@@ -135,7 +135,7 @@ function AppContent() {
           />
 
           <Route
-            path="/users"
+            path="/admin/users"
             element={
               <AdminRoute>
                 <TenantUsersPage />
@@ -144,7 +144,7 @@ function AppContent() {
           />
 
           <Route
-            path="/tenant-settings"
+            path="/admin/tenant-settings"
             element={
               <AdminRoute>
                 <TenantSettingsPage />

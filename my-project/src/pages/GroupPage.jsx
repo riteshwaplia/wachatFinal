@@ -12,6 +12,8 @@ import {
   FiX,  
   FiChevronDown,
   FiSearch,
+  FiChevronLeft,
+  FiChevronRight,
 } from "react-icons/fi";
 import Modal from "../components/Modal";
 import Badge from "../components/Badge";
@@ -20,8 +22,8 @@ import Alert from "../components/Alert";
 import LoadingSpinner from "../components/Loader";
 
 const GroupPage = () => {
-     const [showConfirmModal, setShowConfirmModal] = useState(false);
-      const [groupId, setGroupId] = useState(null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [groupId, setGroupId] = useState(null);
   const { user, token } = useAuth();
   const { id: projectId } = useParams();
   const navigate = useNavigate();
@@ -37,6 +39,14 @@ const GroupPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isBulkActionsOpen, setIsBulkActionsOpen] = useState(false);
 
+  // Pagination state based on API response structure
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    total: 0,
+    totalPages: 1,
+    limit: 10
+  });
+
   const config = {
     headers: {
       "Content-Type": "application/json",
@@ -44,39 +54,77 @@ const GroupPage = () => {
     },
   };
 
-  // Fetch all groups
+  // Fetch groups with pagination
   const fetchGroups = async () => {
     try {
-      const res = await api.get(`/projects/${projectId}/groups`, config);
-      setGroups(res.data.data);
-      setMessage({ text: "", type: "" });
-      setSelectedGroups([]); // Clear selection after any operation
+      setIsLoading(true);
+      const endpoint = activeTab === "active" 
+        ? `/projects/${projectId}/groups` 
+        : `/projects/${projectId}/groups/archiveList`;
+      
+      const params = {
+        page: pagination.currentPage,
+        limit: pagination.limit,
+        search: searchTerm
+      };
+
+      const res = await api.get(endpoint, {
+        ...config,
+        params
+      });
+
+      if (res.data.success) {
+        setGroups(res.data.data);
+        setPagination({
+          currentPage: res.data.pagination.currentPage,
+          total: res.data.pagination.total,
+          totalPages: res.data.pagination.totalPages,
+          limit: pagination.limit // Keep our local limit setting
+        });
+        setMessage({ text: res.data.message, type: "success" });
+      } else {
+        setMessage({ text: res.data.message, type: "error" });
+      }
+      setSelectedGroups([]);
     } catch (error) {
-      handleError(error, "fetching groups");
+      console.error("Error fetching groups:", error);
+      setMessage({
+        text: error.response?.data?.message || "Failed to fetch groups",
+        type: "error"
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Handle API errors
-  const handleError = (error, action) => {
-    console.error(`Error ${action}:`, error);
-    setMessage({
-      text: `Error ${action}: ${
-        error.response?.data?.message || "Unknown error"
-      }`,
-      type: "error",
-    });
-  };
-
-  // Load data on mount
+  // Load data on mount or when dependencies change
   useEffect(() => {
     if (user && token && projectId) {
       fetchGroups();
     } else if (!user) {
       navigate("/login", { replace: true });
     }
-  }, [user, token, projectId, navigate]);
+  }, [user, token, projectId, activeTab, pagination.currentPage, pagination.limit, searchTerm]);
+
+  // Handle pagination change
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= pagination.totalPages) {
+      setPagination(prev => ({
+        ...prev,
+        currentPage: newPage
+      }));
+    }
+  };
+
+  // Handle limit change
+  const handleLimitChange = (e) => {
+    const newLimit = parseInt(e.target.value);
+    setPagination(prev => ({
+      ...prev,
+      limit: newLimit,
+      currentPage: 1 // Reset to first page when changing limit
+    }));
+  };
 
   // Handle form input changes
   const handleInputChange = (e) => {
@@ -98,9 +146,13 @@ const GroupPage = () => {
       setMessage({ text: res.data.message, type: "success" });
       setFormData({ title: "", description: "" });
       setEditingGroup(null);
+      setIsModalOpen(false);
       fetchGroups();
     } catch (error) {
-      handleError(error, editingGroup ? "updating group" : "creating group");
+      setMessage({
+        text: error.response?.data?.message || "Failed to save group",
+        type: "error"
+      });
     }
   };
 
@@ -115,7 +167,10 @@ const GroupPage = () => {
       setMessage({ text: res.data.message, type: "success" });
       fetchGroups();
     } catch (error) {
-      handleError(error, "toggling group status");
+      setMessage({
+        text: error.response?.data?.message || "Failed to toggle group status",
+        type: "error"
+      });
     }
   };
 
@@ -123,24 +178,25 @@ const GroupPage = () => {
   const handleDeleteClick = (groupId) => {
     setGroupId(groupId);
     setShowConfirmModal(true);
-};
+  };
+
   const handleDelete = async () => {
-    // if (window.confirm("Are you sure you want to delete this group?")) {
-      try {
-        const res = await api.delete(
-          `/projects/${projectId}/groups/${groupId}`,
-          config
-        );
-        setMessage({ text: res.data.message, type: "success" });
-        fetchGroups();
-      } catch (error) {
-        handleError(error, "deleting group");
-      }
-      finally{
-         setShowConfirmModal(false);
-        setGroupId  (null);
-      }
-    // }
+    try {
+      const res = await api.delete(
+        `/projects/${projectId}/groups/${groupId}`,
+        config
+      );
+      setMessage({ text: res.data.message, type: "success" });
+      fetchGroups();
+    } catch (error) {
+      setMessage({
+        text: error.response?.data?.message || "Failed to delete group",
+        type: "error"
+      });
+    } finally {
+      setShowConfirmModal(false);
+      setGroupId(null);
+    }
   };
 
   // Bulk actions
@@ -175,7 +231,10 @@ const GroupPage = () => {
       setMessage({ text: res.data.message, type: "success" });
       fetchGroups();
     } catch (error) {
-      handleError(error, "performing bulk action");
+      setMessage({
+        text: error.response?.data?.message || "Failed to perform bulk action",
+        type: "error"
+      });
     }
   };
 
@@ -190,54 +249,44 @@ const GroupPage = () => {
 
   // Toggle select all
   const toggleSelectAll = () => {
-    if (selectedGroups.length === filteredGroups.length) {
+    if (selectedGroups.length === groups.length) {
       setSelectedGroups([]);
     } else {
-      setSelectedGroups(filteredGroups.map((group) => group._id));
+      setSelectedGroups(groups.map((group) => group._id));
     }
   };
 
-  // Filter groups based on active tab and search term
-  const filteredGroups = groups
-    .filter((group) =>
-      activeTab === "active" ? group.isActive : !group.isActive
-    )
-    .filter(
-      (group) =>
-        group.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (group.description &&
-          group.description.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
-
-  if (!user)
+  if (!user) {
     return (
       <div className="flex justify-center items-center h-screen">
         <Alert type="error" message="Redirecting to login..." />
       </div>
     );
+  }
+
   if (isLoading) return <LoadingSpinner fullPage />;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {
-      showConfirmModal &&
-            <Modal
-                              isOpen={showConfirmModal}
-                              onClose={() => setShowConfirmModal(false)}
-                              title="Delete Contact"
-                              size="sm" // Can be 'sm', 'md', 'lg'
-                            >
-                              <p className='mb-4  text-xl text-red-500 '>Are you sure you want to delete this contact?</p>
-                              <div className="flex justify-end space-x-3">
-                                <Button variant="outline" onClick={() => setShowConfirmModal(false)}>
-                                  Cancel
-                                </Button>
-                                <Button variant="primary" onClick={()=>handleDelete()}>
-                                  Confirm
-                                </Button> 
-                              </div>
-                            </Modal>
-      }
+      {showConfirmModal && (
+        <Modal
+          isOpen={showConfirmModal}
+          onClose={() => setShowConfirmModal(false)}
+          title="Delete Group"
+          size="sm"
+        >
+          <p className='mb-4 text-xl text-red-500'>Are you sure you want to delete this group?</p>
+          <div className="flex justify-end space-x-3">
+            <Button variant="outline" onClick={() => setShowConfirmModal(false)}>
+              Cancel
+            </Button>
+            <Button variant="primary" onClick={handleDelete}>
+              Confirm
+            </Button> 
+          </div>
+        </Modal>
+      )}
+      
       {/* Header Section */}
       <div className="mb-8">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -254,7 +303,7 @@ const GroupPage = () => {
               onClick={() => {
                 setEditingGroup(null);
                 setFormData({ title: "", description: "" });
-                setIsModalOpen(true); // Add this line
+                setIsModalOpen(true);
               }}
               variant="primary"
               className="flex items-center space-x-2"
@@ -282,11 +331,17 @@ const GroupPage = () => {
             className="focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 pr-12 py-2 border border-gray-300 rounded-md"
             placeholder="Search groups..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setPagination(prev => ({ ...prev, currentPage: 1 }));
+            }}
           />
           {searchTerm && (
             <button
-              onClick={() => setSearchTerm("")}
+              onClick={() => {
+                setSearchTerm("");
+                setPagination(prev => ({ ...prev, currentPage: 1 }));
+              }}
               className="absolute inset-y-0 right-0 pr-3 flex items-center"
             >
               <FiX className="h-4 w-4 text-gray-400 hover:text-gray-600" />
@@ -359,7 +414,10 @@ const GroupPage = () => {
         <div className="border-b border-gray-200">
           <nav className="-mb-px flex space-x-8">
             <button
-              onClick={() => setActiveTab("active")}
+              onClick={() => {
+                setActiveTab("active");
+                setPagination(prev => ({ ...prev, currentPage: 1 }));
+              }}
               className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
                 activeTab === "active"
                   ? "border-primary-500 text-primary-600"
@@ -368,11 +426,14 @@ const GroupPage = () => {
             >
               <span>Active Groups</span>
               <Badge type="primary" size="sm">
-                {groups.filter((g) => g.isActive).length}
+                {pagination.total}
               </Badge>
             </button>
             <button
-              onClick={() => setActiveTab("archived")}
+              onClick={() => {
+                setActiveTab("archived");
+                setPagination(prev => ({ ...prev, currentPage: 1 }));
+              }}
               className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
                 activeTab === "archived"
                   ? "border-primary-500 text-primary-600"
@@ -381,7 +442,7 @@ const GroupPage = () => {
             >
               <span>Archived Groups</span>
               <Badge type="secondary" size="sm">
-                {groups.filter((g) => !g.isActive).length}
+                {pagination.total}
               </Badge>
             </button>
           </nav>
@@ -390,7 +451,7 @@ const GroupPage = () => {
 
       {/* Groups Table */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        {filteredGroups.length === 0 ? (
+        {groups.length === 0 ? (
           <div className="p-12 text-center">
             <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-gray-100 mb-4">
               {activeTab === "active" ? (
@@ -418,6 +479,7 @@ const GroupPage = () => {
                 onClick={() => {
                   setEditingGroup(null);
                   setFormData({ title: "", description: "" });
+                  setIsModalOpen(true);
                 }}
                 variant="primary"
                 className="flex items-center space-x-2 mx-auto"
@@ -428,147 +490,214 @@ const GroupPage = () => {
             )}
           </div>
         ) : (
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-10"
-                >
-                  <input
-                    type="checkbox"
-                    checked={
-                      selectedGroups.length > 0 &&
-                      selectedGroups.length === filteredGroups.length
-                    }
-                    onChange={toggleSelectAll}
-                    className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-                  />
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Group
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Description
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Status
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredGroups.map((group) => (
-                <tr key={group._id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
+          <>
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-10"
+                  >
                     <input
                       type="checkbox"
-                      checked={selectedGroups.includes(group._id)}
-                      onChange={() => toggleGroupSelection(group._id)}
+                      checked={
+                        selectedGroups.length > 0 &&
+                        selectedGroups.length === groups.length
+                      }
+                      onChange={toggleSelectAll}
                       className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
                     />
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0 h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center">
-                        <span className="text-primary-600 font-medium">
-                          {group.title.charAt(0).toUpperCase()}
-                        </span>
-                      </div>
-                      <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">
-                          {group.title}
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Group
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Description
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Status
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {groups.map((group) => (
+                  <tr key={group._id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <input
+                        type="checkbox"
+                        checked={selectedGroups.includes(group._id)}
+                        onChange={() => toggleGroupSelection(group._id)}
+                        className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                      />
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center">
+                        <div className="flex-shrink-0 h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center">
+                          <span className="text-primary-600 font-medium">
+                            {group.title.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                        <div className="ml-4">
+                          <div className="text-sm font-medium text-gray-900">
+                            {group.title}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-500">
-                    {group.description || "-"}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <Badge
-                      type={group.isActive ? "success" : "warning"}
-                      size="sm"
-                    >
-                      {group.isActive ? true : false}
-                    </Badge>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <div className="flex justify-end space-x-2">
-                      <Button
-                        onClick={() => {
-                          setEditingGroup(group);
-                          setFormData({
-                            title: group.title,
-                            description: group.description || "",
-                          });
-                          setIsModalOpen(true); // Add this line
-                        }}
-                        variant="ghost"
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-500">
+                      {group.description || "-"}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <Badge
+                        type={group.isActive ? "success" : "warning"}
                         size="sm"
-                        className="text-gray-600 hover:text-primary-600"
-                        tooltip="Edit"
                       >
-                        <FiEdit2 size={16} />
-                      </Button>
+                        {group.isActive ? "Active" : "Archived"}
+                      </Badge>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <div className="flex justify-end space-x-2">
+                        <Button
+                          onClick={() => {
+                            setEditingGroup(group);
+                            setFormData({
+                              title: group.title,
+                              description: group.description || "",
+                            });
+                            setIsModalOpen(true);
+                          }}
+                          variant="ghost"
+                          size="sm"
+                          className="text-gray-600 hover:text-primary-600"
+                          tooltip="Edit"
+                        >
+                          <FiEdit2 size={16} />
+                        </Button>
+                        <Button
+                          onClick={() =>
+                            toggleGroupStatus(group._id, group.isActive)
+                          }
+                          variant="ghost"
+                          size="sm"
+                          className={
+                            group.isActive
+                              ? "text-gray-600 hover:text-yellow-600"
+                              : "text-gray-600 hover:text-green-600"
+                          }
+                          tooltip={group.isActive ? "Archive" : "Restore"}
+                        >
+                          {group.isActive ? (
+                            <FiArchive size={16} />
+                          ) : (
+                            <FiRotateCcw size={16} />
+                          )}
+                        </Button>
+                        <Button
+                          onClick={() => handleDeleteClick(group._id)}
+                          variant="ghost"
+                          size="sm"
+                          className="text-gray-600 hover:text-red-600"
+                          tooltip="Delete"
+                        >
+                          <FiTrash2 size={16} />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {/* Pagination */}
+            <div className="px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between">
+              <div className="flex items-center space-x-2 mb-4 sm:mb-0">
+                <span className="text-sm text-gray-700">
+                  Showing <span className="font-medium">{(pagination.currentPage - 1) * pagination.limit + 1}</span> to <span className="font-medium">
+                    {Math.min(pagination.currentPage * pagination.limit, pagination.total)}
+                  </span> of <span className="font-medium">{pagination.total}</span> results
+                </span>
+                <select
+                  value={pagination.limit}
+                  onChange={handleLimitChange}
+                  className="border border-gray-300 rounded-md px-2 py-1 text-sm"
+                >
+                  <option value="5">5 per page</option>
+                  <option value="10">10 per page</option>
+                  <option value="20">20 per page</option>
+                  <option value="50">50 per page</option>
+                </select>
+              </div>
+              <div className="flex space-x-2">
+                <Button
+                  variant="outline"
+                  onClick={() => handlePageChange(pagination.currentPage - 1)}
+                  disabled={pagination.currentPage === 1}
+                  className="flex items-center"
+                >
+                  <FiChevronLeft size={16} className="mr-1" />
+                  Previous
+                </Button>
+                <div className="flex space-x-1">
+                  {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
+                    let pageNum;
+                    if (pagination.totalPages <= 5) {
+                      pageNum = i + 1;
+                    } else if (pagination.currentPage <= 3) {
+                      pageNum = i + 1;
+                    } else if (pagination.currentPage >= pagination.totalPages - 2) {
+                      pageNum = pagination.totalPages - 4 + i;
+                    } else {
+                      pageNum = pagination.currentPage - 2 + i;
+                    }
+                    return (
                       <Button
-                        onClick={() =>
-                          toggleGroupStatus(group._id, group.isActive)
-                        }
-                        variant="ghost"
-                        size="sm"
-                        className={
-                          group.isActive
-                            ? "text-gray-600 hover:text-yellow-600"
-                            : "text-gray-600 hover:text-green-600"
-                        }
-                        tooltip={group.isActive ? "Archive" : "Restore"}
+                        key={pageNum}
+                        variant={pagination.currentPage === pageNum ? "primary" : "outline"}
+                        onClick={() => handlePageChange(pageNum)}
+                        className="w-10 h-10 flex items-center justify-center"
                       >
-                        {group.isActive ? (
-                          <FiArchive size={16} />
-                        ) : (
-                          <FiRotateCcw size={16} />
-                        )}
+                        {pageNum}
                       </Button>
-                      <Button
-                        onClick={() => handleDeleteClick(group._id)}
-                        variant="ghost"
-                        size="sm"
-                        className="text-gray-600 hover:text-red-600"
-                        tooltip="Delete"
-                      >
-                        <FiTrash2 size={16} />
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    );
+                  })}
+                </div>
+                <Button
+                  variant="outline"
+                  onClick={() => handlePageChange(pagination.currentPage + 1)}
+                  disabled={pagination.currentPage >= pagination.totalPages}
+                  className="flex items-center"
+                >
+                  Next
+                  <FiChevronRight size={16} className="ml-1" />
+                </Button>
+              </div>
+            </div>
+          </>
         )}
       </div>
 
       {/* Create/Edit Group Modal */}
       <Modal
-        isOpen={isModalOpen} // Changed from the previous condition
+        isOpen={isModalOpen}
         onClose={() => {
           setEditingGroup(null);
           setFormData({ title: "", description: "" });
-          setIsModalOpen(false); // Add this line
+          setIsModalOpen(false);
         }}
         title={editingGroup ? "Edit Group" : "Create New Group"}
         size="md"
@@ -614,7 +743,7 @@ const GroupPage = () => {
               onClick={() => {
                 setEditingGroup(null);
                 setFormData({ title: "", description: "" });
-                setIsModalOpen(false); // Add this line
+                setIsModalOpen(false);
               }}
             >
               Cancel

@@ -22,7 +22,7 @@ const LoginPage = () => {
     const response = await login(email, password);
     console.log("response from login:", response); 
     if (response.success) {
-      if(response.user && response.user.role === 'admin') {
+      if(response.user && (response.user.role === 'super_admin' || response.user.role === 'tenant_admin') ) {
         navigate('/admin/dashboard'); // Redirect to admin dashboard if user is an admin
       }else if(response.user && response.user.role === 'user') {navigate('/projects'); }// Redirect to user dashboard if user is a regular users}
     } else {
