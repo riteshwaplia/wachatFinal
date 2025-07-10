@@ -124,7 +124,7 @@ const Header = ({ onToggleSidebar }) => {
           {/* Selected Language */}
           <div
             className="flex justify-between items-center w-full bg-white dark:bg-dark-surface 
-               dark:text-dark-text-primary dark:border-dark-border border border-gray-300 
+               dark:text-white dark:border-dark-border border border-gray-300 
                hover:border-gray-400 px-4 py-2 rounded-md shadow cursor-pointer 
                focus:outline-none focus:ring-2 focus:ring-primary-500"
           >
@@ -142,7 +142,7 @@ const Header = ({ onToggleSidebar }) => {
               {languages.map((lang) => (
                 <li
                   key={lang.code}
-                  className="px-4 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-dark-border"
+                  className="px-4 py-2 cursor-pointer dark:text-white hover:bg-gray-100 dark:hover:bg-dark-border"
                   onClick={() => {
                     handleLanguageChange({ target: { value: lang.code } });
                     setOpen(false); // ✅ Close dropdown after selection

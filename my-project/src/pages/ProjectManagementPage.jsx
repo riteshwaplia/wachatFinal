@@ -23,19 +23,19 @@ const ProjectCard = ({ project, onEdit, onDelete, onClick }) => {
       className="bg-white p-6 dark:bg-dark-surface dark:border-dark-border text-dark-text-primary rounded-2xl shadow-md border border-gray-200 hover:shadow-xl transition-all duration-300 cursor-pointer group"
       onClick={onClick}
     >
-      <div className="flex justify-between items-start">
+      <div className="flex justify-between items-start dark:text-white">
         <div className="flex-1">
           <h3 className="text-xl font-semibold dark:text-dark-text-primary text-gray-900 group-hover:text-green-600 transition-colors font-heading">
             {project.name}
           </h3>
 
           {/* About + Website */}
-          <div className="mt-2 space-y-2">
-            <p className="text-sm text-gray-700">
-              <span className="font-medium">{t('about')}:</span>{' '}
+          <div className="mt-2 space-y-2 dark:text-white">
+            <p className="text-sm text-gray-700  dark:text-white">
+              <span className="font-medium dark:text-white">{t('about')}:</span>{' '}
               {project.about || t('helpingCustomersFaster')}
             </p>
-            <p className="text-sm text-gray-700 flex items-center">
+            <p className="text-sm text-gray-700 dark:text-white flex items-center">
               <span className="font-medium">{t('website')}:</span>{' '}
               <a
                 href={project.website || "#"}
@@ -51,9 +51,9 @@ const ProjectCard = ({ project, onEdit, onDelete, onClick }) => {
 
           {/* WhatsApp Details */}
           <div className="mt-3 flex items-center text-sm text-gray-800">
-            <FaWhatsapp className="text-green-500 mr-2" />
-            <span className="font-medium">{t('whatsapp')}:</span>{' '}
-            <span className="ml-1">
+            <FaWhatsapp className="text-green-500 dark:text-white mr-2" />
+            <span className="font-medium dark:text-white">{t('whatsapp')}:</span>{' '}
+            <span className="ml-1 dark:text-white">
               {project.whatsappNumber || t('defaultWhatsappNumber')}
             </span>
             {project.isWhatsappVerified && (
@@ -64,7 +64,7 @@ const ProjectCard = ({ project, onEdit, onDelete, onClick }) => {
           </div>
 
           {/* Plan */}
-          <p className="text-sm text-gray-600 mt-2">
+          <p className="text-sm text-gray-600 dark:text-white mt-2">
             <span className="font-medium">{t('plan')}:</span>{' '}
             {project.activePlan || t('standard')} (
             {project.planDuration || 30} {t('days')})

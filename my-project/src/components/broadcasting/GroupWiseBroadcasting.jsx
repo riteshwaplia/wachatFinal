@@ -473,10 +473,8 @@ export default function GroupWiseBroadcasting() {
             <CusLoadMoreSelect
                 options={templates}
                 labelKey="name"
-                // valueKey='_id'
-                isDark={isDark}
                 pageSize={10}
-                value={singleMessageTemplateName}
+                value={singleMessageTemplateName.label}
                 onChange={(val) => setSingleMessageTemplateName(val.label)}
                 placeholder="Select a Template"
             />

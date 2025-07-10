@@ -124,165 +124,56 @@
 
 // customSelectStyles.js
 
-const isDarkMode = () => {
-  if (typeof window !== "undefined") {
-    return document.documentElement.classList.contains("dark");
-  }
-  return false;
-};
+// styles/custom.js
+export const customSelectStyles = (isDark) => ({
+  control: (base, state) => ({
+    ...base,
+    backgroundColor: isDark ? "#21262D" : "#F9FAFB",
+    color: isDark ? "#C9D1D9" : "#1A202C",
+    border: state.isFocused
+      ? `2px solid #2980B9`
+      : `1px solid ${isDark ? "#30363D" : "#D1D6DE"}`,
+    borderRadius: "0.3rem",
+    boxShadow: state.isFocused
+      ? "0 0 0 3px rgba(41, 128, 185, 0.2)"
+      : "none",
+    "&:hover": {
+      borderColor: state.isFocused
+        ? "#246D9B"
+        : isDark
+        ? "#8B949E"
+        : "#A6B0BD",
+    },
+  }),
 
-export const customSelectStyles = {
-  control: (base, state) => {
-    const dark = isDarkMode();
-    return {
-      ...base,
-      backgroundColor: dark ? "#21262D" : "#F9FAFB",
-      color: dark ? "#C9D1D9" : "#1A202C",
-      border: state.isFocused
-        ? `2px solid #2980B9`
-        : `1px solid ${dark ? "#30363D" : "#D1D6DE"}`,
-      borderRadius: "0.3rem",
-      boxShadow: state.isFocused
-        ? "0 0 0 3px rgba(41, 128, 185, 0.2)"
-        : "none",
-      minHeight: "22px",
-      "&:hover": {
-        borderColor: state.isFocused
-          ? "#246D9B"
-          : dark
-          ? "#8B949E"
-          : "#A6B0BD",
-      },
-    };
-  },
+  singleValue: (base) => ({
+    ...base,
+    color: isDark ? "#C9D1D9" : "#1A202C",
+  }),
 
-  input: (base) => {
-    const dark = isDarkMode();
-    return {
-      ...base,
-      color: dark ? "#C9D1D9" : "#1A202C",
-      caretColor: "#2980B9",
-    };
-  },
+  menu: (base) => ({
+    ...base,
+    backgroundColor: isDark ? "#21262D" : "#FFFFFF",
+    borderRadius: "0.75rem",
+    border: `1px solid ${isDark ? "#30363D" : "#E5E8ED"}`,
+    zIndex: 9999,
+  }),
 
-  singleValue: (base) => {
-    const dark = isDarkMode();
-    return {
-      ...base,
-      color: dark ? "#C9D1D9" : "#1A202C",
-      fontWeight: "500",
-    };
-  },
-
-  multiValue: (base) => {
-    const dark = isDarkMode();
-    return {
-      ...base,
-      backgroundColor: dark ? "#1F5A7D" : "#D1E6F5",
-      borderRadius: "0.375rem",
-    };
-  },
-
-  multiValueLabel: (base) => {
-    const dark = isDarkMode();
-    return {
-      ...base,
-      color: dark ? "#C9D1D9" : "#1A475F",
-      fontSize: "0.875rem",
-    };
-  },
-
-  multiValueRemove: (base) => {
-    const dark = isDarkMode();
-    return {
-      ...base,
-      color: dark ? "#C9D1D9" : "#1F5A7D",
-      borderRadius: "0 0.375rem 0.375rem 0",
-      "&:hover": {
-        backgroundColor: dark ? "#30363D" : "#A4D0EB",
-        color: dark ? "#C9D1D9" : "#153441",
-      },
-    };
-  },
-
-  menu: (base) => {
-    const dark = isDarkMode();
-    return {
-      ...base,
-      backgroundColor: dark ? "#21262D" : "#FFFFFF",
-      borderRadius: "0.75rem",
-      border: `1px solid ${dark ? "#30363D" : "#E5E8ED"}`,
-      boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
-      zIndex: 9999,
-      marginTop: "0.5rem",
-    };
-  },
-
-  option: (base, state) => {
-    const dark = isDarkMode();
-    return {
-      ...base,
-      fontSize: "0.875rem",
-      padding: "0.55rem 1rem",
-      backgroundColor: state.isSelected
-        ? "#2980B9"
-        : state.isFocused
-        ? dark
-          ? "#161B22"
-          : "#E8F2FA"
-        : dark
-        ? "#21262D"
-        : "#FFFFFF",
-      color: state.isSelected
-        ? "#FFFFFF"
-        : dark
-        ? "#C9D1D9"
-        : "#1A202C",
-      "&:active": {
-        backgroundColor: dark ? "#1F5A7D" : "#D1E6F5",
-      },
-    };
-  },
-
-  dropdownIndicator: (base, state) => {
-    const dark = isDarkMode();
-    return {
-      ...base,
-      color: dark ? "#6E7681" : "#7B8798",
-      transition: "transform 200ms ease",
-      transform: state.selectProps.menuIsOpen ? "rotate(180deg)" : null,
-      "&:hover": {
-        color: "#2980B9",
-      },
-    };
-  },
-
-  clearIndicator: (base) => {
-    const dark = isDarkMode();
-    return {
-      ...base,
-      color: dark ? "#6E7681" : "#7B8798",
-      "&:hover": {
-        color: "#DC3545",
-      },
-    };
-  },
-
-  placeholder: (base) => {
-    const dark = isDarkMode();
-    return {
-      ...base,
-      color: dark ? "#9ea8b3ff" : "#17191bff",
-      fontSize: "0.875rem",
-    };
-  },
-
-  loadingIndicator: (base) => {
-    return {
-      ...base,
-      color: "#2980B9",
-    };
-  },
-};
-
-//TODO: hello
+  option: (base, state) => ({
+    ...base,
+    backgroundColor: state.isSelected
+      ? "#2980B9"
+      : state.isFocused
+      ? isDark
+        ? "#161B22"
+        : "#E8F2FA"
+      : isDark
+      ? "#21262D"
+      : "#FFFFFF",
+    color: state.isSelected
+      ? "#FFFFFF"
+      : isDark
+      ? "#C9D1D9"
+      : "#1A202C",
+  }),
+});

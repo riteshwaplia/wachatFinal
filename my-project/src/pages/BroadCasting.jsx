@@ -654,8 +654,8 @@ const getDateRange = (preset) => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 mb-8">
-        <div className="bg-white p-4 dark:bg-dark-surface dark:border-dark-border rounded-lg border border-gray-200">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 mb-8">
+        {/* <div className="bg-white p-4 dark:bg-dark-surface dark:border-dark-border rounded-lg border border-gray-200">
           <div className="flex items-center">
             <div className="bg-blue-100 p-3 rounded-full">
               <svg className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -667,7 +667,7 @@ const getDateRange = (preset) => {
               <p className="text-2xl font-semibold text-gray-900 dark:text-dark-text-primary">{stats.total}</p>
             </div>
           </div>
-        </div>
+        </div> */}
 
         <div className="bg-white p-4 rounded-lg dark:bg-dark-surface dark:border-dark-border border border-gray-200">
           <div className="flex items-center">
@@ -718,12 +718,12 @@ const getDateRange = (preset) => {
             broadcasts.map((broadcast) => (
               <div
                 key={broadcast._id}
-                className="p-6 hover:bg-gray-50 cursor-pointer transition-colors duration-150"
+                className="p-6 hover:bg-gray-50 dark:hover:bg-gray-900 cursor-pointer transition-colors duration-150"
                 onClick={() => navigateToDetails(broadcast._id)}
               >
                 <div className="flex items-center justify-between">
                   <div>
-                    <h4 className="font-medium text-gray-900">{broadcast.templateName || t('untitledBroadcast')}</h4>
+                    <h4 className="font-medium text-gray-900 dark:text-white">{broadcast.templateName || t('untitledBroadcast')}</h4>
                     <div className="mt-1 flex items-center text-sm text-gray-500">
                       <span>{formatDate(broadcast.startTime)}</span>
                       <span className="mx-2">•</span>

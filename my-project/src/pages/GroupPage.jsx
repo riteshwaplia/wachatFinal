@@ -623,9 +623,9 @@ const handleSubmit = async (e) => {
                 }`}
             >
               <span>{t('activeGroups')}</span>
-              {activeTab === 'active' && <Badge type="primary" size="sm">
+              {/* {activeTab === 'active' && <Badge type="primary" size="sm">
                 {pagination.total}
-              </Badge>}
+              </Badge>} */}
             </button>
             <button
               onClick={() => {
@@ -638,9 +638,9 @@ const handleSubmit = async (e) => {
                 }`}
             >
               <span>{t('archivedGroups')}</span>
-              {activeTab === 'archived' && <Badge type="primary" size="sm">
+              {/* {activeTab === 'archived' && <Badge type="primary" size="sm">
                 {pagination.total}
-              </Badge>}
+              </Badge>} */}
             </button>
           </nav>
         </div>

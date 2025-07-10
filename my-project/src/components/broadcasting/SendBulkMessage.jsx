@@ -243,6 +243,11 @@ const SendMessagePage = () => {
       // Reset form
       setBulkContactsFile(null);
       setBulkTemplateName("");
+      setBulkTemplateComponents("");
+      setExcelHeaders([]);
+      setExpectedColumns([]);
+      setMismatchedHeaders([]);
+      setImageId("");
       document.getElementById("bulkContactsFile").value = "";
     } catch (error) {
       setBulkContactsFile(null);

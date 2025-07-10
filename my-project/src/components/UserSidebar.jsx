@@ -79,11 +79,11 @@ const UserSidebar = ({ isOpen, onToggle, isOff }) => {
         path: `/project/${id}/catalogue`,
         icon: <BiCategory size={18} />
       },
-      {
-        label: 'Orders',
-        path: `/project/${id}/orders`,
-        icon: <ListOrdered size={18} />
-      },
+      // {
+      //   label: 'Orders',
+      //   path: `/project/${id}/orders`,
+      //   icon: <ListOrdered size={18} />
+      // },
       {
         label: 'flow builder',
         path: `/project/${id}/flows`,

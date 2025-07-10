@@ -2088,163 +2088,181 @@ import InstructionPanel from "./InstructionPanel";
 
 const EditComponentModal = ({ component, onSave, onDelete, onClose }) => {
   const [editedComponent, setEditedComponent] = useState(component);
-const validationRules = {
-  TextHeading: { max: 80, label: "Heading" },
-  TextSubheading: { max: 80, label: "Subheading" },
-  TextBody: { max: 4096, label: "Body" },
-  TextCaption: { max: 409, label: "Caption" },
-  Dropdown: { maxOptionLength: 30 },
-  RadioButtonsGroup: { maxOptionLength: 30 },
-  CheckboxGroup: { maxOptionLength: 30 },
-  ChipsSelector: { maxOptionLength: 30 },
-  TextInput: { max: 200 },
-  TextArea: { max: 2000 },
-};
+  const validationRules = {
+    TextHeading: { max: 80, label: "Heading" },
+    TextSubheading: { max: 80, label: "Subheading" },
+    TextBody: { max: 4096, label: "Body" },
+    TextCaption: { max: 409, label: "Caption" },
+    Dropdown: { maxOptionLength: 30 },
+    RadioButtonsGroup: { maxOptionLength: 30 },
+    CheckboxGroup: { maxOptionLength: 30 },
+    ChipsSelector: { maxOptionLength: 30 },
+    TextInput: { max: 200 },
+    TextArea: { max: 2000 },
+  };
 
-// ✅ Validation rules before saving
-const validateBeforeSave = () => {
-  const type = editedComponent.type;
+  // ✅ Validation rules before saving
+  const validateBeforeSave = () => {
+    const type = editedComponent.type;
 
-  // Common required field validation
-  if (shouldShowLabelName && !editedComponent.label?.trim()) {
-    toast.error("Label is required.");
-    return false;
-  }
+    // Common required field validation
+    if (shouldShowLabelName && !editedComponent.label?.trim()) {
+      toast.error("Label is required.");
+      return false;
+    }
 
-  if (shouldShowLabelName && !editedComponent.name?.trim()) {
-    toast.error("Field name is required.");
-    return false;
-  }
+    if (shouldShowLabelName && !editedComponent.name?.trim()) {
+      toast.error("Field name is required.");
+      return false;
+    }
 
-  // Component-type-specific validation
-  switch (type) {
-    case "TextHeading":
-    case "TextSubheading":
-    case "TextBody":
-    case "TextCaption":
-      if (!editedComponent.text?.trim()) {
-        toast.error(`${type.replace("Text", "")} cannot be empty.`);
-        return false;
-      }
-      break;
-
-    case "Image":
-      if (!editedComponent.src) {
-        toast.error("Please upload or provide an image (Base64 or URL).");
-        return false;
-      }
-      if (editedComponent.width <= 0 || editedComponent.height <= 0) {
-        toast.error("Image width and height must be greater than zero.");
-        return false;
-      }
-      break;
-
-    case "Dropdown":
-    case "RadioButtonsGroup":
-    case "CheckboxGroup":
-    case "ChipsSelector":
-      if (!editedComponent["data-source"] || editedComponent["data-source"].length === 0) {
-        toast.error("Please add at least one option.");
-        return false;
-      }
-      break;
-
-    case "Footer":
-      if (!editedComponent.label?.trim()) {
-        toast.error("Footer button label is required.");
-        return false;
-      }
-      break;
-
-    case "OptIn":
-      if (!editedComponent.label?.trim()) {
-        toast.error("Opt-in label is required.");
-        return false;
-      }
-      if (!editedComponent.name?.trim()) {
-        toast.error("Opt-in name is required.");
-        return false;
-      }
-      break;
-
-    case "EmbeddedLink":
-      if (!editedComponent.text?.trim()) {
-        toast.error("Embedded link text is required.");
-        return false;
-      }
-      const action = editedComponent["on-click-action"]?.name;
-      if (action === "open_url" && !editedComponent["on-click-action"]?.url?.trim()) {
-        toast.error("URL is required for 'Open URL' action.");
-        return false;
-      }
-      if (action === "navigate" && !editedComponent["on-click-action"]?.next?.name?.trim()) {
-        toast.error("Next screen name is required for 'Navigate' action.");
-        return false;
-      }
-      break;
-
-    case "NavigationList":
-      if (!editedComponent["list-items"] || editedComponent["list-items"].length === 0) {
-        toast.error("Add at least one navigation list item.");
-        return false;
-      }
-      for (const [index, item] of editedComponent["list-items"].entries()) {
-        if (!item["main-content"].title?.trim()) {
-          toast.error(`Item ${index + 1}: Title is required.`);
+    // Component-type-specific validation
+    switch (type) {
+      case "TextHeading":
+      case "TextSubheading":
+      case "TextBody":
+      case "TextCaption":
+        if (!editedComponent.text?.trim()) {
+          toast.error(`${type.replace("Text", "")} cannot be empty.`);
           return false;
         }
-        if (!item["on-click-action"]?.next?.name?.trim()) {
-          toast.error(`Item ${index + 1}: Next screen name is required.`);
+        break;
+
+      case "Image":
+        if (!editedComponent.src) {
+          toast.error("Please upload or provide an image (Base64 or URL).");
           return false;
         }
-      }
-      break;
+        if (editedComponent.width <= 0 || editedComponent.height <= 0) {
+          toast.error("Image width and height must be greater than zero.");
+          return false;
+        }
+        break;
 
-    case "PhotoPicker":
-      if (!editedComponent.label?.trim()) {
-        toast.error("Photo picker label is required.");
-        return false;
-      }
-      if (!editedComponent["max-uploaded-photos"] || editedComponent["max-uploaded-photos"] < 1) {
-        toast.error("Max uploaded photos must be at least 1.");
-        return false;
-      }
-      break;
+      case "Dropdown":
+      case "RadioButtonsGroup":
+      case "CheckboxGroup":
+      case "ChipsSelector":
+        if (
+          !editedComponent["data-source"] ||
+          editedComponent["data-source"].length === 0
+        ) {
+          toast.error("Please add at least one option.");
+          return false;
+        }
+        break;
 
-    case "DocumentPicker":
-      if (!editedComponent.label?.trim()) {
-        toast.error("Document picker label is required.");
-        return false;
-      }
-      if (!editedComponent["max-uploaded-documents"] || editedComponent["max-uploaded-documents"] < 1) {
-        toast.error("Max uploaded documents must be at least 1.");
-        return false;
-      }
-      break;
+      case "Footer":
+        if (!editedComponent.label?.trim()) {
+          toast.error("Footer button label is required.");
+          return false;
+        }
+        break;
 
-    default:
-      break;
-  }
+      case "OptIn":
+        if (!editedComponent.label?.trim()) {
+          toast.error("Opt-in label is required.");
+          return false;
+        }
+        if (!editedComponent.name?.trim()) {
+          toast.error("Opt-in name is required.");
+          return false;
+        }
+        break;
 
-  return true; // ✅ all validations passed
-};
+      case "EmbeddedLink":
+        if (!editedComponent.text?.trim()) {
+          toast.error("Embedded link text is required.");
+          return false;
+        }
+        const action = editedComponent["on-click-action"]?.name;
+        if (
+          action === "open_url" &&
+          !editedComponent["on-click-action"]?.url?.trim()
+        ) {
+          toast.error("URL is required for 'Open URL' action.");
+          return false;
+        }
+        if (
+          action === "navigate" &&
+          !editedComponent["on-click-action"]?.next?.name?.trim()
+        ) {
+          toast.error("Next screen name is required for 'Navigate' action.");
+          return false;
+        }
+        break;
+
+      case "NavigationList":
+        if (
+          !editedComponent["list-items"] ||
+          editedComponent["list-items"].length === 0
+        ) {
+          toast.error("Add at least one navigation list item.");
+          return false;
+        }
+        for (const [index, item] of editedComponent["list-items"].entries()) {
+          if (!item["main-content"].title?.trim()) {
+            toast.error(`Item ${index + 1}: Title is required.`);
+            return false;
+          }
+          if (!item["on-click-action"]?.next?.name?.trim()) {
+            toast.error(`Item ${index + 1}: Next screen name is required.`);
+            return false;
+          }
+        }
+        break;
+
+      case "PhotoPicker":
+        if (!editedComponent.label?.trim()) {
+          toast.error("Photo picker label is required.");
+          return false;
+        }
+        if (
+          !editedComponent["max-uploaded-photos"] ||
+          editedComponent["max-uploaded-photos"] < 1
+        ) {
+          toast.error("Max uploaded photos must be at least 1.");
+          return false;
+        }
+        break;
+
+      case "DocumentPicker":
+        if (!editedComponent.label?.trim()) {
+          toast.error("Document picker label is required.");
+          return false;
+        }
+        if (
+          !editedComponent["max-uploaded-documents"] ||
+          editedComponent["max-uploaded-documents"] < 1
+        ) {
+          toast.error("Max uploaded documents must be at least 1.");
+          return false;
+        }
+        break;
+
+      default:
+        break;
+    }
+
+    return true; // ✅ all validations passed
+  };
 
   const handleChange = (updates) => {
     setEditedComponent({ ...editedComponent, ...updates });
   };
-const validateTextLength = (value, max, fieldName) => {
-  if (value.length > max) {
-    toast.error(`${fieldName} cannot exceed ${max} characters.`);
-    return value.slice(0, max); // auto-truncate safely
-  }
-  return value;
-};
+  const validateTextLength = (value, max, fieldName) => {
+    if (value.length > max) {
+      toast.error(`${fieldName} cannot exceed ${max} characters.`);
+      return value.slice(0, max); // auto-truncate safely
+    }
+    return value;
+  };
   const handleSave = () => {
-  if (!validateBeforeSave()) return; // stop if invalid
-  onSave(editedComponent);
-  onClose();
-};
-// 🧩 Image uploader — converts to Base64 and updates component config
+    if (!validateBeforeSave()) return; // stop if invalid
+    onSave(editedComponent);
+    onClose();
+  };
+  // 🧩 Image uploader — converts to Base64 and updates component config
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -2312,16 +2330,20 @@ const validateTextLength = (value, max, fieldName) => {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Label
                 </label>
-               <input
-  type="text"
-  value={editedComponent.label || ""}
-  onChange={(e) => {
-    const value = validateTextLength(e.target.value, 20, "Label");
-    handleChange({ label: value });
-  }}
-  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-  placeholder="Enter label..."
-/>
+                <input
+                  type="text"
+                  value={editedComponent.label || ""}
+                  onChange={(e) => {
+                    const value = validateTextLength(
+                      e.target.value,
+                      20,
+                      "Label"
+                    );
+                    handleChange({ label: value });
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                  placeholder="Enter label..."
+                />
               </div>
 
               <div>
@@ -2336,46 +2358,50 @@ const validateTextLength = (value, max, fieldName) => {
                   placeholder="Enter field name..."
                 />
               </div>
-{(editedComponent.type !== "Footer" && editedComponent.type !== "NavigationList") && (
-  <div>
-    <label className="flex items-center">
-      <input
-        type="checkbox"
-        checked={editedComponent.required || false}
-        onChange={(e) => handleChange({ required: e.target.checked })}
-        className="mr-2"
-      />
-      <span className="text-sm font-medium text-gray-700">
-        Required Field
-      </span>
-    </label>
-  </div>
-)}
-
+              {editedComponent.type !== "Footer" &&
+                editedComponent.type !== "NavigationList" &&
+                editedComponent.type !== "DocumentPicker" &&
+                editedComponent.type !== "PhotoPicker" && (
+                  <div>
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={editedComponent.required || false}
+                        onChange={(e) =>
+                          handleChange({ required: e.target.checked })
+                        }
+                        className="mr-2"
+                      />
+                      <span className="text-sm font-medium text-gray-700">
+                        Required Field
+                      </span>
+                    </label>
+                  </div>
+                )}
             </>
           )}
 
           {/* Text content for Text components */}
           {textComponents.includes(editedComponent.type) && (
-  <div>
-    <label className="block text-sm font-medium text-gray-700 mb-1">
-      Text Content
-    </label>
-    <textarea
-      value={editedComponent.text || ""}
-      onChange={(e) => {
-        const rule = validationRules[editedComponent.type];
-        const value = rule
-          ? validateTextLength(e.target.value, rule.max, rule.label)
-          : e.target.value;
-        handleChange({ text: value });
-      }}
-      rows={3}
-      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-      placeholder="Enter text content..."
-    />
-  </div>
-)}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Text Content
+              </label>
+              <textarea
+                value={editedComponent.text || ""}
+                onChange={(e) => {
+                  const rule = validationRules[editedComponent.type];
+                  const value = rule
+                    ? validateTextLength(e.target.value, rule.max, rule.label)
+                    : e.target.value;
+                  handleChange({ text: value });
+                }}
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter text content..."
+              />
+            </div>
+          )}
           {/* Placeholder for TextInput/TextArea */}
           {/* {["TextInput", "TextArea"].includes(editedComponent.type) && (
             <div>
@@ -2549,68 +2575,72 @@ const validateTextLength = (value, max, fieldName) => {
           )}
 
           {/* OptIn */}
-         {editedComponent.type === "OptIn" && (
-  <div className="space-y-3">
-    {/* Label */}
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">
-        Label
-      </label>
-      <input
-        type="text"
-        value={editedComponent.label || ""}
-        onChange={(e) => handleChange({ label: e.target.value })}
-        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-        placeholder="I agree to terms"
-      />
-    </div>
+          {editedComponent.type === "OptIn" && (
+            <div className="space-y-3">
+              {/* Label */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Label
+                </label>
+                <input
+                  type="text"
+                  value={editedComponent.label || ""}
+                  onChange={(e) => handleChange({ label: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                  placeholder="I agree to terms"
+                />
+              </div>
 
-    {/* Name */}
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">
-        Name
-      </label>
-      <input
-        type="text"
-        value={editedComponent.name || ""}
-        onChange={(e) => handleChange({ name: e.target.value })}
-        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-        placeholder="optin"
-      />
-    </div>
+              {/* Name */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Name
+                </label>
+                <input
+                  type="text"
+                  value={editedComponent.name || ""}
+                  onChange={(e) => handleChange({ name: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                  placeholder="optin"
+                />
+              </div>
 
-    {/* Required */}
-    <div>
-      <label className="flex items-center">
-        <input
-          type="checkbox"
-          checked={editedComponent.required || false}
-          onChange={(e) => handleChange({ required: e.target.checked })}
-          className="mr-2"
-        />
-        <span className="text-sm text-gray-700">Required</span>
-      </label>
-    </div>
+              {/* Required */}
+              <div>
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={editedComponent.required || false}
+                    onChange={(e) =>
+                      handleChange({ required: e.target.checked })
+                    }
+                    className="mr-2"
+                  />
+                  <span className="text-sm text-gray-700">Required</span>
+                </label>
+              </div>
 
-    {/* Visible */}
-    <div>
-      <label className="flex items-center">
-        <input
-          type="checkbox"
-          checked={
-            editedComponent.visible === undefined
-              ? true
-              : editedComponent.visible
-          }
-          onChange={(e) => handleChange({ visible: e.target.checked })}
-          className="mr-2"
-        />
-        <span className="text-sm text-gray-700">Visible</span>
-      </label>
-    </div>
+              {/* Visible */}
+              <div>
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={
+                      editedComponent.visible === undefined
+                        ? true
+                        : editedComponent.visible
+                    }
+                    onChange={(e) =>
+                      handleChange({ visible: e.target.checked })
+                    }
+                    className="mr-2"
+                  />
+                  <span className="text-sm text-gray-700">Visible</span>
+                </label>
+              </div>
 
-    {/* Checked by default */}
-    {/* <div>
+              {/* Checked by default */}
+              {/* <div>
       <label className="flex items-center">
         <input
           type="checkbox"
@@ -2622,377 +2652,404 @@ const validateTextLength = (value, max, fieldName) => {
       </label>
     </div> */}
 
-    {/* on-click-action */}
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">
-        On Click Action (Read more)
-      </label>
-      <select
-        value={editedComponent["on-click-action"]?.name || ""}
-        onChange={(e) =>
-          handleChange({
-            ["on-click-action"]: {
-              ...editedComponent["on-click-action"],
-              name: e.target.value,
-            },
-          })
-        }
-        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-      >
-        <option value="">None</option>
-        <option value="data_exchange">Data Exchange</option>
-        <option value="navigate">Navigate</option>
-        <option value="open_url">Open URL</option>
-      </select>
+              {/* on-click-action */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  On Click Action (Read more)
+                </label>
+                <select
+                  value={editedComponent["on-click-action"]?.name || ""}
+                  onChange={(e) =>
+                    handleChange({
+                      ["on-click-action"]: {
+                        ...editedComponent["on-click-action"],
+                        name: e.target.value,
+                      },
+                    })
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">None</option>
+                  <option value="data_exchange">Data Exchange</option>
+                  <option value="navigate">Navigate</option>
+                  <option value="open_url">Open URL</option>
+                </select>
 
-      {editedComponent["on-click-action"]?.name === "open_url" && (
-        <div className="mt-2">
-          <input
-            type="text"
-            value={editedComponent["on-click-action"]?.url || ""}
-            onChange={(e) =>
-              handleChange({
-                ["on-click-action"]: {
-                  ...editedComponent["on-click-action"],
-                  url: e.target.value,
-                },
-              })
-            }
-            placeholder="https://example.com"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-      )}
-    </div>
-  </div>
-)}
-{editedComponent.type === "NavigationList" && (
-  <div className="space-y-6">
-    <h4 className="text-lg font-semibold">Navigation List Items</h4>
+                {editedComponent["on-click-action"]?.name === "open_url" && (
+                  <div className="mt-2">
+                    <input
+                      type="text"
+                      value={editedComponent["on-click-action"]?.url || ""}
+                      onChange={(e) =>
+                        handleChange({
+                          ["on-click-action"]: {
+                            ...editedComponent["on-click-action"],
+                            url: e.target.value,
+                          },
+                        })
+                      }
+                      placeholder="https://example.com"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+          {editedComponent.type === "NavigationList" && (
+            <div className="space-y-6">
+              <h4 className="text-lg font-semibold">Navigation List Items</h4>
 
-    {/* Add new item button */}
-    <button
-      onClick={() => {
-        const items = editedComponent["list-items"] || [];
-        const newItem = {
-          id: `item_${items.length + 1}`,
-          "main-content": { title: "", metadata: "" },
-          end: { title: "", description: "" },
-          "on-click-action": {
-            name: "navigate",
-            next: { name: "", type: "screen" },
-            payload: {}
-          }
-        };
-        handleChange({ "list-items": [...items, newItem] });
-      }}
-      className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
-    >
-      + Add List Item
-    </button>
+              {/* Add new item button */}
+              <button
+                onClick={() => {
+                  const items = editedComponent["list-items"] || [];
+                  const newItem = {
+                    id: `item_${items.length + 1}`,
+                    "main-content": { title: "", metadata: "" },
+                    end: { title: "", description: "" },
+                    "on-click-action": {
+                      name: "navigate",
+                      next: { name: "", type: "screen" },
+                      payload: {},
+                    },
+                  };
+                  handleChange({ "list-items": [...items, newItem] });
+                }}
+                className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
+              >
+                + Add List Item
+              </button>
 
-    {(editedComponent["list-items"] || []).map((item, index) => (
-      <div
-        key={index}
-        className="border rounded-md p-4 space-y-3 bg-gray-50"
-      >
-        <h5 className="font-medium text-gray-700">Item {index + 1}</h5>
+              {(editedComponent["list-items"] || []).map((item, index) => (
+                <div
+                  key={index}
+                  className="border rounded-md p-4 space-y-3 bg-gray-50"
+                >
+                  <h5 className="font-medium text-gray-700">
+                    Item {index + 1}
+                  </h5>
 
-        {/* Title */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Title
-          </label>
-          <input
-            type="text"
-            value={item["main-content"]?.title || ""}
-            onChange={(e) => {
-              const updated = [...(editedComponent["list-items"] || [])];
-              updated[index]["main-content"].title = e.target.value;
-              handleChange({ "list-items": updated });
-            }}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
+                  {/* Title */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Title
+                    </label>
+                    <input
+                      type="text"
+                      value={item["main-content"]?.title || ""}
+                      onChange={(e) => {
+                        const updated = [
+                          ...(editedComponent["list-items"] || []),
+                        ];
+                        updated[index]["main-content"].title = e.target.value;
+                        handleChange({ "list-items": updated });
+                      }}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
 
-        {/* Metadata */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Metadata
-          </label>
-          <input
-            type="text"
-            value={item["main-content"]?.metadata || ""}
-            onChange={(e) => {
-              const updated = [...(editedComponent["list-items"] || [])];
-              updated[index]["main-content"].metadata = e.target.value;
-              handleChange({ "list-items": updated });
-            }}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
+                  {/* Metadata */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Metadata
+                    </label>
+                    <input
+                      type="text"
+                      value={item["main-content"]?.metadata || ""}
+                      onChange={(e) => {
+                        const updated = [
+                          ...(editedComponent["list-items"] || []),
+                        ];
+                        updated[index]["main-content"].metadata =
+                          e.target.value;
+                        handleChange({ "list-items": updated });
+                      }}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
 
-        {/* End (price or secondary info) */}
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-sm text-gray-700 mb-1">End Title</label>
-            <input
-              type="text"
-              value={item.end?.title || ""}
-              onChange={(e) => {
-                const updated = [...(editedComponent["list-items"] || [])];
-                updated[index].end.title = e.target.value;
-                handleChange({ "list-items": updated });
-              }}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm text-gray-700 mb-1">
-              End Description
-            </label>
-            <input
-              type="text"
-              value={item.end?.description || ""}
-              onChange={(e) => {
-                const updated = [...(editedComponent["list-items"] || [])];
-                updated[index].end.description = e.target.value;
-                handleChange({ "list-items": updated });
-              }}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-        </div>
+                  {/* End (price or secondary info) */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-sm text-gray-700 mb-1">
+                        End Title
+                      </label>
+                      <input
+                        type="text"
+                        value={item.end?.title || ""}
+                        onChange={(e) => {
+                          const updated = [
+                            ...(editedComponent["list-items"] || []),
+                          ];
+                          updated[index].end.title = e.target.value;
+                          handleChange({ "list-items": updated });
+                        }}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm text-gray-700 mb-1">
+                        End Description
+                      </label>
+                      <input
+                        type="text"
+                        value={item.end?.description || ""}
+                        onChange={(e) => {
+                          const updated = [
+                            ...(editedComponent["list-items"] || []),
+                          ];
+                          updated[index].end.description = e.target.value;
+                          handleChange({ "list-items": updated });
+                        }}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                  </div>
 
-        {/* Navigation Action */}
-        <div>
-          <label className="block text-sm text-gray-700 mb-1">
-            Next Screen Name
-          </label>
-          <input
-            type="text"
-            value={item["on-click-action"]?.next?.name || ""}
-            onChange={(e) => {
-              const updated = [...(editedComponent["list-items"] || [])];
-              updated[index]["on-click-action"].next.name = e.target.value;
-              handleChange({ "list-items": updated });
-            }}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-            placeholder="SECOND_SCREEN"
-          />
-        </div>
+                  {/* Navigation Action */}
+                  <div>
+                    <label className="block text-sm text-gray-700 mb-1">
+                      Next Screen Name
+                    </label>
+                    <input
+                      type="text"
+                      value={item["on-click-action"]?.next?.name || ""}
+                      onChange={(e) => {
+                        const updated = [
+                          ...(editedComponent["list-items"] || []),
+                        ];
+                        updated[index]["on-click-action"].next.name =
+                          e.target.value;
+                        handleChange({ "list-items": updated });
+                      }}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                      placeholder="SECOND_SCREEN"
+                    />
+                  </div>
 
-        {/* Delete Item */}
-        <button
-          onClick={() => {
-            const updated = (editedComponent["list-items"] || []).filter(
-              (_, i) => i !== index
-            );
-            handleChange({ "list-items": updated });
-          }}
-          className="px-3 py-1 bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition"
-        >
-          Delete Item
-        </button>
-      </div>
-    ))}
-  </div>
-)}
+                  {/* Delete Item */}
+                  <button
+                    onClick={() => {
+                      const updated = (
+                        editedComponent["list-items"] || []
+                      ).filter((_, i) => i !== index);
+                      handleChange({ "list-items": updated });
+                    }}
+                    className="px-3 py-1 bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition"
+                  >
+                    Delete Item
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
 
-{editedComponent.type === "PhotoPicker" && (
-  <>
-    <label className="block text-sm font-medium">Label</label>
-    <input
-      type="text"
-      value={editedComponent.label || ""}
-      onChange={(e) => handleChange({ label: e.target.value })}
-      className="w-full px-2 py-1 border rounded"
-    />
+          {editedComponent.type === "PhotoPicker" && (
+            <>
+              <label className="block text-sm font-medium">Label</label>
+              <input
+                type="text"
+                value={editedComponent.label || ""}
+                onChange={(e) => handleChange({ label: e.target.value })}
+                className="w-full px-2 py-1 border rounded"
+              />
 
-    <label className="block text-sm mt-2">Description</label>
-    <textarea
-      value={editedComponent.description || ""}
-      onChange={(e) => handleChange({ description: e.target.value })}
-      className="w-full px-2 py-1 border rounded"
-    />
+              <label className="block text-sm mt-2">Description</label>
+              <textarea
+                value={editedComponent.description || ""}
+                onChange={(e) => handleChange({ description: e.target.value })}
+                className="w-full px-2 py-1 border rounded"
+              />
 
-    <div className="grid grid-cols-2 gap-2 mt-2">
-      <div>
-        <label className="block text-xs">Min Photos</label>
-        <input
-          type="number"
-          value={editedComponent["min-uploaded-photos"] || 1}
-          onChange={(e) =>
-            handleChange({ "min-uploaded-photos": parseInt(e.target.value) })
-          }
-          className="w-full px-2 py-1 border rounded"
-        />
-      </div>
-      <div>
-        <label className="block text-xs">Max Photos</label>
-        <input
-          type="number"
-          value={editedComponent["max-uploaded-photos"] || 10}
-          onChange={(e) =>
-            handleChange({ "max-uploaded-photos": parseInt(e.target.value) })
-          }
-          className="w-full px-2 py-1 border rounded"
-        />
-      </div>
-    </div>
-  </>
-)}
+              <div className="grid grid-cols-2 gap-2 mt-2">
+                <div>
+                  <label className="block text-xs">Min Photos</label>
+                  <input
+                    type="number"
+                    value={editedComponent["min-uploaded-photos"] || 1}
+                    onChange={(e) =>
+                      handleChange({
+                        "min-uploaded-photos": parseInt(e.target.value),
+                      })
+                    }
+                    className="w-full px-2 py-1 border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs">Max Photos</label>
+                  <input
+                    type="number"
+                    value={editedComponent["max-uploaded-photos"] || 10}
+                    onChange={(e) =>
+                      handleChange({
+                        "max-uploaded-photos": parseInt(e.target.value),
+                      })
+                    }
+                    className="w-full px-2 py-1 border rounded"
+                  />
+                </div>
+              </div>
+            </>
+          )}
 
-{editedComponent.type === "DocumentPicker" && (
-  <>
-    <label className="block text-sm font-medium">Label</label>
-    <input
-      type="text"
-      value={editedComponent.label || ""}
-      onChange={(e) => handleChange({ label: e.target.value })}
-      className="w-full px-2 py-1 border rounded"
-    />
+          {editedComponent.type === "DocumentPicker" && (
+            <>
+              <label className="block text-sm font-medium">Label</label>
+              <input
+                type="text"
+                value={editedComponent.label || ""}
+                onChange={(e) => handleChange({ label: e.target.value })}
+                className="w-full px-2 py-1 border rounded"
+              />
 
-    <label className="block text-sm mt-2">Description</label>
-    <textarea
-      value={editedComponent.description || ""}
-      onChange={(e) => handleChange({ description: e.target.value })}
-      className="w-full px-2 py-1 border rounded"
-    />
+              <label className="block text-sm mt-2">Description</label>
+              <textarea
+                value={editedComponent.description || ""}
+                onChange={(e) => handleChange({ description: e.target.value })}
+                className="w-full px-2 py-1 border rounded"
+              />
 
-    <div className="grid grid-cols-2 gap-2 mt-2">
-      <div>
-        <label className="block text-xs">Min Documents</label>
-        <input
-          type="number"
-          value={editedComponent["min-uploaded-documents"] || 1}
-          onChange={(e) =>
-            handleChange({ "min-uploaded-documents": parseInt(e.target.value) })
-          }
-          className="w-full px-2 py-1 border rounded"
-        />
-      </div>
-      <div>
-        <label className="block text-xs">Max Documents</label>
-        <input
-          type="number"
-          value={editedComponent["max-uploaded-documents"] || 1}
-          onChange={(e) =>
-            handleChange({ "max-uploaded-documents": parseInt(e.target.value) })
-          }
-          className="w-full px-2 py-1 border rounded"
-        />
-      </div>
-    </div>
-  </>
-)}
+              <div className="grid grid-cols-2 gap-2 mt-2">
+                <div>
+                  <label className="block text-xs">Min Documents</label>
+                  <input
+                    type="number"
+                    value={editedComponent["min-uploaded-documents"] || 1}
+                    onChange={(e) =>
+                      handleChange({
+                        "min-uploaded-documents": parseInt(e.target.value),
+                      })
+                    }
+                    className="w-full px-2 py-1 border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs">Max Documents</label>
+                  <input
+                    type="number"
+                    value={editedComponent["max-uploaded-documents"] || 1}
+                    onChange={(e) =>
+                      handleChange({
+                        "max-uploaded-documents": parseInt(e.target.value),
+                      })
+                    }
+                    className="w-full px-2 py-1 border rounded"
+                  />
+                </div>
+              </div>
+            </>
+          )}
 
           {/* EmbeddedLink */}
-{editedComponent.type === "EmbeddedLink" && (
-  <div className="space-y-3">
-    {/* Header */}
-    <label className="block text-sm font-medium text-gray-700">
-      Embedded Link Settings
-    </label>
+          {editedComponent.type === "EmbeddedLink" && (
+            <div className="space-y-3">
+              {/* Header */}
+              <label className="block text-sm font-medium text-gray-700">
+                Embedded Link Settings
+              </label>
 
-    {/* Link Text */}
-    <input
-      type="text"
-      value={editedComponent.text || ""}
-      onChange={(e) => handleChange({ text: e.target.value })}
-      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-      placeholder="Enter link text (e.g. Visit our website)"
-    />
+              {/* Link Text */}
+              <input
+                type="text"
+                value={editedComponent.text || ""}
+                onChange={(e) => handleChange({ text: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter link text (e.g. Visit our website)"
+              />
 
-    {/* Action Type */}
-    <div>
-      <label className="block text-sm text-gray-700 mb-1">
-        On Click Action
-      </label>
-      <select
-        value={editedComponent["on-click-action"]?.name || ""}
-        onChange={(e) => {
-          const newAction = e.target.value;
-          handleChange({
-            "on-click-action": {
-              name: newAction,
-              ...(newAction === "navigate"
-                ? { next: { type: "screen", name: "" } }
-                : newAction === "open_url"
-                ? { url: "" }
-                : {}),
-            },
-          });
-        }}
-        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-      >
-        <option value="">None</option>
-        <option value="navigate">Navigate</option>
-        <option value="data_exchange">Data Exchange</option>
-        <option value="open_url">Open URL</option>
-      </select>
-    </div>
+              {/* Action Type */}
+              <div>
+                <label className="block text-sm text-gray-700 mb-1">
+                  On Click Action
+                </label>
+                <select
+                  value={editedComponent["on-click-action"]?.name || ""}
+                  onChange={(e) => {
+                    const newAction = e.target.value;
+                    handleChange({
+                      "on-click-action": {
+                        name: newAction,
+                        ...(newAction === "navigate"
+                          ? { next: { type: "screen", name: "" } }
+                          : newAction === "open_url"
+                          ? { url: "" }
+                          : {}),
+                      },
+                    });
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">None</option>
+                  <option value="navigate">Navigate</option>
+                  <option value="data_exchange">Data Exchange</option>
+                  <option value="open_url">Open URL</option>
+                </select>
+              </div>
 
-    {/* If navigate → next screen input */}
-    {editedComponent["on-click-action"]?.name === "navigate" && (
-      <div>
-        <label className="block text-sm text-gray-700 mb-1">
-          Next Screen Name
-        </label>
-        <input
-          type="text"
-          value={editedComponent["on-click-action"]?.next?.name || ""}
-          onChange={(e) =>
-            handleChange({
-              "on-click-action": {
-                ...editedComponent["on-click-action"],
-                next: { type: "screen", name: e.target.value },
-              },
-            })
-          }
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-          placeholder="Enter next screen name..."
-        />
-      </div>
-    )}
+              {/* If navigate → next screen input */}
+              {editedComponent["on-click-action"]?.name === "navigate" && (
+                <div>
+                  <label className="block text-sm text-gray-700 mb-1">
+                    Next Screen Name
+                  </label>
+                  <input
+                    type="text"
+                    value={editedComponent["on-click-action"]?.next?.name || ""}
+                    onChange={(e) =>
+                      handleChange({
+                        "on-click-action": {
+                          ...editedComponent["on-click-action"],
+                          next: { type: "screen", name: e.target.value },
+                        },
+                      })
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter next screen name..."
+                  />
+                </div>
+              )}
 
-    {/* If open_url → show URL input */}
-    {editedComponent["on-click-action"]?.name === "open_url" && (
-      <div>
-        <label className="block text-sm text-gray-700 mb-1">URL Link</label>
-        <input
-          type="text"
-          value={editedComponent["on-click-action"]?.url || ""}
-          onChange={(e) =>
-            handleChange({
-              "on-click-action": {
-                ...editedComponent["on-click-action"],
-                url: e.target.value,
-              },
-            })
-          }
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-          placeholder="https://example.com"
-        />
-      </div>
-    )}
+              {/* If open_url → show URL input */}
+              {editedComponent["on-click-action"]?.name === "open_url" && (
+                <div>
+                  <label className="block text-sm text-gray-700 mb-1">
+                    URL Link
+                  </label>
+                  <input
+                    type="text"
+                    value={editedComponent["on-click-action"]?.url || ""}
+                    onChange={(e) =>
+                      handleChange({
+                        "on-click-action": {
+                          ...editedComponent["on-click-action"],
+                          url: e.target.value,
+                        },
+                      })
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                    placeholder="https://example.com"
+                  />
+                </div>
+              )}
 
-    {/* Visibility */}
-    <label className="flex items-center mt-2">
-      <input
-        type="checkbox"
-        checked={editedComponent.visible ?? true}
-        onChange={(e) => handleChange({ visible: e.target.checked })}
-        className="mr-2"
-      />
-      <span className="text-sm font-medium text-gray-700">Visible</span>
-    </label>
-  </div>
-)}
-
+              {/* Visibility */}
+              <label className="flex items-center mt-2">
+                <input
+                  type="checkbox"
+                  checked={editedComponent.visible ?? true}
+                  onChange={(e) => handleChange({ visible: e.target.checked })}
+                  className="mr-2"
+                />
+                <span className="text-sm font-medium text-gray-700">
+                  Visible
+                </span>
+              </label>
+            </div>
+          )}
 
           {/* Date / Calendar Picker */}
-          {pickerComponents.includes(editedComponent.type) && (
+          {pickerComponents.includes(editedComponent.type) &&
             // <div>
             //   <label className="block text-sm text-gray-700 mb-1">
             //     Date Format
@@ -3005,8 +3062,7 @@ const validateTextLength = (value, max, fieldName) => {
             //     placeholder="YYYY-MM-DD"
             //   />
             // </div>
-            ""
-          )}
+            ""}
 
           {/* Image */}
           {editedComponent.type === "Image" && (
@@ -3551,6 +3607,7 @@ const CreateMetaFlows = () => {
   const [selectedcategories, setSelectedCategories] = useState("");
   const [businessProfileId, setBusinessProfileId] = useState(null);
   const [jsontoSend, setJsontoSend] = useState(null);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   useEffect(() => {
     const project = localStorage.getItem("currentProject")
@@ -3608,14 +3665,14 @@ const CreateMetaFlows = () => {
   // Drop component into screen - Fixed for text components
   const handleDropComponent = (screenId, item) => {
     const textComponents = [
-  "TextHeading",
-  "TextSubheading",
-  "TextBody",
-  "TextCaption",
-  "RichText",
-  "EmbeddedLink",
-  "Image",
-];
+      "TextHeading",
+      "TextSubheading",
+      "TextBody",
+      "TextCaption",
+      "RichText",
+      "EmbeddedLink",
+      "Image",
+    ];
 
     let newComponent;
 
@@ -3755,16 +3812,15 @@ const CreateMetaFlows = () => {
           const formChildren = prevScreen.layout.children[0].children || [];
           formChildren.forEach((child, fieldIndex) => {
             // Only include components that have name and are not text components
-          const textComponents = [
-  "TextHeading",
-  "TextSubheading",
-  "TextBody",
-  "TextCaption",
-  "RichText",
-  "EmbeddedLink",
-    "Image",
-
-];
+            const textComponents = [
+              "TextHeading",
+              "TextSubheading",
+              "TextBody",
+              "TextCaption",
+              "RichText",
+              "EmbeddedLink",
+              "Image",
+            ];
 
             if (
               child.name &&
@@ -3800,84 +3856,85 @@ const CreateMetaFlows = () => {
         terminal: index === screens.length - 1,
       };
 
-//       const cleanLayout = (layout) => {
-//   if (layout.children && Array.isArray(layout.children)) {
-//     layout.children = layout.children.map((child) => {
-//       const textLikeComponents = [
-//         "TextHeading",
-//         "TextSubheading",
-//         "TextBody",
-//         "TextCaption",
-//         "RichText",
-//         "EmbeddedLink",
-//           "Image",
+      //       const cleanLayout = (layout) => {
+      //   if (layout.children && Array.isArray(layout.children)) {
+      //     layout.children = layout.children.map((child) => {
+      //       const textLikeComponents = [
+      //         "TextHeading",
+      //         "TextSubheading",
+      //         "TextBody",
+      //         "TextCaption",
+      //         "RichText",
+      //         "EmbeddedLink",
+      //           "Image",
 
-//       ];
+      //       ];
 
-//       if (textLikeComponents.includes(child.type)) {
-//         // Keep only relevant keys for text/display elements
-//         const cleaned = {
-//           type: child.type,
-//         };
+      //       if (textLikeComponents.includes(child.type)) {
+      //         // Keep only relevant keys for text/display elements
+      //         const cleaned = {
+      //           type: child.type,
+      //         };
 
-//         if (child.text) cleaned.text = child.text;
-//         if (child.visible !== undefined) cleaned.visible = child.visible;
-//         if (child["on-click-action"])
-//           cleaned["on-click-action"] = child["on-click-action"];
+      //         if (child.text) cleaned.text = child.text;
+      //         if (child.visible !== undefined) cleaned.visible = child.visible;
+      //         if (child["on-click-action"])
+      //           cleaned["on-click-action"] = child["on-click-action"];
 
-//         return cleaned;
-//       }
+      //         return cleaned;
+      //       }
 
-//       return child;
-//     });
-//   }
-//   return layout;
-// };
-const cleanLayout = (layout) => {
-  if (layout.children && Array.isArray(layout.children)) {
-    layout.children = layout.children.map((child) => {
-      const textLikeComponents = [
-        "TextHeading",
-        "TextSubheading",
-        "TextBody",
-        "TextCaption",
-        "RichText",
-        "EmbeddedLink",
-      ];
+      //       return child;
+      //     });
+      //   }
+      //   return layout;
+      // };
+      const cleanLayout = (layout) => {
+        if (layout.children && Array.isArray(layout.children)) {
+          layout.children = layout.children.map((child) => {
+            const textLikeComponents = [
+              "TextHeading",
+              "TextSubheading",
+              "TextBody",
+              "TextCaption",
+              "RichText",
+              "EmbeddedLink",
+            ];
 
-      // Handle image separately
-      if (child.type === "Image") {
-        const cleaned = { type: "Image" };
-        if (child.src) cleaned.src = child.src;
-        if (child.visible !== undefined) cleaned.visible = child.visible;
-        return cleaned;
-      }
+            // Handle image separately
+            if (child.type === "Image") {
+              const cleaned = { type: "Image" };
+              if (child.src) cleaned.src = child.src;
+              if (child.visible !== undefined) cleaned.visible = child.visible;
+              return cleaned;
+            }
 
-      if (textLikeComponents.includes(child.type)) {
-        // Keep only relevant keys for text/display elements
-        const cleaned = {
-          type: child.type,
-        };
+            if (textLikeComponents.includes(child.type)) {
+              // Keep only relevant keys for text/display elements
+              const cleaned = {
+                type: child.type,
+              };
 
-        if (child.text) cleaned.text = child.text;
-        if (child.visible !== undefined) cleaned.visible = child.visible;
-        if (child["on-click-action"])
-          cleaned["on-click-action"] = child["on-click-action"];
+              if (child.text) cleaned.text = child.text;
+              if (child.visible !== undefined) cleaned.visible = child.visible;
+              if (child["on-click-action"])
+                cleaned["on-click-action"] = child["on-click-action"];
 
-        return cleaned;
-      }
+              return cleaned;
+            }
 
-      // Recursively clean nested children (like forms)
-      if (child.children && Array.isArray(child.children)) {
-        child.children = child.children.map((c) => cleanLayout({ children: [c] }).children[0]);
-      }
+            // Recursively clean nested children (like forms)
+            if (child.children && Array.isArray(child.children)) {
+              child.children = child.children.map(
+                (c) => cleanLayout({ children: [c] }).children[0]
+              );
+            }
 
-      return child;
-    });
-  }
-  return layout;
-};
-
+            return child;
+          });
+        }
+        return layout;
+      };
 
       baseScreen.layout = cleanLayout(baseScreen.layout);
 
@@ -3894,16 +3951,15 @@ const cleanLayout = (layout) => {
 
           currentFormChildren.forEach((child, fieldIndex) => {
             const textComponents = [
-  "TextHeading",
-  "TextSubheading",
-  "TextBody",
-  "TextCaption",
-  "RichText",
-  "EmbeddedLink",
-    "Image",
-    'OptIn'
-
-];
+              "TextHeading",
+              "TextSubheading",
+              "TextBody",
+              "TextCaption",
+              "RichText",
+              "EmbeddedLink",
+              "Image",
+              "OptIn",
+            ];
 
             if (
               child.name &&
@@ -3948,15 +4004,14 @@ const cleanLayout = (layout) => {
           const currentFormChildren = screen.layout.children[0].children || [];
           currentFormChildren.forEach((child, fieldIndex) => {
             const textComponents = [
-  "TextHeading",
-  "TextSubheading",
-  "TextBody",
-  "TextCaption",
-  "RichText",
-  "EmbeddedLink",
-    "Image",
-
-];
+              "TextHeading",
+              "TextSubheading",
+              "TextBody",
+              "TextCaption",
+              "RichText",
+              "EmbeddedLink",
+              "Image",
+            ];
 
             if (
               child.name &&
@@ -4003,7 +4058,7 @@ const cleanLayout = (layout) => {
       toast.error("Please add at least one screen.");
       return;
     }
-
+setLoading(true)
     try {
       // ✅ Always generate a fresh JSON from current screens
       const flowJSON = generateFlowJSON();
@@ -4036,163 +4091,11 @@ const cleanLayout = (layout) => {
           error?.message ||
           "Failed to create flow. Please try again."
       );
+    }finally{
+      setLoading(false)
     }
   };
 
-  // Component palette
-  // const palette = [
-  //       {
-  //     type: "TextHeading",
-  //     label: "Heading",
-  // icon: Type,
-  //     config: { type: "TextHeading", text: "Heading" },
-  //   },
-  //   {
-  //     type: "TextSubheading",
-  //     label: "Subheading",
-  //     icon: AlignLeft,
-  //     config: { type: "TextSubheading", text: "Subheading" },
-  //   },
-  //   {
-  //     type: "TextBody",
-  //     label: "Body",
-  //    icon: FileText,
-  //     config: { type: "TextBody", text: "Body text" },
-  //   },
-  //   {
-  //     type: "TextCaption",
-  //     label: "Caption",
-  //     icon: Quote,
-  //     config: { type: "TextCaption", text: "TextCaption" },
-  //   },
-  //   {
-  //     type: "RichText",
-  //     label: "Rich Text",
-  //     icon: Edit3,
-  //     config: { type: "RichText", text: "Rich text content" },
-  //   },
-  //   {
-  //     type: "TextInput",
-  //     label: "Text Input",
-  //     icon: Edit3,
-  //     config: {
-  //       type: "TextInput",
-  //       name: "text_input",
-  //       label: "Text Input",
-  //       "input-type": "text",
-  //     },
-  //   },
-  //   {
-  //     type: "TextArea",
-  //     label: "Text Area",
-  //     icon: FileText,
-  //     config: {
-  //       type: "TextArea",
-  //       name: "text_area",
-  //       label: "Text Area",
-  //     },
-  //   },
-  //   {
-  //     type: "Dropdown",
-  //     label: "Dropdown",
-  //     icon: ChevronDown ,
-  //     config: {
-  //       type: "Dropdown",
-  //       name: "dropdown",
-  //       label: "Dropdown",
-  //       "data-source": [
-  //         { id: "0_Option_1", title: "Option 1" },
-  //         { id: "1_Option_2", title: "Option 2" },
-  //       ],
-  //     },
-  //   },
-  //   {
-  //     type: "RadioButtonsGroup",
-  //     label: "Radio Group",
-  //     icon: Radio,
-  //     config: {
-  //       type: "RadioButtonsGroup",
-  //       name: "radio_group",
-  //       label: "Radio Group",
-  //       "data-source": [
-  //         { id: "0_Yes", title: "Yes" },
-  //         { id: "1_No", title: "No" },
-  //       ],
-  //     },
-  //   },
-  //   {
-  //     type: "CheckboxGroup",
-  //     label: "Checkbox Group",
-  //     icon: CheckSquare,
-  //     config: {
-  //       type: "CheckboxGroup",
-  //       name: "checkbox_group",
-  //       label: "Checkbox Group",
-  //       "data-source": [
-  //         { id: "0_Option_A", title: "Option A" },
-  //         { id: "1_Option_B", title: "Option B" },
-  //       ],
-  //     },
-  //   },
-
-  //   {
-  //     type: "OptIn",
-  //     label: "Opt In",
-  //     icon: ToggleRight,
-  //     config: { type: "OptIn", name: "optin", label: "Opt In" },
-  //   },
-  //   {
-  //     type: "EmbeddedLink",
-  //     label: "Embedded Link",
-  //     icon: Link2,
-  //     config: {
-  //       type: "EmbeddedLink",
-  //       name: "embedded_link",
-  //       label: "Embedded Link",
-  //     },
-  //   },
-  //   {
-  //     type: "DatePicker",
-  //     label: "Date Picker",
-  //     icon: Calendar,
-  //     config: { type: "DatePicker", name: "date_picker", label: "Date Picker" },
-  //   },
-  //   {
-  //     type: "CalendarPicker",
-  //     label: "Calendar Picker",
-  //     icon: CalendarDays,
-  //     config: {
-  //       type: "CalendarPicker",
-  //       name: "calendar_picker",
-  //       label: "Calendar Picker",
-  //     },
-  //   },
-  //   {
-  //     type: "Image",
-  //     label: "Image",
-  //     icon: Image,
-  //     config: { type: "Image", name: "image", label: "Image" },
-  //   },
-  //   {
-  //     type: "ChipsSelector",
-  //     label: "Chips Selector",
-  //     icon: LayoutGrid,
-  //     config: {
-  //       type: "ChipsSelector",
-  //       name: "chips_selector",
-  //       label: "Chips Selector",
-  //     },
-  //   },
-  //    {
-  //     type: "Footer",
-  //     label: "Footer Button",
-  //     icon: ArrowRight,
-  //     config: {
-  //       type: "Footer",
-  //       label: "Continue",
-  //     },
-  //   },
-  // ];
 
   const palette = [
     {
@@ -4201,7 +4104,7 @@ const cleanLayout = (layout) => {
       icon: Type,
       config: {
         type: "TextHeading",
-        text: "${data.heading_text}",
+        text: "Heloo...",
         visible: true,
       },
     },
@@ -4211,7 +4114,7 @@ const cleanLayout = (layout) => {
       icon: AlignLeft,
       config: {
         type: "TextSubheading",
-        text: "${data.subheading_text}",
+        text: "Subheading text",
         visible: true,
       },
     },
@@ -4221,7 +4124,7 @@ const cleanLayout = (layout) => {
       icon: FileText,
       config: {
         type: "TextBody",
-        text: "${data.body_text}",
+        text: "Hii...",
         "font-weight": "normal",
         strikethrough: false,
         visible: true,
@@ -4233,7 +4136,7 @@ const cleanLayout = (layout) => {
       icon: Quote,
       config: {
         type: "TextCaption",
-        text: "${data.caption_text}",
+        text: "Hello Caption",
         visible: true,
       },
     },
@@ -4325,8 +4228,7 @@ const cleanLayout = (layout) => {
         name: "optin",
         label: "I agree to terms",
         visible: true,
-                        "required": true,
-
+        required: true,
       },
     },
     {
@@ -4337,7 +4239,7 @@ const cleanLayout = (layout) => {
         type: "EmbeddedLink",
         text: "This is an embedded link",
         "on-click-action": {
-          name: "navigate", 
+          name: "navigate",
           next: {
             type: "screen",
             name: "FINISH",
@@ -4346,34 +4248,33 @@ const cleanLayout = (layout) => {
         visible: true,
       },
     },
-{
-  type: "NavigationList",
-  label: "Navigation List",
-  icon: List, // import from lucide-react or your icons set
-  config: {
-    type: "NavigationList",
-    name: "nav_list",
-    "list-items": [
-      {
-        id: "item_1",
-        "main-content": {
-          title: "Option 1",
-          metadata: "Description of option 1"
-        },
-        end: {
-          title: "$100",
-          description: "/ month"
-        },
-        "on-click-action": {
-          name: "navigate",
-          next: { name: "NEXT_SCREEN", type: "screen" },
-          payload: {}
-        }
-      }
-    ]
-  }
-}
-,
+    {
+      type: "NavigationList",
+      label: "Navigation List",
+      icon: List, // import from lucide-react or your icons set
+      config: {
+        type: "NavigationList",
+        name: "nav_list",
+        "list-items": [
+          {
+            id: "item_1",
+            "main-content": {
+              title: "Option 1",
+              metadata: "Description of option 1",
+            },
+            end: {
+              title: "$100",
+              description: "/ month",
+            },
+            "on-click-action": {
+              name: "navigate",
+              next: { name: "NEXT_SCREEN", type: "screen" },
+              payload: {},
+            },
+          },
+        ],
+      },
+    },
     {
       type: "DatePicker",
       label: "Date Picker",
@@ -4426,38 +4327,38 @@ const cleanLayout = (layout) => {
         visible: true,
       },
     },
-     {
-    type: "PhotoPicker",
-    label: "Photo Picker",
-    icon: ImageIcon, // your image icon import
-    config: {
+    {
       type: "PhotoPicker",
-      name: "photo_picker",
-      label: "Upload photos",
-      description: "Please attach images about the received items",
-      "photo-source": "camera_gallery",
-      "min-uploaded-photos": 1,
-      "max-uploaded-photos": 10,
-      "max-file-size-kb": 10240,
-      visible: true,
+      label: "Photo Picker",
+      icon: ImageIcon, // your image icon import
+      config: {
+        type: "PhotoPicker",
+        name: "photo_picker",
+        label: "Upload photos",
+        description: "Please attach images about the received items",
+        "photo-source": "camera_gallery",
+        "min-uploaded-photos": 1,
+        "max-uploaded-photos": 10,
+        "max-file-size-kb": 10240,
+        visible: true,
+      },
     },
-  },
-  {
-    type: "DocumentPicker",
-    label: "Document Picker",
-    icon: FileText, // your document icon import
-    config: {
+    {
       type: "DocumentPicker",
-      name: "document_picker",
-      label: "Contract",
-      description: "Attach the signed copy of the contract",
-      "min-uploaded-documents": 1,
-      "max-uploaded-documents": 1,
-      "max-file-size-kb": 1024,
-      "allowed-mime-types": ["image/jpeg", "application/pdf"],
-      visible: true,
+      label: "Document Picker",
+      icon: FileText, // your document icon import
+      config: {
+        type: "DocumentPicker",
+        name: "document_picker",
+        label: "Contract",
+        description: "Attach the signed copy of the contract",
+        "min-uploaded-documents": 1,
+        "max-uploaded-documents": 1,
+        "max-file-size-kb": 1024,
+        "allowed-mime-types": ["image/jpeg", "application/pdf"],
+        visible: true,
+      },
     },
-  },
     {
       type: "Footer",
       label: "Footer Button",
@@ -4519,7 +4420,7 @@ const cleanLayout = (layout) => {
                 >
                   View JSON
                 </button>
-                <Button onClick={handleCreateFlow} size="sm" variant="accent">
+                <Button loading={loading} onClick={handleCreateFlow} size="sm" variant="accent">
                   Submit on meta
                 </Button>
               </div>
@@ -4653,31 +4554,30 @@ const cleanLayout = (layout) => {
                 {/* <p className="text-sm text-gray-600 mb-4">
                   See how your flow will appear to users in WhatsApp
                 </p> */}
-               {/* Right - WhatsApp Preview & Instructions */}
-<div className="col-span-4 space-y-6">
-    <div className="bg-white rounded-lg shadow-sm border p-4 sticky top-[px]">
-    <h2 className="text-lg font-semibold mb-2">Instructions</h2>
-<InstructionPanel
-  selectedComponent={selectedComponent}
-  screenComponents={
-    selectedComponent
-      ? screens.find((s) => s.id === selectedComponent.screenId)?.components || []
-      : []
-  }
-/>
-  </div>
-  {/* WhatsApp Preview */}
-  <div className="bg-white rounded-lg shadow-sm border p-4 sticky top-6">
-    <h2 className="text-lg font-semibold mb-4">WhatsApp Preview</h2>
-    <div className="h-[400px]">
-      <WhatsAppPreview screens={screens} flowName={flowName} />
-    </div>
-  </div>
+                {/* Right - WhatsApp Preview & Instructions */}
+                <div className="col-span-4 space-y-6">
+                  <div className="bg-white rounded-lg shadow-sm border p-4 sticky top-[px]">
+                    <h2 className="text-lg font-semibold mb-2">Instructions</h2>
+                    <InstructionPanel
+                      selectedComponent={selectedComponent}
+                      screenComponents={screens.find(
+                              (s) => s?.id==selectedScreenId)
+                          
+                      }
+                    />
+                  </div>
+                  {/* WhatsApp Preview */}
+                  <div className="bg-white rounded-lg shadow-sm border p-4 sticky top-6">
+                    <h2 className="text-lg font-semibold mb-4">
+                      WhatsApp Preview
+                    </h2>
+                    <div className="h-[400px]">
+                      <WhatsAppPreview screens={screens} flowName={flowName} />
+                    </div>
+                  </div>
 
-  {/* Dynamic Instructions */}
-
-</div>
-
+                  {/* Dynamic Instructions */}
+                </div>
               </div>
             </div>
           </div>

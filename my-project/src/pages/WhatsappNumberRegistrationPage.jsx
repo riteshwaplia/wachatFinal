@@ -159,11 +159,11 @@ const WhatsappNumberRegistrationPage = () => {
             setErrors(validationErrors);
             return;
         }
-        if(formData.catalogAccess){
-            formData.businessPortfolioId = ''
-            toast.error("Please add Business Portfolio ID")
-            return;
-        }
+if (formData.catalogAccess && !formData.businessPortfolioId) {
+    toast.error("Please add Business Portfolio ID");
+    return;
+}
+
         updateState({ isLoading: true });
         setLoading(true)
         try {
@@ -332,9 +332,9 @@ const WhatsappNumberRegistrationPage = () => {
                         {t('addBusinessProfile')}
                     </Button>
 
-                    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                        <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                            <Building size={18} className="text-primary-600 mr-2" />
+                    <div className=" rounded-lg shadow-sm border border-gray-200 p-4">
+                        <h2 className="text-lg font-semibold  mb-4 flex items-center dark:text-white">
+                            <Building size={18} className="dark:text-white mr-2" />
                             {t('yourBusinessProfiles')}
                         </h2>
 
@@ -342,7 +342,7 @@ const WhatsappNumberRegistrationPage = () => {
                             <EmptyState
                                 title={t('noBusinessProfiles')}
                                 description={t('addYourFirstBusinessProfile')}
-                                icon={<Building size={24} className="text-gray-400" />}
+                                icon={<Building size={24} className="text-gray-400 dark:text-white" />}
                             />
                         ) : (
                             <div className="space-y-3">
@@ -363,9 +363,9 @@ const WhatsappNumberRegistrationPage = () => {
 
                 {/* Right Column - Phone Numbers */}
                 <div className="lg:col-span-2">
-                    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 h-full">
+                    <div className=" rounded-lg shadow-sm border border-gray-200 p-4 h-full">
                         <div className="flex justify-between items-center mb-4">
-                            <h2 className="text-lg font-semibold text-gray-800 flex items-center">
+                            <h2 className="text-lg font-semibold text-gray-800 flex items-center dark:text-white">
                                 <Phone size={18} className="text-primary-600 mr-2" />
                                 {t('whatsappNumbers')}
                             </h2>

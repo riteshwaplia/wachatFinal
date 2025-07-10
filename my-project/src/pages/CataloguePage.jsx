@@ -370,7 +370,7 @@ const CataloguePage = () => {
     <div className="p-4 md:p-6 w-full">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
-        <h1 className="text-2xl font-bold">Catalogues</h1>
+        <h1 className="text-2xl font-bold dark:text-white">Catalogues</h1>
         <div className="flex flex-wrap items-center gap-2">
           {/* Limit selector */}
           <select

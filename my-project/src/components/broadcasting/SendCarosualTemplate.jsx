@@ -1311,7 +1311,7 @@ const SendCarosualTemplate = () => {
 
       return (
         <div className="mt-6">
-          <label className="block font-semibold text-gray-800 mb-4 text-lg">
+          <label className="block  dark:text-white font-semibold text-gray-800 mb-4 text-lg">
             Carousel Image Upload
           </label>
 
@@ -1454,12 +1454,12 @@ const SendCarosualTemplate = () => {
 
       return (
         <div className="mt-6">
-          <h4 className="text-lg font-semibold text-gray-700 mb-2">
+          <h4 className="text-lg dark:text-white font-semibold text-gray-700 mb-2">
             Required Excel Format
           </h4>
-          <div className="overflow-auto border rounded-md bg-white mb-3">
+          <div className="overflow-auto border rounded-md dark:text-white  mb-3">
             <table className="min-w-full border-collapse">
-              <thead className="bg-gray-100">
+              <thead className=" dark:text-white">
                 <tr>
                   {columns.map(col => (
                     <th key={col} className="border px-3 py-2 text-sm font-medium">
@@ -1549,7 +1549,7 @@ const SendCarosualTemplate = () => {
             <h4 className="font-medium mb-2">Recent Updates</h4>
             <ul className="space-y-1 text-sm">
               {messageStatus.recent.map((update, i) => (
-                <li key={i} className="bg-white p-2 rounded border">
+                <li key={i} className=" p-2 rounded border">
                   {update.to} - {update.newStatus.toUpperCase()}
                 </li>
               ))}
@@ -1562,13 +1562,13 @@ const SendCarosualTemplate = () => {
         <SendCarrouselGroupWise />
       ) : (
         <div className="p-4 border border-gray-200 rounded-lg">
-          <h3 className="text-xl font-semibold mb-4">Bulk Template Messages</h3>
+          <h3 className="text-xl font-semibold mb-4 dark:text-white">Bulk Template Messages</h3>
 
           <form onSubmit={handleBulkMessageSubmit} className="space-y-4">
             <div>
-              <label className="block font-medium mb-1">Template</label>
+              <label className="block font-medium mb-1 dark:text-white">Template</label>
               <select
-                className="w-full border rounded-md p-2"
+                className="w-full border rounded-md p-2 dark:text-white dark:bg-gray-800"
                 value={bulkTemplateName}
                 onChange={(e) => setBulkTemplateName(e.target.value)}
                 required
@@ -1591,7 +1591,7 @@ const SendCarosualTemplate = () => {
             {renderHeaderImageUpload()}
 
             <div>
-              <label className="block font-medium mb-1">Template Components</label>
+              <label className="block font-medium mb-1 dark:text-white">Template Components</label>
               <textarea
                 className="w-full border rounded-md p-2 font-mono text-sm h-32"
                 value={bulkTemplateComponents}
@@ -1604,21 +1604,21 @@ const SendCarosualTemplate = () => {
             {renderTemplatePreview()}
 
             <div>
-              <label className="block font-medium mb-1">Contacts File</label>
+              <label className="block font-medium mb-1 dark:text-white">Contacts File</label>
               <input
                 type="file"
                 id="bulkContactsFile"
-                className="w-full border rounded-md p-2"
+                className="w-full border rounded-md p-2 dark:text-white"
                 onChange={handleBulkFileChange}
                 accept=".csv,.xlsx,.xls"
                 required
               />
               {excelHeaders.length > 0 && (
                 <div className="mt-3">
-                  <p className="text-sm font-medium">Detected Columns:</p>
+                  <p className="text-sm font-medium dark:text-white">Detected Columns:</p>
                   <div className="flex flex-wrap gap-2 mt-1">
                     {excelHeaders.map(header => (
-                      <span key={header} className="bg-gray-100 px-2 py-1 rounded text-sm">
+                      <span key={header} className=" px-2 py-1 rounded text-sm">
                         {header}
                       </span>
                     ))}

@@ -71,6 +71,7 @@ const instructionMap = {
 };
 
 const InstructionPanel = ({ selectedComponent, screenComponents }) => {
+    console.log("selectedComponent:", selectedComponent);
   if (!selectedComponent)
     return (
       <div className="text-gray-500 text-sm text-center py-4">
@@ -78,6 +79,7 @@ const InstructionPanel = ({ selectedComponent, screenComponents }) => {
         Select a component to view relevant setup instructions.
       </div>
     );
+  const warnings = [];
 
   const info =
     instructionMap[selectedComponent.type] || {
@@ -85,18 +87,24 @@ const InstructionPanel = ({ selectedComponent, screenComponents }) => {
       description: "No specific instructions available for this component.",
       tips: [],
     };
+ const children = screenComponents?.layout?.children?.[0]?.children || [];
+  const componentCount = children.length;
 
-  // Validation checks
-  const warnings = [];
+  // --- Start Conditional Warning Checks ---
 
-  if (screenComponents?.length > 8) {
-    warnings.push("⚠️ A single screen cannot contain more than 8 components.");
+  // 1. Max Component Count Warning
+  if (componentCount > 8) {
+    warnings.push(`⚠️ A single screen cannot contain more than 8 components. (Current: ${componentCount})`);
   }
+  // Validation checks
+
+//   if (screenComponents?.length > 8) {
+//     warnings.push("⚠️ A single screen cannot contain more than 8 components.");
+//   }
 
   const exclusiveTypes = ["PhotoPicker", "DocumentPicker"];
   if (
-    exclusiveTypes.includes(selectedComponent.type) &&
-    screenComponents.length > 1
+    exclusiveTypes.includes(selectedComponent.type) 
   ) {
     warnings.push(
       `⚠️ ${selectedComponent.type} must be the only component in this screen.`
@@ -119,21 +127,7 @@ const InstructionPanel = ({ selectedComponent, screenComponents }) => {
 
   return (
     <div className="p-4 space-y-4">
-      <div className="flex items-center gap-2">
-        <Lightbulb className="text-yellow-500" size={18} />
-        <h2 className="text-lg font-semibold">{info.title}</h2>
-      </div>
-      <p className="text-sm text-gray-600">{info.description}</p>
-
-      {info.tips.length > 0 && (
-        <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
-          {info.tips.map((tip, i) => (
-            <li key={i}>{tip}</li>
-          ))}
-        </ul>
-      )}
-
-      {warnings.length > 0 && (
+         {warnings.length > 0 && (
         <div className="bg-red-50 border border-red-200 text-red-700 text-sm p-3 rounded-lg">
           <div className="flex items-center gap-2 mb-1">
             <AlertTriangle size={16} />
@@ -146,6 +140,23 @@ const InstructionPanel = ({ selectedComponent, screenComponents }) => {
           </ul>
         </div>
       )}
+      <div className="flex items-center gap-2">
+        
+        <Lightbulb className="text-yellow-500" size={18} />
+        <h2 className="text-lg font-semibold">{info.title}</h2>
+      </div>
+
+      <p className="text-sm text-gray-600">{info.description}</p>
+
+      {info.tips.length > 0 && (
+        <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
+          {info.tips.map((tip, i) => (
+            <li key={i}>{tip}</li>
+          ))}
+        </ul>
+      )}
+
+     
     </div>
   );
 };

@@ -471,13 +471,13 @@ const renderTemplatePreview = () => {
 
     return (
       <div className="mt-6">
-        <h4 className="text-lg font-semibold text-gray-700 mb-2">
+        <h4 className="text-lg font-semibold dark:text-white text-gray-700 mb-2">
           Required Excel Format
         </h4>
 
         <div className="overflow-auto border rounded-md bg-white mb-3">
           <table className="min-w-full border-collapse">
-            <thead className="bg-gray-100">
+            <thead className="bg-gray-100 dark:text-white">
               <tr>
                 {columns.map((col) => (
                   <th
@@ -542,14 +542,14 @@ const renderTemplatePreview = () => {
   return (
     <div className="p-6 space-y-6">
       <BackButton />
-      <h2 className="text-xl font-semibold">Bulk Catalog Messaging</h2>
+      <h2 className="text-xl font-semibold dark:text-white">Bulk Catalog Messaging</h2>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Message Type */}
         <div>
-          <label className="block font-medium mb-2">Message Type</label>
+          <label className="block font-medium mb-2 dark:text-white">Message Type</label>
           <select
-            className="w-full border rounded-md p-2"
+            className="w-full border rounded-md p-2 dark:text-white dark:bg-dark-surface"
             value={messageType}
             onChange={handleMessageTypeChange}
             required
@@ -597,7 +597,7 @@ const renderTemplatePreview = () => {
               }}
               placeholder={`Select ${messageType.toUpperCase()} Template`}
             />
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-sm text-gray-500 mt-1 dark:text-white">
               Available templates for {messageType.toUpperCase()}:{" "}
               <span className="font-semibold">{templateOptions.length}</span>
             </p>
@@ -606,7 +606,7 @@ const renderTemplatePreview = () => {
         {/* SPM - Single Product Message */}
         {messageType === "spm" && selectedCatalogId && (
           <div>
-            <label className="block font-medium mb-2">Select Product</label>
+            <label className="block font-medium mb-2 dark:text-white">Select Product</label>
             <CusLoadMoreSelect
               options={productOptions}
               labelKey="name"
@@ -624,7 +624,7 @@ const renderTemplatePreview = () => {
         {messageType === "mpm" && selectedCatalogId && (
           <div className="space-y-4">
             <div>
-              <label className="block font-medium mb-2">
+              <label className="block font-medium mb-2 dark:text-white">
                 Thumbnail Product
               </label>
               <CusLoadMoreSelect
@@ -645,7 +645,7 @@ const renderTemplatePreview = () => {
 
             <div>
               <div className="flex justify-between items-center mb-3">
-                <h4 className="font-medium">Sections</h4>
+                <h4 className="font-medium dark:text-white">Sections</h4>
                 <button
                   type="button"
                   className="px-3 py-1 bg-blue-500 text-white rounded-md text-sm"
@@ -664,7 +664,7 @@ const renderTemplatePreview = () => {
                     onChange={(e) =>
                       handleSectionChange(sIndex, "title", e.target.value)
                     }
-                    className="w-full border rounded-md p-2 mb-2"
+                    className="w-full border rounded-md p-2 mb-2 dark:text-white"
                     required
                   />
                   {section.product_items.map((item, pIndex) => (
@@ -705,7 +705,7 @@ const renderTemplatePreview = () => {
                   ))}
                   <button
                     type="button"
-                    className="px-3 py-1 bg-gray-200 rounded-md text-sm"
+                    className="px-3 py-1 bg-gray-200 rounded-md text-sm dark:text-white"
                     onClick={() => handleAddProductToSection(sIndex)}
                   >
                     + Add Product
@@ -717,22 +717,22 @@ const renderTemplatePreview = () => {
         )}
         {renderTemplatePreview()} {/* File Upload */}
         <div>
-          <label className="block font-medium mb-2">Upload Contacts File</label>
+          <label className="block font-medium mb-2 dark:text-white">Upload Contacts File</label>
           <input
             type="file"
             id="bulkContactsFile"
-            className="w-full border rounded-md p-2"
+            className="w-full border rounded-md p-2 dark:text-white"
             onChange={handleBulkFileChange}
             accept=".csv,.xlsx,.xls"
             required
           />
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-sm text-gray-500 mt-1 dark:text-white">
             Supported formats: CSV, XLSX, XLS
           </p>
         </div>
         {/* Scheduling */}
         <div>
-          <label className="block font-medium mb-2">Send Mode</label>
+          <label className="block font-medium mb-2 dark:text-white">Send Mode</label>
           <div className="flex gap-3 mt-2">
             <button
               type="button"
@@ -759,7 +759,7 @@ const renderTemplatePreview = () => {
           </div>
           {sendMode === "schedule" && (
             <div className="mt-3">
-              <label className="block font-medium mb-2">
+              <label className="block font-medium mb-2 dark:text-white">
                 Schedule Date & Time
               </label>
               <DatePicker
@@ -779,7 +779,7 @@ const renderTemplatePreview = () => {
         </div>
         <button
           type="submit"
-          className="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 disabled:bg-gray-400"
+          className="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 disabled:bg-gray-400 dark:text-white"
           disabled={loading}
         >
           {loading

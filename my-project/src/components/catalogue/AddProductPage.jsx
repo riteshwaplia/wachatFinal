@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import api from "../../utils/api";
 // import { initialCategories } from "../../data/mockData";
-
+import Input from "./../InputField.jsx";
+import Button from "../Button.jsx";
 const AddProductPage = () => {
   const { catelogueId: categoryId ,id: projectId } = useParams();
 
@@ -129,7 +130,7 @@ const handleAddProduct = async () => {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Category Name *
                 </label>
-                <input
+                <Input
                   type="text"
                   value={newCategory.name}
                   onChange={(e) => handleCategoryChange("name", e.target.value)}
@@ -141,7 +142,7 @@ const handleAddProduct = async () => {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Slug *
                 </label>
-                <input
+                <Input
                   type="text"
                   value={newCategory.slug}
                   onChange={(e) => handleCategoryChange("slug", e.target.value)}
@@ -233,62 +234,58 @@ const handleAddProduct = async () => {
             {/* Add Product to {category.name} */}
           </h1>
 
-          <div className="bg-white rounded-lg p-6 shadow-md">
+          <div className=" rounded-lg p-6 shadow-md">
             <div className="space-y-4">
               {/* Basic Product Information */}
               <div className="border-b pb-4">
-                <h2 className="text-xl font-semibold text-gray-800 mb-3">Basic Information</h2>
+                <h2 className="text-xl font-semibold text-gray-800 mb-3 dark:text-white">Basic Information</h2>
                 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium dark:text-white text-gray-700 mb-1">
                       Product Name *
                     </label>
-                    <input
+                    <Input
                       type="text"
                       value={newProduct.name}
                       onChange={(e) => handleProductChange("name", e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
                       placeholder="Enter product name"
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium dark:text-white text-gray-700 mb-1">
                       Description
                     </label>
-                    <textarea
+                    <Input
                       value={newProduct.description}
                       onChange={(e) => handleProductChange("description", e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                      rows="3"
                       placeholder="Enter description"
                     />
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm dark:text-white font-medium text-gray-700 mb-1">
                         Price *
                       </label>
-                      <input
+                      <Input
                         type="number"
                         value={newProduct.price}
                         onChange={(e) => handleProductChange("price", e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
                         placeholder="Enter price"
                         required
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium dark:text-white text-gray-700 mb-1">
                         Currency
                       </label>
                       <select
                         value={newProduct.currency}
                         onChange={(e) => handleProductChange("currency", e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md dark:text-gray-200 dark:bg-gray-900"
                       >
                         <option value="USD">USD</option>
                         <option value="INR">INR</option>
@@ -313,13 +310,13 @@ const handleAddProduct = async () => {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium dark:text-white text-gray-700 mb-1">
                         Availability
                       </label>
                       <select
                         value={newProduct.availability}
                         onChange={(e) => handleProductChange("availability", e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md dark:text-gray-200 dark:bg-gray-900"
                       >
                         <option value="in stock">In Stock</option>
                         <option value="out of stock">Out of Stock</option>
@@ -327,13 +324,13 @@ const handleAddProduct = async () => {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm dark:text-white font-medium text-gray-700 mb-1">
                         Condition
                       </label>
                       <select
                         value={newProduct.condition}
                         onChange={(e) => handleProductChange("condition", e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md dark:text-gray-200 dark:bg-gray-900"
                       >
                         <option value="new">New</option>
                         <option value="refurbished">Refurbished</option>
@@ -344,14 +341,13 @@ const handleAddProduct = async () => {
 
                   <div className="grid grid-cols-3 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm dark:text-white font-medium text-gray-700 mb-1">
                         Retailer Id
                       </label>
-                      <input
+                      <Input
                         type="text"
                         value={newProduct.retailer_id}
                         onChange={(e) => handleProductChange("retailer_id", e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
                         placeholder="Unique Retailer Id"
                       />
                     </div>
@@ -382,14 +378,13 @@ const handleAddProduct = async () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm dark:text-white font-medium text-gray-700 mb-1">
                       Image URL
                     </label>
-                    <input
+                    <Input
                       type="text"
                       value={newProduct.image_url}
                       onChange={(e) => handleProductChange("image_url", e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
                       placeholder="https://example.com/product.jpg"
                     />
                   </div>
@@ -593,12 +588,12 @@ const handleAddProduct = async () => {
                 >
                   Cancel
                 </Link>
-                <button
+                <Button
                   onClick={handleAddProduct}
                   className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   {loading ? "Adding..." : "Add Product"}
-                </button>
+                </Button>
               </div>
             </div>
           </div>

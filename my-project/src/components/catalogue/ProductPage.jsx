@@ -87,7 +87,7 @@ const fetchProducts = async (page = 1) => {
     }
   };
 
-  if (loading) return <p className="text-center py-10">Loading products...</p>;
+  if (loading) return <p className="text-center py-10 dark:text-white">Loading products...</p>;
   // if (error) return <p className="text-center py-10 text-red-500">{error}</p>;
 
   return (
@@ -102,8 +102,8 @@ const fetchProducts = async (page = 1) => {
       {/* Header */}
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-800">Products</h1>
-          <p className="text-gray-600 mt-1">Showing all products in this catalogue</p>
+          <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Products</h1>
+          <p className="text-gray-600 mt-1 dark:text-white">Showing all products in this catalogue</p>
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -129,11 +129,11 @@ const fetchProducts = async (page = 1) => {
 
       {/* Product Table */}
       {products.length === 0 ? (
-        <p className="text-gray-600 text-center py-10">No products found.</p>
+        <p className="text-gray-600 text-center py-10 dark:text-white">No products found.</p>
       ) : (
         <div className="overflow-x-auto">
-          <table className="min-w-full border border-gray-200 bg-white rounded-lg shadow-md">
-            <thead className="bg-gray-100">
+          <table className="min-w-full border border-gray-200 dark:text-white rounded-lg shadow-md">
+            <thead className="bg-gray-100 dark:bg-gray-700">
               <tr>
                 <th className="px-4 py-2 text-left">Image</th>
                 <th className="px-4 py-2 text-left">Name</th>
@@ -146,7 +146,7 @@ const fetchProducts = async (page = 1) => {
             </thead>
             <tbody>
               {products.map((product) => (
-                <tr key={product._id} className="border-t hover:bg-gray-50">
+                <tr key={product._id} className="border-t   dark:text-white">
                   <td className="px-4 py-2">
                     <img
                       src={product.image_url}
@@ -154,8 +154,8 @@ const fetchProducts = async (page = 1) => {
                       className="w-16 h-16 object-cover rounded"
                     />
                   </td>
-                  <td className="px-4 py-2 font-semibold text-gray-800">{product.name}</td>
-                  <td className="px-4 py-2 text-sm text-gray-600 max-w-xs truncate">
+                  <td className="px-4 py-2 font-semibold ">{product.name}</td>
+                  <td className="px-4 py-2 text-sm  max-w-xs truncate">
                     {product.description}
                   </td>
                   <td className="px-4 py-2 font-medium">

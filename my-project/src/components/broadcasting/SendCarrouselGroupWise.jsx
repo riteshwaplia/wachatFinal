@@ -500,7 +500,7 @@ export default function SendCarrouselGroupWise() {
             )}
 
             {previewText && (previewText.header || previewText.body) && (
-                <div className="mt-6 w-full mx-auto bg-white shadow-xl rounded-2xl p-6 border border-gray-200">
+                <div className="mt-6 w-full mx-auto shadow-xl rounded-2xl p-6 border border-gray-200">
                     <h2 className="text-2xl font-semibold text-primary-500 mb-4"> Template Preview</h2>
 
                     <label className="block mb-2 text-sm font-medium text-gray-700">Message Content</label>
@@ -551,11 +551,11 @@ export const CarouselCard = ({
     onFileSelect,
 }) => {
     return (
-        <div className="flex-shrink-0 w-64 rounded-xl border border-gray-200 shadow-md bg-white p-3 flex flex-col items-center">
+        <div className="flex-shrink-0 w-64 rounded-xl border border-gray-200 shadow-md p-3 flex flex-col items-center">
             {/* Image Preview */}
-            <div className="w-full h-32 rounded-md overflow-hidden border border-gray-200 flex items-center justify-center bg-gray-50">
+            <div className="w-full h-32 rounded-md overflow-hidden border border-gray-200 flex items-center justify-center ">
                 {headerImage ? (
-                    <img src={headerImage} alt={`Card ${cardIndex + 1}`} className="object-cover w-full h-full" />
+                    <img src={headerImage} alt={`Card ${cardIndex + 1}`} className="object-cover w-full h-full dark:text-white" />
                 ) : (
                     <span className="text-gray-400 text-sm">No Image</span>
                 )}
@@ -567,14 +567,14 @@ export const CarouselCard = ({
                 accept="image/*"
                 className="mt-3 block w-full text-sm text-gray-600 file:py-2 file:px-3 
                    file:rounded-md file:border-0 file:text-sm file:font-semibold
-                   file:bg-blue-50 file:text-blue-600 hover:file:bg-blue-100
+                   file:bg-blue-50 dark:text-white file:text-blue-600 hover:file:bg-blue-100
                    cursor-pointer"
                 disabled={isLoading}
                 onChange={onFileSelect}
             />
 
             {/* Body Text Preview */}
-            <p className="mt-2 text-xs text-gray-700 text-center line-clamp-2">{bodyText}</p>
+            <p className="mt-2 text-xs text-gray-700 dark:text-white text-center line-clamp-2">{bodyText}</p>
 
             {isLoading && (
                 <p className="text-blue-500 text-xs mt-1 animate-pulse">Uploading...</p>

@@ -13,7 +13,7 @@ const projectId = localStorage.getItem("currentProject")
     <div className="bg-white dark:bg-gray-800 shadow-md rounded-xl p-4 border hover:shadow-lg transition-all duration-300 flex flex-col justify-between">
       <div>
         <div className="flex justify-between items-center">
-          <h3 className="font-semibold text-lg truncate">{name}</h3>{" "}
+          <h3 className="font-semibold text-lg truncate  dark:text-white">{name}</h3>{" "}
           <div className="mt-">
             <button
               onClick={addProduct}

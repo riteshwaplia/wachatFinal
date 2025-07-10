@@ -182,7 +182,7 @@ const ProjectDashboard = () => {
 
         <StatCard 
           title="Live Chat" 
-          value={stats.liveChat.activeUserCount} 
+          value={stats.liveChat.totalConversations} 
           change={stats.liveChat.responseRate}
           icon={<MessageSquare size={20} className="text-teal-500" />}
           link={`/project/${projectId}/chat`}
