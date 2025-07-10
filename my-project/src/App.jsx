@@ -110,7 +110,7 @@ function AppContent() {
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route
-        path="('/admin/dashboard"
+        path="/admin/dashboard"
         element={
           <AdminRoute>
             <HomePage />

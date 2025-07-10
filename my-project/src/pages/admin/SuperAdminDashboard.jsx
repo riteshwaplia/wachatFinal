@@ -1,11 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../utils/api';
-import { useAuth } from '../../context/AuthContext'; // Corrected import path for useAuth
+import { useAuth } from '../../context/AuthContext';
+import Button from '../../components/Button';
+import Modal from '../../components/Modal';
+import Input from '../../components/InputField';
+import Table from '../../components/Table';
 
 const SuperAdminDashboard = () => {
     const { token, user } = useAuth();
     const [tenants, setTenants] = useState([]);
-    const [newTenant, setNewTenant] = useState({
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [message, setMessage] = useState({ text: '', type: '' });
+    const [form, setForm] = useState({
         name: '',
         domain: '',
         websiteName: '',
@@ -13,7 +19,6 @@ const SuperAdminDashboard = () => {
         adminEmail: '',
         adminPassword: ''
     });
-    const [message, setMessage] = useState('');
 
     const config = {
         headers: {
@@ -27,8 +32,10 @@ const SuperAdminDashboard = () => {
             const res = await api.get('/tenants', config);
             setTenants(res.data);
         } catch (error) {
-            console.error('Error fetching tenants:', error.response?.data?.message || error.message);
-            setMessage(`Error: ${error.response?.data?.message || 'Failed to fetch tenants.'}`);
+            setMessage({
+                text: `Error: ${error.response?.data?.message || 'Failed to fetch tenants.'}`,
+                type: 'error'
+            });
         }
     };
 
@@ -40,143 +47,204 @@ const SuperAdminDashboard = () => {
 
     const handleCreateTenant = async (e) => {
         e.preventDefault();
-        setMessage('');
+        setMessage({ text: '', type: '' });
         try {
-            const res = await api.post('/tenants', newTenant, config);
-            setMessage(`Tenant '${res.data.name}' created successfully!`);
-            setNewTenant({ name: '', domain: '', websiteName: '', adminUsername: '', adminEmail: '', adminPassword: '' });
-            fetchTenants(); // Refresh list
+            const res = await api.post('/tenants', form, config);
+            setMessage({
+                text: `Tenant '${res.data.name}' created successfully!`,
+                type: 'success'
+            });
+            setForm({
+                name: '',
+                domain: '',
+                websiteName: '',
+                adminUsername: '',
+                adminEmail: '',
+                adminPassword: ''
+            });
+            setIsModalOpen(false);
+            fetchTenants();
         } catch (error) {
-            console.error('Error creating tenant:', error.response?.data?.message || error.message);
-            setMessage(`Error creating tenant: ${error.response?.data?.message || 'Unknown error.'}`);
+            setMessage({
+                text: `Error creating tenant: ${error.response?.data?.message || 'Unknown error.'}`,
+                type: 'error'
+            });
         }
     };
 
     const handleToggleStatus = async (tenantId, isActive) => {
-        setMessage('');
+        setMessage({ text: '', type: '' });
         try {
             await api.put(`/tenants/${tenantId}/status`, { isActive: !isActive }, config);
-            setMessage(`Tenant status updated successfully!`);
-            fetchTenants(); // Refresh list
+            setMessage({
+                text: 'Tenant status updated successfully!',
+                type: 'success'
+            });
+            fetchTenants();
         } catch (error) {
-            console.error('Error toggling tenant status:', error.response?.data?.message || error.message);
-            setMessage(`Error toggling status: ${error.response?.data?.message || 'Unknown error.'}`);
+            setMessage({
+                text: `Error toggling status: ${error.response?.data?.message || 'Unknown error.'}`,
+                type: 'error'
+            });
         }
     };
 
+    const columns = [
+        {
+            header: 'Name',
+            accessor: 'name',
+            cell: (value, row) => (
+                <div>
+                    <p className="font-medium">{value}</p>
+                    {row.isSuperAdmin && (
+                        <span className="text-xs bg-primary-100 text-primary-800 px-2 py-1 rounded-full">
+                            Super Admin
+                        </span>
+                    )}
+                </div>
+            )
+        },
+        {
+            header: 'Domain',
+            accessor: 'domain'
+        },
+        {
+            header: 'Website Name',
+            accessor: 'websiteName'
+        },
+        {
+            header: 'Status',
+            accessor: 'isActive',
+            cell: (value) => (
+                <span className={`px-2 py-1 rounded-full text-xs ${
+                    value ? 'bg-secondary-100 text-secondary-800' : 'bg-gray-100 text-gray-800'
+                }`}>
+                    {value ? 'Active' : 'Inactive'}
+                </span>
+            )
+        },
+        {
+            header: 'Actions',
+            cell: (_, row) => (
+                <div className="flex space-x-2">
+                    <Button
+                        size="sm"
+                        variant={row.isActive ? 'danger' : 'success'}
+                        onClick={() => handleToggleStatus(row._id, row.isActive)}
+                        disabled={row.isSuperAdmin}
+                    >
+                        {row.isActive ? 'Deactivate' : 'Activate'}
+                    </Button>
+                </div>
+            )
+        }
+    ];
+
     if (!user || user.role !== 'super_admin') {
-        return <p className="text-center text-red-500 py-10">You do not have access to the Super Admin Dashboard.</p>;
+        return (
+            <div className="max-w-4xl mx-auto p-6">
+                <div className="bg-white rounded-lg shadow-md p-6 text-center">
+                    <p className="text-error">You do not have access to the Super Admin Dashboard.</p>
+                </div>
+            </div>
+        );
     }
 
     return (
-        <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md mt-8">
-            <h2 className="text-3xl font-bold text-gray-800 mb-6 border-b pb-4">Super Admin Dashboard</h2>
-
-            {message && (
-                <div className={`p-3 mb-4 rounded-md ${message.startsWith('Error') ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
-                    {message}
+        <div className="container mx-auto px-4 py-8">
+            <div className="rounded-lg">
+                <div className="flex justify-between items-center mb-6">
+                    <h1 className="text-2xl font-bold text-gray-800">Super Admin Dashboard</h1>
+                    <Button onClick={() => setIsModalOpen(true)}>
+                        Create New Tenant
+                    </Button>
                 </div>
-            )}
 
-            <div className="mb-8">
-                <h3 className="text-2xl font-semibold text-gray-700 mb-4">Create New Tenant</h3>
-                <form onSubmit={handleCreateTenant} className="space-y-4">
-                    <div>
-                        <label className="block text-gray-700">Tenant Name:</label>
-                        <input
-                            type="text"
-                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                            value={newTenant.name}
-                            onChange={(e) => setNewTenant({ ...newTenant, name: e.target.value })}
-                            required
-                        />
+                {message.text && (
+                    <div className={`mb-6 p-3 rounded-md ${
+                        message.type === 'error' 
+                            ? 'bg-error-100 text-error-800' 
+                            : 'bg-success-100 text-success-800'
+                    }`}>
+                        {message.text}
                     </div>
-                    <div>
-                        <label className="block text-gray-700">Domain (e.g., mycompany.com):</label>
-                        <input
-                            type="text"
-                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                            value={newTenant.domain}
-                            onChange={(e) => setNewTenant({ ...newTenant, domain: e.target.value })}
-                            required
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-gray-700">Website Name (for display):</label>
-                        <input
-                            type="text"
-                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                            value={newTenant.websiteName}
-                            onChange={(e) => setNewTenant({ ...newTenant, websiteName: e.target.value })}
-                            required
-                        />
-                    </div>
-                    <h4 className="text-xl font-semibold text-gray-700 mt-6 mb-3">Admin User for New Tenant:</h4>
-                    <div>
-                        <label className="block text-gray-700">Admin Username:</label>
-                        <input
-                            type="text"
-                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                            value={newTenant.adminUsername}
-                            onChange={(e) => setNewTenant({ ...newTenant, adminUsername: e.target.value })}
-                            required
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-gray-700">Admin Email:</label>
-                        <input
-                            type="email"
-                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                            value={newTenant.adminEmail}
-                            onChange={(e) => setNewTenant({ ...newTenant, adminEmail: e.target.value })}
-                            required
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-gray-700">Admin Password:</label>
-                        <input
-                            type="password"
-                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                            value={newTenant.adminPassword}
-                            onChange={(e) => setNewTenant({ ...newTenant, adminPassword: e.target.value })}
-                            required
-                        />
-                    </div>
-                    <button
-                        type="submit"
-                        className="bg-indigo-600 text-white px-6 py-2 rounded-lg shadow hover:bg-indigo-700 transition duration-300"
-                    >
-                        Create Tenant
-                    </button>
-                </form>
-            </div>
-
-            <div>
-                <h3 className="text-2xl font-semibold text-gray-700 mb-4">All Tenants</h3>
-                {tenants.length === 0 ? (
-                    <p>No tenants created yet.</p>
-                ) : (
-                    <ul className="space-y-4">
-                        {tenants.map((tenant) => (
-                            <li key={tenant._id} className="bg-gray-50 p-4 rounded-md shadow-sm flex justify-between items-center">
-                                <div>
-                                    <p className="text-lg font-medium">{tenant.name} ({tenant.domain})</p>
-                                    <p className="text-sm text-gray-600">Status: {tenant.isActive ? 'Active' : 'Inactive'}</p>
-                                    <p className="text-sm text-gray-600">Website Name: {tenant.websiteName}</p>
-                                    {tenant.isSuperAdmin && <p className="text-sm text-indigo-700 font-bold">Super Admin Tenant</p>}
-                                </div>
-                                <button
-                                    onClick={() => handleToggleStatus(tenant._id, tenant.isActive)}
-                                    className={`px-4 py-2 rounded-md transition duration-300 ${tenant.isActive ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'} text-white`}
-                                    disabled={tenant.isSuperAdmin} // Prevent deactivating super admin tenant for safety
-                                >
-                                    {tenant.isActive ? 'Deactivate' : 'Activate'}
-                                </button>
-                            </li>
-                        ))}
-                    </ul>
                 )}
+
+                <Table
+                    columns={columns}
+                    data={tenants}
+                    emptyMessage="No tenants found"
+                    rowClassName="hover:bg-primary-50 transition-colors"
+                />
             </div>
+
+            {/* Create Tenant Modal */}
+            <Modal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                title="Create New Tenant"
+            >
+                <form onSubmit={handleCreateTenant} className="space-y-4">
+                    <Input
+                        label="Tenant Name"
+                        name="name"
+                        value={form.name}
+                        onChange={(e) => setForm({ ...form, name: e.target.value })}
+                        required
+                    />
+                    <Input
+                        label="Domain (e.g., mycompany.com)"
+                        name="domain"
+                        value={form.domain}
+                        onChange={(e) => setForm({ ...form, domain: e.target.value })}
+                        required
+                    />
+                    <Input
+                        label="Website Name (for display)"
+                        name="websiteName"
+                        value={form.websiteName}
+                        onChange={(e) => setForm({ ...form, websiteName: e.target.value })}
+                        required
+                    />
+                    <div className="pt-4 border-t border-gray-200">
+                        <h4 className="text-lg font-medium mb-3">Admin User for New Tenant</h4>
+                        <Input
+                            label="Admin Username"
+                            name="adminUsername"
+                            value={form.adminUsername}
+                            onChange={(e) => setForm({ ...form, adminUsername: e.target.value })}
+                            required
+                        />
+                        <Input
+                            label="Admin Email"
+                            type="email"
+                            name="adminEmail"
+                            value={form.adminEmail}
+                            onChange={(e) => setForm({ ...form, adminEmail: e.target.value })}
+                            required
+                        />
+                        <Input
+                            label="Admin Password"
+                            type="password"
+                            name="adminPassword"
+                            value={form.adminPassword}
+                            onChange={(e) => setForm({ ...form, adminPassword: e.target.value })}
+                            required
+                        />
+                    </div>
+                    <div className="flex justify-end space-x-3 pt-4">
+                        <Button 
+                            variant="outline" 
+                            onClick={() => setIsModalOpen(false)}
+                        >
+                            Cancel
+                        </Button>
+                        <Button type="submit">
+                            Create Tenant
+                        </Button>
+                    </div>
+                </form>
+            </Modal>
         </div>
     );
 };

@@ -315,13 +315,13 @@ const TemplatePage = () => {
       ) : templates.length === 0 ? (
         <div className="text-center py-12 bg-gray-50 rounded-lg">
           <p className="text-gray-500 mb-4">No templates found</p>
-          <Button
+          {/* <Button
             variant="primary"
             onClick={() => setIsModalOpen(true)}
             icon={<FiPlus className="mr-2" />}
           >
             Create Your First Template
-          </Button>
+          </Button> */}
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
