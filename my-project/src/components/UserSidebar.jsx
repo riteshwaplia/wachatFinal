@@ -66,7 +66,7 @@ const UserSidebar = ({ isOpen, onToggle,isOff }) => {
       },
       {
         label: 'flow builder',
-        path: `/project/${id}/flow-builder`,
+        path: `/project/${id}/flows`,
         icon: <StepForward size={18} />
       }
     ] : []),

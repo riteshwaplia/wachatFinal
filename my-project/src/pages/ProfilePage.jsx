@@ -3,7 +3,7 @@ import InputField from '../components/InputField';
 import Button from '../components/Button';
 import CustomSelect from '../components/CustomSelect';
 import { MobileNumber } from '../components/MobileNumber';
-import { INDIAN_STATE } from "../components/constants/IndianState";
+import { INDIAN_STATE } from "../components/constants/IndinState";
 import { countries } from '../components/constants/Countries';
 import { INDUSTRY_TYPES } from '../components/constants/industryTypes';
 import { currencyOptions } from '../components/constants/currency';

@@ -24,9 +24,12 @@
     "react-phone-input-2": "^2.15.1",
     "react-quilljs": "^2.0.5",
     "react-router-dom": "^7.6.2",
+        "@gsap/react": "^2.1.2",
     "react-select": "^5.10.1",
     "reactflow": "^11.11.4",
     "socket.io-client": "^4.8.1",
+    "framer-motion": "^12.23.6",
+    "gsap": "^3.13.0",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
