@@ -17,6 +17,7 @@ import RecentActivity from '../RecentActivity';
 import Card from '../Card';
 import { ArrowUp, ArrowDown } from 'lucide-react';
 import api from '../../utils/api'
+import CreateFlowButton from '../../apis/CreateFlowButton';
 
 const ProjectDashboard = () => {
   const { id: projectId } = useParams();
@@ -82,6 +83,7 @@ const ProjectDashboard = () => {
 
   return (
     <div className="space-y-6">
+      {/* <CreateFlowButton/> */}
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-800">Project Dashboard</h1>
         <div className="flex items-center space-x-2 text-sm text-gray-500">
@@ -154,9 +156,9 @@ const ProjectDashboard = () => {
             <span className="text-gray-500">
               <span className="text-red-500">{stats.broadcasting.failed}</span> failed
             </span>
-            <span className="text-gray-500">
+            {/* <span className="text-gray-500">
               <span className="text-blue-500">{stats.broadcasting.scheduled}</span> scheduled
-            </span>
+            </span> */}
           </div>
         </StatCard>
 
@@ -178,14 +180,14 @@ const ProjectDashboard = () => {
 
         <StatCard 
           title="Live Chat" 
-          value={stats.liveChat.unread} 
+          value={stats.liveChat.activeUserCount} 
           change={stats.liveChat.responseRate}
           icon={<MessageSquare size={20} className="text-teal-500" />}
           link={`/project/${projectId}/chat`}
         >
           <div className="flex space-x-4 text-sm mt-1">
             <span className="text-gray-500">
-              <span className="text-blue-500">{stats.liveChat.unread}</span> unread
+              <span className="text-blue-500">{stats.liveChat.unread}</span> messages
             </span>
             <span className="text-gray-500">
               <span className="text-green-500">{stats.liveChat.responseRate}%</span> response rate
@@ -200,21 +202,21 @@ const ProjectDashboard = () => {
           title="Create Broadcast"
           description="Send a message to your contacts"
           icon={<Mail size={20} />}
-          link={`/project/${projectId}/broadcasting/new`}
+          link={`/project/${projectId}/broadcasting/send-bulk`}
           color="bg-purple-50 text-purple-600"
         />
         <QuickActionCard
           title="Add Contacts"
           description="Import or add new contacts"
           icon={<Phone size={20} />}
-          link={`/project/${projectId}/contacts/new`}
+          link={`/project/${projectId}/contacts`}
           color="bg-blue-50 text-blue-600"
         />
         <QuickActionCard
           title="Create Template"
           description="Design a new message template"
           icon={<MessageSquare size={20} />}
-          link={`/project/${projectId}/templates/new`}
+          link={`/project/${projectId}/templates/create`}
           color="bg-green-50 text-green-600"
         />
       </div>

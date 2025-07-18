@@ -36,22 +36,10 @@ const TemplatePage = () => {
     : null;
   const businessProfileId = project?.businessProfileId._id || null;
   const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   // Form state
-  const [formData, setFormData] = useState({
-    name: "",
-    category: "UTILITY",
-    language: "en_US",
-    header: { type: "TEXT", text: "" },
-    body: "",
-    footer: "",
-    buttons: [],
-  });
-  const [newButton, setNewButton] = useState({
-    type: "URL",
-    text: "",
-    url: "",
-  });
 
   const config = {
     headers: {
@@ -59,41 +47,20 @@ const TemplatePage = () => {
     },
   };
 
-  const categoryOptions = [
-    { value: "UTILITY", label: "Utility" },
-    { value: "MARKETING", label: "Marketing" },
-    { value: "AUTHENTICATION", label: "Authentication" },
-  ];
-
-  const languageOptions = [
-    { value: "en_US", label: "English (US)" },
-    { value: "es_ES", label: "Spanish (Spain)" },
-    { value: "fr_FR", label: "French (France)" },
-  ];
-
-  const headerTypeOptions = [
-    { value: "TEXT", label: "Text" },
-    { value: "IMAGE", label: "Image" },
-    { value: "VIDEO", label: "Video" },
-    { value: "DOCUMENT", label: "Document" },
-  ];
-
-  const buttonTypeOptions = [
-    { value: "URL", label: "Website URL" },
-    { value: "PHONE_NUMBER", label: "Phone Number" },
-    { value: "QUICK_REPLY", label: "Quick Reply" },
-  ];
-
   const fetchTemplates = async () => {
     setIsLoading(true);
     try {
       const res = await api.get("/templates", {
         ...config,
         params: {
-          businessProfileId: businessProfileId,
+          businessProfileId,
+          page,
+          limit: 6, // adjust per row/column size
         },
       });
+
       setTemplates(res.data.data);
+      setTotalPages(res.data.pagination?.totalPages || 1);
       if (res.data.data.length === 0) {
         setMessage({
           text: "No templates found. Create your first template.",
@@ -119,7 +86,7 @@ const TemplatePage = () => {
     } else if (!user) {
       navigate("/login");
     }
-  }, [user, token, projectId, navigate]);
+  }, [user, token, projectId, page]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -223,10 +190,13 @@ const TemplatePage = () => {
   const handleDeleteTemplate = async () => {
     setIsLoading(true);
     try {
-      await api.delete(
-        `/projects/${projectId}/templates/${templateToDelete._id}`,
-        config
-      );
+      // await api.delete(
+      //   `/projects/${projectId}/templates/${templateToDelete._id}`,
+      //   config
+      // );
+      await api.delete(`/templates/${templateToDelete._id}`, {
+      data: { businessProfileId } 
+    });
       setMessage({ text: "Template deleted successfully!", type: "success" });
       setTemplateToDelete(null);
       fetchTemplates();
@@ -241,22 +211,26 @@ const TemplatePage = () => {
     }
   };
   const handleViewDetails = (template) => {
-    setSelectedTemplate(template);
+    navigate(`/project/${projectId}/templates/${template._id}`, {
+      state: { template },
+    });
   };
+  const handleDelete = async (template) => {
+  const confirmed = window.confirm(`Are you sure you want to delete "${template.name}"?`);
+  if (!confirmed) return;
 
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case "APPROVED":
-        return <Badge variant="success">Approved</Badge>;
-      case "PENDING":
-        return <Badge variant="warning">Pending</Badge>;
-      case "REJECTED":
-        return <Badge variant="danger">Rejected</Badge>;
-      default:
-        return <Badge variant="secondary">Draft</Badge>;
-    }
-  };
+  try {
+    const res = await api.delete(`/templates/${template._id}`, {
+      data: { businessProfileId } 
+    });
 
+    console.log("Template deleted:", res.data);
+    onDelete(template._id); // Notify parent to remove it from UI
+  } catch (error) {
+    console.error('Error deleting template:', error);
+    alert("Failed to delete template.");
+  }
+};
   if (!user)
     return (
       <div className="flex justify-center items-center h-screen">
@@ -326,199 +300,41 @@ const TemplatePage = () => {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {templates.map((template) => (
-            <TemplateCard
-              key={template._id}
-              template={template}
-            //   onEdit={() => handleEditTemplate(template)}
-            //   onUpload={() => handleUploadTemplate(template._id)}
-              onDelete={() => confirmDeleteTemplate(template)}
-              onViewDetails={() => handleViewDetails(template)} // 👈 this triggers modal
-              
-            />
+           <TemplateCard
+  key={template._id}
+  template={template}
+  // onEdit={() => handleEditTemplate(template)} // if needed
+  // onUpload={() => handleUploadTemplate(template)} // if needed
+  onDelete={(t) => setTemplateToDelete(t)} // 👈 fix this
+  onViewDetails={() => handleViewDetails(template)}
+  handleSyncTemplates={() => handleSyncTemplates()}
+/>
           ))}
+          {totalPages > 1 && (
+            <div className="mt-6 flex justify-center space-x-2">
+              <Button
+                variant="secondary"
+                disabled={page === 1}
+                onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+              >
+                Previous
+              </Button>
+              <span className="text-sm text-gray-600 mt-2">
+                Page {page} of {totalPages}
+              </span>
+              <Button
+                variant="secondary"
+                disabled={page === totalPages}
+                onClick={() =>
+                  setPage((prev) => Math.min(prev + 1, totalPages))
+                }
+              >
+                Next
+              </Button>
+            </div>
+          )}
         </div>
       )}
-
-      {/* Create Template Modal */}
-      {/* <Modal
-        isOpen={isModalOpen}
-        onClose={() => {
-          setIsModalOpen(false);
-          resetForm();
-        }}
-        title="Create New Template"
-        size="xl"
-      >
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <InputField
-              label="Template Name"
-              name="name"
-              value={formData.name}
-              onChange={handleInputChange}
-              required
-            />
-
-            <SelectField
-              label="Category"
-              name="category"
-              value={formData.category}
-              onChange={handleInputChange}
-              options={categoryOptions}
-              required
-            />
-
-            <SelectField
-              label="Language"
-              name="language"
-              value={formData.language}
-              onChange={handleInputChange}
-              options={languageOptions}
-              required
-            />
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Header Type
-              </label>
-              <SelectField
-                value={formData.header.type}
-                onChange={(e) => handleHeaderChange("type", e.target.value)}
-                options={headerTypeOptions}
-              />
-            </div>
-          </div>
-
-          {formData.header.type === "TEXT" && (
-            <InputField
-              label="Header Text"
-              value={formData.header.text}
-              onChange={(e) => handleHeaderChange("text", e.target.value)}
-            />
-          )}
-
-          {formData.header.type !== "TEXT" && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {formData.header.type === "IMAGE"
-                  ? "Image"
-                  : formData.header.type === "VIDEO"
-                  ? "Video"
-                  : "Document"}
-              </label>
-              <input
-                type="file"
-                className="block w-full text-sm text-gray-500
-                                    file:mr-4 file:py-2 file:px-4
-                                    file:rounded-md file:border-0
-                                    file:text-sm file:font-semibold
-                                    file:bg-primary-50 file:text-primary-700
-                                    hover:file:bg-primary-100"
-                accept={
-                  formData.header.type === "IMAGE"
-                    ? "image/*"
-                    : formData.header.type === "VIDEO"
-                    ? "video/*"
-                    : ".pdf,.doc,.docx"
-                }
-              />
-            </div>
-          )}
-
-          <TextArea
-            label="Body Text (use {{1}} for variables)"
-            value={formData.body}
-            onChange={(e) =>
-              handleInputChange({
-                target: { name: "body", value: e.target.value },
-              })
-            }
-            rows={4}
-            required
-          />
-
-          <InputField
-            label="Footer Text"
-            name="footer"
-            value={formData.footer}
-            onChange={handleInputChange}
-          />
-
-          <div className="border-t pt-4">
-            <h3 className="font-medium mb-3">Buttons</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
-              <SelectField
-                label="Button Type"
-                value={newButton.type}
-                onChange={(e) =>
-                  setNewButton({ ...newButton, type: e.target.value })
-                }
-                options={buttonTypeOptions}
-              />
-              <InputField
-                label="Button Text"
-                value={newButton.text}
-                onChange={(e) =>
-                  setNewButton({ ...newButton, text: e.target.value })
-                }
-              />
-              <InputField
-                label={newButton.type === "URL" ? "URL" : "Phone Number"}
-                value={newButton.url}
-                onChange={(e) =>
-                  setNewButton({ ...newButton, url: e.target.value })
-                }
-              />
-            </div>
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={addButton}
-              disabled={!newButton.text}
-            >
-              Add Button
-            </Button>
-
-            {formData.buttons.length > 0 && (
-              <div className="mt-4 space-y-2">
-                {formData.buttons.map((btn, i) => (
-                  <div
-                    key={i}
-                    className="flex items-center justify-between bg-gray-50 p-2 rounded"
-                  >
-                    <span className="text-sm">
-                      {btn.text} ({btn.type})
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => removeButton(i)}
-                      className="text-red-500 hover:text-red-700 text-sm"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="flex justify-end space-x-3 pt-4 border-t">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => {
-                setIsModalOpen(false);
-                resetForm();
-              }}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" variant="primary" loading={isLoading}>
-              Create Template
-            </Button>
-          </div>
-        </form>
-      </Modal> */}
 
       {/* Delete Confirmation Modal */}
       <Modal

@@ -8,7 +8,7 @@ import {
   createTemplateApi,
   uploadMedaiData, // Assuming this is defined and imported correctly
 } from "../../apis/TemplateApi"; // Adjust path if needed
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import TemplatePreview from "./TemplatePreview";
 import api from "../../utils/api"; // Assuming this is your configured axios instance
 import { BackButton } from "../BackButton";
@@ -43,7 +43,7 @@ const CreateTemplate = () => {
   const [loading, setLoading] = useState(false); // For loading state
   const variableCounter = useRef(1); // For unique variable numbering
   const [variableExamples, setVariableExamples] = useState({}); // For text header variable examples
-
+const navigate = useNavigate(); // Assuming you have react-router's useNavigate for navigation  
   // Logic to get businessProfileId from local storage (or context)
   const [businessProfileId, setBusinessProfileId] = useState(null);
   useEffect(() => {
@@ -366,6 +366,7 @@ const CreateTemplate = () => {
       console.log("Template created successfully:", res.data);
       setLoading(false); // Reset loading state after creation
       alert(res.data.message || "Template created successfully!");
+      navigate(-1)
       // Optionally reset form or navigate
     } catch (error) {
       console.error(

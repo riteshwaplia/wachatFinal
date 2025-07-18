@@ -14,6 +14,7 @@ import Modal from '../components/Modal';
 import EmptyState from '../components/EmptyState';
 import BusinessProfileCard from '../components/BusinessProfileCard';
 import PhoneNumberCard from '../components/PhoneNumberCard';
+import { ErrorToast, SuccessToast } from '../utils/Toast';
 
 const WhatsappNumberRegistrationPage = () => {
     const { user } = useAuth();
@@ -35,7 +36,7 @@ const WhatsappNumberRegistrationPage = () => {
         name: '',
         wabaId: '',
         accessToken: '',
-        metaAppId:""
+        metaAppId: ""
     });
 
     const [isAddBusinessModalOpen, setIsAddBusinessModalOpen] = useState(false);
@@ -55,15 +56,16 @@ const WhatsappNumberRegistrationPage = () => {
 
         try {
             const res = await api.get('/users/business-profiles');
+            console.log("first, res", res.data)
             const profiles = res.data.data || [];
-            
+
             updateState({
                 businessProfiles: profiles,
                 isLoading: false,
                 message: profiles.length ? '' : 'No business profiles found',
                 messageType: profiles.length ? 'info' : 'info'
             });
-            
+
         } catch (error) {
             console.error('Error fetching business profiles:', error);
             updateState({
@@ -84,7 +86,9 @@ const WhatsappNumberRegistrationPage = () => {
 
     // --- Fetch Phone Numbers ---
     const fetchPhoneNumbers = async (profile) => {
+        console.log("clicked11111")
         if (!profile?.metaBusinessId || !profile?.metaAccessToken) {
+            ErrorToast('Selected profile is missing required credentials');
             updateState({
                 message: 'Selected profile is missing required credentials',
                 messageType: 'warning'
@@ -100,22 +104,26 @@ const WhatsappNumberRegistrationPage = () => {
         });
 
         try {
+            console.log("clicked")
             const res = await api.post('/whatsapp/phone-numbers', {
                 wabaId: profile.metaBusinessId,
                 accessToken: profile.metaAccessToken
             });
 
-            updateState({
+            if (res.data.success) {
+                updateState({
                 phoneNumbers: res.data.data || [],
                 isFetchingNumbers: false,
-                message: res.data.message || (res.data.data?.length 
-                    ? `${res.data.data.length} numbers found` 
+                message: res.data.message || (res.data.data?.length
+                    ? `${res.data.data.length} numbers found`
                     : 'No numbers found'),
                 messageType: res.data.data?.length ? 'success' : 'info'
             });
-            
+                SuccessToast('Successfully fetched phone numbers');
+            }
         } catch (error) {
             console.error('Error fetching numbers:', error);
+            ErrorToast(`Error fetching WhatsApp numbers: ${error.response?.data?.message || 'Failed to fetch numbers.'}`);
             updateState({
                 isFetchingNumbers: false,
                 message: `Error fetching WhatsApp numbers: ${error.response?.data?.message || 'Failed to fetch numbers.'}`,
@@ -136,20 +144,24 @@ const WhatsappNumberRegistrationPage = () => {
                 metaAccessToken: formData.accessToken,
                 metaAppId: formData.metaAppId
             });
+            if (res.data.success) {
+                SuccessToast('Business profile created successfully!');
+            }
 
             updateState({
                 isLoading: false,
                 message: res.data.message || 'Business profile created successfully!',
                 messageType: 'success'
             });
-            
+
             // Refresh profiles and reset form
             await fetchBusinessProfiles();
-            setFormData({ name: '', wabaId: '', accessToken: '' ,metaAppId: ''});
+            setFormData({ name: '', wabaId: '', accessToken: '', metaAppId: '' });
             setIsAddBusinessModalOpen(false);
-            
+
         } catch (error) {
             console.error('Error creating profile:', error);
+            ErrorToast(`Error creating business profile: ${error.response?.data?.message || 'Failed to create profile.'}`);
             updateState({
                 isLoading: false,
                 message: `Error creating business profile: ${error.response?.data?.message || 'Failed to create profile.'}`,
@@ -183,16 +195,21 @@ const WhatsappNumberRegistrationPage = () => {
                 planDuration: 365
             });
 
+            if (projectRes.data.success) {
+                SuccessToast('WhatsApp number connected successfully!');
+            }
+
             updateState({
                 isLoading: false,
                 message: projectRes.data.message || 'Number connected successfully!',
                 messageType: 'success'
             });
-            
+
             // Redirect after short delay
             setTimeout(() => navigate('/projects'), 1500);
-            
+
         } catch (error) {
+            ErrorToast(`Error connecting WhatsApp number: ${error.response?.data?.message || 'Failed to connect number.'}`);
             console.error('Error connecting number:', error);
             updateState({
                 isLoading: false,
@@ -238,8 +255,8 @@ const WhatsappNumberRegistrationPage = () => {
 
             {/* Status Alert */}
             {state.message && (
-                <Alert 
-                    type={state.messageType} 
+                <Alert
+                    type={state.messageType}
                     message={state.message}
                     className="mb-6"
                     onDismiss={() => updateState({ message: '', messageType: 'info' })}
@@ -318,8 +335,8 @@ const WhatsappNumberRegistrationPage = () => {
                             </div>
                         ) : (
                             <EmptyState
-                                title={state.selectedProfile 
-                                    ? "No WhatsApp Numbers Found" 
+                                title={state.selectedProfile
+                                    ? "No WhatsApp Numbers Found"
                                     : "Select a Business Profile"}
                                 description={state.selectedProfile
                                     ? "No phone numbers available for this business account"

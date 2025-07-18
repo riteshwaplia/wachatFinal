@@ -9,51 +9,74 @@ import {
   FiArrowRight,
   FiFilter,
   FiX,
+  FiExternalLink,
 } from "react-icons/fi";
 import Modal from "../components/Modal";
+
+import { FaWhatsapp } from "react-icons/fa";
 
 const ProjectCard = ({ project, onEdit, onDelete, onClick }) => {
   return (
     <div
-      className="bg-white p-6 rounded-xl shadow-custom-card border border-gray-200 hover:shadow-lg transition-all duration-300 cursor-pointer group"
+      className="bg-white p-6 rounded-2xl shadow-md border border-gray-200 hover:shadow-xl transition-all duration-300 cursor-pointer group"
       onClick={onClick}
     >
       <div className="flex justify-between items-start">
         <div className="flex-1">
-          <h3 className="text-lg font-semibold text-gray-800 group-hover:text-primary-600 transition-colors font-heading">
+          <h3 className="text-xl font-semibold text-gray-900 group-hover:text-green-600 transition-colors font-heading">
             {project.name}
           </h3>
-          <div className="mt-3 space-y-2">
-            <p className="text-sm text-gray-600">
-              <span className="font-medium">Assistant:</span>{" "}
-              {project.assistantName || "N/A"}
+
+          {/* About + Website */}
+          <div className="mt-2 space-y-2">
+            <p className="text-sm text-gray-700">
+              <span className="font-medium">About:</span>{" "}
+              {project.about || "Helping customers faster with WhatsApp."}
             </p>
-            <div className="flex items-center">
-              <span className="font-medium text-sm text-gray-600">
-                WhatsApp:
-              </span>
-              <span className="ml-1 text-sm text-gray-600">
-                {project.whatsappNumber || "N/A"}
-              </span>
-              {project.isWhatsappVerified && (
-                <span className="ml-2 bg-secondary-100 text-secondary-700 text-xs px-2 py-0.5 rounded-full flex items-center">
-                  Verified
-                </span>
-              )}
-            </div>
-            <p className="text-sm text-gray-600">
-              <span className="font-medium">Plan:</span>{" "}
-              {project.activePlan || "N/A"} ({project.planDuration} days)
+            <p className="text-sm text-gray-700 flex items-center">
+              <span className="font-medium">Website:</span>{" "}
+              <a
+                href={project.website || "#"}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="ml-1 text-primary-600 hover:underline flex items-center"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {project.website || "www.example.com"} <FiExternalLink className="ml-1" />
+              </a>
             </p>
           </div>
+
+          {/* WhatsApp Details */}
+          <div className="mt-3 flex items-center text-sm text-gray-800">
+            <FaWhatsapp className="text-green-500 mr-2" />
+            <span className="font-medium">WhatsApp:</span>{" "}
+            <span className="ml-1">
+              {project.whatsappNumber || "+91 98765 43210"}
+            </span>
+            {project.isWhatsappVerified && (
+              <span className="ml-2 bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full">
+                Verified
+              </span>
+            )}
+          </div>
+
+          {/* Plan */}
+          <p className="text-sm text-gray-600 mt-2">
+            <span className="font-medium">Plan:</span>{" "}
+            {project.activePlan || "Standard"} (
+            {project.planDuration || 30} days)
+          </p>
         </div>
-        <div className="flex space-x-2 md:ml-4 ml-1">
-           <button
+
+        {/* Action Buttons */}
+        <div className="flex space-x-2 ml-2">
+          <button
             onClick={(e) => {
               e.stopPropagation();
               onEdit(project);
             }}
-            className="text-primary-500 hover:text-primary-700 p-1.5 rounded-full hover:bg-primary-50 transition-colors"
+            className="text-green-600 hover:text-green-800 p-2 rounded-full hover:bg-green-100 transition-colors"
             aria-label="Edit project"
           >
             <FiEdit2 size={16} />
@@ -63,15 +86,17 @@ const ProjectCard = ({ project, onEdit, onDelete, onClick }) => {
               e.stopPropagation();
               onDelete(project._id);
             }}
-            className="text-error hover:text-error-dark p-1.5 rounded-full hover:bg-red-50 transition-colors"
+            className="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-100 transition-colors"
             aria-label="Delete project"
           >
             <FiTrash2 size={16} />
           </button>
         </div>
       </div>
-      <div className="mt-4 pt-3 border-t border-gray-100 flex justify-between items-center">
-        <span className="text-xs text-gray-500">
+
+      {/* Footer */}
+      <div className="mt-5 pt-3 border-t border-gray-100 flex justify-between items-center text-sm">
+        <span className="text-gray-500">
           Created: {new Date(project.createdAt).toLocaleDateString()}
         </span>
         <button
@@ -79,7 +104,7 @@ const ProjectCard = ({ project, onEdit, onDelete, onClick }) => {
             e.stopPropagation();
             onClick();
           }}
-          className="flex items-center text-sm text-primary-600 hover:text-primary-800 group-hover:underline transition-all"
+          className="flex items-center text-green-600 hover:text-green-800 group-hover:underline transition-all"
         >
           View Dashboard <FiArrowRight className="ml-1" />
         </button>
@@ -87,6 +112,7 @@ const ProjectCard = ({ project, onEdit, onDelete, onClick }) => {
     </div>
   );
 };
+
 
 const ProjectManagementPage = () => {
   const { user, token } = useAuth();

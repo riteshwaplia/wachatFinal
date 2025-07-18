@@ -31,7 +31,8 @@ import BulkMessagingDashboard from './pages/BroadCasting';
 import SendMessagePage from './components/broadcasting/SendBulkMessage';
 import AllComponents from './components/AllComponets';
 import FlowBuilder from './components/FlowBuilder/FlowBuilder';
-
+import { Toaster } from 'react-hot-toast';
+import TemplateDetail from './components/template/TemplateDetail';
 
 const AdminRoute = ({ children }) => (
   <ProtectedRoute roles={["super_admin", "tenant_admin"]}>
@@ -106,6 +107,9 @@ function AppContent() {
   }
 
   return (
+    <>
+    
+    
     <Routes>
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/login" element={<LoginPage />} />
@@ -193,6 +197,10 @@ function AppContent() {
             path="/project/:id/templates/create"
             element={<ProjectRouteWrapper component={CreateTemplate} />}
           />
+          <Route
+            path="/project/:id/templates/:id"
+            element={<ProjectRouteWrapper component={TemplateDetail} />}
+          />
            <Route
             path="/project/:id/broadcasting"
             element={<ProjectRouteWrapper component={BulkMessagingDashboard} />}
@@ -236,6 +244,16 @@ function AppContent() {
         }
       />
     </Routes>
+    <Toaster
+        position="top-right"
+        reverseOrder={false}
+        toastOptions={{
+ 
+          duration: 4000,
+        }}
+      />
+          </>
+
   );
 }
 

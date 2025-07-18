@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import api from "../utils/api";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import Loader from "../components/Loader";
 import {
   FiEdit2,
   FiTrash2,
@@ -9,7 +10,7 @@ import {
   FiRotateCcw,
   FiPlus,
   FiCheck,
-  FiX,  
+  FiX,
   FiChevronDown,
   FiSearch,
   FiChevronLeft,
@@ -20,6 +21,8 @@ import Badge from "../components/Badge";
 import Button from "../components/Button";
 import Alert from "../components/Alert";
 import LoadingSpinner from "../components/Loader";
+import InputField from "../components/InputField";
+// import { ErrorToast } from "../utils/Toast";
 
 const GroupPage = () => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -36,16 +39,39 @@ const GroupPage = () => {
   const [message, setMessage] = useState({ text: "", type: "" });
   const [isLoading, setIsLoading] = useState(true);
   const [selectedGroups, setSelectedGroups] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
   const [isBulkActionsOpen, setIsBulkActionsOpen] = useState(false);
-
-  // Pagination state based on API response structure
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
+  const [loading, setLoding] = useState(false);
+  const [erorrs, setErrors] = useState({ title: '' });
   const [pagination, setPagination] = useState({
     currentPage: 1,
     total: 0,
     totalPages: 1,
     limit: 10
   });
+
+  useEffect(() => {
+    setLoding(true)
+    const handler = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+      // setPagination(prev => ({ ...prev, currentPage: 1 }));
+      setLoding(false)
+
+    }, 1000);
+
+    return () => clearTimeout(handler);
+  }, [searchTerm]);
+
+  useEffect(() => {
+    if (user && token && projectId) {
+      fetchGroups();
+    } else if (!user) {
+      navigate("/login", { replace: true });
+    }
+  }, [user, token, projectId, activeTab, pagination.currentPage, pagination.limit, debouncedSearchTerm]);
+
+  // Pagination state based on API response structure
 
   const config = {
     headers: {
@@ -54,18 +80,41 @@ const GroupPage = () => {
     },
   };
 
+
+  const validateGroupData = () => {
+    const errors = {};
+
+    if (!formData.title.trim()) {
+      errors.title = "Group name is required";
+    }
+
+    // Show toast for each error
+    if (Object.keys(errors).length > 0) {
+      setErrors(errors)
+      return false;
+    }
+
+    return true;
+  };
+
+
+
   // Fetch groups with pagination
   const fetchGroups = async () => {
     try {
-      setIsLoading(true);
-      const endpoint = activeTab === "active" 
-        ? `/projects/${projectId}/groups` 
+      setLoding(true);
+
+
+      // api/projects/:projectId/groups/bulk-block
+
+      const endpoint = activeTab === "active"
+        ? `/projects/${projectId}/groups`
         : `/projects/${projectId}/groups/archiveList`;
-      
+
       const params = {
         page: pagination.currentPage,
         limit: pagination.limit,
-        search: searchTerm
+        search: debouncedSearchTerm   // <==== this one
       };
 
       const res = await api.get(endpoint, {
@@ -74,17 +123,44 @@ const GroupPage = () => {
       });
 
       if (res.data.success) {
-        setGroups(res.data.data);
+        const { data = [], pagination: serverPagination = {} } = res.data;
+
+        setGroups(data);
+
         setPagination({
-          currentPage: res.data.pagination.currentPage,
-          total: res.data.pagination.total,
-          totalPages: res.data.pagination.totalPages,
-          limit: pagination.limit // Keep our local limit setting
+          currentPage: serverPagination.currentPage || 1,
+          total: serverPagination.total || 0,
+          totalPages: serverPagination.totalPages || 0,
+          limit: serverPagination.limit || pagination.limit || 10
         });
-        setMessage({ text: res.data.message, type: "success" });
+        setLoding(false)
+
       } else {
-        setMessage({ text: res.data.message, type: "error" });
+        setGroups([]);
+        setPagination({
+          currentPage: 1,
+          total: 0,
+          totalPages: 0,
+          limit: pagination.limit || 10
+        });
+        setLoding(false)
+
       }
+
+      // if (res.data.success) {
+      //   setGroups(res.data.data);
+      //   console.log("res.>>>>>>>>>", res.data?.pagination?.total)
+      //   setPagination({
+      //     currentPage: res.data.pagination.currentPage || 1,
+      //     total: res.data.pagination.total || 0,
+      //     totalPages: res.data?.pagination.totalPages || 0,
+      //     limit: pagination?.limit || 10
+      //   });
+      //   setLoding(false)
+      //   setMessage({ text: res.data.message, type: "success" });
+      // } else {
+      //   setMessage({ text: res.data.message, type: "error" });
+      // }
       setSelectedGroups([]);
     } catch (error) {
       console.error("Error fetching groups:", error);
@@ -97,14 +173,8 @@ const GroupPage = () => {
     }
   };
 
-  // Load data on mount or when dependencies change
-  useEffect(() => {
-    if (user && token && projectId) {
-      fetchGroups();
-    } else if (!user) {
-      navigate("/login", { replace: true });
-    }
-  }, [user, token, projectId, activeTab, pagination.currentPage, pagination.limit, searchTerm]);
+  console.log("paginatnion", pagination)
+
 
   // Handle pagination change
   const handlePageChange = (newPage) => {
@@ -126,20 +196,34 @@ const GroupPage = () => {
     }));
   };
 
+
   // Handle form input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+
+    if (erorrs[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
+
+
   };
 
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const isValid = validateGroupData();
+    if (!isValid) {
+      return
+    }
     try {
       const endpoint = editingGroup
         ? `/projects/${projectId}/groups/${editingGroup._id}`
         : `/projects/${projectId}/groups`;
       const method = editingGroup ? "put" : "post";
+
+
 
       const res = await api[method](endpoint, formData, config);
 
@@ -212,21 +296,21 @@ const GroupPage = () => {
 
       switch (action) {
         case "archive":
-          endpoint = `/projects/${projectId}/groups/archive`;
+          endpoint = `/projects/${projectId}/groups/multi/archive`;
           method = "patch";
           break;
         case "restore":
-          endpoint = `/projects/${projectId}/groups/removeArchive`;
-          method = "patch";
+          endpoint = `/projects/${projectId}/groups/unarchive`;
+          method = "post";
           break;
         case "delete":
-          endpoint = `/projects/${projectId}/groups`;
-          method = "delete";
+          // /api/projects/:projectId/groups/bulk-block
+          endpoint = `/projects/${projectId}/groups/bulk-delete`;
+          method = "post";
           break;
         default:
           return;
       }
-
       const res = await api[method](endpoint, { ids: selectedGroups }, config);
       setMessage({ text: res.data.message, type: "success" });
       fetchGroups();
@@ -238,6 +322,8 @@ const GroupPage = () => {
     }
   };
 
+
+
   // Toggle group selection
   const toggleGroupSelection = (groupId) => {
     setSelectedGroups((prev) =>
@@ -246,6 +332,7 @@ const GroupPage = () => {
         : [...prev, groupId]
     );
   };
+
 
   // Toggle select all
   const toggleSelectAll = () => {
@@ -264,10 +351,15 @@ const GroupPage = () => {
     );
   }
 
-  if (isLoading) return <LoadingSpinner fullPage />;
+  if (isLoading) return <>
+    <div className="flex justify-center items-center h-64">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
+    </div>
+  </>
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
       {showConfirmModal && (
         <Modal
           isOpen={showConfirmModal}
@@ -282,11 +374,11 @@ const GroupPage = () => {
             </Button>
             <Button variant="primary" onClick={handleDelete}>
               Confirm
-            </Button> 
+            </Button>
           </div>
         </Modal>
       )}
-      
+
       {/* Header Section */}
       <div className="mb-8">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -316,9 +408,9 @@ const GroupPage = () => {
       </div>
 
       {/* Message Alert */}
-      {message.text && (
+      {/* {message.text && (
         <Alert type={message.type} message={message.text} className="mb-6" />
-      )}
+      )} */}
 
       {/* Search and Filter Bar */}
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -332,9 +424,12 @@ const GroupPage = () => {
             placeholder="Search groups..."
             value={searchTerm}
             onChange={(e) => {
-              setSearchTerm(e.target.value);
+              const raw = e.target.value;
+              const cleaned = raw.replace(/[^a-zA-Z0-9 ]/g, "");
+              setSearchTerm(cleaned);
               setPagination(prev => ({ ...prev, currentPage: 1 }));
             }}
+
           />
           {searchTerm && (
             <button
@@ -359,9 +454,8 @@ const GroupPage = () => {
               >
                 <span>Bulk Actions</span>
                 <FiChevronDown
-                  className={`transition-transform ${
-                    isBulkActionsOpen ? "transform rotate-180" : ""
-                  }`}
+                  className={`transition-transform ${isBulkActionsOpen ? "transform rotate-180" : ""
+                    }`}
                 />
               </Button>
               {isBulkActionsOpen && (
@@ -418,32 +512,30 @@ const GroupPage = () => {
                 setActiveTab("active");
                 setPagination(prev => ({ ...prev, currentPage: 1 }));
               }}
-              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
-                activeTab === "active"
-                  ? "border-primary-500 text-primary-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              }`}
+              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${activeTab === "active"
+                ? "border-primary-500 text-primary-600"
+                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                }`}
             >
               <span>Active Groups</span>
-              <Badge type="primary" size="sm">
+              {activeTab === 'active' && <Badge type="primary" size="sm">
                 {pagination.total}
-              </Badge>
+              </Badge>}
             </button>
             <button
               onClick={() => {
                 setActiveTab("archived");
                 setPagination(prev => ({ ...prev, currentPage: 1 }));
               }}
-              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
-                activeTab === "archived"
-                  ? "border-primary-500 text-primary-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              }`}
+              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${activeTab === "archived"
+                ? "border-primary-500 text-primary-600"
+                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                }`}
             >
               <span>Archived Groups</span>
-              <Badge type="secondary" size="sm">
+              {activeTab === 'archived' && <Badge type="primary" size="sm">
                 {pagination.total}
-              </Badge>
+              </Badge>}
             </button>
           </nav>
         </div>
@@ -464,15 +556,15 @@ const GroupPage = () => {
               {searchTerm
                 ? "No matching groups found"
                 : activeTab === "active"
-                ? "No active groups yet"
-                : "No archived groups"}
+                  ? "No active groups yet"
+                  : "No archived groups"}
             </h3>
             <p className="text-gray-500 mb-4">
               {searchTerm
                 ? "Try a different search term"
                 : activeTab === "active"
-                ? "Get started by creating your first group"
-                : "Archived groups will appear here"}
+                  ? "Get started by creating your first group"
+                  : "Archived groups will appear here"}
             </p>
             {activeTab === "active" && !searchTerm && (
               <Button
@@ -490,204 +582,208 @@ const GroupPage = () => {
             )}
           </div>
         ) : (
-          <>
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-10"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={
-                        selectedGroups.length > 0 &&
-                        selectedGroups.length === groups.length
-                      }
-                      onChange={toggleSelectAll}
-                      className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-                    />
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Group
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Description
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Status
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {groups.map((group) => (
-                  <tr key={group._id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
+          loading ? <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
+          </div> : (
+            <>
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-10"
+                    >
                       <input
                         type="checkbox"
-                        checked={selectedGroups.includes(group._id)}
-                        onChange={() => toggleGroupSelection(group._id)}
+                        checked={
+                          selectedGroups.length > 0 &&
+                          selectedGroups.length === groups.length
+                        }
+                        onChange={toggleSelectAll}
                         className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
                       />
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center">
-                        <div className="flex-shrink-0 h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center">
-                          <span className="text-primary-600 font-medium">
-                            {group.title.charAt(0).toUpperCase()}
-                          </span>
-                        </div>
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">
-                            {group.title}
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      Group
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      Description
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      Status
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {groups.map((group) => (
+                    <tr key={group._id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <input
+                          type="checkbox"
+                          checked={selectedGroups.includes(group._id)}
+                          onChange={() => toggleGroupSelection(group._id)}
+                          className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                        />
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center">
+                          <div className="flex-shrink-0 h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center">
+                            <span className="text-primary-600 font-medium">
+                              {group.title.charAt(0).toUpperCase()}
+                            </span>
+                          </div>
+                          <div className="ml-4">
+                            <div className="text-sm font-medium text-gray-900">
+                              {group.title}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
-                      {group.description || "-"}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <Badge
-                        type={group.isActive ? "success" : "warning"}
-                        size="sm"
-                      >
-                        {group.isActive ? "Active" : "Archived"}
-                      </Badge>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex justify-end space-x-2">
-                        <Button
-                          onClick={() => {
-                            setEditingGroup(group);
-                            setFormData({
-                              title: group.title,
-                              description: group.description || "",
-                            });
-                            setIsModalOpen(true);
-                          }}
-                          variant="ghost"
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-500">
+                        {group.description || "-"}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <Badge
+                          type={group.isActive ? "success" : "warning"}
                           size="sm"
-                          className="text-gray-600 hover:text-primary-600"
-                          tooltip="Edit"
                         >
-                          <FiEdit2 size={16} />
-                        </Button>
-                        <Button
-                          onClick={() =>
-                            toggleGroupStatus(group._id, group.isActive)
-                          }
-                          variant="ghost"
-                          size="sm"
-                          className={
-                            group.isActive
-                              ? "text-gray-600 hover:text-yellow-600"
-                              : "text-gray-600 hover:text-green-600"
-                          }
-                          tooltip={group.isActive ? "Archive" : "Restore"}
-                        >
-                          {group.isActive ? (
-                            <FiArchive size={16} />
-                          ) : (
-                            <FiRotateCcw size={16} />
-                          )}
-                        </Button>
-                        <Button
-                          onClick={() => handleDeleteClick(group._id)}
-                          variant="ghost"
-                          size="sm"
-                          className="text-gray-600 hover:text-red-600"
-                          tooltip="Delete"
-                        >
-                          <FiTrash2 size={16} />
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                          {group.isActive ? "Active" : "Archived"}
+                        </Badge>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div className="flex justify-end space-x-2">
+                          <Button
+                            onClick={() => {
+                              setEditingGroup(group);
+                              setFormData({
+                                title: group.title,
+                                description: group.description || "",
+                              });
+                              setIsModalOpen(true);
+                            }}
+                            variant="ghost"
+                            size="sm"
+                            className="text-gray-600 hover:text-primary-600"
+                            tooltip="Edit"
+                          >
+                            <FiEdit2 size={16} />
+                          </Button>
+                          <Button
+                            onClick={() =>
+                              toggleGroupStatus(group._id, group.isActive)
+                            }
+                            variant="ghost"
+                            size="sm"
+                            className={
+                              group.isActive
+                                ? "text-gray-600 hover:text-yellow-600"
+                                : "text-gray-600 hover:text-green-600"
+                            }
+                            tooltip={group.isActive ? "Archive" : "Restore"}
+                          >
+                            {group.isActive ? (
+                              <FiArchive size={16} />
+                            ) : (
+                              <FiRotateCcw size={16} />
+                            )}
+                          </Button>
+                          <Button
+                            onClick={() => handleDeleteClick(group._id)}
+                            variant="ghost"
+                            size="sm"
+                            className="text-gray-600 hover:text-red-600"
+                            tooltip="Delete"
+                          >
+                            <FiTrash2 size={16} />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
 
-            {/* Pagination */}
-            <div className="px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between">
-              <div className="flex items-center space-x-2 mb-4 sm:mb-0">
-                <span className="text-sm text-gray-700">
-                  Showing <span className="font-medium">{(pagination.currentPage - 1) * pagination.limit + 1}</span> to <span className="font-medium">
-                    {Math.min(pagination.currentPage * pagination.limit, pagination.total)}
-                  </span> of <span className="font-medium">{pagination.total}</span> results
-                </span>
-                <select
-                  value={pagination.limit}
-                  onChange={handleLimitChange}
-                  className="border border-gray-300 rounded-md px-2 py-1 text-sm"
-                >
-                  <option value="5">5 per page</option>
-                  <option value="10">10 per page</option>
-                  <option value="20">20 per page</option>
-                  <option value="50">50 per page</option>
-                </select>
-              </div>
-              <div className="flex space-x-2">
-                <Button
-                  variant="outline"
-                  onClick={() => handlePageChange(pagination.currentPage - 1)}
-                  disabled={pagination.currentPage === 1}
-                  className="flex items-center"
-                >
-                  <FiChevronLeft size={16} className="mr-1" />
-                  Previous
-                </Button>
-                <div className="flex space-x-1">
-                  {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
-                    let pageNum;
-                    if (pagination.totalPages <= 5) {
-                      pageNum = i + 1;
-                    } else if (pagination.currentPage <= 3) {
-                      pageNum = i + 1;
-                    } else if (pagination.currentPage >= pagination.totalPages - 2) {
-                      pageNum = pagination.totalPages - 4 + i;
-                    } else {
-                      pageNum = pagination.currentPage - 2 + i;
-                    }
-                    return (
-                      <Button
-                        key={pageNum}
-                        variant={pagination.currentPage === pageNum ? "primary" : "outline"}
-                        onClick={() => handlePageChange(pageNum)}
-                        className="w-10 h-10 flex items-center justify-center"
-                      >
-                        {pageNum}
-                      </Button>
-                    );
-                  })}
+
+              {/* Pagination */}
+              <div className="px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between">
+                <div className="flex items-center space-x-2 mb-4 sm:mb-0">
+                  <span className="text-sm text-gray-700">
+                    Showing <span className="font-medium">{(pagination.currentPage - 1) * pagination.limit + 1}</span> to <span className="font-medium">
+                      {Math.min(pagination.currentPage * pagination.limit, pagination.total)}
+                    </span> of <span className="font-medium">{pagination.total}</span> results
+                  </span>
+                  <select
+                    value={pagination.limit}
+                    onChange={handleLimitChange}
+                    className="border border-gray-300 rounded-md px-2 py-1 text-sm"
+                  >
+                    <option value="5">5 per page</option>
+                    <option value="10">10 per page</option>
+                    <option value="20">20 per page</option>
+                    <option value="50">50 per page</option>
+                  </select>
                 </div>
-                <Button
-                  variant="outline"
-                  onClick={() => handlePageChange(pagination.currentPage + 1)}
-                  disabled={pagination.currentPage >= pagination.totalPages}
-                  className="flex items-center"
-                >
-                  Next
-                  <FiChevronRight size={16} className="ml-1" />
-                </Button>
+                <div className="flex space-x-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => handlePageChange(pagination.currentPage - 1)}
+                    disabled={pagination.currentPage === 1}
+                    className="flex items-center"
+                  >
+                    <FiChevronLeft size={16} className="mr-1" />
+                    Previous
+                  </Button>
+                  <div className="flex space-x-1">
+                    {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
+                      let pageNum;
+                      if (pagination.totalPages <= 5) {
+                        pageNum = i + 1;
+                      } else if (pagination.currentPage <= 3) {
+                        pageNum = i + 1;
+                      } else if (pagination.currentPage >= pagination.totalPages - 2) {
+                        pageNum = pagination.totalPages - 4 + i;
+                      } else {
+                        pageNum = pagination.currentPage - 2 + i;
+                      }
+                      return (
+                        <Button
+                          key={pageNum}
+                          variant={pagination.currentPage === pageNum ? "primary" : "outline"}
+                          onClick={() => handlePageChange(pageNum)}
+                          className="w-10 h-10 flex items-center justify-center"
+                        >
+                          {pageNum}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                  <Button
+                    variant="outline"
+                    onClick={() => handlePageChange(pagination.currentPage + 1)}
+                    disabled={pagination.currentPage >= pagination.totalPages}
+                    className="flex items-center"
+                  >
+                    Next
+                    <FiChevronRight size={16} className="ml-1" />
+                  </Button>
+                </div>
               </div>
-            </div>
-          </>
+            </>)
         )}
       </div>
 
@@ -704,20 +800,21 @@ const GroupPage = () => {
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label
+            {/* <label
               htmlFor="title"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
               Group Name *
-            </label>
-            <input
-              type="text"
-              id="title"
+            </label> */}
+
+            <InputField
+              label="Group Name"
               name="title"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-              value={formData.title}
+              value={(formData.title).replace(/[^a-zA-Z0-9]/g, '')}
+              error={erorrs.title}
+              helperText={erorrs.title}
               onChange={handleInputChange}
-              required
+              placeholder="enter  group name"
             />
           </div>
           <div>

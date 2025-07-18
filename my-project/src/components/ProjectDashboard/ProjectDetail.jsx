@@ -1,96 +1,156 @@
+// client/src/components/ProjectDetail/ProjectDetail.js
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import api from '../../utils/api';
 import { useAuth } from '../../context/AuthContext';
 import { FiArrowLeft, FiEdit, FiTrash2, FiUsers, FiMessageSquare, FiMail, FiPhone } from 'react-icons/fi';
-import LoadingSpinner from '../Loader';
-import ErrorMessage from '../ErrorMessage';
-import { useProject } from '../../context/ProjectProvider';
-import StatCard from './ProjectDashboard';
-import Card from '../Card';
+import LoadingSpinner from '../Loader'; // Assuming correct path
+import ErrorMessage from '../ErrorMessage'; // Assuming correct path
+import { useProject } from '../../context/ProjectProvider'; // If you still use this context
+import Card from '../Card'; // Assuming correct path
+import WhatsAppBusinessProfileCard from './WhatsAppBusinessProfileCard'; // NEW: Import the new component
 
 const ProjectDetail = () => {
-  const { id } = useParams();
+  const { id } = useParams(); // This is projectId
   const navigate = useNavigate();
   const { token } = useAuth();
   const [projectData, setProjectData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { project } = useProject();
+  const { project: currentProjectFromContext } = useProject(); // If you need context project
+
+  const [loadingUpdateProfile, setLoadingUpdateProfile] = useState(false);
+  const [errorUpdateProfile, setErrorUpdateProfile] = useState(null);
+  const [successUpdateProfile, setSuccessUpdateProfile] = useState(null);
+
 
   const fetchProjectDetails = async () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await api.get(`/project/${id}/dashboard`, {
+      // Correct API endpoint for fetching a single project
+      const response = await api.get(`/project/${id}/dashboard`, { // Changed from /project/${id}/dashboard
         headers: {
           Authorization: `Bearer ${token}`
         }
       });
-      setProjectData(response.data.data);
+      if (response.data.success) {
+        setProjectData(response.data.data);
+      } else {
+        setError(response.data.message || 'Failed to fetch project details.');
+      }
     } catch (err) {
-      console.error('Failed to fetch project:', err);
+      console.error('Failed to fetch project:', err.response?.data || err.message);
       setError(err.response?.data?.message || 'Failed to load project details');
     } finally {
       setLoading(false);
     }
   };
 
+  // Function to handle updating WhatsApp Business Profile
+  const handleUpdateWhatsappProfile = async (profileData) => {
+    setLoadingUpdateProfile(true);
+    setErrorUpdateProfile(null);
+    setSuccessUpdateProfile(null);
+    try {
+      const response = await api.put(`/project/${id}/whatsapp-business-profile`, profileData, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      if (response.data.success) {
+        setSuccessUpdateProfile(response.data.message || 'WhatsApp Business Profile updated successfully!');
+        // Re-fetch project details to get the latest data from the database
+        await fetchProjectDetails();
+      } else {
+        setErrorUpdateProfile(response.data.message || 'Failed to update WhatsApp Business Profile.');
+      }
+    } catch (err) {
+      console.error('Error updating WhatsApp Business Profile:', err.response?.data || err.message);
+      setErrorUpdateProfile(err.response?.data?.message || 'Failed to update WhatsApp Business Profile.');
+    } finally {
+      setLoadingUpdateProfile(false);
+      // Clear success/error messages after a few seconds
+      setTimeout(() => {
+        setSuccessUpdateProfile(null);
+        setErrorUpdateProfile(null);
+      }, 5000);
+    }
+  };
+
+
   useEffect(() => {
     fetchProjectDetails();
-  }, [id]);
+  }, [id, token]); // Add token to dependency array if it can change
 
   if (loading) return <LoadingSpinner fullPage message="Loading project details..." />;
   if (error) return <ErrorMessage message={error} onRetry={fetchProjectDetails} />;
   if (!projectData) return <ErrorMessage message="Project not found" />;
 
-  // Dummy stats data - replace with actual API data
-  const stats = {
-    contacts: 1245,
-    groups: 28,
-    templates: 15,
-    broadcasts: {
-      success: 18,
-      failed: 2,
-      scheduled: 3
-    },
-    teamMembers: 5,
-    activeChats: 8
-  };
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6"> {/* Added padding for better layout */}
       {/* Header with back button */}
+      <div className="flex items-center space-x-4 mb-6">
+        <Link to="/projects" className="text-gray-600 hover:text-gray-800">
+          <FiArrowLeft size={24} />
+        </Link>
+        <h1 className="text-3xl font-bold text-gray-800">Project Details</h1>
+      </div>
 
 
       {/* Project Header */}
-        <div className="bg-primary-500 px-6 py-4 text-white rounded-t-lg">
+        <div className="bg-indigo-600 px-6 py-4 text-white rounded-t-lg shadow-md"> {/* Changed color to indigo for consistency */}
           <div className="flex justify-between items-center">
             <h1 className="text-2xl font-bold font-heading">{projectData.name}</h1>
             <div className="flex space-x-2">
               <button
-                onClick={() => navigate(`/project/${id}/edit`)}
-                className="p-2 rounded-full hover:bg-primary-600 transition-colors"
+                onClick={() => navigate(`/projects/${id}/edit`)} 
+                className="p-2 rounded-full hover:bg-indigo-700 transition-colors"
                 aria-label="Edit project"
               >
                 <FiEdit size={18} />
               </button>
+              {/* Add delete button if desired */}
             </div>
           </div>
           <div className="mt-2 flex flex-wrap gap-2">
             {projectData.isWhatsappVerified && (
-              <span className="bg-secondary-100 text-secondary-800 text-xs px-2 py-1 rounded-full">
+              <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full"> {/* Changed colors */}
                 WhatsApp Verified
               </span>
             )}
             <span className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded-full">
-              {projectData.type || 'No type specified'}
+              {projectData.businessProfileId?.name || 'No Business Profile'} {/* Display Business Profile Name */}
             </span>
-            <span className="bg-accent-100 text-accent-800 text-xs px-2 py-1 rounded-full">
+            <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full"> {/* Changed colors */}
               {projectData.activePlan || 'No plan'}
             </span>
           </div>
         </div>
+
+        {/* WhatsApp Business Profile Card */}
+        {projectData && (
+          <WhatsAppBusinessProfileCard
+            project={projectData}
+            onUpdateProfile={handleUpdateWhatsappProfile}
+            loadingUpdate={loadingUpdateProfile}
+            errorUpdate={errorUpdateProfile}
+          />
+        )}
+        {successUpdateProfile && (
+          <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+            <strong className="font-bold">Success!</strong>
+            <span className="block sm:inline"> {successUpdateProfile}</span>
+          </div>
+        )}
+        {errorUpdateProfile && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+            <strong className="font-bold">Error!</strong>
+            <span className="block sm:inline"> {errorUpdateProfile}</span>
+          </div>
+        )}
+
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Project Information */}
         <div className="lg:col-span-2 space-y-6">
@@ -134,10 +194,12 @@ const ProjectDetail = () => {
               </div>
             </div>
           </Card>
+        </div>
 
+        {/* Quick Actions */}
+        <div className="space-y-4">
           <Card title="Subscription Details">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
                 <div>
                   <p className="text-sm font-medium text-gray-500">Active Plan</p>
                   <p className="text-gray-800">{projectData.activePlan || 'No active plan'}</p>
@@ -146,53 +208,10 @@ const ProjectDetail = () => {
                   <p className="text-sm font-medium text-gray-500">Plan Duration</p>
                   <p className="text-gray-800">{projectData.planDuration || 0} days</p>
                 </div>
-              </div>
-              <div className="space-y-4">
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Provider Type</p>
-                  <p className="text-gray-800">{projectData.providerType || 'Not specified'}</p>
+                  <p className="text-sm font-medium text-gray-500">Business Profile Name</p>
+                  <p className="text-gray-800">{projectData.businessProfileId?.name || 'Not linked'}</p>
                 </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Description</p>
-                  <p className="text-gray-800">{projectData.description || 'No description provided'}</p>
-                </div>
-              </div>
-            </div>
-          </Card>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="space-y-6">
-          <Card title="Quick Actions">
-            <div className="space-y-3">
-              <Link
-                to={`/project/${id}/contacts/new`}
-                className="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                <FiPhone className="text-primary-500 mr-3" />
-                <span>Add New Contacts</span>
-              </Link>
-              <Link
-                to={`/project/${id}/broadcasting/new`}
-                className="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                <FiMail className="text-secondary-500 mr-3" />
-                <span>Create Broadcast</span>
-              </Link>
-              <Link
-                to={`/project/${id}/templates/new`}
-                className="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                <FiMessageSquare className="text-accent-500 mr-3" />
-                <span>Create Template</span>
-              </Link>
-              {/* <Link
-                to={`/project/${id}/team-members/invite`}
-                className="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                <FiUsers className="text-indigo-500 mr-3" />
-                <span>Invite Team Member</span>
-              </Link> */}
             </div>
           </Card>
 
@@ -202,7 +221,7 @@ const ProjectDetail = () => {
                 <p className="text-sm font-medium text-gray-500">WhatsApp Status</p>
                 <p className="flex items-center">
                   {projectData.isWhatsappVerified ? (
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-secondary-100 text-secondary-800">
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                       Verified
                     </span>
                   ) : (
@@ -215,8 +234,8 @@ const ProjectDetail = () => {
               <div>
                 <p className="text-sm font-medium text-gray-500">Project Health</p>
                 <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
-                  <div 
-                    className="bg-green-500 h-2.5 rounded-full" 
+                  <div
+                    className="bg-green-500 h-2.5 rounded-full"
                     style={{ width: '85%' }}
                   ></div>
                 </div>
@@ -226,9 +245,6 @@ const ProjectDetail = () => {
           </Card>
         </div>
       </div>
-       
-
-
     </div>
   );
 };
