@@ -8,7 +8,7 @@ import {
   addEdge,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { nodeTypes, edgeTypes } from './nodeTypes/nodeType';
+import { nodeTypes, edgeTypes } from './nodeTypes/NodeType';
 import { NodeEditorPanel } from './nodeTypes/NodeEditor';
 import Toolbar from './Toolbar';
 import Sidebar from './Sidebar';
