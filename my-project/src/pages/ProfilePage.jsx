@@ -14,7 +14,6 @@ import { useEffect } from 'react';
 import api from '../utils/api';
 import axios from 'axios';
 import { resolvePath } from 'react-router-dom';
-import { countries } from '../components/constants/countries';
 const getInitials = (name) => {
   if (!name) return '';
   const parts = name.trim().split(' ');
