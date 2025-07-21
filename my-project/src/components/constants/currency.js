@@ -1,4 +1,3 @@
-currency.js
  
  
 export const currencyOptions = [

@@ -1,6 +1,6 @@
 import React from 'react';
 import Button from '../components/Button';
-import AddTeamMembers from './AddTeamMembers';
+import AddTeamMembers from '../components/AddTeamMembers';
 import { useNavigate } from 'react-router-dom';
  
 export default function TeamMembers() {

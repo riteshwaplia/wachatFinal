@@ -30,10 +30,18 @@ import LiveChatPage from './pages/LiveChatPage';
 import BulkMessagingDashboard from './pages/BroadCasting';
 import SendMessagePage from './components/broadcasting/SendBulkMessage';
 import AllComponents from './components/AllComponets';
-import FlowBuilder from './components/FlowBuilder/FlowBuilder';
 import { Toaster } from 'react-hot-toast';
 import TemplateDetail from './components/template/TemplateDetail';
-
+import Flow from './components/chatFlow/Flow';
+import FlowsPage from './pages/FlowsPage';
+import ProfilePage from './pages/ProfilePage';
+import UserSetting from './pages/UserSetting';
+import UpdatePassword from './components/UpdatePassword';
+import TeamMembers from './pages/TeamMembers';
+import LandingPage from './pages/LandingPage';
+import AddTeamMembers from './components/AddTeamMembers';
+import UserProfileLayout from './layout/userProfileLayout';
+ 
 const AdminRoute = ({ children }) => (
   <ProtectedRoute roles={["super_admin", "tenant_admin"]}>
     <AdminLayout>{children}</AdminLayout>
@@ -214,15 +222,83 @@ function AppContent() {
             element={<ProjectRouteWrapper component={LiveChatPage} />}
           />
           <Route
-            path="/project/:id/flow-builder"
-            element={<ProjectRouteWrapper component={FlowBuilder} />}
-          />
-          <Route
-            path="/project/:id/flow-builder/:flowId"
-            element={<ProjectRouteWrapper component={FlowBuilder} />}
-          />
+          path="/project/:id/flow-builder"
+ 
+ 
+          element={<UserRoute sidebar={false}>
+            <Flow />
+          </UserRoute>}
+ 
+        />
+        <Route path="/project/:projectId/flow-builder/:flowId" element={<Flow />} /> For editing existing flow
+ 
+        <Route
+          path="/project/:id/flows"
+          element={<ProjectRouteWrapper component={FlowsPage} />}
+        />
+ 
            {/* <Route path="/projects/:projectId/flow-builder" element={<FlowBuilder />} />
             <Route path="/projects/:projectId/flow-builder/:flowId" element={<FlowBuilder />} /> For editing existing flow */}
+     
+     
+     {/* //user profile and settings */}
+     <Route
+        path="/user/profile"
+        element={
+          <UserProfileLayout>
+            <ProfilePage />
+          </UserProfileLayout>
+        }
+      />
+    <Route
+        path="/user/update-password"
+        element={
+          <UserProfileLayout>
+      <UpdatePassword/>
+          </UserProfileLayout>
+        }
+      />
+ 
+      <Route
+        path="/user/setting"
+        element={
+          <UserProfileLayout>
+            <UserSetting />
+          </UserProfileLayout>
+        }
+      />
+      {/* <Route
+        path="/user/setting"
+        element={<ProjectRouteWrapper component={UserSetting} />}
+      /> */}
+ 
+ 
+    <Route path="/" element={<LandingPage />} />
+ 
+       <Route
+        path="/team/members"
+        element={
+     
+       <UserRoute >
+           <TeamMembers/>
+          </UserRoute>
+    
+        }
+      />
+         <Route
+        path="/add/teammembers"
+        element={
+     
+       <UserRoute >
+           <AddTeamMembers/>
+          </UserRoute>
+    
+        }
+      />
+ 
+
+
+     
       <Route
         path="/"
         element={<Navigate to={isLoggedIn ? "/dashboard" : "/login"} replace />} // ✅ safe now

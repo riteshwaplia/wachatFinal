@@ -7,9 +7,9 @@ import InputField from '../components/InputField';
 import Button from '../components/Button';
 // import { iconsName } from '../../constants/icon';
 import { MobileNumber } from '../components/MobileNumber';
-import TeamPermissions from '../pages/TeamPermissions';
+import TeamPermissions from './TeamPermissions';
  
-export default function AddTeamMember({closePanel}) {
+export default function AddTeamMembers({closePanel}) {
     const navigate = useNavigate();
     const handleClose = () => navigate(-1);
  
