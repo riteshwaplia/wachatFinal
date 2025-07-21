@@ -1,0 +1,27 @@
+# netlify.toml
+
+[build]
+  # This is the command that Netlify will run to build your frontend application.
+  # For a Vite React app, it's typically 'npm run build' or 'yarn build'.
+  command = "npm run build"
+
+  # This is the directory that Netlify will deploy after the build command completes.
+  # Vite builds to a 'dist' directory by default.
+  publish = "dist"
+
+  # If your React app is inside a subdirectory (e.g., 'frontend/' in a monorepo),
+  # specify that path here. Otherwise, you can remove or comment this line.
+  # For your MERN project, if 'frontend' is where your React app is, uncomment:
+  # base = "frontend"
+
+[[redirects]]
+  # This redirect rule is crucial for Single Page Applications (SPAs) like React apps.
+  # It ensures that all routes not found on the server are redirected to your
+  # index.html, allowing your React Router to handle the client-side routing.
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# [functions]
+#   # If you have Netlify Functions (serverless functions), you'd configure their directory here.
+#   # functions = "netlify/functions"
