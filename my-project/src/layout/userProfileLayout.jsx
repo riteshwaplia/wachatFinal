@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
-import StaticSidebar from '../components/StaticSideBar';
+import StaticsSidebar from '../components/StaticsSidebar';
  
 const UserProfileLayout = ({ children, sidebar = true }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -23,12 +23,12 @@ sidebarOpen&&  <div onClick={()=>
   }
 }
 } className='w-screen h-screen z-30 bg-black bg-opacity-50  md:hidden fixed top-0 left-0'>
- 
+
       </div>
      }
       {/* User Sidebar */}
       {sidebar && (
-        <StaticSidebar
+        <StaticsSidebar
           isOpen={sidebarOpen}
           onToggle={() => setSidebarOpen(!sidebarOpen)}
         />

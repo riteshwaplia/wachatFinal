@@ -1,3 +1,6 @@
+
+
+
 import React from 'react';
 import { IoSettingsOutline } from "react-icons/io5";
 import { Link, useLocation, useParams } from 'react-router-dom';
@@ -18,7 +21,7 @@ import { FaUserCog } from "react-icons/fa";
 import { TbLockPassword } from "react-icons/tb";
 import { IoBusiness } from "react-icons/io5";
  
-const StaticSidebar = ({ isOpen, onToggle }) => {
+const StaticsSidebar = ({ isOpen, onToggle }) => {
   const location = useLocation();
   const { id } = useParams();
   const { siteConfig } = useTenant();
@@ -119,6 +122,6 @@ const navItems = [
   );
 };
  
-export default StaticSidebar;
+export default StaticsSidebar;
 
 
