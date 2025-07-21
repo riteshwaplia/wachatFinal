@@ -2,7 +2,7 @@ import React from 'react';
 import { CustomEdge } from '../CustomEdge';
 
 // Define all custom node types using dynamic imports (React.lazy)
-export const NodeTypes = {
+export const nodeTypes = {
   text: React.lazy(() => import('./TextUpdaterNode')),                   // 📄 Plain text node
   image: React.lazy(() => import('./ImageEditorNode')),                 // 🖼️ Image node
   audio: React.lazy(() => import('./AudioNode')),                       // 🔊 Audio playback node

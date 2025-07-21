@@ -8,8 +8,8 @@ import {
   addEdge,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { NodeTypes, edgeTypes } from './NodeTypes/NodeType';
-import { NodeEditorPanel } from './NodeTypes/NodeEditor';
+import { nodeTypes, edgeTypes } from './nodeTypes/nodeType';
+import { NodeEditorPanel } from './nodeTypes/NodeEditor';
 import Toolbar from './Toolbar';
 import Sidebar from './Sidebar';
 import FlowTester from './FlowTester';
@@ -338,7 +338,7 @@ function Flow() {
               onEdgesChange={onEdgesChange}
               onConnect={onConnect}
               onInit={setReactFlowInstance}
-              nodeTypes={NodeTypes}
+              nodeTypes={nodeTypes}
               edgeTypes={edgeTypes}
               fitView
             >
