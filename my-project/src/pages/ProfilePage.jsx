@@ -4,7 +4,7 @@ import Button from '../components/Button';
 import CustomSelect from '../components/CustomSelect';
 import { MobileNumber } from '../components/MobileNumber';
 import { INDIAN_STATE } from "../components/constants/IndianState";
-import { countries } from '../components/constants/Countries';
+// import { countries } from '../components/constants/Countries';
 import { INDUSTRY_TYPES } from '../components/constants/industryTypes';
 import { currencyOptions } from '../components/constants/currency';
 import { timeZoneOptions } from '../components/constants/timeZone';
@@ -14,6 +14,7 @@ import { useEffect } from 'react';
 import api from '../utils/api';
 import axios from 'axios';
 import { resolvePath } from 'react-router-dom';
+import { countries } from '../components/constants/countries';
 const getInitials = (name) => {
   if (!name) return '';
   const parts = name.trim().split(' ');
