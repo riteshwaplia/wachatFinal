@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
-import { FiUploadCloud } from "react-icons/fi";
+import { FiUnlock, FiUploadCloud } from "react-icons/fi";
 import * as XLSX from 'xlsx';
 
 
@@ -57,6 +57,7 @@ import {
     FileText
 } from 'lucide-react';
 import { object } from 'prop-types';
+import { act } from 'react';
 
 const ContactPage = () => {
     const { user, token } = useAuth();
@@ -79,7 +80,7 @@ const ContactPage = () => {
     });
     const availableFields = ['name', 'email', 'phone', 'dont use'];
     const [columns, setColumns] = useState([]);
-
+    console.log("columnssssss", columns);
 
 
 
@@ -263,7 +264,7 @@ const ContactPage = () => {
     const bulkDeleteContact = async () => {
         try {
             const response = await api.put(
-                `/projects/${projectId}/contacts/bulkContactUpdate/delete`,
+                `/projects/${projectId}/contacts/bulkContactUpdate/`,
                 {
                     ids: selectedrows
 
@@ -273,15 +274,44 @@ const ContactPage = () => {
             );
 
             if (response.status === 200) {
-               
 
+                setIsbulkOption(false);
                 fetchData();
+
+
             }
 
         } catch (error) {
             console.log("error", error.message);
         }
     }
+
+    const handleBlockContact = async () => {
+        try {
+            let endpoint = '';
+
+            if (activeTab === 'contactList') {
+                // /api/projects/:projectId/groups/bulk-block
+                endpoint = `/projects/${projectId}/contacts/bulk-block`;
+            } else {
+                endpoint = `/projects/${projectId}/contacts/bulkContactUpdate`;
+            }
+
+            const response = await api.post(endpoint, {
+                ids: selectedrows
+            });
+
+            if (response.status === 200) {
+                setIsbulkOption(false);
+                fetchData();
+            }
+        } catch (error) {
+            setIsbulkOption(false);
+            console.log("error", error.message);
+        }
+    };
+
+
     const fetchData = useCallback(async () => {
         setIsLoading(true);
         setMessage('');
@@ -361,7 +391,7 @@ const ContactPage = () => {
         } else if (!user) {
             navigate("/login", { replace: true });
         }
-    }, [user, projectId, activeTab,pagination.limit, debouncedSearchTerm, pagination.currentPage]);
+    }, [user, projectId, activeTab, debouncedSearchTerm, pagination.limit, pagination.currentPage]);
 
 
     const handlePageChange = (newPage) => {
@@ -381,6 +411,7 @@ const ContactPage = () => {
             limit: newLimit,
             currentPage: 1 // Reset to first page when changing limit
         }));
+
     };
 
     // --- Contact Form Submission ---
@@ -578,17 +609,26 @@ const ContactPage = () => {
             setErrors(newErrors);
             return;
         }
+        console.log("columnmapping", columnMapping);
+        const formattedArray = Object.values(columnMapping).filter(
+            (val) => val && val !== "dont use"
+        );
 
         setIsSubmitting(true);
         const formData = new FormData();
         formData.append('excelFile', file);
-        formData.append("groupName", finalSelectedGroups);
-        formData.append("projectId", projectId);
+        formData.append("groupName", JSON.stringify(finalSelectedGroups));
+        formData.append("projectId", JSON.stringify(projectId));
+        formData.append("mapping", JSON.stringify(formattedArray));
 
+
+        console.log("excelfile", file);
+        console.log("formdata", formattedArray);
         try {
             const res = await api.post(`/projects/${projectId}/contacts/uploadContact`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
+
 
             setMessage(res.data.message || 'Contacts imported successfully!');
             setMessageType('success');
@@ -797,12 +837,12 @@ const ContactPage = () => {
                                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
                                     <button
                                         onClick={() => {
-                                            // handleBulkAction("archive");
+                                            handleBlockContact();
                                             setIsBulkActionsOpen(false);
                                         }}
                                         className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
                                     >
-                                        <FiArchive className="mr-2" /> Archive
+                                        {activeTab === 'contactList' ? <><FiArchive className="mr-2" /> Block contacts </> : <><FiUnlock className="mr-2" /> UnBlock contacts</>}
                                     </button>
 
 
