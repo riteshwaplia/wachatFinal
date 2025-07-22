@@ -265,7 +265,15 @@ const TemplatePage = () => {
             // icon={<FiPlus className="mr-2" />}
             onClick={() => navigate(`/project/${projectId}/templates/create`)}
           >
-            New Template
+          regular Template
+          </Button>
+          <Button
+            variant="primary"
+            // onClick={() => setIsModalOpen(true)}
+            // icon={<FiPlus className="mr-2" />}
+            onClick={() => navigate(`/project/${projectId}/templates/create/carousel-templates`)}
+          >
+          carousel Template
           </Button>
         </div>
       </div>

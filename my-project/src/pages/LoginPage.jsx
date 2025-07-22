@@ -75,77 +75,70 @@
 
 // src/pages/LoginPage.jsx
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import Card from '../components/Card';
 import InputField from '../components/InputField';
 import Button from '../components/Button';
 import { useAuth } from '../context/AuthContext';
 import { loginValidation } from '../utils/validation';
 import { ErrorToast, SuccessToast } from '../utils/Toast';
-import api from '../utils/api';
- 
+
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState({});
- 
+  
   const { login, loading } = useAuth();
   const navigate = useNavigate();
- 
+
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setErrorMessage({});
- 
-    const data = { email, password };
-    const validationErrors = loginValidation(data);
- 
- 
- 
-    if (Object.keys(validationErrors).length > 0) {
-      setErrorMessage(validationErrors);
-      return;
-    }
- 
- 
-    if (password.length < 6) {
-      ErrorToast("password  length must be at least 6")
-      return
-    }
-    try {
-      // const response = await api.post('/users/login', { email, password })
-      const response = await login(email, password)
- 
- 
-      console.log("response from login:", response);
- 
-      if (response?.success) {
-        const user = response.user;
- 
-        SuccessToast("Logged in Successfully");
- 
-        if (user?.role === "admin") {
-          navigate("/admin/dashboard");
-        } else if (user?.role === "user") {
-          navigate("/projects");
-        } else {
-          ErrorToast("Unknown user role. Please contact support.");
-        }
+  e.preventDefault();
+  setErrorMessage({});
+
+  const data = { email, password };
+  const validationErrors = loginValidation(data);
+
+  if (Object.keys(validationErrors).length > 0) {
+    setErrorMessage(validationErrors);
+    return;
+  }
+
+  if (password.length < 6) {
+    ErrorToast("Password must be at least 6 characters.");
+    return;
+  }
+
+  try {
+    const response = await login(email, password);
+    console.log("Login response:", response);
+
+    if (response?.success && response.user) {
+      const { role } = response.user;
+
+      SuccessToast("Logged in Successfully");
+
+      if (role === "admin") {
+        navigate("/admin/dashboard");
+      } else if (role === "user") {
+        navigate("/projects");
       } else {
-        const errMsg = response?.error || "Login failed. Please check your credentials.";
-        ErrorToast(errMsg);
+        ErrorToast("Unknown user role. Please contact support.");
       }
-    } catch (error) {
-      console.error("Login error:", error);
- 
-      const errMsg =
-        error?.response?.data?.message ||
-        error?.message ||
-        "Something went wrong. Please try again later.";
- 
+
+    } else {
+      const errMsg = response?.error || "Login failed. Please check your credentials.";
       ErrorToast(errMsg);
     }
-  };
- 
+  } catch (error) {
+    console.error("Login error:", error);
+    const errMsg =
+      error?.response?.data?.message ||
+      error?.message ||
+      "Something went wrong. Please try again later.";
+    ErrorToast(errMsg);
+  }
+};
+
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <Card title="Login to Your Account" className="w-full max-w-md">
@@ -159,12 +152,13 @@ const LoginPage = () => {
             onChange={(e) => {
               setEmail(e.target.value);
               if (errorMessage.email) {
-                setErrorMessage(prev => ({ ...prev, email: "" }));
+                setErrorMessage((prev) => ({ ...prev, email: "" }));
               }
             }}
             error={errorMessage.email}
             helperText={errorMessage.email}
           />
+
           <InputField
             id="password"
             label="Password"
@@ -174,28 +168,27 @@ const LoginPage = () => {
             onChange={(e) => {
               setPassword(e.target.value);
               if (errorMessage.password) {
-                setErrorMessage(prev => ({ ...prev, password: "" }));
+                setErrorMessage((prev) => ({ ...prev, password: "" }));
               }
             }}
             error={errorMessage.password}
             helperText={errorMessage.password}
           />
- 
-          <Button type="submit" className="w-full mt-6" disabled={loading} >
+
+          <Button type="submit" className="w-full mt-6" disabled={loading}>
             {loading ? 'Logging In...' : 'Login'}
           </Button>
         </form>
+
         <p className="text-center text-sm text-gray-600 mt-4">
-          Don't have an account?{' '}
-          <a href="/register" className="text-primary-500 hover:underline">
+          Don&apos;t have an account?{' '}
+          <Link to="/register" className="text-primary-500 hover:underline">
             Register here
-          </a>
+          </Link>
         </p>
       </Card>
     </div>
   );
 };
- 
+
 export default LoginPage;
- 
- 

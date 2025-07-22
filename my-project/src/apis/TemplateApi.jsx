@@ -72,3 +72,18 @@ export  const getAllTemplates = async () => {
         message: error.response?.data?.message || error.message || "Failed to fetch templates",}
     } 
   };
+// NEW: Function to create a carousel message template
+export const createCarouselTemplateApi = async (carouselTemplateData) => {
+  try {
+    // Assumes /whatsapp/carousel-templates route
+    const response = await api.post("/carousel-templates", carouselTemplateData);
+    return { success: true, data: response.data.data, message: response.data.message };
+  } catch (error) {
+    console.error("Error creating carousel template:", error.response?.data || error.message);
+    return {
+      success: false,
+      message: error.response?.data?.message || "Failed to create carousel template.",
+      error: error.response?.data?.error || error.message,
+    };
+  }
+};
