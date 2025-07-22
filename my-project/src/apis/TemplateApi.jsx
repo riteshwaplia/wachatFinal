@@ -76,7 +76,7 @@ export  const getAllTemplates = async () => {
 export const createCarouselTemplateApi = async (carouselTemplateData) => {
   try {
     // Assumes /whatsapp/carousel-templates route
-    const response = await api.post("/carousel-templates", carouselTemplateData);
+    const response = await api.post("/templates/carousel-templates", carouselTemplateData);
     return { success: true, data: response.data.data, message: response.data.message };
   } catch (error) {
     console.error("Error creating carousel template:", error.response?.data || error.message);
