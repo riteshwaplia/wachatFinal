@@ -117,7 +117,7 @@ const LoginPage = () => {
 
       SuccessToast("Logged in Successfully");
 
-      if (role === "admin") {
+      if (role === "super_admin" || role === "tenant_admin") {
         navigate("/admin/dashboard");
       } else if (role === "user") {
         navigate("/projects");

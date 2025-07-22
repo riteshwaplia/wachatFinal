@@ -595,7 +595,7 @@ const CreateCarouselTemplate = () => {
           <br />
           <strong>Example:</strong>
           <br />
-          If your button URL is: <em>"https://example.com/product"</em>
+          If your button URL is: <em>"https://example.com/products"</em>
           <br />
           Then provide an example like: <code>https://example.com/product/123</code>
           <br />

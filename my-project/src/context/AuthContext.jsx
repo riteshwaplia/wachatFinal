@@ -70,10 +70,11 @@ const login = async (email, password) => {
 
     let userData, authToken;
 
-    // ✅ Correct structure access
-    if (response.data?.data?.user && response.data?.data?.token) {
-      userData = response.data.data.user;
-      authToken = response.data.data.token;
+    // ✅ Corrected response structure
+    if (response.data?.token && response.data?._id) {
+      const { token, ...user } = response.data;
+      userData = user;
+      authToken = token;
     } else {
       throw new Error('Unexpected response format from server');
     }
@@ -90,6 +91,7 @@ const login = async (email, password) => {
     setLoading(false);
   }
 };
+
 
 
 
