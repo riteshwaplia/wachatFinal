@@ -41,6 +41,7 @@ import TeamMembers from './pages/TeamMembers';
 import LandingPage from './pages/LandingPage';
 import AddTeamMembers from './components/AddTeamMembers';
 import UserProfileLayout from './layout/userProfileLayout';
+import CreateCarouselTemplate from './components/template/CreateCarouselTemplate';
  
 const AdminRoute = ({ children }) => (
   <ProtectedRoute roles={["super_admin", "tenant_admin"]}>
@@ -204,6 +205,10 @@ function AppContent() {
           <Route
             path="/project/:id/templates/create"
             element={<ProjectRouteWrapper component={CreateTemplate} />}
+          />
+          <Route
+            path="/project/:id/templates/create/carousel-templates"
+            element={<ProjectRouteWrapper component={CreateCarouselTemplate} />}
           />
           <Route
             path="/project/:id/templates/:id"

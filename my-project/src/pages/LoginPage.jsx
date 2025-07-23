@@ -16,7 +16,6 @@ const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState({});
-
   const { login, loading } = useAuth();
   const navigate = useNavigate();
 
@@ -59,8 +58,7 @@ const LoginPage = () => {
           ErrorToast("Unknown user role. Please contact support.");
         }
       } else {
-        const errMsg = response?.error || "Login failed. Please check your credentials.";
-        ErrorToast(errMsg);
+        ErrorToast("Unknown user role. Please contact support.");
       }
     } catch (error) {
       console.error("Login error:", error);

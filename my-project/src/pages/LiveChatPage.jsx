@@ -1,4 +1,3 @@
-
 // client/src/pages/LiveChatPage.js
 import React, { useState, useEffect, useRef } from "react";
 import api from "../utils/api";
@@ -6,11 +5,14 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import io from "socket.io-client";
 import { FaChevronLeft } from "react-icons/fa";
-import { ChevronLeft } from "lucide-react";
 
 const VITE_SOCKET_IO_URL =
   import.meta.env.VITE_SOCKET_IO_URL || "http://localhost:5000";
 const socket = io(VITE_SOCKET_IO_URL, { transports: ["websocket", "polling"] });
+import { ChevronLeft } from "lucide-react";
+import Avatar from "../components/Avatar";
+import { IoMdSend } from "react-icons/io";
+import Loader from "../components/Loader";
 
 const LiveChatPage = () => {
   const { user, token } = useAuth();
@@ -32,7 +34,12 @@ const LiveChatPage = () => {
   const [uploadedMediaData, setUploadedMediaData] = useState(null);
   const [first, setFirst] = useState(false);
 
-  const messagesEndRef = useRef(null);
+  const messagesEndRef = useRef(null); // For auto-scrolling chat
+  function truncate(str, maxLength) {
+    if (typeof str !== "string") return "";
+    if (str.length <= maxLength) return str;
+    return str.slice(0, maxLength) + "...";
+  }
   const fileInputRef = useRef(null);
   const project = localStorage.getItem("currentProject")
     ? JSON.parse(localStorage.getItem("currentProject"))
@@ -69,6 +76,7 @@ const LiveChatPage = () => {
       const res = await api.get(`/projects/${projectId}/conversations`, config);
       setConversations(res.data.data || []);
       setMessage("");
+      console.log("conversations", res);
     } catch (error) {
       console.error(
         "Error fetching conversations:",
@@ -674,6 +682,7 @@ const LiveChatPage = () => {
   }, [messages]);
   return (
     <div className="md:flex md:h-[calc(100vh-120px)] bg-white rounded-lg shadow-md mt-8 overflow-hidden">
+      {" "}
       {/* Left Panel: Conversation List (unchanged) */}
       <div className="md:w-1/3 w-full border-r border-gray-200 bg-gray-50 flex flex-col">
         <div className="flex-grow overflow-y-auto">
@@ -686,9 +695,9 @@ const LiveChatPage = () => {
             conversations.map((conv) => (
               <div
                 key={conv._id}
-                className={`flex items-center p-3 cursor-pointer border-b border-gray-100 hover:bg-gray-100 transition duration-150 ${
+                className={`flex  p-3 cursor-pointer border-b  border-gray-200 hover:bg-gray-100 transition duration-150 ${
                   selectedConversation?._id === conv._id
-                    ? "bg-blue-100 border-l-4 border-blue-500"
+                    ? "bg-gray-100 border-l-4 border-blue-500"
                     : ""
                 }`}
                 onClick={() => {
@@ -697,19 +706,45 @@ const LiveChatPage = () => {
                 }}
               >
                 <div className="flex-grow">
-                  <div className="flex justify-between items-center">
-                    <h4 className="font-semibold text-gray-800">
-                      {conv.contactId?.profileName ||
-                        conv.contactId?.name ||
-                        conv.contactId?.mobileNumber ||
-                        "Unknown Contact"}
-                    </h4>
+                  <div className="flex w-[100%] gap-[30px] items-center ">
+                    <div className="w-[10%]">
+                      <Avatar
+                        src="https://plus.unsplash.com/premium_photo-1672239496290-5061cfee7ebb?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8bWVufGVufDB8fDB8fHww"
+                        alt="profile picture"
+                        size="md"
+                      ></Avatar>
+                    </div>
+                    <div className="flex w-[90%] justify-between ">
+                      <div>
+                        <h4 className="font-semibold text-gray-800">
+                          {conv.contactId?.profileName ||
+                            conv.contactId?.name ||
+                            conv.contactId?.mobileNumber ||
+                            "Unknown Contact"}
+                        </h4>
+                        <div className="text-sm ">
+                          <p className="text-sm text-gray-600  truncate">
+                            {conv.latestMessageType === "text"
+                              ? truncate(conv.latestMessage, 10)
+                              : `[${conv.latestMessageType} message]`}
+                          </p>
+                        </div>
+                      </div>
+                      <div>
+                        <div>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {new Date(conv.lastActivityAt).toLocaleString()}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
                     {conv.unreadCount > 0 && (
                       <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
                         {conv.unreadCount}
                       </span>
                     )}
                   </div>
+
                   <p className="text-sm text-gray-600 truncate">
                     {conv.latestMessageType === "text"
                       ? `${conv.latestMessage?.slice(0, 5)}...`
@@ -724,24 +759,31 @@ const LiveChatPage = () => {
           )}
         </div>
       </div>
-
       {/* Right Panel: Chat Window */}
       <div className="md:w-2/3 md:flex hidden w-[100vw] flex flex-col bg-white">
         {selectedConversation ? (
           <>
-            <div className="p-4 border-b border-gray-200 bg-gray-50">
-              <h3 className="text-xl font-semibold text-gray-800">
-                Chat with{" "}
-                {selectedConversation.contactId?.profileName ||
-                  selectedConversation.contactId?.name ||
-                  selectedConversation.contactId?.mobileNumber}
-              </h3>
-              <p className="text-sm text-gray-600">
-                Mobile: {selectedConversation.contactId?.countryCode}
-                {selectedConversation.contactId?.mobileNumber}
-              </p>
+            <div className="p-4 flex gap-5 border-b border-gray-200 bg-gray-50">
+              <Avatar
+                src="https://plus.unsplash.com/premium_photo-1672239496290-5061cfee7ebb?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8bWVufGVufDB8fDB8fHww"
+                alt="profile picture"
+                size="md"
+              ></Avatar>
+              <div>
+                <h3 className="text-xl font-semibold text-gray-800">
+                  Chat with{" "}
+                  {selectedConversation.contactId?.profileName ||
+                    selectedConversation.contactId?.name ||
+                    selectedConversation.contactId?.mobileNumber}
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Mobile: {selectedConversation.contactId?.countryCode}
+                  {selectedConversation.contactId?.mobileNumber}
+                </p>
+              </div>
             </div>
-            <div className="flex-grow p-4 overflow-y-auto space-y-4 bg-gray-100">
+            <div className="flex-grow p-4 overflow-y-scroll space-y-4 bg-[url('https://i.pinimg.com/736x/0b/f2/80/0bf280388937448d38392b76c15bd441.jpg')]">
+              {" "}
               {messages.length === 0 ? (
                 <p className="text-center text-gray-500">
                   No messages yet. Start the conversation!
@@ -1084,62 +1126,173 @@ const LiveChatPage = () => {
               )}
               <div ref={messagesEndRef} /> {/* For auto-scrolling */}
             </div>
-            <form
-              onSubmit={handleSendMessage}
-              className="p-4 border-t fixed bottom-0 z-[9999] w-full border-gray-200 bg-gray-50 flex items-center space-x-3"
-            >
-              <input
-                type="text"
-                className="flex-grow border border-gray-300 rounded-lg shadow-sm p-3 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Type a message..."
-                value={newMessageText}
-                onChange={(e) => setNewMessageText(e.target.value)}
-                disabled={isSending}
-              />
-              <button
-                type="submit"
-                className="bg-blue-600 text-white p-3 rounded-lg shadow hover:bg-blue-700 transition duration-300 flex items-center justify-center"
-                disabled={isSending}
-              >
-                {isSending ? (
-                  <svg
-                    className="animate-spin h-5 w-5 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
+<form onSubmit={handleSendMessage} className="p-4 border-t border-gray-200 bg-gray-50 flex items-center space-x-3">
+                            <input
+                                type="text"
+                                className="flex-grow border border-gray-300 rounded-lg shadow-sm p-3 focus:ring-blue-500 focus:border-blue-500"
+                                placeholder="Type a message..."
+                                value={newMessageText}
+                                onChange={(e) => setNewMessageText(e.target.value)}
+                                disabled={isSending}
+                            />
+                            <button
+                                type="submit"
+                                className="bg-blue-600 text-white p-3 rounded-lg shadow hover:bg-blue-700 transition duration-300 flex items-center justify-center"
+                                disabled={isSending}
+                            >
+                                {isSending ? (
+                                    <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                ) : (
+                                    // <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    //     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                    // </svg>
+                               <IoMdSend size={18} />
+                                )}
+                            </button>
+                        </form>
+                    </>
                 ) : (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-6 w-6"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M14 5l7 7m0 0l-7 7m7-7H3"
-                    />
-                  </svg>
+                    <div className="flex-grow flex items-center justify-center text-gray-500">
+                        Select a conversation to start chatting.
+                    </div>
                 )}
-              </button>
-            </form>
+            </div>
+            <div className="md:w-2/3 md:hidden fixed top-0 left-0 overflow-scroll w-[100vw] flex flex-col bg-white">
+ 
+                {selectedConversation ? (
+                    <>
+                        <div className="p-4 border-b border-gray-200 bg-gray-50">
+                            <h3 className="text-xl font-semibold text-gray-800">
+                                Chat with {selectedConversation.contactId?.profileName || selectedConversation.contactId?.name || selectedConversation.contactId?.mobileNumber}
+                            </h3>
+                            <p className="text-sm text-gray-600">
+                                Mobile: {selectedConversation.contactId?.countryCode}{selectedConversation.contactId?.mobileNumber}
+                            </p>
+                        </div>
+                        <div className="flex-grow p-4 h-screen pb-[160px]  overflow-y-auto space-y-4 bg-[url('https://i.pinimg.com/736x/0b/f2/80/0bf280388937448d38392b76c15bd441.jpg')]">
+                            {messages.length === 0 ? (
+                                <p className="text-center text-gray-500">No messages yet. Start the conversation!</p>
+                            ) : (
+                                <>
+<div className='bg-white absolute top-[60px] w-full left-0 '>
+    <div className='flex justify-between  items-center'>
+ 
+ 
+ 
+          <div className="p-4 flex w-full gap-5 border-b border-gray-200 bg-gray-50">
+                             <Avatar src="https://plus.unsplash.com/premium_photo-1672239496290-5061cfee7ebb?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8bWVufGVufDB8fDB8fHww" alt='profile picture' size='md'>
+ 
+                                    </Avatar>
+              <div>
+                              <h3 className="text-xl font-semibold text-gray-800">
+                                Chat with {selectedConversation.contactId?.profileName || selectedConversation.contactId?.name || selectedConversation.contactId?.mobileNumber}
+                            </h3>
+                            <p className="text-sm text-gray-600">
+                                Mobile: {selectedConversation.contactId?.countryCode}{selectedConversation.contactId?.mobileNumber}
+                            </p>
+              </div>
+                        </div>
+                         <button
+                                                    onClick={() => setSelectedConversation(null)}
+                                                    className="md:hidden   left-4 z-50 bg-white p-2 rounded-full  transition"
+                                                    aria-label="Go back"
+                                                >
+                                                    <ChevronLeft size={14} />
+                                                </button>
+ 
+    </div>
+ 
+                                                
+</div>
+                                    {
+ 
+ 
+                                        messages.map(msg => (
+                                            <div>
+                                              {/* <div className='bg-red-500 border  z-[100]  w-full top-0 left-0 p-4'> */}
+                                                 
+                                              {/* </div> */}
+                                   
+                                                <div
+                                                    key={msg._id}
+                                                    className={`flex ${msg.direction === 'outbound' ? 'justify-end' : 'justify-start'}`}
+                                                >
+ 
+                                                    <div
+                                                        className={`max-w-xs p-3 rounded-lg shadow-sm ${msg.direction === 'outbound'
+                                                                ? 'bg-blue-500 text-white'
+                                                                : 'bg-gray-300 text-gray-800'
+                                                            }`}
+                                                    >
+                                                        {msg.type === 'text' && <p>{msg.message.body}</p>}
+                                                        {/* Render other message types if needed */}
+                                                        {msg.type === 'template' && (
+                                                            <p className="font-semibold">Template: {msg.message.name}</p>
+                                                        )}
+                                                        {(msg.type === 'image' || msg.type === 'document') && (
+                                                            <div>
+                                                                <p className="font-semibold">{msg.type.toUpperCase()}</p>
+                                                                {msg.message.link && <a href={msg.message.link} target="_blank" rel="noopener noreferrer" className="text-blue-200 underline break-all">{msg.message.link.substring(0, 30)}...</a>}
+                                                                {msg.message.id && <p className="text-xs">Meta ID: {msg.message.id}</p>}
+                                                                {msg.message.caption && <p className="text-sm italic">{msg.message.caption}</p>}
+                                                            </div>
+                                                        )}
+                                                        {/* Fallback for unhandled message types */}
+                                                        {!['text', 'template', 'image', 'document'].includes(msg.type) && (
+                                                            <p className="italic text-sm">[Unsupported Message Type: {msg.type}]</p>
+                                                        )}
+                                                        <p className={`text-xs mt-1 ${msg.direction === 'outbound' ? 'text-blue-100' : 'text-gray-600'}`}>
+                                                            {new Date(msg.sentAt).toLocaleTimeString()}
+                                                            {msg.direction === 'outbound' && (
+                                                                <span className="ml-2">
+                                                                    {msg.status === 'sent' && '✓'}
+                                                                    {msg.status === 'delivered' && '✓✓'}
+                                                                    {msg.status === 'read' && '✓✓ (Read)'}
+                                                                    {msg.status === 'failed' && '✗ (Failed)'}
+                                                                    {msg.status === 'pending' && '...'}
+                                                                </span>
+                                                            )}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))
+                                    }
+                                </>
+ 
+                            )}
+                            <div ref={messagesEndRef} /> {/* For auto-scrolling */}
+                        </div>
+                        <form onSubmit={handleSendMessage} className="p-4 border-t fixed bottom-0 z-[9999] w-full border-gray-200 bg-gray-50 flex items-center space-x-3">
+                            <input
+                                type="text"
+                                className="flex-grow border border-gray-300 rounded-lg shadow-sm p-3 focus:ring-blue-500 focus:border-blue-500"
+                                placeholder="Type a message..."
+                                value={newMessageText}
+                                onChange={(e) => setNewMessageText(e.target.value)}
+                                disabled={isSending}
+                            />
+                            <button
+                                type="submit"
+                                className="bg-blue-600 text-white p-3 rounded-lg shadow hover:bg-blue-700 transition duration-300 flex items-center justify-center"
+                                disabled={isSending}
+                            >
+                                {isSending ? (
+                                    <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                ) : (
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                    </svg>
+                                )}
+                            </button>
+                        </form>
+ 
           </>
         ) : (
           <div className="flex-grow flex items-center justify-center text-gray-500">

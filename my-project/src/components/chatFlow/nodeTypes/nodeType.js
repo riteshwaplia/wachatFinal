@@ -9,7 +9,7 @@ export const nodeTypes = {
   interactive_buttons: React.lazy(() => import('./InteractiveButton')), // 🔘 Button-based interaction
   interactive_list_section: React.lazy(() => import('./InteractiveListSection')), // 📋 Section-based list node
   interactive_list_row: React.lazy(() => import('./InteractiveListRow')),
-  template: React.lazy(() => import('./templateNode')),
+  template: React.lazy(() => import('./TemplateNode')),
   video: React.lazy(() => import('./VideoNode')),
 };
 

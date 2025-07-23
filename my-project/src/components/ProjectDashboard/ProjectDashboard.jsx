@@ -18,6 +18,7 @@ import Card from '../Card';
 import { ArrowUp, ArrowDown } from 'lucide-react';
 import api from '../../utils/api'
 import CreateFlowButton from '../../apis/CreateFlowButton';
+import { sendgroupbroadcast } from '../../apis/ApiForTest';
 
 const ProjectDashboard = () => {
   const { id: projectId } = useParams();
@@ -90,7 +91,7 @@ const ProjectDashboard = () => {
           <span>Last updated: {lastUpdated}</span>
           <button 
             className="p-1 rounded hover:bg-gray-100"
-            onClick={handleRefresh}
+            onClick={sendgroupbroadcast}
           >
             <RefreshCw size={16} />
           </button>
