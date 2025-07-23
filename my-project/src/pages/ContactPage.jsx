@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
-import { FiUploadCloud } from "react-icons/fi";
+import { FiUnlock, FiUploadCloud } from "react-icons/fi";
 import * as XLSX from 'xlsx';
 
 
@@ -18,12 +18,6 @@ import ContactForm from '../components/ContactForm';
 import Badge from '../components/Badge';
 import CustomSelect from '../components/CustomSelect';
 import axios from 'axios';
-
-
-
-// import { TablePagination } from '../components/TablePagination';
-// import PhoneInput from 'react-phone-input-2';
-// import { MobileNumber } from '../components/MobileNumber';
 
 // Import Lucide icons
 import {
@@ -57,6 +51,7 @@ import {
     FileText
 } from 'lucide-react';
 import { object } from 'prop-types';
+import AddCustomFieldModal from './TeamMembers';
 
 const ContactPage = () => {
     const { user, token } = useAuth();
@@ -79,7 +74,7 @@ const ContactPage = () => {
     });
     const availableFields = ['name', 'email', 'phone', 'dont use'];
     const [columns, setColumns] = useState([]);
-
+    console.log("columnssssss", columns);
 
 
 
@@ -109,8 +104,49 @@ const ContactPage = () => {
     const [isbulkOption, setIsbulkOption] = useState(false);
     console.log("selectedGroups", selectedGroups);
     console.log("finalselect", finalSelectedGroups);
+    const [fields, setFields] = useState([])
+    const [isFiledOpen, setIsFIledOpen] = useState(false);
+
+    const handleOpenModal = () => setIsFIledOpen(true);
+    const handleCloseModal = () => setIsFIledOpen(false);
+
+    const handleSuccess = (newField) => {
+        console.log('New custom field added:', newField);
+        setIsFIledOpen(false);
+        // Optionally update local state with newField
+    };
 
 
+    // useEffect(() => {
+    //     const fetchFields = async () => {
+    //         try {
+    //             const res = await api.get(`/projects/${id}/contacts/fields`);
+    //             const rawFields = res.data.data || [];
+
+    //             const updatedFields = rawFields.map((field) => {
+    //                 const lowerLabel = field.label.toLowerCase();
+
+    //                 // Set required to true for specific labels
+    //                 if (
+    //                     lowerLabel === 'full name' ||
+    //                     lowerLabel === 'email address' ||
+    //                     lowerLabel === 'phone number'
+    //                 ) {
+    //                     return { ...field, required: true };
+    //                 }
+
+    //                 // Otherwise, mark as not required
+    //                 return { ...field, required: false };
+    //             });
+
+    //             setFields(updatedFields);
+    //         } catch (error) {
+    //             console.error('Failed to fetch custom fields', error);
+    //         }
+    //     };
+
+    //     fetchFields();
+    // }, []);
 
     useEffect(() => {
         const trimmed = searchTerm.trim();
@@ -266,22 +302,51 @@ const ContactPage = () => {
                 `/projects/${projectId}/contacts/bulkContactUpdate/delete`,
                 {
                     ids: selectedrows
-
                 }
 
 
             );
 
             if (response.status === 200) {
-               
 
+                setIsbulkOption(false);
                 fetchData();
+
+
             }
 
         } catch (error) {
             console.log("error", error.message);
         }
     }
+
+
+    const handleBlockContact = async () => {
+        try {
+            let endpoint = '';
+
+            if (activeTab === 'contactList') {
+                // /api/projects/:projectId/groups/bulk-block
+                endpoint = `/projects/${projectId}/contacts/bulk-block`;
+            } else {
+                endpoint = `/projects/${projectId}/contacts/bulkContactUpdate`;
+            }
+
+            const response = await api.post(endpoint, {
+                ids: selectedrows
+            });
+
+            if (response.status === 200) {
+                setIsbulkOption(false);
+                fetchData();
+            }
+        } catch (error) {
+            setIsbulkOption(false);
+            console.log("error", error.message);
+        }
+    };
+
+
     const fetchData = useCallback(async () => {
         setIsLoading(true);
         setMessage('');
@@ -361,7 +426,7 @@ const ContactPage = () => {
         } else if (!user) {
             navigate("/login", { replace: true });
         }
-    }, [user, projectId, activeTab,pagination.limit, debouncedSearchTerm, pagination.currentPage]);
+    }, [user, projectId, activeTab, debouncedSearchTerm, pagination.limit, pagination.currentPage]);
 
 
     const handlePageChange = (newPage) => {
@@ -381,6 +446,7 @@ const ContactPage = () => {
             limit: newLimit,
             currentPage: 1 // Reset to first page when changing limit
         }));
+
     };
 
     // --- Contact Form Submission ---
@@ -427,7 +493,8 @@ const ContactPage = () => {
     //     } finally {
     //         setIsSubmitting(false);
     //     }
-    // };
+    // };  
+
     const handleContactFormSubmit = async (formData) => {
         setIsSubmitting(true);
         setMessage('');
@@ -441,12 +508,14 @@ const ContactPage = () => {
             }
 
             const payload = {
+                ...formData, // includes all custom fields dynamically added
                 name: formData.name,
                 email: formData.email,
-                mobileNumber: formData.mobileNumber,
-                groupIds: formData.groupIds,
-                isBlocked: formData.isBlocked,
+                mobileNumber: formData.mobileNumber, // explicitly set from MobileNumber component
+                groupIds: formData.groupIds || [],
+                isBlocked: formData.isBlocked ?? false,
             };
+
 
             const endpoint = editingContact
                 ? `/projects/${projectId}/contacts/updateContact/${editingContact._id}`
@@ -578,23 +647,31 @@ const ContactPage = () => {
             setErrors(newErrors);
             return;
         }
+        console.log("columnmapping", columnMapping);
+        const formattedArray = Object.values(columnMapping).filter(
+            (val) => val && val !== "dont use"
+        );
 
         setIsSubmitting(true);
         const formData = new FormData();
         formData.append('excelFile', file);
-        formData.append("groupName", finalSelectedGroups);
-        formData.append("projectId", projectId);
+        formData.append("groupName", JSON.stringify(finalSelectedGroups));
+        formData.append("projectId", JSON.stringify(projectId));
+        formData.append("mapping", JSON.stringify(formattedArray));
 
+
+        console.log("excelfile", file);
+        console.log("formdata", formattedArray);
         try {
             const res = await api.post(`/projects/${projectId}/contacts/uploadContact`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
-
             setMessage(res.data.message || 'Contacts imported successfully!');
             setMessageType('success');
             setFile(null);
             document.getElementById('excelFile').value = '';
             fetchData();
+            setParsedContacts("");
             setActiveTab('contactList');
         } catch (error) {
             console.error('Error uploading file:', error);
@@ -757,7 +834,22 @@ const ContactPage = () => {
                             </span>
                         </button>
                     )}
+
                 </div>
+                <div className='flex flex-row gap-6'>
+                    <Button onClick={handleOpenModal}>Add New Field</Button>
+
+                    {isFiledOpen && (
+                        <AddCustomFieldModal
+                            isOpen={isFiledOpen}
+                            onClose={handleCloseModal}
+                            onSuccess={handleSuccess}
+                        />
+                    )}
+                    <Button onClick={handleOpenModal}>Show All Field</Button>
+
+                </div>
+
                 {(selectedrows.length > 0 || blcakListSelectedrows.length > 0) && (
                     <div className="relative">
                         <Button
@@ -790,19 +882,18 @@ const ContactPage = () => {
                                   >
                                     <FiTrash2 className="mr-2" /> Delete
                                   </button> */}
-                        {
-                            isbulkOption
+                        {isbulkOption
 
                             && (
                                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
                                     <button
                                         onClick={() => {
-                                            // handleBulkAction("archive");
+                                            handleBlockContact();
                                             setIsBulkActionsOpen(false);
                                         }}
                                         className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
                                     >
-                                        <FiArchive className="mr-2" /> Archive
+                                        {activeTab === 'contactList' ? <><FiArchive className="mr-2" /> Block contacts </> : <><FiUnlock className="mr-2" /> UnBlock contacts</>}
                                     </button>
 
 
@@ -1403,6 +1494,7 @@ const ContactPage = () => {
                     }}
                     groups={groups}
                     isLoading={isSubmitting}
+                // fileds={fields}
                 />
             </Modal>
         </div>

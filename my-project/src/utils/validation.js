@@ -10,9 +10,10 @@ export const validateRegistrationForm = (formData) => {
  
     if (!email?.trim()) {
         errors.email = "Email is required";
-    } else if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
-        errors.email = "Enter a valid email address";
-    }
+    } 
+    // else if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
+    //     errors.email = "Enter a valid email address";
+    // }
  
     if (!password) {
         errors.password = "Password is required";

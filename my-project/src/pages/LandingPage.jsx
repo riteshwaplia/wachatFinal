@@ -283,7 +283,7 @@ export default function LandingPage() {
                                 initial="hidden"
                                 animate="visible"
                                 variants={navItemVariants}
-                                className={` hover:text-primary-700 hover:underline  py-3 transition  cursor-pointer ${isScrolled ?"hover:text-primary-700 text-black ":"text-white"}`}
+                                className={` hover:text-primary-700 hover:underline  py-3 transition  cursor-pointer ${isScrolled ? "hover:text-primary-700 text-black " : "text-white"}`}
                                 onMouseEnter={() => item.dropdown && setShowDropdown(true)}
                                 onMouseLeave={() => item.dropdown && setShowDropdown(false)}
                             >
@@ -326,7 +326,7 @@ export default function LandingPage() {
 
                     <motion.button
                         whileHover={{ scale: 1.05 }}
-                        className={`bg-primary-400 md:block hidden  ${isScrolled?"text-black":"text-white"} px-5 py-2 rounded-lg  font-semibold shadow`}
+                        className={`bg-primary-400 md:block hidden  ${isScrolled ? "text-black" : "text-white"} px-5 py-2 rounded-lg  font-semibold shadow`}
                     >
                         Get Started
                     </motion.button>
@@ -350,16 +350,16 @@ export default function LandingPage() {
                             Close ✕
                         </button>
                         <ul className="mt-8 space-y-4">
-   {["Home", "Features", "About", "Contact","login"].map((item, i) => (
+                            {["Home", "Features", "About", "Contact", "login"].map((item, i) => (
                                 <Link to={item}>
-                                <motion.li
-                                    key={i}
-                                    whileHover={{ scale: 1.05 }}
-                                    className="cursor-pointer text-white hover:text-primary-300"
-                                >
-                                    {item}
-                                </motion.li>
-                                
+                                    <motion.li
+                                        key={i}
+                                        whileHover={{ scale: 1.05 }}
+                                        className="cursor-pointer text-white hover:text-primary-300"
+                                    >
+                                        {item}
+                                    </motion.li>
+
                                 </Link>
                             ))}
                         </ul>
@@ -420,7 +420,7 @@ export default function LandingPage() {
                 className="max-w-5xl mx-auto px-6 "
             >
                 <img
-                    src="https://i.cdn.newsbytesapp.com/images/l45520240607101828.jpeg"
+                    src="../images/wp.png"
                     alt="Dashboard preview"
                     className='mx-auto'
                 />

@@ -38,6 +38,8 @@ const TemplateNode = ({ data, id }) => {
                 ...data,
                 selectedTemplateId: selectedId,
                 selectedTemplateName: selectedTemplate ? selectedTemplate.name : '',
+                selectedTemplateLanguage: selectedTemplate ? selectedTemplate.language : '',
+
             });
 
             console.log("selectedTemplate", selectedTemplate.name)

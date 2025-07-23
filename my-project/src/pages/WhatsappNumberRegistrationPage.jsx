@@ -298,6 +298,7 @@ const WhatsappNumberRegistrationPage = () => {
                                         isSelected={state.selectedProfile?._id === profile._id}
                                         isFetching={state.isFetchingNumbers && state.selectedProfile?._id === profile._id}
                                         onClick={() => fetchPhoneNumbers(profile)}
+                                        fetchBusinessProfiles={() => fetchBusinessProfiles()}
                                     />
                                 ))}
                             </div>

@@ -1,4 +1,3 @@
-// src/components/BusinessProfileCard.jsx
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import Button from './Button';
@@ -11,13 +10,14 @@ import axios from 'axios';
 import api from '../utils/api';
  
  
-const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick,fetchBusinessProfiles }) => {
-  // console.log("profilesssss",profile);
+const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick, fetchBusinessProfiles }) => {
+ 
   const [businessdata, setBusinessData] = useState(
     {
       name: profile.name,
       wabaId: profile.metaBusinessId,
-      accessToken: profile.metaAccessToken
+      accessToken: profile.metaAccessToken,
+      metaAppId: profile.metaAppId
     }
  
   )
@@ -43,6 +43,9 @@ const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick,fetchBus
     }
     if (!businessdata.accessToken) {
       newErrors.accessToken = "Access Token is required";
+    }
+    if (!businessdata.metaAppId) {
+      newErrors.metaAppId = "metaAppId "
     }
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -70,8 +73,8 @@ const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick,fetchBus
   return (
     <div
       className={`p-4 rounded-lg border transition-all  ${isSelected
-          ? 'bg-primary-50 border-primary-300 shadow-md'
-          : 'border-gray-200 hover:bg-gray-50'
+        ? 'bg-primary-50 border-primary-300 shadow-md'
+        : 'border-gray-200 hover:bg-gray-50'
         }`}
     // onClick={onClick}
     >
@@ -90,7 +93,7 @@ const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick,fetchBus
                 value={businessdata.name}
                 onChange={(e) => handleChange("name", e.target.value)}
                 placeholder="e.g., My Main Business"
-                required
+ 
                 error={errros.name}
               />
               <InputField
@@ -100,9 +103,21 @@ const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick,fetchBus
                 value={businessdata.wabaId}
                 onChange={(e) => handleChange("wabaId", e.target.value)}
                 placeholder="e.g., 123456789012345"
-                required
+ 
                 error={errros.wabaId}
               />
+ 
+              <InputField
+ 
+                label="WhatsApp metaAppId ID"
+                name="metaAppId"
+                value={businessdata.metaAppId}
+                onChange={(e) => handleChange("metaAppId", e.target.value)}
+                placeholder="e.g., 123456789012345"
+ 
+                error={errros.metaAppId}
+              />
+ 
               <InputField
                 label="Meta Access Token"
                 name="accessToken"
@@ -110,7 +125,7 @@ const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick,fetchBus
                 value={businessdata.accessToken}
                 onChange={(e) => handleChange("accessToken", e.target.value)}
                 placeholder="Bearer EAAI..."
-                required
+ 
                 error={errros.accessToken}
               />
               <Button className='block ml-auto mt-3'>Update</Button>
@@ -127,7 +142,7 @@ const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick,fetchBus
         onClick={(e) => { e.stopPropagation(); onClick(); }}
         variant={isSelected ? 'primary' : 'outline'}
         size="sm"
-     
+ 
         disabled={isFetching}
         className="flex justify-center gap-2 items-center mx-auto w-full"
       >

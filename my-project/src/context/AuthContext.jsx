@@ -21,7 +21,7 @@ export const AuthProvider = ({ children }) => {
     // Improved setAuthData with persistence
     const setAuthData = useCallback((userData, authToken) => {
         console.log("[setAuthData] Setting:", { userData, authToken });
-        
+
         if (authToken) {
             localStorage.setItem('authToken', authToken);
             api.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }) => {
             localStorage.removeItem('authToken');
             delete api.defaults.headers.common['Authorization'];
         }
-        
+
         setUser(userData);
         setToken(authToken);
     }, []);
@@ -41,7 +41,7 @@ export const AuthProvider = ({ children }) => {
                 setLoading(false);
                 return;
             }
-            
+
             try {
                 const response = await api.get('/users/profile');
                 console.log("Profile response:", response.data);
@@ -54,7 +54,7 @@ export const AuthProvider = ({ children }) => {
                 setLoading(false);
             }
         };
-        
+
         verifyAuth();
     }, [token, setAuthData]);
 
@@ -62,29 +62,26 @@ export const AuthProvider = ({ children }) => {
     const login = async (email, password) => {
         setLoading(true);
         setError(null);
-        
+
         try {
             const response = await api.post('/users/login', { email, password });
-            console.log("Login response:", response.data);
-            
-            // Handle different response structures
+            console.log("Login response:", response);
+            console.log("response data:", response.data);
+
             let userData, authToken;
-            
-            if (response.data.token && response.data._id) {
-                // Case 1: Token is inside user object
-                const { token, ...rest } = response.data;
-                userData = rest;
+
+            // ✅ Corrected response structure
+            if (response.data?.token && response.data?._id) {
+                const { token, ...user } = response.data;
+                userData = user;
                 authToken = token;
-            } else if (response.data.user && response.data.token) {
-                // Case 2: Separate user and token fields
-                userData = response.data.user;
-                authToken = response.data.token;
             } else {
                 throw new Error('Unexpected response format from server');
             }
-            
+
             setAuthData(userData, authToken);
-            return { success: true,user: userData };
+            return { success: true, user: userData };
+
         } catch (err) {
             const errorMsg = err.response?.data?.message || err.message;
             console.error('Login failed:', errorMsg);
@@ -94,6 +91,9 @@ export const AuthProvider = ({ children }) => {
             setLoading(false);
         }
     };
+
+
+
 
     const authState = {
         user,
@@ -109,10 +109,10 @@ export const AuthProvider = ({ children }) => {
             try {
                 const response = await api.post('/users/register', { username, email, password });
                 console.log("Registration response:", response.data);
-                
+
                 // Handle response same as login
                 let userData, authToken;
-                
+
                 if (response.data.token && response.data._id) {
                     const { token, ...rest } = response.data;
                     userData = rest;
@@ -121,7 +121,7 @@ export const AuthProvider = ({ children }) => {
                     userData = response.data.user;
                     authToken = response.data.token;
                 }
-                
+
                 setAuthData(userData, authToken);
                 return { success: true };
             } catch (err) {
