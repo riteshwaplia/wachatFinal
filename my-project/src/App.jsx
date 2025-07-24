@@ -210,10 +210,10 @@ function AppContent() {
             path="/project/:id/templates/create/carousel-templates"
             element={<ProjectRouteWrapper component={CreateCarouselTemplate} />}
           />
-          <Route
-            path="/project/:id/templates/:id"
-            element={<ProjectRouteWrapper component={TemplateDetail} />}
-          />
+<Route
+  path="/project/:id/templates/:templateId"
+  element={<ProjectRouteWrapper component={TemplateDetail} />}
+/>
            <Route
             path="/project/:id/broadcasting"
             element={<ProjectRouteWrapper component={BulkMessagingDashboard} />}
