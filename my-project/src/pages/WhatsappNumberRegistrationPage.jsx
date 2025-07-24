@@ -112,13 +112,13 @@ const WhatsappNumberRegistrationPage = () => {
 
             if (res.data.success) {
                 updateState({
-                phoneNumbers: res.data.data || [],
-                isFetchingNumbers: false,
-                message: res.data.message || (res.data.data?.length
-                    ? `${res.data.data.length} numbers found`
-                    : 'No numbers found'),
-                messageType: res.data.data?.length ? 'success' : 'info'
-            });
+                    phoneNumbers: res.data.data || [],
+                    isFetchingNumbers: false,
+                    message: res.data.message || (res.data.data?.length
+                        ? `${res.data.data.length} numbers found`
+                        : 'No numbers found'),
+                    messageType: res.data.data?.length ? 'success' : 'info'
+                });
                 SuccessToast('Successfully fetched phone numbers');
             }
         } catch (error) {
@@ -223,6 +223,13 @@ const WhatsappNumberRegistrationPage = () => {
     const handleFormChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+        const isValid = /^[a-zA-Z0-9@_\s]*$/.test(value);
+
+        if (!isValid) {
+            ErrorToast("special characters are not allowed")
+            return;
+        }
+
     };
 
     // Loading state

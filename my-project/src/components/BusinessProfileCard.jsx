@@ -8,10 +8,10 @@ import Modal from './Modal';
 import InputField from './InputField';
 import axios from 'axios';
 import api from '../utils/api';
- 
- 
+
+
 const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick, fetchBusinessProfiles }) => {
- 
+
   const [businessdata, setBusinessData] = useState(
     {
       name: profile.name,
@@ -19,12 +19,21 @@ const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick, fetchBu
       accessToken: profile.metaAccessToken,
       metaAppId: profile.metaAppId
     }
- 
+
   )
   const [errros, setErrors] = useState({});
   const [modalOpen, setModelOpen] = useState(false);
   const handleChange = (key, value) => {
     setBusinessData((prev) => ({ ...prev, [key]: value }));
+    const isValid = /^[a-zA-Z0-9\s]*$/.test(value);
+    if (!isValid) {
+      setErrors((prev) => ({
+        ...prev,
+        [key]: 'Special characters are not allowed',
+      }));
+      return;
+    }
+
     if (errros[key]) {
       setErrors((prev) => ({ ...prev, [key]: '' }));
     }
@@ -52,7 +61,7 @@ const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick, fetchBu
       return
     }
     try {
- 
+
       const res = await updateBusinessProfile(profile._id, businessdata);
       console.log("resss", res);
       if (res.data.success === true) {
@@ -63,13 +72,13 @@ const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick, fetchBu
         console.log("unable to update business profile");
       }
       setModelOpen(false);
- 
+
     } catch (error) {
       console.error(error);
     }
- 
+
   }
- 
+
   return (
     <div
       className={`p-4 rounded-lg border transition-all  ${isSelected
@@ -93,8 +102,9 @@ const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick, fetchBu
                 value={businessdata.name}
                 onChange={(e) => handleChange("name", e.target.value)}
                 placeholder="e.g., My Main Business"
- 
                 error={errros.name}
+                helperText={errros.name}
+
               />
               <InputField
                 disabled
@@ -103,21 +113,25 @@ const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick, fetchBu
                 value={businessdata.wabaId}
                 onChange={(e) => handleChange("wabaId", e.target.value)}
                 placeholder="e.g., 123456789012345"
- 
+
                 error={errros.wabaId}
+                helperText={errros.wabaId}
+
               />
- 
+
               <InputField
- 
+
                 label="WhatsApp metaAppId ID"
                 name="metaAppId"
                 value={businessdata.metaAppId}
                 onChange={(e) => handleChange("metaAppId", e.target.value)}
                 placeholder="e.g., 123456789012345"
- 
+
                 error={errros.metaAppId}
+                helperText={errros.metaAppId}
+
               />
- 
+
               <InputField
                 label="Meta Access Token"
                 name="accessToken"
@@ -125,7 +139,7 @@ const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick, fetchBu
                 value={businessdata.accessToken}
                 onChange={(e) => handleChange("accessToken", e.target.value)}
                 placeholder="Bearer EAAI..."
- 
+                helperText={errros.accessToken}
                 error={errros.accessToken}
               />
               <Button className='block ml-auto mt-3'>Update</Button>
@@ -142,7 +156,7 @@ const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick, fetchBu
         onClick={(e) => { e.stopPropagation(); onClick(); }}
         variant={isSelected ? 'primary' : 'outline'}
         size="sm"
- 
+
         disabled={isFetching}
         className="flex justify-center gap-2 items-center mx-auto w-full"
       >
@@ -156,13 +170,12 @@ const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick, fetchBu
     </div>
   );
 };
- 
+
 BusinessProfileCard.propTypes = {
   profile: PropTypes.object.isRequired,
   isSelected: PropTypes.bool,
   isFetching: PropTypes.bool,
   onClick: PropTypes.func.isRequired
 };
- 
+
 export default BusinessProfileCard;
- 

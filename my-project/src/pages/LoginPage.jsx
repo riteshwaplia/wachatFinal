@@ -66,7 +66,9 @@ const LoginPage = () => {
           navigate("/admin/dashboard");
         } else if (user?.role === "user") {
           navigate("/projects");
-        } else {
+        } else if (user?.role === 'super_adminelse') {
+          navigate('/admin/add-tenant-admin')
+        } {
           ErrorToast("please provide valid credentials.");
         }
 
@@ -93,7 +95,7 @@ const LoginPage = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center md:p-4">
       <div className='grid grid-cols-1 md:grid-cols-3 w-[95vw] md:w-[80vw] border rounded h-[80vh]'>
-        <div className='col-span-2  md:flex bg-primary-500 flex flex-col  p-10 gap-y-3'>
+        <div className='col-span-2  md:flex hidden bg-primary-500 flex flex-col  p-10 gap-y-3'>
           <h2 className='text-white font-semibold text-4xl'>Welcome Back</h2>
           <h3 className='text-white'>Sign in to access your WhatsApp marketing dashboard</h3>
           <div className='flex items-center flex-grow justify-center'>

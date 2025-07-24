@@ -868,6 +868,14 @@ const ContactPage = () => {
                         />
                     )}
                     <Button onClick={handleOpenModal}>Show Field</Button>
+                    {isFiledOpen && (
+                        <AddCustomFieldModal
+                            isOpen={isFiledOpen}
+                            onClose={handleCloseModal}
+                            onSuccess={handleSuccess}
+                            fields={fields}
+                        />
+                    )}
 
                 </div>
 
