@@ -17,7 +17,7 @@ const AddCustomFieldModal = ({ isOpen, onClose, onSuccess }) => {
 
     setLoading(true);
     try {
-      const newField = { key:label, type:type };
+      const newField = { key: label, type: type };
 
       const res = await api.put(`/projects/${id}/contacts/contact-add-customField`, newField); // Update the URL if needed
 
@@ -96,5 +96,14 @@ const AddCustomFieldModal = ({ isOpen, onClose, onSuccess }) => {
     </div>
   );
 };
+
+
+const showFieldsModal = () => <>
+  <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+
+  </div>
+
+
+</>
 
 export default AddCustomFieldModal;
