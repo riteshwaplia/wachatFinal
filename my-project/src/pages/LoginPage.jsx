@@ -66,11 +66,10 @@ const LoginPage = () => {
           navigate("/admin/dashboard");
         } else if (user?.role === "user") {
           navigate("/projects");
-        } else if (user?.role === 'super_adminelse') {
+        } else if (user?.role === "super_admin" || user?.role === "tanent_admin") {
           navigate('/admin/add-tenant-admin')
-        } {
-          ErrorToast("please provide valid credentials.");
-        }
+        } 
+        
 
       } else {
         ErrorToast("please provide valid credentials.");
