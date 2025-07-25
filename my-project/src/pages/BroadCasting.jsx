@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../utils/api';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FiChevronRight, FiExternalLink, FiDownload } from 'react-icons/fi';
+import Button from '../components/Button';
 
 const BulkMessagingDashboard = () => {
   const router = useNavigate();
@@ -83,12 +84,12 @@ const BulkMessagingDashboard = () => {
             Manage your bulk message campaigns
           </p>
         </div>
-        <button
+        <Button
           onClick={createNewBroadcast}
-          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          // className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
         >
           + New Broadcast
-        </button>
+        </Button>
       </div>
 
       {/* Stats Cards */}
