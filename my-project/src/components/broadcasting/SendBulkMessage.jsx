@@ -3,6 +3,7 @@ import api from "../../utils/api"; // Using api directly for clarity, assuming a
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext"; // Adjust import path if AuthContext is elsewhere
 import io from "socket.io-client";
+import * as XLSX from 'xlsx';
 
 // IMPORTANT: Ensure this matches your backend Socket.IO port
 const VITE_SOCKET_IO_URL = import.meta.env.VITE_SOCKET_IO_URL || 'http://localhost:5001'; // Assuming your server runs on 5001
@@ -64,11 +65,13 @@ const SendMessagePage = () => {
   const [bulkTemplateLanguage, setBulkTemplateLanguage] = useState("en_US");
   const [bulkTemplateComponents, setBulkTemplateComponents] = useState(""); // Will be JSON string
   const [bulkContactsFile, setBulkContactsFile] = useState(null);
-const [bulkSampleColumns, setBulkSampleColumns] = useState([]);
+const [excelHeaders, setExcelHeaders] = useState([]);
+const [expectedColumns, setExpectedColumns] = useState([]);
+const [mismatchedHeaders, setMismatchedHeaders] = useState([]);
 
   const [templates, setTemplates] = useState([]);
   const [contacts, setContacts] = useState([]); // This state is not directly used in the current UI logic
-
+const [imageId,setImageId]=useState("")
   // Real-time message status
   const [latestMessageStatus, setLatestMessageStatus] = useState(null);
   const [recentMessageUpdates, setRecentMessageUpdates] = useState([]);
@@ -269,9 +272,9 @@ const project = localStorage.getItem("currentProject")
     }
   };
 
-  const handleBulkFileChange = (e) => {
-    setBulkContactsFile(e.target.files[0]);
-  };
+  // const handleBulkFileChange = (e) => {
+  //   setBulkContactsFile(e.target.files[0]);
+  // };
 
   const handleBulkMessageSubmit = async (e) => {
     e.preventDefault();
@@ -298,6 +301,7 @@ const project = localStorage.getItem("currentProject")
 
     const formData = new FormData();
     formData.append("file", bulkContactsFile);
+    formData.append("imageId", imageId);
     formData.append("templateName", bulkTemplateName);
     formData.append(
       "message",
@@ -340,38 +344,56 @@ const project = localStorage.getItem("currentProject")
       setIsLoading(false);
     }
   };
-useEffect(() => {
-  const variables = extractVariableNamesFromComponents(bulkTemplateComponents);
-  setBulkSampleColumns(variables);
-}, [bulkTemplateComponents]);
+  console.log("imageId",imageId)
 
- const extractVariableNamesFromComponents = (componentsJson) => {
-  try {
-    const components = typeof componentsJson === 'string'
-      ? JSON.parse(componentsJson)
-      : componentsJson;
+ const handleBulkFileChange = (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
 
-    const variableNames = new Set();
+  setBulkContactsFile(file);
 
-    components.forEach(component => {
-      if (component.parameters && Array.isArray(component.parameters)) {
-        component.parameters.forEach(param => {
-          if (param.text) {
-            const matches = param.text.match(/{{(.*?)}}/g);
-            matches?.forEach(match => {
-              const clean = match.replace(/[{}]/g, "").trim();
-              variableNames.add(clean);
-            });
-          }
-        });
+  const reader = new FileReader();
+  reader.onload = (evt) => {
+    const data = new Uint8Array(evt.target.result);
+    const workbook = XLSX.read(data, { type: "array" });
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const json = XLSX.utils.sheet_to_json(sheet, { header: 1 }); // get rows as arrays
+    const headers = json[0] || [];
+
+    setExcelHeaders(headers.map((h) => h.toLowerCase().trim()));
+
+    // Recompute expected headers
+    try {
+      const parsed = JSON.parse(bulkTemplateComponents);
+      let expected = ["mobilenumber"];
+      for (const comp of parsed) {
+        if (comp.type === "HEADER" && comp.example?.header_text) {
+          comp.example.header_text.forEach((v) =>
+            expected.push(`header_${v.toLowerCase()}`)
+          );
+        }
+        if (comp.type === "BODY" && comp.example?.body_text) {
+          comp.example.body_text[0]?.forEach((v) =>
+            expected.push(`body_${v.toLowerCase()}`)
+          );
+        }
       }
-    });
 
-    return Array.from(variableNames);
-  } catch (e) {
-    console.error("Failed to extract variable names:", e);
-    return [];
-  }
+      setExpectedColumns(expected);
+
+      // Compare
+      const missing = expected.filter(
+        (col) => !headers.map((h) => h.toLowerCase().trim()).includes(col)
+      );
+      setMismatchedHeaders(missing);
+    } catch (err) {
+      console.error("Error parsing template components:", err);
+      setExpectedColumns([]);
+      setMismatchedHeaders([]);
+    }
+  };
+
+  reader.readAsArrayBuffer(file);
 };
 
 
@@ -709,48 +731,6 @@ useEffect(() => {
                 template is suitable for dynamic variables.
               </p>
             </div>
-{bulkTemplateComponents && (
-  <div className="mt-4 p-4 border border-gray-300 bg-gray-50 rounded-md">
-    <h4 className="text-md font-semibold text-gray-700 mb-2">🧾 Bulk Template Preview</h4>
-    {(() => {
-      try {
-        const parsed = JSON.parse(bulkTemplateComponents);
-        return parsed.map((component, index) => (
-          <div key={index} className="mb-2">
-            <p className="text-sm font-medium text-gray-800">
-              Type: <span className="uppercase">{component.type}</span>
-            </p>
-            {component.parameters && component.parameters.length > 0 && (
-              <ul className="list-disc list-inside ml-4 text-sm text-gray-600">
-                {component.parameters.map((param, i) => (
-                  <li key={i}>
-                    {param.type === "text" ? (
-                      <span className="font-mono text-blue-700">{param.text}</span>
-                    ) : (
-                      <>
-                        {param.type}:{" "}
-                        <span className="text-gray-700">
-                          {param.text || param.image || param.video || param.document}
-                        </span>
-                      </>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        ));
-      } catch (e) {
-        return (
-          <p className="text-red-600 text-sm font-mono">
-            Invalid JSON. Cannot preview template.
-          </p>
-        );
-      }
-    })()}
-  </div>
-)}
-
             <div>
               <label className="block text-gray-700">
                 Template Language Code (e.g., en_US):
@@ -774,21 +754,179 @@ useEffect(() => {
                 onChange={(e) => setBulkTemplateComponents(e.target.value)}
               
               ></textarea>
+              {(() => {
+  try {
+    const parsedComponents = JSON.parse(bulkTemplateComponents);
+    const header = parsedComponents.find(
+      (c) => c.type === "HEADER" && c.format === "IMAGE"
+    );
+
+    if (header) {
+      return (
+        <div className="mt-4">
+          <label className="block text-gray-700 font-semibold mb-1">
+            Upload Header Image:
+          </label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={async (e) => {
+              const file = e.target.files[0];
+              if (!file) return;
+
+              const formData = new FormData();
+              formData.append("file", file);
+              formData.append("type", "image");
+
+              try {
+                const res = await api.post(
+        `/projects/${projectId}/messages/upload-media`,
+                  formData,
+                  {
+                    headers: {
+                      "Content-Type": "multipart/form-data",
+                      Authorization: `Bearer ${token}`,
+                    },
+                  }
+                );
+                console.log("Image upload response:", res);
+                  setImageId(res.data?.id || res.data?.data.id || "");
+// {
+//     "success": true,
+//     "data": {
+//         "id": "786010917420570",
+//         "mimeType": "image/jpeg",
+//         "fileSize": 38565
+//     }
+// }
+                const mediaHandle = res.data?.id || res.data?.data.id;
+                if (!mediaHandle) {
+                  alert("Upload succeeded but media handle missing");
+                  return;
+                }
+
+                // Update the HEADER example with new handle
+                const updatedComponents = parsedComponents.map((comp) => {
+                  if (comp.type === "HEADER" && comp.format === "IMAGE") {
+                    return {
+                      ...comp,
+                      example: {
+                        header_handle: [mediaHandle],
+                      },
+                    };
+                  }
+                  return comp;
+                });
+
+                setBulkTemplateComponents(JSON.stringify(updatedComponents, null, 2));
+              } catch (error) {
+                console.error("Error uploading header image:", error);
+                alert("Image upload failed");
+              }
+            }}
+            className="block w-full border border-gray-300 rounded-md p-2 bg-white"
+          />
+          <p className="text-sm text-gray-500 mt-1">
+            Upload the image to be used in the HEADER of your template. It will be auto-attached.
+          </p>
+        </div>
+      );
+    }
+  } catch (e) {
+    return null; 
+  }
+})()}
+{/* Show preview if header/body has variables */}
+{(() => {
+  try {
+    const parsed = JSON.parse(bulkTemplateComponents);
+    let headerVars = [];
+    let bodyVars = [];
+
+    for (const comp of parsed) {
+      if (comp.type === "HEADER" && comp.example?.header_text) {
+        headerVars = comp.example.header_text;
+      }
+      if (comp.type === "BODY" && comp.example?.body_text) {
+        bodyVars = comp.example.body_text[0] || [];
+      }
+    }
+
+    if (headerVars.length === 0 && bodyVars.length === 0) return null;
+
+    const columns = ["mobilenumber"];
+    columns.push(...headerVars.map(v => `header_${v}`));
+    columns.push(...bodyVars.map(v => `body_${v}`));
+
+    const sampleRow = {
+      mobilenumber: "919999999999",
+    };
+    headerVars.forEach((v, i) => (sampleRow[`header_${v}`] = `SampleHeader${i+1}`));
+    bodyVars.forEach((v, i) => (sampleRow[`body_${v}`] = `SampleBody${i+1}`));
+
+    return (
+      <div className="mt-6">
+        <h4 className="text-lg font-semibold text-gray-700 mb-2">
+          Excel Column Format Preview
+        </h4>
+        <div className="overflow-auto border rounded-md bg-white">
+          <table className="min-w-full table-auto border-collapse">
+            <thead className="bg-gray-100">
+              <tr>
+                {columns.map((col) => (
+                  <th key={col} className="border px-3 py-2 text-sm font-medium text-gray-700">
+                    {col}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                {columns.map((col) => (
+                  <td key={col} className="border px-3 py-2 text-sm text-gray-800">
+                    {sampleRow[col] || ""}
+                  </td>
+                ))}
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <button
+  className="mt-3 px-4 py-1 rounded bg-green-600 text-white text-sm hover:bg-green-700"
+  onClick={() => {
+    const csv = [
+      columns.join(","),
+      columns.map((c) => sampleRow[c] || "").join(",")
+    ].join("\n");
+
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.setAttribute("download", "sample_template.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }}
+>
+  Download Sample CSV
+</button>
+
+        <p className="text-sm text-gray-500 mt-2">
+          Make sure your Excel/CSV file includes these columns to match the template variables.
+        </p>
+      </div>
+    );
+  } catch (e) {
+    return null; // Don't crash if JSON is broken
+  }
+})()}
+
                <p className="text-xs text-gray-500 mt-1">
                     Define `parameters` array with `text` fields using double curly braces 
                     These will be replaced by column headers from your Excel/CSV file (e.g., 'Name', 'OrderId').
                     If this field is left empty, the service will attempt to fetch components from the locally stored template for the given name.
                 </p>
             </div>
-            <textarea
-  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 font-mono text-sm"
-  rows="5"
-  value={singleMessageTemplateComponents}
-  onChange={(e) =>
-    setSingleMessageTemplateComponents(e.target.value)
-  }
-  placeholder={`[...json...]`}
-/>
             <div>
               <label className="block text-gray-700">
                 Upload Contacts File (Excel/CSV):
@@ -801,13 +939,43 @@ useEffect(() => {
                 accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
                 required
               />
+              {excelHeaders.length > 0 && (
+  <div className="mt-4">
+    <h4 className="text-lg font-semibold text-gray-700 mb-2">
+      Uploaded Excel Column Preview
+    </h4>
+    <div className="overflow-auto border rounded-md bg-white mb-2">
+      <table className="min-w-full table-auto border-collapse">
+        <thead>
+          <tr className="bg-gray-100">
+            {excelHeaders.map((header) => (
+              <th
+                key={header}
+                className="border px-3 py-2 text-sm font-medium text-gray-700"
+              >
+                {header}
+              </th>
+            ))}
+          </tr>
+        </thead>
+      </table>
+    </div>
+    {mismatchedHeaders.length > 0 ? (
+      <div className="text-sm text-red-600">
+        ❌ Missing required columns:{" "}
+        <strong>{mismatchedHeaders.join(", ")}</strong>
+      </div>
+    ) : (
+      <div className="text-sm text-green-600">✅ All required columns matched.</div>
+    )}
+  </div>
+)}
               <p className="text-xs text-gray-500 mt-1">
                 File must contain 'countrycode' and 'mobilenumber' columns.
                 Other columns (e.g., 'name', 'order_id') will be used to fill
                 template variables.
               </p>
             </div>
- 
             <button
               type="submit"
               className="bg-purple-600 text-white px-6 py-2 rounded-lg shadow hover:bg-purple-700 transition duration-300"

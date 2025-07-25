@@ -50,7 +50,7 @@ const LoginPage = () => {
 
         SuccessToast("Logged in Successfully");
 
-        if (user?.role === "admin") {
+        if (user?.role === "super_admin" || user?.role === "tanent_admin") {
           navigate("/admin/dashboard");
         } else if (user?.role === "user") {
           navigate("/projects");
