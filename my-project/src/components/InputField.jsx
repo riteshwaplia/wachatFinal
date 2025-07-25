@@ -24,7 +24,7 @@ const InputField = ({
   };
  
   const inputBaseStyles =
-    'block w-full px-4 py-2 border rounded-lg focus:outline-none transition-all duration-200 ease-in-out';
+  'block w-full px-4 py-2 border rounded-lg text-black placeholder-gray-400 focus:outline-none transition-all duration-200 ease-in-out';
   const labelStyles = 'block text-gray-700 text-sm font-medium mb-1';
   const errorTextStyles = 'text-error text-xs mt-1';
   const helperTextStyles = 'text-gray-500 text-xs mt-1';
