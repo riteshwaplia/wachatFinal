@@ -401,8 +401,11 @@ const WhatsappNumberRegistrationPage = () => {
                         <Button
                             type="button"
                             variant="outline"
-                            onClick={() => setIsAddBusinessModalOpen(false)}
-                        >
+                            onClick={() => {
+                                setIsAddBusinessModalOpen(false);
+                                setFormData({ name: '', wabaId: '', accessToken: '', metaAppId: '' });
+                                }}
+                            >
                             Cancel
                         </Button>
                         <Button
