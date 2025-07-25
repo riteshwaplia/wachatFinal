@@ -42,6 +42,7 @@ import LandingPage from './pages/LandingPage';
 import AddTeamMembers from './components/AddTeamMembers';
 import UserProfileLayout from './layout/userProfileLayout';
 import CreateCarouselTemplate from './components/template/CreateCarouselTemplate';
+import SendCarosualTemplate from './components/broadcasting/SendCarosualTemplate';
  
 const AdminRoute = ({ children }) => (
   <ProtectedRoute roles={["super_admin", "tenant_admin"]}>
@@ -221,6 +222,10 @@ function AppContent() {
            <Route
             path="/project/:id/broadcasting/send-bulk"
             element={<ProjectRouteWrapper component={SendMessagePage} />}
+          />
+           <Route
+            path="/project/:id/broadcasting/send-bulk/carosual-template"
+            element={<ProjectRouteWrapper component={SendCarosualTemplate} />}
           />
           <Route
             path="/project/:id/chat"
