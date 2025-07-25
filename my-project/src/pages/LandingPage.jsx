@@ -419,7 +419,7 @@ export default function LandingPage() {
                         whileHover={{ scale: 1.05 }}
                         className="bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-lg font-semibold shadow"
                     >
-                        {heroSection.buttonText}
+                        {heroSection?.buttonText}
                     </motion.button>
 
                     <motion.button
@@ -533,7 +533,7 @@ export default function LandingPage() {
                             </button>
                         </div>
                         <div>
-                            <img src={heroSection.image} alt="sabnode demo" />
+                            <img src={heroSection?.image} alt="sabnode demo" />
                         </div>
                     </div>
                 </div>
@@ -1368,7 +1368,7 @@ export default function LandingPage() {
                     <div className="font-bold text-xl text-center text-primary-800">Testimonials</div>
                     <div className="text-center text-3xl">What our <span className="text-primary-800">Users</span> say</div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-10">
-                        {testimonials.map(({ _id, quote, author, designation }) => (
+                        {testimonials?.map(({ _id, quote, author, designation }) => (
                             <div key={_id} className="shadow-lg shadow-gray-50 p-5">
                                 <div className="grid grid-cols-3 gap-3 justify-center items-center">
                                     <div className="w-[88px] h-[88px] rounded-full border overflow-hidden">
