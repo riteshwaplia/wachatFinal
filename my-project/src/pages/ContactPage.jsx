@@ -63,8 +63,7 @@ const ContactPage = () => {
 
     const [blacklistedContacts, setBlacklistedContacts] = useState([]);
     const [groups, setGroups] = useState([]);
-
-
+    const [files, setFiles] = useState(null);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [columnMapping, setColumnMapping] = useState({
         Name: '',
@@ -147,7 +146,29 @@ const ContactPage = () => {
 
     //     fetchFields();
     // }, []);
+    useEffect(() => {
+        const fetchFields = async () => {
+            try {
+                const fieldRes = await api.get(`/projects/${projectId}/contacts/fields`);
+                setFields(fieldRes.data.data || []);
 
+            } catch (err) {
+                console.error("Error fetching groups:", err);
+            }
+        };
+
+        if (projectId) {
+            fetchFields();
+        }
+    }, []);
+
+    const FieldOptions = fields.map(field => ({
+        value: field.label,
+        label: field.label
+    }
+    ))
+    let fieldValues = FieldOptions.map(field => field.value);
+    fieldValues.push("dont use");
     useEffect(() => {
         const trimmed = searchTerm.trim();
         if (searchTerm && trimmed === '') return;
@@ -836,7 +857,7 @@ const ContactPage = () => {
                     )}
 
                 </div>
-                <div className='flex flex-row gap-6'>
+                <div className='flex flex-row gap-3'>
                     <Button onClick={handleOpenModal}>Add New Field</Button>
 
                     {isFiledOpen && (
@@ -846,7 +867,15 @@ const ContactPage = () => {
                             onSuccess={handleSuccess}
                         />
                     )}
-                    <Button onClick={handleOpenModal}>Show All Field</Button>
+                    <Button onClick={handleOpenModal}>Show Field</Button>
+                    {isFiledOpen && (
+                        <AddCustomFieldModal
+                            isOpen={isFiledOpen}
+                            onClose={handleCloseModal}
+                            onSuccess={handleSuccess}
+                            fields={fields}
+                        />
+                    )}
 
                 </div>
 
@@ -1186,7 +1215,7 @@ const ContactPage = () => {
                                                                 className="bg-white border border-gray-300 rounded px-2 py-1 text-sm"
                                                             >
                                                                 <option value="">-- Select For --</option>
-                                                                {availableFields
+                                                                {fieldValues
                                                                     .filter((field) => {
                                                                         if (field === 'dont use') return true; // allow "dont use" always
                                                                         return (
@@ -1494,7 +1523,7 @@ const ContactPage = () => {
                     }}
                     groups={groups}
                     isLoading={isSubmitting}
-                // fileds={fields}
+                    fields={fields}
                 />
             </Modal>
         </div>

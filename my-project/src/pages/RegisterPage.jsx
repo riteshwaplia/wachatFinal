@@ -28,12 +28,21 @@ const RegisterPage = () => {
 
   const handleInputChange = (e) => {
     const { id, value } = e.target;
-    setForm((prev) => ({ ...prev, [id]: value }));
+
+    let processedValue = value;
+
+    if (id === 'username') {
+      // Allow only letters, numbers, @, and _
+      processedValue = value.replace(/[^a-zA-Z0-9@_]/g, '');
+    }
+
+    setForm((prev) => ({ ...prev, [id]: processedValue }));
     setErrors((prev) => ({ ...prev, [id]: '' }));
   };
 
+
   const handleOtpChange = (e) => {
-    const value = e.target.value.replace(/\D/, ''); // remove non-digit characters
+    const value = e.target.value// remove non-digit characters
     setOtp(value);
   };
 
@@ -78,41 +87,37 @@ const RegisterPage = () => {
   };
 
 
-  const handleOtpVerify = (e) => {
+  const handleOtpVerify = async (e) => {
     e.preventDefault();
-    setLoading(true);
 
     if (!otp.trim()) {
       ErrorToast('OTP is required');
-      setLoading(false);
       return;
     }
 
-    const data = {
-      email: form.email,
-      otp: otp.trim(),
-    };
+    setLoading(true);
 
-    api.post('/users/verifyOtp', data, { timeout: 3000 })
-      .then((response) => {
-        if (response?.data?.success) {
-          SuccessToast(response.data.message || 'OTP verified successfully');
-          setOtpVerified(true);
-        } else {
-          const msg = response?.data?.message || 'Invalid OTP';
-          ErrorToast(msg);
-        }
-      })
-      .catch((error) => {
-        const msg =
-          error?.response?.data?.message ||
-          error?.message ||
-          'OTP verification failed';
-        ErrorToast(msg);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+    try {
+      const { data: response } = await api.post('/users/verifyOtp', {
+        email: form.email,
+        otp: otp.trim(),
+      }, { timeout: 3000 });
+
+      if (response?.success) {
+        SuccessToast(response.message || 'OTP verified successfully');
+        navigate("/login");
+      } else {
+        ErrorToast(response?.message || 'Invalid OTP');
+      }
+    } catch (error) {
+      const msg =
+        error?.response?.data?.message ||
+        error?.message ||
+        'OTP verification failed';
+      ErrorToast(msg);
+    } finally {
+      setLoading(false);
+    }
   };
 
 
@@ -153,7 +158,7 @@ const RegisterPage = () => {
                 label="Username"
                 type="text"
                 placeholder="Enter your username"
-                value={form.username}
+                value={(form.username)}
                 onChange={handleInputChange}
                 error={errors.username}
                 helperText={errors.username}
@@ -193,7 +198,7 @@ const RegisterPage = () => {
                 error={errors.confirmPassword}
                 helperText={errors.confirmPassword}
               />
-              <Button type='submit' className="w-full mt-6" >
+              <Button type='submit' loading={loading} className="w-full mt-6" >
                 <div className="flex justify-center items-center gap-2">
                   {/* {loading ? 'Registering...' : 'Register'} */}register
                   <MdArrowForward />
@@ -218,7 +223,7 @@ const RegisterPage = () => {
                 />
               </div>
 
-              <Button type='submit' className="w-full mt-6" >
+              <Button type='submit' loading={loading} className="w-full mt-6" >
                 <div className="flex justify-center items-center gap-2">
                   {/* {loading ? 'Registering...' : 'Register'} */}Verify
                   <MdArrowForward />

@@ -12,7 +12,7 @@ import { MobileNumber } from './MobileNumber';
 import CustomSelect from './CustomSelect';
 import api from '../utils/api';
 
-const ContactForm = ({ initialData, onSubmit, onCancel, groups, isLoading }) => {
+const ContactForm = ({ initialData, onSubmit, onCancel, groups, isLoading, fields }) => {
     const { id } = useParams();
     const [phone, setPhone] = useState('');
     const [formData, setFormData] = useState({
@@ -27,8 +27,10 @@ const ContactForm = ({ initialData, onSubmit, onCancel, groups, isLoading }) => 
     ]
     );
 
+    console.log("fields", fields)
+
     useEffect(() => {
-        // Set initial data
+        // 1. Set initial form data
         if (initialData) {
             setFormData({
                 name: initialData.name || '',
@@ -37,7 +39,7 @@ const ContactForm = ({ initialData, onSubmit, onCancel, groups, isLoading }) => 
                     ? initialData.groupIds.map(group => group._id || group)
                     : [],
                 isBlocked: initialData.isBlocked || false,
-                ...initialData.customFields, // Optional if you store extra fields
+                ...initialData.customFields, // optional extra fields
             });
             setPhone(initialData.mobileNumber || '');
         } else {
@@ -49,22 +51,10 @@ const ContactForm = ({ initialData, onSubmit, onCancel, groups, isLoading }) => 
             });
             setPhone('');
         }
+        setCustomFields(fields)
 
-        // Fetch dynamic custom fields
-        const fetchFields = async () => {
-            try {
-                const res = await api.get(`/projects/${id}/contacts/fields`);
-                const fields = res.data.data.filter(
-                    field =>
-                        !['Full Name', 'Email Address', 'Phone Number', 'Mobile Number', 'Country Code'].includes(field.label)
-                );
-                setCustomFields(fields);
-            } catch (error) {
-                console.error('Failed to fetch custom fields', error);
-            }
-        };
+        // 2. Simulate API call to fetch fields
 
-        fetchFields();
     }, [initialData, id]);
 
     const handleInputChange = (e) => {
@@ -146,7 +136,7 @@ const ContactForm = ({ initialData, onSubmit, onCancel, groups, isLoading }) => 
         return Object.keys(newErrors).length === 0;
     };
 
-    console.log("formData>>>>",formData,)
+    console.log("formData>>>>", formData,)
 
     const handleSubmit = (e) => {
         e.preventDefault();
