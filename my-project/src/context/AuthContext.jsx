@@ -102,7 +102,15 @@ export const AuthProvider = ({ children }) => {
         loading,
         error,
         login,
-        logout: () => setAuthData(null, null),
+logout: async () => {
+    try {
+        await api.post('/users/logout');
+    } catch (err) {
+        console.warn('Backend logout failed (possibly already expired):', err.response?.data?.message || err.message);
+    } finally {
+        setAuthData(null, null);
+    }
+},
         register: async (username, email, password) => {
             setLoading(true);
             setError(null);

@@ -37,7 +37,7 @@ const cleanTemplateComponents = (components) => {
 };
 
 
-const SendMessagePage = () => {
+const SendCarosualTemplate = () => {
   const { user, token } = useAuth();
   const { id:projectId } = useParams(); // FIX: Changed from 'id' to 'projectId'
   const navigate = useNavigate();
@@ -94,7 +94,7 @@ const project = localStorage.getItem("currentProject")
       // Use projectDetails.businessProfileId._id for fetching templates
       // Ensure projectDetails is loaded before this call
      
-      const templatesRes = await api.get("/templates/allapprovedtemplates", { // Use api directly with /api/
+      const templatesRes = await api.get("/templates/allapprovedcarouseltemplates", { // Use api directly with /api/
         ...config,
         params: {
           businessProfileId: businessProfileId,
@@ -990,6 +990,6 @@ const project = localStorage.getItem("currentProject")
   );
 };
 
-export default SendMessagePage;
+export default SendCarosualTemplate;
 
 
