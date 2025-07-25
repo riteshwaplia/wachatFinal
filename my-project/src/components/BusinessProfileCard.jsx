@@ -142,7 +142,7 @@ const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick, fetchBu
                 helperText={errros.accessToken}
                 error={errros.accessToken}
               />
-              <Button type='submit' className='block ml-auto mt-3'>Update</Button>
+              <Button type="submit" className='block ml-auto mt-3'>Update</Button>
             </form>
           </div>
         </Modal>
