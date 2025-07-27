@@ -3,166 +3,152 @@ import PropTypes from 'prop-types';
 import Button from './Button';
 import { Link as LinkIcon } from 'lucide-react';
 import LoadingSpinner from './Loader';
-import { FiEdit } from "react-icons/fi";
+import { FiEdit } from 'react-icons/fi';
 import Modal from './Modal';
 import InputField from './InputField';
-import axios from 'axios';
 import api from '../utils/api';
 
-
 const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick, fetchBusinessProfiles }) => {
+  const [businessData, setBusinessData] = useState({
+    name: profile.name || '',
+    wabaId: profile.metaBusinessId || '',
+    metaAccessToken: profile.metaAccessToken || '',
+    metaAppId: profile.metaAppId || '',
+  });
 
-  const [businessdata, setBusinessData] = useState(
-    {
-      name: profile.name,
-      wabaId: profile.metaBusinessId,
-      accessToken: profile.metaAccessToken,
-      metaAppId: profile.metaAppId
-    }
-
-  )
-  const [errros, setErrors] = useState({});
-  const [modalOpen, setModelOpen] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [modalOpen, setModalOpen] = useState(false);
 
   const handleChange = (key, value) => {
+    setBusinessData(prev => ({ ...prev, [key]: value }));
 
-    const isValid = /^[a-zA-Z0-9@_]*$/.test(value);
-    if (!isValid) {
-      return;
+    // Only apply the "no special chars" rule to fields that should be simple strings.
+    if (key === 'name' || key === 'metaAppId') {
+      const isValid = /^[a-zA-Z0-9\s]*$/.test(value);
+      if (!isValid) {
+        setErrors(prev => ({ ...prev, [key]: 'Special characters are not allowed' }));
+        return;
+      }
     }
-    setBusinessData((prev) => ({ ...prev, [key]: value }));
 
-
-    if (errros[key]) {
-      setErrors((prev) => ({ ...prev, [key]: '' }));
+    if (errors[key]) {
+      setErrors(prev => ({ ...prev, [key]: '' }));
     }
-  }
+  };
+
   const updateBusinessProfile = async (id, data) => {
     return api.put(`/users/business-profiles/${id}`, data);
   };
-  const submitHandler = async (e) => {
-    const newErrors = {};
+
+  const submitHandler = async e => {
     e.preventDefault();
-    if (!businessdata.name) {
-      newErrors.name = "Business name is required";
-    }
-    if (!businessdata.wabaId) {
-      newErrors.wabaId = "Whatsapp Business Id is required";
-    }
-    if (!businessdata.accessToken) {
-      newErrors.accessToken = "Access Token is required";
-    }
-    if (!businessdata.metaAppId) {
-      newErrors.metaAppId = "metaAppId "
-    }
+
+    const newErrors = {};
+    if (!businessData.name) newErrors.name = 'Business name is required';
+    if (!businessData.wabaId) newErrors.wabaId = 'WhatsApp Business Id is required';
+    if (!businessData.metaAccessToken) newErrors.metaAccessToken = 'Access Token is required';
+    if (!businessData.metaAppId) newErrors.metaAppId = 'metaAppId is required';
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
-      return
+      return;
     }
+
     try {
+      const res = await updateBusinessProfile(profile._id, businessData);
 
-      const res = await updateBusinessProfile(profile._id, businessdata);
-      console.log("resss", res);
-      if (res.data.success === true) {
-        console.log("success");
-        fetchBusinessProfiles()
+      if (res.data?.success === true) {
+        fetchBusinessProfiles?.();
+      } else {
+        console.log('Unable to update business profile');
       }
-      else {
-        console.log("unable to update business profile");
-      }
-      setModelOpen(false);
 
+      setModalOpen(false);
     } catch (error) {
       console.error(error);
     }
-
-  }
+  };
 
   return (
     <div
-      className={`p-4 rounded-lg border transition-all  ${isSelected
-        ? 'bg-primary-50 border-primary-300 shadow-md'
-        : 'border-gray-200 hover:bg-gray-50'
-        }`}
-    // onClick={onClick}
+      className={`p-4 rounded-lg border transition-all ${
+        isSelected ? 'bg-primary-50 border-primary-300 shadow-md' : 'border-gray-200 hover:bg-gray-50'
+      }`}
     >
-      {
-        modalOpen && <Modal
-          isOpen={modalOpen}
-          onClose={() => setModelOpen(false)}
-          title="Edit Business Profile"
-        >
+      {modalOpen && (
+        <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Edit Business Profile">
           <div className="text-gray-700">
-            {/* Your modal content here */}
             <form onSubmit={submitHandler} className="space-y-4">
               <InputField
                 label="Business Name"
                 name="name"
-                value={businessdata.name}
-                onChange={(e) => handleChange("name", e.target.value)}
+                value={businessData.name}
+                onChange={e => handleChange('name', e.target.value)}
                 placeholder="e.g., My Main Business"
-                error={errros.name}
-                helperText={errros.name}
-                maxlength={50}
-
-
+                error={errors.name}
+                helperText={errors.name}
               />
+
               <InputField
                 disabled
                 label="WhatsApp Business Account ID"
                 name="wabaId"
-                value={businessdata.wabaId}
-                onChange={(e) => handleChange("wabaId", e.target.value)}
+                value={businessData.wabaId}
+                onChange={e => handleChange('wabaId', e.target.value)}
                 placeholder="e.g., 123456789012345"
-                maxlength={50}
-
-                error={errros.wabaId}
-                helperText={errros.wabaId}
-
+                error={errors.wabaId}
+                helperText={errors.wabaId}
               />
 
               <InputField
-
-                label="WhatsApp metaAppId ID"
+                label="WhatsApp metaAppId"
                 name="metaAppId"
-                value={businessdata.metaAppId}
-                onChange={(e) => handleChange("metaAppId", e.target.value)}
+                value={businessData.metaAppId}
+                onChange={e => handleChange('metaAppId', e.target.value)}
                 placeholder="e.g., 123456789012345"
-                maxlength={50}
-
-                error={errros.metaAppId}
-                helperText={errros.metaAppId}
-
+                error={errors.metaAppId}
+                helperText={errors.metaAppId}
               />
 
               <InputField
                 label="Meta Access Token"
-                name="accessToken"
+                name="metaAccessToken"
                 type="password"
-                value={businessdata.accessToken}
-                onChange={(e) => handleChange("accessToken", e.target.value)}
+                value={businessData.metaAccessToken}
+                onChange={e => handleChange('metaAccessToken', e.target.value)}
                 placeholder="Bearer EAAI..."
-                helperText={errros.accessToken}
-                error={errros.accessToken}
-                maxlength={200}
-
+                error={errors.metaAccessToken}
+                helperText={errors.metaAccessToken}
               />
-              <Button type="submit" className='block ml-auto mt-3'>Update</Button>
+
+              <Button type="submit" className="block ml-auto mt-3">
+                Update
+              </Button>
             </form>
           </div>
         </Modal>
-      }
-      <div className='flex items-center justify-between'>
-        <h4 className="text-lg font-semibold text-primary-700 mb-2">{profile.name?.length > 30 ? profile.name.slice(0, 30) + '…' : profile.name}
-        </h4>
-        <FiEdit className='cursor-pointer' onClick={(e) => { e.stopPropagation(), setModelOpen(true) }} />
+      )}
+
+      <div className="flex items-center justify-between">
+        <h4 className="text-lg font-semibold text-primary-700 mb-2">{profile.name}</h4>
+        <FiEdit
+          className="cursor-pointer"
+          onClick={e => {
+            e.stopPropagation();
+            setModalOpen(true);
+          }}
+        />
       </div>
+
       <p className="text-gray-600 text-sm mb-3">WABA ID: {profile.metaBusinessId}</p>
+
       <Button
-        onClick={(e) => { e.stopPropagation(); onClick(); }}
+        onClick={e => {
+          e.stopPropagation();
+          onClick();
+        }}
         variant={isSelected ? 'primary' : 'outline'}
         size="sm"
-
         disabled={isFetching}
         className="flex justify-center gap-2 items-center mx-auto w-full"
       >
@@ -181,7 +167,8 @@ BusinessProfileCard.propTypes = {
   profile: PropTypes.object.isRequired,
   isSelected: PropTypes.bool,
   isFetching: PropTypes.bool,
-  onClick: PropTypes.func.isRequired
+  onClick: PropTypes.func.isRequired,
+  fetchBusinessProfiles: PropTypes.func, // optional but used
 };
 
 export default BusinessProfileCard;
