@@ -135,7 +135,7 @@ const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick, fetchBu
               <InputField
                 label="Meta Access Token"
                 name="accessToken"
-                type="text"
+                type="password"
                 value={businessdata.accessToken}
                 onChange={(e) => handleChange("accessToken", e.target.value)}
                 placeholder="Bearer EAAI..."
