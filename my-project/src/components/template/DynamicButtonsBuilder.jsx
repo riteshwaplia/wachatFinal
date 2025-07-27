@@ -4,6 +4,7 @@ import { MobileNumber } from "../MobileNumber";
 const DynamicButtonsBuilder = ({ onChange }) => {
   const [buttons, setButtons] = useState([]);
   const [phone, setPhone] = useState("");
+  const [selectedType, setSelectedType] = useState("");
 
   const validButtonTypes = {
     QUICK_REPLY: "QUICK_REPLY",
@@ -95,62 +96,20 @@ const DynamicButtonsBuilder = ({ onChange }) => {
 
       <select
         id="buttonType"
-        className="bg-white p-3 pr-8 rounded-lg border-2 border-gray-100 text-gray-800 font-medium 
-            shadow-sm hover:border-primary-400 focus:border-primary-500 focus:ring-2 
-            focus:ring-primary-200 transition-all duration-200 cursor-pointer
-            w-full max-w-xs appearance-none"
-        onChange={(e) => handleAddButton(e.target.value)}
-        value=""
-        defaultValue=""
-        style={{
-          backgroundImage:
-            "url(\"data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23333436'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e\")",
-          backgroundRepeat: "no-repeat",
-          backgroundPosition: "right 0.75rem center",
-          backgroundSize: "1em",
+        className="bg-white p-3 ..."
+        value={selectedType}
+        onChange={(e) => {
+          setSelectedType(e.target.value);
+          handleAddButton(e.target.value);
         }}
       >
-        <option value="" disabled hidden className="text-gray-400 italic">
-          ✨ Add Button ✨
-        </option>
-
-        <optgroup
-          label="Quick Replies"
-          className="text-sm text-gray-500 font-medium border-t border-gray-100"
-        >
-          <option
-            value={validButtonTypes.QUICK_REPLY}
-            className="py-2 px-3 hover:bg-primary-50 hover:text-primary-700 transition-colors"
-          >
-            <span className="flex items-center gap-2">
-              <span className="text-lg">📝</span>
-              <span>Quick Reply</span>
-            </span>
-          </option>
+        <option value="" disabled hidden>✨ Add Button ✨</option>
+        <optgroup label="Quick Replies">
+          <option value={validButtonTypes.QUICK_REPLY}>📝 Quick Reply</option>
         </optgroup>
-
-        <optgroup
-          label="Call-to-action"
-          className="text-sm text-gray-500 font-medium border-t border-gray-100"
-        >
-          <option
-            value={validButtonTypes.URL}
-            className="py-2 px-3 hover:bg-primary-50 hover:text-primary-700 transition-colors"
-          >
-            <span className="flex items-center gap-2">
-              <span className="text-lg">🌐</span>
-              <span>Visit Website</span>
-            </span>
-          </option>
-          <option
-            value={validButtonTypes.PHONE_NUMBER}
-            className="py-2 px-3 hover:bg-primary-50 hover:text-primary-700 transition-colors"
-          >
-            <span className="flex items-center gap-2">
-              <span className="text-lg">📞</span>
-              <span>Call Phone</span>
-            </span>
-          </option>
+        <optgroup label="Call-to-action">
+          <option value={validButtonTypes.URL}>🌐 Visit Website</option>
+          <option value={validButtonTypes.PHONE_NUMBER}>📞 Call Phone</option>
         </optgroup>
       </select>
 
