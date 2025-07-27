@@ -5,16 +5,17 @@ import { useTenant } from '../context/TenantContext';
 
 const Navbar = ({ links = [], brandName = 'Your Brand' }) => {
 
-      const { siteConfig } = useTenant(); // Access siteConfig
+  const { siteConfig } = useTenant(); // Access siteConfig
 
-      const {logoUrl,name} = siteConfig;
-  
+  const { logoUrl, name } = siteConfig;
+
   return (
     <nav className="bg-primary-700 text-white shadow-md">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         {/* Brand/Logo */}
         <a href="/" className="text-2xl font-bold font-heading text-white hover:text-primary-100 transition-colors">
-          {name}
+          {logoUrl || "Sabnode"}
+
         </a>
 
         {/* Navigation Links */}

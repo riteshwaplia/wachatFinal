@@ -152,8 +152,7 @@ export default function LandingPage() {
     };
 
 
-    console.log("tenants. =>>>>>>>>", siteConfig)
-    const { heroSection, logoUrl, name, domain,testimonials, privacyPolicyUrl, termsOfServiceUrl, socialMediaLinks } = siteConfig;
+    const { heroSection, name, logoUrl, domain, testimonials, privacyPolicyUrl, termsOfServiceUrl, socialMediaLinks } = siteConfig;
 
     useEffect(() => {
         sectionsRef.current.forEach((section, index) => {
@@ -270,10 +269,18 @@ export default function LandingPage() {
                         initial={{ opacity: 0, x: -50 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.6 }}
-                        className="text-2xl font-bold text-black "
+                        className="text-2xl font-bold text-black"
                     >
-                        <span className={`text-primary-300  ${isScrolled ? " text-primary-500" : ""} `}>{name}</span><span className={`${isScrolled ? "text-black" : "text-white"}`}></span>
+                        <div className={isScrolled ? "text-primary-500" : "text-primary-300"}>
+                            {logoUrl ? (
+                                <img src={logoUrl} alt="Company Logo" className="w-[120px] h-auto" />
+                            ) : (
+                                "SabNode"
+                            )}
+                        </div>
+                        <span className={isScrolled ? "text-black" : "text-white"}></span>
                     </motion.div>
+
 
                     {(
                         <motion.button
@@ -401,8 +408,8 @@ export default function LandingPage() {
                     transition={{ delay: 0.2, duration: 0.6 }}
                     className="text-4xl md:text-6xl font-bold leading-tight text-black"
                 >
-                    {heroSection?.title} <br />
-                    <span className="text-primary-300">{heroSection?.subtitle}</span>
+                    {heroSection?.title || 'Hello, Your Welcome to Sabnode'} <br />
+                    <span className="text-primary-300">{heroSection?.subtitle || 'Your Welcome'}</span>
                 </motion.h1>
 
                 <motion.p
@@ -419,7 +426,7 @@ export default function LandingPage() {
                         whileHover={{ scale: 1.05 }}
                         className="bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-lg font-semibold shadow"
                     >
-                        {heroSection?.buttonText}
+                        {heroSection?.buttonText || 'Request Demof'}
                     </motion.button>
 
                     <motion.button
@@ -1409,19 +1416,19 @@ export default function LandingPage() {
                             </p>
                             <div className="flex justify-center md:justify-start gap-4 text-xl text-white">
                                 <CiFacebook
-                                    onClick={() => handleIconClick(socialMediaLinks.facebook)}
+                                    onClick={() => handleIconClick(socialMediaLinks?.facebook)}
                                     className="hover:text-gray-300 cursor-pointer"
                                 />
                                 <FaWhatsapp
-                                    onClick={() => handleIconClick(socialMediaLinks.twitter)}
+                                    onClick={() => handleIconClick(socialMediaLinks?.twitter)}
                                     className="hover:text-gray-300 cursor-pointer"
                                 />
                                 <BsInstagram
-                                    onClick={() => handleIconClick(socialMediaLinks.instagram)}
+                                    onClick={() => handleIconClick(socialMediaLinks?.instagram)}
                                     className="hover:text-gray-300 cursor-pointer"
                                 />
                                 <LiaLinkedin
-                                    onClick={() => handleIconClick(socialMediaLinks.linkedin)}
+                                    onClick={() => handleIconClick(socialMediaLinks?.linkedin)}
                                     className="hover:text-gray-300 cursor-pointer"
                                 />
                             </div>
@@ -1479,9 +1486,9 @@ export default function LandingPage() {
                                     <li className="hover:underline cursor-pointer">
                                         Terms and Conditions</li>
 
-                                    <li onClick={() => openInNewTab(privacyPolicyUrl)} className="hover:underline flex md:block gap-1 items-center cursor-pointer">
+                                    <li onClick={() => openInNewTab(privacyPolicyUrl || '')} className="hover:underline flex md:block gap-1 items-center cursor-pointer">
                                         <span className="md:hidden block">|</span >  Privacy Policy</li>
-                                    <li onClick={() => openInNewTab(termsOfServiceUrl)} className="hover:underline cursor-pointer gap-1 md:block flex items-center">
+                                    <li onClick={() => openInNewTab(termsOfServiceUrl || '')} className="hover:underline cursor-pointer gap-1 md:block flex items-center">
                                         <span className="md:hidden block">|</span> Refund Policy</li>
                                 </div>
                             </ul>
@@ -1489,7 +1496,7 @@ export default function LandingPage() {
                     </div>
 
                     <div className="text-center py-4 text-sm bg-primary-700 text-gray-200 rounded-b-md">
-                        © 2025 All Rights Reserved by {domain}
+                        © 2025 All Rights Reserved by {domain || 'sabnode.com'}
                     </div>
                 </footer>
 

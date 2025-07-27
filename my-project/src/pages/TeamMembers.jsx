@@ -42,7 +42,7 @@ const AddCustomFieldModal = ({ isOpen, onClose, onSuccess, fields }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-      {fields ? <>
+      {fields ? (<>
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md max-h-[80vh] overflow-y-auto">
             <h2 className="text-xl font-semibold mb-4 text-center">Custom Fields</h2>
@@ -67,13 +67,13 @@ const AddCustomFieldModal = ({ isOpen, onClose, onSuccess, fields }) => {
               <button
                 onClick={onClose}
                 className="px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700 transition"
-                
+
               >
                 Close
               </button>
             </div>
           </div>
-        </div></> :
+        </div></>) :
         <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
           <h2 className="text-xl font-semibold mb-4">Add Custom Field</h2>
 
@@ -84,8 +84,15 @@ const AddCustomFieldModal = ({ isOpen, onClose, onSuccess, fields }) => {
             <input
               id="label"
               type="text"
+              maxLength={30}
               value={label}
-              onChange={(e) => setLabel(e.target.value)}
+              onChange={(e) => {
+                const newValue = e.target.value;
+                const isValid = /^[a-zA-Z0-9@_\s]*$/.test(newValue); // allows letters, digits, space, @, _
+                if (isValid) {
+                  setLabel(newValue);
+                }
+              }}
               placeholder="e.g. Company Name"
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-primary-200"
             />

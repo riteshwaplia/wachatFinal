@@ -107,7 +107,13 @@ const ContactPage = () => {
     const [isFiledOpen, setIsFIledOpen] = useState(false);
 
     const handleOpenModal = () => setIsFIledOpen(true);
-    const handleCloseModal = () => setIsFIledOpen(false);
+    // const handleCloseModal = () => setIsFIledOpen(false);
+    const [activeModal, setActiveModal] = useState(null); // 'add' | 'show' | null
+
+    const handleOpenAddModal = () => setActiveModal('add');
+    const handleOpenShowModal = () => setActiveModal('show');
+    const handleCloseModal = () => setActiveModal(null);
+
 
     const handleSuccess = (newField) => {
         console.log('New custom field added:', newField);
@@ -115,37 +121,7 @@ const ContactPage = () => {
         // Optionally update local state with newField
     };
 
-
-    // useEffect(() => {
-    //     const fetchFields = async () => {
-    //         try {
-    //             const res = await api.get(`/projects/${id}/contacts/fields`);
-    //             const rawFields = res.data.data || [];
-
-    //             const updatedFields = rawFields.map((field) => {
-    //                 const lowerLabel = field.label.toLowerCase();
-
-    //                 // Set required to true for specific labels
-    //                 if (
-    //                     lowerLabel === 'full name' ||
-    //                     lowerLabel === 'email address' ||
-    //                     lowerLabel === 'phone number'
-    //                 ) {
-    //                     return { ...field, required: true };
-    //                 }
-
-    //                 // Otherwise, mark as not required
-    //                 return { ...field, required: false };
-    //             });
-
-    //             setFields(updatedFields);
-    //         } catch (error) {
-    //             console.error('Failed to fetch custom fields', error);
-    //         }
-    //     };
-
-    //     fetchFields();
-    // }, []);
+ 
     useEffect(() => {
         const fetchFields = async () => {
             try {
@@ -857,27 +833,28 @@ const ContactPage = () => {
                     )}
 
                 </div>
-                <div className='flex flex-row gap-3'>
-                    <Button onClick={handleOpenModal}>Add New Field</Button>
+                <div className="flex flex-row gap-3">
+                    <Button onClick={handleOpenAddModal}>Add New Field</Button>
+                    <Button onClick={handleOpenShowModal}>Show Field</Button>
 
-                    {isFiledOpen && (
+                    {activeModal === 'add' && (
                         <AddCustomFieldModal
-                            isOpen={isFiledOpen}
+                            isOpen={true}
                             onClose={handleCloseModal}
                             onSuccess={handleSuccess}
                         />
                     )}
-                    <Button onClick={handleOpenModal}>Show Field</Button>
-                    {isFiledOpen && (
+
+                    {activeModal === 'show' && (
                         <AddCustomFieldModal
-                            isOpen={isFiledOpen}
+                            isOpen={true}
                             onClose={handleCloseModal}
                             onSuccess={handleSuccess}
                             fields={fields}
                         />
                     )}
-
                 </div>
+
 
                 {(selectedrows.length > 0 || blcakListSelectedrows.length > 0) && (
                     <div className="relative">

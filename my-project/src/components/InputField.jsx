@@ -4,6 +4,7 @@ import { BiShowAlt } from "react-icons/bi";
 import { GrFormViewHide } from "react-icons/gr";
  
 const InputField = ({
+  disable,
   label,
   id,
   children,
@@ -58,6 +59,7 @@ const InputField = ({
       {children}
         </div>
       <input
+        disabled={disable}
         id={id}
         type={showPasswordToggle ? (showPassword ? 'text' : 'password') : type}
         placeholder={placeholder}

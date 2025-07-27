@@ -94,7 +94,7 @@ const project = localStorage.getItem("currentProject")
       // Use projectDetails.businessProfileId._id for fetching templates
       // Ensure projectDetails is loaded before this call
      
-      const templatesRes = await api.get("/templates", { // Use api directly with /api/
+      const templatesRes = await api.get("/templates/allapprovedcarouseltemplates", { // Use api directly with /api/
         ...config,
         params: {
           businessProfileId: businessProfileId,

@@ -60,7 +60,6 @@ function Flow() {
   const [edges, setEdges] = useState([]);
   const [searchParams] = useSearchParams();
   const flowId = searchParams.get('flowId');
- console.log("flowid", flowId)
 
 
   useEffect(() => {
@@ -68,9 +67,9 @@ function Flow() {
 
     const fetchFlow = async () => {
       try {
-        const res = await getFlowByIdApi(id,flowId); // consider renaming this to `getFlowApi`
+        const res = await getFlowByIdApi(id, flowId); // consider renaming this to `getFlowApi`
         const flow = res.data;
- 
+
         const { nodes, edges, ...rest } = flow;
 
         setNodes(nodes || []);
@@ -83,6 +82,50 @@ function Flow() {
 
     fetchFlow();
   }, [flowId]);
+
+
+
+  useEffect(() => {
+    function getImageNodes(nodes) {
+      return nodes
+        .filter((node) => node.type === 'image')
+        .map((node) => ({
+          nodeId: node.id,
+          imageId: node.data?.id || null,
+          imageUrl: node.data?.imageUrl || null,
+        }));
+    }
+
+    const imageNodes = getImageNodes(nodes);
+    console.log("Image Nodes:", imageNodes);
+
+    const templateNode = nodes.find((node) => node.type === 'template');
+    console.log("imageNodes>>", imageNodes)
+    if (templateNode && imageNodes.length > 0) {
+      const updatedTemplateNode = {
+        ...templateNode,
+        data: {
+          ...templateNode.data,
+          imageNodes, // Embed the imageNodes
+        },
+      };
+
+      // ⚠️ Check if it already has the same data to avoid infinite loop
+      const isAlreadyUpdated = JSON.stringify(templateNode.data?.imageNodes) === JSON.stringify(imageNodes);
+
+      if (!isAlreadyUpdated) {
+        setNodes((prevNodes) =>
+          prevNodes.map((n) =>
+            n.id === templateNode.id ? updatedTemplateNode : n
+          )
+        );
+      }
+    }
+
+  }, [nodes]);
+
+
+
 
 
 
@@ -133,6 +176,8 @@ function Flow() {
     (changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
     []
   );
+
+
 
   // 🔗 When a connection is made
   const onConnect = useCallback((params) => {
@@ -303,7 +348,7 @@ function Flow() {
       {/* Main Content + Node Editor (Center + Right) */}
       <div className="flex flex-grow h-full">
         {/* Center Panel (Flow Canvas + Toolbar) */}
-        <div className="flex  w-full flex-col bg-gray-200 flex-grow ">
+        <div className="flex w-full flex-col bg-gray-200 flex-grow ">
           {/* Toolbar */}
           <Toolbar
             importFlow={importFlow}
@@ -363,7 +408,7 @@ function Flow() {
         )}
 
         {save && (
-          <div className="fixed inset-0 bg-black bg-opacity-40  flex items-center justify-center z-50">
+          <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
             {/* nodes, edges, projectId, onClose */}
             <SaveFlowForm nodes={nodes} edges={edges} flowUpdateData={flowUpdate} projectId={id} onClose={() => setSave(false)} />
 
