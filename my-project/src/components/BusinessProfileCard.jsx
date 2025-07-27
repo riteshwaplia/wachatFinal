@@ -22,7 +22,6 @@ const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick, fetchBu
   const handleChange = (key, value) => {
     setBusinessData(prev => ({ ...prev, [key]: value }));
 
-    // Only apply the "no special chars" rule to fields that should be simple strings.
     if (key === 'name' || key === 'metaAppId') {
       const isValid = /^[a-zA-Z0-9\s]*$/.test(value);
       if (!isValid) {
@@ -168,7 +167,7 @@ BusinessProfileCard.propTypes = {
   isSelected: PropTypes.bool,
   isFetching: PropTypes.bool,
   onClick: PropTypes.func.isRequired,
-  fetchBusinessProfiles: PropTypes.func, // optional but used
+  fetchBusinessProfiles: PropTypes.func,
 };
 
 export default BusinessProfileCard;
