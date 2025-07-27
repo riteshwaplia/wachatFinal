@@ -426,7 +426,7 @@ export default function LandingPage() {
                         whileHover={{ scale: 1.05 }}
                         className="bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-lg font-semibold shadow"
                     >
-                        {heroSection?.buttonText || 'Request Demof'}
+                        {heroSection?.buttonText || 'Request Demo'}
                     </motion.button>
 
                     <motion.button
