@@ -43,7 +43,7 @@ import AddTeamMembers from './components/AddTeamMembers';
 import UserProfileLayout from './layout/userProfileLayout';
 import CreateCarouselTemplate from './components/template/CreateCarouselTemplate';
 import SendCarosualTemplate from './components/broadcasting/SendCarosualTemplate';
- 
+
 const AdminRoute = ({ children }) => (
   <ProtectedRoute roles={["super_admin", "tenant_admin"]}>
     <AdminLayout>{children}</AdminLayout>
@@ -118,227 +118,228 @@ function AppContent() {
 
   return (
     <>
-    
-    
-    <Routes>
-      <Route path="/register" element={<RegisterPage />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route
-        path="/admin/dashboard"
-        element={
-          <AdminRoute>
-            <HomePage />
-          </AdminRoute>
-        }
-      />
-       <Route
-            path="/admin/admin-dashboard"
-            element={
-              <AdminRoute>
-                <AdminDashboardPage />
-              </AdminRoute>
-            }
-          />
-           <Route
-            path="/admin/add-tenant-admin"
-            element={
-              <SuperAdminRoute>
-                <SuperAdminDashboard />
-              </SuperAdminRoute>
-            }
-          />
 
-          <Route
-            path="/admin/users"
-            element={
-              <AdminRoute>
-                <TenantUsersPage />
-              </AdminRoute>
-            }
-          />
 
-          <Route
-            path="/admin/tenant-settings"
-            element={
-              <AdminRoute>
-                <TenantSettingsPage />
-              </AdminRoute>
-            }
-          />
+      <Routes>
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route
+          path="/admin/dashboard"
+          element={
+            <AdminRoute>
+              <HomePage />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/admin-dashboard"
+          element={
+            <AdminRoute>
+              <AdminDashboardPage />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/add-tenant-admin"
+          element={
+            <SuperAdminRoute>
+              <SuperAdminDashboard />
+            </SuperAdminRoute>
+          }
+        />
 
-      <Route
-        path="/add-whatsapp-number"
-        element={
-          <UserRoute sidebar={false}>
-            <WhatsappNumberRegistrationPage />
-          </UserRoute>
-        }
-      />
-      <Route
-        path="/projects"
-        element={
-          <UserRoute sidebar={false}>
-            <ProjectManagementPage />
-          </UserRoute>
-        }
-      />
-      <Route
-            path="/project/:id/dashboard"
-            element={<ProjectRouteWrapper component={ProjectDashboard} />}
-          />
-      <Route
-            path="/project/:id/project-details"
-            element={<ProjectRouteWrapper component={ProjectDetail} />}
-          />
+        <Route
+          path="/admin/users"
+          element={
+            <AdminRoute>
+              <TenantUsersPage />
+            </AdminRoute>
+          }
+        />
 
-          <Route
-            path="/project/:id/group"
-            element={<ProjectRouteWrapper component={GroupPage} />}
-          />
-          <Route
-            path="/project/:id/contacts"
-            element={<ProjectRouteWrapper component={ContactPage} />}
-          />
-          <Route
-            path="/project/:id/templates"
-            element={<ProjectRouteWrapper component={TemplatePage} />}
-          />
-          <Route
-            path="/project/:id/templates/create"
-            element={<ProjectRouteWrapper component={CreateTemplate} />}
-          />
-          <Route
-            path="/project/:id/templates/create/carousel-templates"
-            element={<ProjectRouteWrapper component={CreateCarouselTemplate} />}
-          />
-<Route
-  path="/project/:id/templates/:templateId"
-  element={<ProjectRouteWrapper component={TemplateDetail} />}
-/>
-           <Route
-            path="/project/:id/broadcasting"
-            element={<ProjectRouteWrapper component={BulkMessagingDashboard} />}
-          />
-           <Route
-            path="/project/:id/broadcasting/send-bulk"
-            element={<ProjectRouteWrapper component={SendMessagePage} />}
-          />
-           <Route
-            path="/project/:id/broadcasting/send-bulk/carosual-template"
-            element={<ProjectRouteWrapper component={SendCarosualTemplate} />}
-          />
-          <Route
-            path="/project/:id/chat"
-            element={<ProjectRouteWrapper component={LiveChatPage} />}
-          />
-          <Route
+        <Route
+          path="/admin/tenant-settings"
+          element={
+            <AdminRoute>
+              <TenantSettingsPage />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/add-whatsapp-number"
+          element={
+            <UserRoute sidebar={false}>
+              <WhatsappNumberRegistrationPage />
+            </UserRoute>
+          }
+        />
+        <Route
+          path="/projects"
+          element={
+            <UserRoute sidebar={false}>
+              <ProjectManagementPage />
+            </UserRoute>
+          }
+        />
+        <Route
+          path="/project/:id/dashboard"
+          element={<ProjectRouteWrapper component={ProjectDashboard} />}
+        />
+        <Route
+          path="/project/:id/project-details"
+          element={<ProjectRouteWrapper component={ProjectDetail} />}
+        />
+
+        <Route
+          path="/project/:id/group"
+          element={<ProjectRouteWrapper component={GroupPage} />}
+        />
+        <Route
+          path="/project/:id/contacts"
+          element={<ProjectRouteWrapper component={ContactPage} />}
+        />
+        <Route
+          path="/project/:id/templates"
+          element={<ProjectRouteWrapper component={TemplatePage} />}
+        />
+        <Route
+          path="/project/:id/templates/create"
+          element={<ProjectRouteWrapper component={CreateTemplate} />}
+        />
+        <Route
+          path="/project/:id/templates/create/carousel-templates"
+          element={<ProjectRouteWrapper component={CreateCarouselTemplate} />}
+        />
+        <Route
+          path="/project/:id/templates/:templateId"
+          element={<ProjectRouteWrapper component={TemplateDetail} />}
+        />
+        <Route
+          path="/project/:id/broadcasting"
+          element={<ProjectRouteWrapper component={BulkMessagingDashboard} />}
+        />
+        <Route
+          path="/project/:id/broadcasting/send-bulk"
+          element={<ProjectRouteWrapper component={SendMessagePage} />}
+        />
+        <Route
+          path="/project/:id/broadcasting/send-bulk/carosual-template"
+          element={<ProjectRouteWrapper component={SendCarosualTemplate} />}
+        />
+        <Route
+          path="/project/:id/chat"
+          element={<ProjectRouteWrapper component={LiveChatPage} />}
+        />
+        <Route
           path="/project/:id/flow-builder"
- 
- 
+
+
           element={<UserRoute sidebar={false}>
             <Flow />
           </UserRoute>}
- 
+
         />
         <Route path="/project/:projectId/flow-builder/:flowId" element={<Flow />} /> For editing existing flow
- 
+
         <Route
           path="/project/:id/flows"
           element={<ProjectRouteWrapper component={FlowsPage} />}
         />
- 
-           {/* <Route path="/projects/:projectId/flow-builder" element={<FlowBuilder />} />
+
+        {/* <Route path="/projects/:projectId/flow-builder" element={<FlowBuilder />} />
             <Route path="/projects/:projectId/flow-builder/:flowId" element={<FlowBuilder />} /> For editing existing flow */}
-     
-     
-     {/* //user profile and settings */}
-     <Route
-        path="/user/profile"
-        element={
-          <UserProfileLayout>
-            <ProfilePage />
-          </UserProfileLayout>
-        }
-      />
-    <Route
-        path="/user/update-password"
-        element={
-          <UserProfileLayout>
-      <UpdatePassword/>
-          </UserProfileLayout>
-        }
-      />
- 
-      <Route
-        path="/user/setting"
-        element={
-          <UserProfileLayout>
-            <UserSetting />
-          </UserProfileLayout>
-        }
-      />
-      {/* <Route
+
+
+        {/* //user profile and settings */}
+        {/* /project/688737673803284e7d52e8ea/user-profile */}
+        <Route
+          path="/project/:id/user-profile"
+          element={
+            <UserProfileLayout>
+              <ProfilePage />
+            </UserProfileLayout>
+          }
+        />
+        <Route
+          path="/project/:id/update-password"
+          element={
+            <UserProfileLayout>
+              <UpdatePassword />
+            </UserProfileLayout>
+          }
+        />
+
+        <Route
+          path="/project/:id/user-setting"
+          element={
+            <UserProfileLayout>
+              <UserSetting />
+            </UserProfileLayout>
+          }
+        />
+        {/* <Route
         path="/user/setting"
         element={<ProjectRouteWrapper component={UserSetting} />}
       /> */}
- 
- 
-    <Route path="/" element={<LandingPage />} />
- 
-       <Route
-        path="/team/members"
-        element={
-     
-       <UserRoute >
-           <TeamMembers/>
-          </UserRoute>
-    
-        }
-      />
-         <Route
-        path="/add/teammembers"
-        element={
-     
-       <UserRoute >
-           <AddTeamMembers/>
-          </UserRoute>
-    
-        }
-      />
- 
 
 
-     
-      <Route
-        path="/"
-        element={<Navigate to={isLoggedIn ? "/dashboard" : "/login"} replace />} // ✅ safe now
-      />
-      <Route
-        path="/allcomponents"
-        element={<AllComponents/>} // ✅ safe now
-      />
-      <Route
-        path="*"
-        element={
-          <div className="min-h-screen bg-gray-50 flex items-center justify-center text-center">
-            <div className="p-8 bg-white rounded-xl shadow-lg">
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">404 - Page Not Found</h2>
-              <p className="text-gray-700">The page you're looking for doesn't exist.</p>
-              <a href="/" className="text-primary-500 hover:underline mt-4 inline-block">Go to Home</a>
+        <Route path="/" element={<LandingPage />} />
+
+        <Route
+          path="/team/members"
+          element={
+
+            <UserRoute >
+              <TeamMembers />
+            </UserRoute>
+
+          }
+        />
+        <Route
+          path="/add/teammembers"
+          element={
+
+            <UserRoute >
+              <AddTeamMembers />
+            </UserRoute>
+
+          }
+        />
+
+
+
+
+        <Route
+          path="/"
+          element={<Navigate to={isLoggedIn ? "/dashboard" : "/login"} replace />} // ✅ safe now
+        />
+        <Route
+          path="/allcomponents"
+          element={<AllComponents />} // ✅ safe now
+        />
+        <Route
+          path="*"
+          element={
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center text-center">
+              <div className="p-8 bg-white rounded-xl shadow-lg">
+                <h2 className="text-2xl font-bold text-gray-800 mb-4">404 - Page Not Found</h2>
+                <p className="text-gray-700">The page you're looking for doesn't exist.</p>
+                <a href="/" className="text-primary-500 hover:underline mt-4 inline-block">Go to Home</a>
+              </div>
             </div>
-          </div>
-        }
-      />
-    </Routes>
-    <Toaster
+          }
+        />
+      </Routes>
+      <Toaster
         position="top-right"
         reverseOrder={false}
         toastOptions={{
- 
+
           duration: 4000,
         }}
       />
-          </>
+    </>
 
   );
 }

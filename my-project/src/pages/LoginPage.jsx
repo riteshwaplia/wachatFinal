@@ -47,7 +47,7 @@ const LoginPage = () => {
 
     try {
       setLoading(true)
-      await delay(300);
+      await delay(100);
       // const response = await api.post('/users/login', { email, password })
 
       const response = await login(email, password)

@@ -399,7 +399,7 @@ const WhatsappNumberRegistrationPage = () => {
                         onChange={handleFormChange}
                         placeholder="Bearer EAAI..."
                         required
-                        maxlength={500}
+                        // maxlength={500}
                     />
                     <div className="flex justify-end space-x-3 pt-2">
                         <Button

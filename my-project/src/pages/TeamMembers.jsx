@@ -40,6 +40,7 @@ const AddCustomFieldModal = ({ isOpen, onClose, onSuccess, fields }) => {
 
   if (!isOpen) return null;
 
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
       {fields ? (<>
@@ -60,7 +61,10 @@ const AddCustomFieldModal = ({ isOpen, onClose, onSuccess, fields }) => {
                     className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
                   />
                 </div>
+
+
               ))}
+              {fields.length === 0 && <><p>No any custom fields exist</p></>}
             </form>
 
             <div className="flex justify-end mt-6">

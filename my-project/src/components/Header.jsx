@@ -1,21 +1,21 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTenant } from '../context/TenantContext';
 import { Menu, X, ChevronRight, ChevronLeft } from 'lucide-react';
 import Avatar from './Avatar';
- 
+
 const Header = ({ onToggleSidebar }) => {
   const { user, isLoggedIn, logout } = useAuth();
   const { siteConfig } = useTenant();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
- 
+  const { id } = useParams()
   const handleLogout = () => {
     logout();
     setIsDropdownOpen(false);
   };
- 
+
   return (
     <header className="bg-white shadow-sm py-3 px-4 md:px-6 flex items-center justify-between sticky top-0 z-20 w-[100vw] md:w-auto ">
       {/* Mobile menu button and brand */}
@@ -27,14 +27,14 @@ const Header = ({ onToggleSidebar }) => {
         >
           {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
-        
+
         <Link to="/" className="flex items-center">
           <span className="text-xl font-bold font-heading text-primary-700 hover:text-primary-600 transition-colors">
             {siteConfig?.websiteName || "My App"}
           </span>
         </Link>
       </div>
- 
+
       {/* User dropdown */}
       <div className="relative">
         {isLoggedIn ? (
@@ -56,7 +56,7 @@ const Header = ({ onToggleSidebar }) => {
                 {isDropdownOpen ? <ChevronRight className="ml-1 transform rotate-90" size={16} /> : <ChevronRight className="ml-1" size={16} />}
               </span>
             </button>
- 
+
             {isDropdownOpen && (
               <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg py-1 z-50 border border-gray-200">
                 <div className="px-4 py-3 border-b border-gray-200">
@@ -64,14 +64,14 @@ const Header = ({ onToggleSidebar }) => {
                   <p className="text-xs text-gray-500 truncate">{user?.email}</p>
                 </div>
                 <Link
-                  to="/user/profile"
+                  to={`/project/${id}/user-profile`}
                   className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   onClick={() => setIsDropdownOpen(false)}
                 >
                   Profile Settings
                 </Link>
                 <Link
-                  to="/dashboard"
+                  to={`/project/${id}/dashboard`}
                   className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   onClick={() => setIsDropdownOpen(false)}
                 >
@@ -107,6 +107,5 @@ const Header = ({ onToggleSidebar }) => {
     </header>
   );
 };
- 
+
 export default Header;
- 

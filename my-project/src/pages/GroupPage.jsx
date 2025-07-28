@@ -44,6 +44,9 @@ const GroupPage = () => {
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
   const [loading, setLoding] = useState(false);
   const [erorrs, setErrors] = useState({ title: '' });
+  const [showBulkConfirmModal, setShowBulkConfirmModal] = useState(false);
+  const [bulkActionType, setBulkActionType] = useState(null); // 'archive' | 'restore' | 'delete'
+
   const [pagination, setPagination] = useState({
     currentPage: 1,
     total: 0,
@@ -359,6 +362,43 @@ const GroupPage = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {showBulkConfirmModal && (
+        <Modal
+          isOpen={showBulkConfirmModal}
+          onClose={() => setShowBulkConfirmModal(false)}
+          title={
+            bulkActionType === "delete"
+              ? "Delete Groups"
+              : bulkActionType === "archive"
+                ? "Archive Groups"
+                : "Restore Groups"
+          }
+          size="sm"
+        >
+          <p className="mb-4 text-lg text-red-500">
+            {bulkActionType === "delete"
+              ? `Are you sure you want to delete ${selectedGroups.length} group(s)?`
+              : bulkActionType === "archive"
+                ? `Are you sure you want to archive ${selectedGroups.length} group(s)?`
+                : `Are you sure you want to restore ${selectedGroups.length} group(s)?`}
+          </p>
+          <div className="flex justify-end space-x-3">
+            <Button variant="outline" onClick={() => setShowBulkConfirmModal(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              onClick={() => {
+                handleBulkAction(bulkActionType);
+                setShowBulkConfirmModal(false);
+              }}
+            >
+              Confirm
+            </Button>
+          </div>
+        </Modal>
+      )}
+
 
       {showConfirmModal && (
         <Modal
@@ -483,19 +523,15 @@ const GroupPage = () => {
                   )}
                   <button
                     onClick={() => {
-                      if (
-                        window.confirm(
-                          `Are you sure you want to delete ${selectedGroups.length} group(s)?`
-                        )
-                      ) {
-                        handleBulkAction("delete");
-                        setIsBulkActionsOpen(false);
-                      }
+                      setBulkActionType("delete");
+                      setShowBulkConfirmModal(true);
+                      setIsBulkActionsOpen(false);
                     }}
                     className="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 w-full text-left"
                   >
                     <FiTrash2 className="mr-2" /> Delete
                   </button>
+
                 </div>
               )}
             </div>
