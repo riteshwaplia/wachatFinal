@@ -15,10 +15,12 @@ import EmptyState from '../components/EmptyState';
 import BusinessProfileCard from '../components/BusinessProfileCard';
 import PhoneNumberCard from '../components/PhoneNumberCard';
 import { ErrorToast, SuccessToast } from '../utils/Toast';
+import { useTranslation } from 'react-i18next';
 
 const WhatsappNumberRegistrationPage = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
     // State management
     const [state, setState] = useState({
@@ -233,7 +235,7 @@ const WhatsappNumberRegistrationPage = () => {
 
     // Loading state
     if (state.isLoading && !state.businessProfiles.length && !isAddBusinessModalOpen) {
-        return <LoadingSpinner fullPage message="Loading business profiles..." />;
+        return <LoadingSpinner fullPage message={t('loadingBusinessProfiles')} />;
     }
 
     return (
@@ -242,10 +244,10 @@ const WhatsappNumberRegistrationPage = () => {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
                 <div>
                     <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-                        WhatsApp Business Integration
+                        {t('whatsappBusinessIntegration')}
                     </h1>
                     <p className="mt-1 text-gray-600">
-                        Connect your WhatsApp Business Account to manage phone numbers
+                        {t('connectYourWhatsappBusinessAccount')}
                     </p>
                 </div>
                 <Button
@@ -255,7 +257,7 @@ const WhatsappNumberRegistrationPage = () => {
                     className="mt-4 md:mt-0"
                 >
                     <ChevronLeft className="h-4 w-4 mr-2" />
-                    Back to Projects
+                    {t('backToProjects')}
                 </Button>
             </div>
 
@@ -280,19 +282,19 @@ const WhatsappNumberRegistrationPage = () => {
                         className="w-full"
                         icon={<PlusCircle size={18} className="mr-2" />}
                     >
-                        Add Business Profile
+                        {t('addBusinessProfile')}
                     </Button>
 
                     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
                         <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
                             <Building size={18} className="text-primary-600 mr-2" />
-                            Your Business Profiles
+                            {t('yourBusinessProfiles')}
                         </h2>
 
                         {state.businessProfiles.length === 0 ? (
                             <EmptyState
-                                title="No Business Profiles"
-                                description="Add your first business profile to get started"
+                                title={t('noBusinessProfiles')}
+                                description={t('addYourFirstBusinessProfile')}
                                 icon={<Building size={24} className="text-gray-400" />}
                             />
                         ) : (
@@ -318,7 +320,7 @@ const WhatsappNumberRegistrationPage = () => {
                         <div className="flex justify-between items-center mb-4">
                             <h2 className="text-lg font-semibold text-gray-800 flex items-center">
                                 <Phone size={18} className="text-primary-600 mr-2" />
-                                WhatsApp Numbers
+                                {t('whatsappNumbers')}
                             </h2>
                             {state.selectedProfile && (
                                 <span className="text-sm text-gray-600">
@@ -328,7 +330,7 @@ const WhatsappNumberRegistrationPage = () => {
                         </div>
 
                         {state.isFetchingNumbers && !state.phoneNumbers.length ? (
-                            <LoadingSpinner message="Fetching WhatsApp numbers..." className="py-8" />
+                            <LoadingSpinner message={t('fetchingWhatsappNumbers')} className="py-8" />
                         ) : state.phoneNumbers.length > 0 ? (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {state.phoneNumbers.map(number => (
@@ -343,11 +345,11 @@ const WhatsappNumberRegistrationPage = () => {
                         ) : (
                             <EmptyState
                                 title={state.selectedProfile
-                                    ? "No WhatsApp Numbers Found"
-                                    : "Select a Business Profile"}
+                                    ? t('noWhatsappNumbersFound')
+                                    : t('selectBusinessProfile')}
                                 description={state.selectedProfile
-                                    ? "No phone numbers available for this business account"
-                                    : "Choose a business profile from the left to view associated numbers"}
+                                    ? t('noPhoneNumbersAvailable')
+                                    : t('chooseBusinessProfileToViewNumbers')}
                                 icon={<Phone size={24} className="text-gray-400" />}
                             />
                         )}
@@ -359,45 +361,45 @@ const WhatsappNumberRegistrationPage = () => {
             <Modal
                 isOpen={isAddBusinessModalOpen}
                 onClose={() => setIsAddBusinessModalOpen(false)}
-                title="Add Business Profile"
+                title={t('addBusinessProfile')}
                 size="md"
             >
                 <form onSubmit={createBusinessProfile} className="space-y-4">
                     <InputField
-                        label="Business Name"
+                        label={t('businessName')}
                         name="name"
                         value={formData.name}
                         onChange={handleFormChange}
-                        placeholder="e.g., My Main Business"
+                        placeholder={t('businessNamePlaceholder')}
                         maxlength={50}
                         required
                     />
                     <InputField
-                        label="WhatsApp Business Account ID"
+                        label={t('whatsappBusinessAccountId')}
                         name="wabaId"
                         value={formData.wabaId}
                         onChange={handleFormChange}
-                        placeholder="e.g., 123456789012345"
+                        placeholder={t('whatsappBusinessAccountIdPlaceholder')}
                         maxlength={60}
                         required
                     />
                     <InputField
-                        label="WhatsApp Business App ID"
+                        label={t('whatsappBusinessAppId')}
                         name="metaAppId"
                         value={formData.metaAppId}
                         onChange={handleFormChange}
-                        placeholder="e.g., 123456789012345"
+                        placeholder={t('whatsappBusinessAppIdPlaceholder')}
                         required
                         maxlength={60}
 
                     />
                     <InputField
-                        label="Meta Access Token"
+                        label={t('metaAccessToken')}
                         name="accessToken"
                         type="password"
                         value={formData.accessToken}
                         onChange={handleFormChange}
-                        placeholder="Bearer EAAI..."
+                        placeholder={t('metaAccessTokenPlaceholder')}
                         required
                         maxlength={500}
                     />
@@ -407,7 +409,7 @@ const WhatsappNumberRegistrationPage = () => {
                             variant="outline"
                             onClick={() => setIsAddBusinessModalOpen(false)}
                         >
-                            Cancel
+                            {t('cancel')}
                         </Button>
                         <Button
                             type="submit"
@@ -418,7 +420,7 @@ const WhatsappNumberRegistrationPage = () => {
                             {state.isLoading ? (
                                 <LoadingSpinner size="sm" color="white" className="mr-2" />
                             ) : null}
-                            {state.isLoading ? 'Creating...' : 'Create Profile'}
+                            {state.isLoading ? t('creating') : t('createProfile')}
                         </Button>
                     </div>
                 </form>
