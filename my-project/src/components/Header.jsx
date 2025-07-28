@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTenant } from '../context/TenantContext';
 import { Menu, X, ChevronDown, ChevronUp } from 'lucide-react';
@@ -20,6 +20,7 @@ const Header = ({ onToggleSidebar }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { i18n } = useTranslation();
 
+  const { id } = useParams()
   const handleLogout = () => {
     logout();
     setIsDropdownOpen(false);
@@ -96,14 +97,14 @@ const Header = ({ onToggleSidebar }) => {
                   <p className="text-xs text-gray-500 truncate">{user?.email}</p>
                 </div>
                 <Link
-                  to="/user/profile"
+                  to={`/project/${id}/user-profile`}
                   className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   onClick={() => setIsDropdownOpen(false)}
                 >
                   Profile Settings
                 </Link>
                 <Link
-                  to="/dashboard"
+                  to={`/project/${id}/dashboard`}
                   className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   onClick={() => setIsDropdownOpen(false)}
                 >

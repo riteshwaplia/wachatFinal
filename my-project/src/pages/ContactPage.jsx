@@ -53,6 +53,7 @@ import {
 import { object } from 'prop-types';
 import AddCustomFieldModal from './TeamMembers';
 import { useTranslation } from 'react-i18next';
+import { ErrorToast } from '../utils/Toast';
 
 const ContactPage = () => {
     const { user, token } = useAuth();
@@ -114,8 +115,8 @@ const ContactPage = () => {
 
     const handleOpenAddModal = () => setActiveModal('add');
     const handleOpenShowModal = () => setActiveModal('show');
-    const handleCloseModal = () => setActiveModal(null);
 
+    const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
 
     const handleSuccess = (newField) => {
         console.log('New custom field added:', newField);
@@ -123,22 +124,27 @@ const ContactPage = () => {
         // Optionally update local state with newField
     };
 
- 
+    const fetchFields = async () => {
+        try {
+            const fieldRes = await api.get(`/projects/${projectId}/contacts/fields`);
+            setFields(fieldRes.data.data || []);
+        } catch (err) {
+            console.error("Error fetching fields:", err);
+        }
+    };
+
     useEffect(() => {
-        const fetchFields = async () => {
-            try {
-                const fieldRes = await api.get(`/projects/${projectId}/contacts/fields`);
-                setFields(fieldRes.data.data || []);
-
-            } catch (err) {
-                console.error("Error fetching groups:", err);
-            }
-        };
-
         if (projectId) {
             fetchFields();
         }
-    }, []);
+    }, [projectId]); // include projectId in dependencies
+
+    const handleCloseModal = async () => {
+        setActiveModal(null);
+        if (projectId) await fetchFields(); // Re-fetch fields on modal close
+    };
+
+
 
     const FieldOptions = fields.map(field => ({
         value: field.label,
@@ -328,7 +334,7 @@ const ContactPage = () => {
                 // /api/projects/:projectId/groups/bulk-block
                 endpoint = `/projects/${projectId}/contacts/bulk-block`;
             } else {
-                endpoint = `/projects/${projectId}/contacts/bulkContactUpdate`;
+                endpoint = `/projects/${projectId}/contacts/bulk-unblock`;
             }
 
             const response = await api.post(endpoint, {
@@ -531,6 +537,7 @@ const ContactPage = () => {
             fetchData();
         } catch (error) {
             console.error('Error saving contact:', error);
+            ErrorToast(error || "something went wrong")
             setMessage(`Error: ${error.response?.data?.message || 'Failed to save contact.'}`);
             setMessageType('error');
         } finally {
@@ -691,6 +698,34 @@ const ContactPage = () => {
 
     return (
         <div className="md:max-w-7xl  p-3 w-full  mx-auto  md:px-6 lg:px-8 py-8">
+
+            {showDeleteConfirmModal && (
+                <Modal
+                    isOpen={showDeleteConfirmModal}
+                    onClose={() => setShowDeleteConfirmModal(false)}
+                    title="Delete Groups"
+                    size="sm"
+                >
+                    <p className="mb-4 text-lg text-red-500">
+                        Are you sure you want to delete {selectedrows.length} contact(s)?
+                    </p>
+                    <div className="flex justify-end space-x-3">
+                        <Button variant="outline" onClick={() => setShowDeleteConfirmModal(false)}>
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="primary"
+                            onClick={() => {
+                                bulkDeleteContact(); // Call your API
+                                setShowDeleteConfirmModal(false);
+                            }}
+                        >
+                            Confirm
+                        </Button>
+                    </div>
+                </Modal>
+            )}
+
             {
                 <Modal
                     isOpen={showConfirmModal}
@@ -729,6 +764,8 @@ const ContactPage = () => {
                     </div>
                 </Modal>
             }
+
+
 
             {/* Header Section */}
             <div className="mb-8">
@@ -905,22 +942,35 @@ const ContactPage = () => {
                                     </button>
 
 
-                                    <button
+                                    {/* <button
                                         onClick={() => {
-                                            bulkDeleteContact()
-                                            //   if (
-                                            //     window.confirm(
-                                            //       `Are you sure you want to delete ${selectedGroups.length} group(s)?`
-                                            //     )
-                                            //   ) {
-                                            //     // handleBulkAction("delete");
-                                            //     // setIsBulkActionsOpen(false);
-                                            //   }
+                                            // bulkDeleteContact()
+                                              if (
+                                                window.confirm(
+                                                  `Are you sure you want to delete ${selectedGroups.length} group(s)?`
+                                                )
+                                              ) {
+                                                // handleBulkAction("delete");
+                                                // setIsBulkActionsOpen(false);
+                                              }
                                         }}
                                         className="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 w-full text-left"
                                     >
                                         <FiTrash2 className="mr-2" /> {t('delete')}
+                                        <FiTrash2 className="mr-2" /> Delete
+                                    </button> */}
+                                    <button
+                                        variant="ghost"
+                                        onClick={() => {
+                                            setShowDeleteConfirmModal(true);
+                                            setIsBulkActionsOpen(false);
+                                        }}
+                                        className="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 w-full text-left"
+
+                                    >
+                                        <FiTrash2 className="mr-2" /> Delete
                                     </button>
+
                                 </div>
                             )}
                     </div>

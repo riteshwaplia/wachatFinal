@@ -16,7 +16,7 @@ const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick, fetchBu
     {
       name: profile.name,
       wabaId: profile.metaBusinessId,
-      accessToken: profile.metaAccessToken,
+      metaAccessToken: profile.metaAccessToken,
       metaAppId: profile.metaAppId
     }
 
@@ -49,8 +49,8 @@ const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick, fetchBu
     if (!businessdata.wabaId) {
       newErrors.wabaId = "Whatsapp Business Id is required";
     }
-    if (!businessdata.accessToken) {
-      newErrors.accessToken = "Access Token is required";
+    if (!businessdata.metaAccessToken) {
+      newErrors.metaAccessToken = "Access Token is required";
     }
     if (!businessdata.metaAppId) {
       newErrors.metaAppId = "metaAppId "
@@ -137,14 +137,14 @@ const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick, fetchBu
 
               <InputField
                 label="Meta Access Token"
-                name="accessToken"
+                name="metaAccessToken"
                 type="text"
-                value={businessdata.accessToken}
-                onChange={(e) => handleChange("accessToken", e.target.value)}
+                value={businessdata.metaAccessToken}
+                onChange={(e) => handleChange("metaAccessToken", e.target.value)}
                 placeholder="Bearer EAAI..."
-                helperText={errros.accessToken}
-                error={errros.accessToken}
-                maxlength={200}
+                helperText={errros.metaAccessToken}
+                error={errros.metaAccessToken}
+                // maxlength={200}
 
               />
               <Button type='submit' className='block ml-auto mt-3'>Update</Button>
