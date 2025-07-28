@@ -192,7 +192,7 @@ const WhatsappNumberRegistrationPage = () => {
                 metaPhoneNumberID: numberData.id,
                 whatsappNumber: numberData.display_phone_number,
                 activePlan: 'Standard',
-                planDuration: 365
+                planDuration: "365"
             });
 
             if (projectRes.data.success) {

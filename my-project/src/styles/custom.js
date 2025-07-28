@@ -8,7 +8,7 @@ export const customSelectStyles = {
       ? "2px solid var(--color-primary-500, #2980B9)" 
       : "1px solid var(--color-gray-300, #D1D6DE)",
     borderRadius: "0.3rem", // Tailwind's 'xl'
-    padding: "0.375rem", // Tailwind's 'p-1.5'
+    padding: "0", // Tailwind's 'p-1.5'
     boxShadow: state.isFocused 
       ? "0 0 0 3px rgba(41, 128, 185, 0.2)" // primary-500 with opacity
       : "none",
@@ -17,7 +17,7 @@ export const customSelectStyles = {
         ? "var(--color-primary-600, #246D9B)" 
         : "var(--color-gray-400, #A6B0BD)",
     },
-    minHeight: "42px", // Better touch target
+    minHeight: "22px", // Better touch target
   }),
 
   // Input field
@@ -45,7 +45,7 @@ export const customSelectStyles = {
   multiValueLabel: (base) => ({
     ...base,
     color: "var(--color-primary-800, #1A475F)",
-    padding: "0.25rem 0.5rem",
+    padding: "",
     fontSize: "0.875rem", // text-sm
   }),
 
@@ -74,7 +74,7 @@ export const customSelectStyles = {
   option: (base, state) => ({
     ...base,
     fontSize: "0.875rem", // text-sm
-    padding: "0.75rem 1rem", // Larger click area
+    padding: "0.55rem 1rem", // Larger click area
     backgroundColor: state.isSelected
       ? "var(--color-primary-500, #2980B9)"
       : state.isFocused

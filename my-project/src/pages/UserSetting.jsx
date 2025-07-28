@@ -69,8 +69,7 @@ setbrodErr("enter the current id");
         <div className=' border-gray px-3  border-b'>
           <div className='flex text-[14px] md:text-[16px]  border-b border-gray-200 gap-6 ml-2'>
               <button  onClick={()=>settab("business")} className={` ${tab=="business" && "whitespace-nowrap py-4  px-1 border-b-2 font-medium text-sm flex items-center space-x-1 lg:space-x-2 border-primary-500 text-primary-600 hover:text-primary-600 hover:border-b-2 hover:border-primary-500"} cursor-pointer text-gray-500 hover:text-gray-700 hover:border-b-2 hover:border-gray-400 `}>Update Business profile
-                <span><IoBusiness />
-</span>
+       
               </button>
                               <button  onClick={()=>settab("brodcast")} className={` ${tab=="brodcast" && "whitespace-nowrap py-4  px-1 border-b-2 font-medium text-sm flex items-center space-x-1 lg:space-x-2 border-primary-500 text-primary-600 hover:text-primary-600 hover:border-b-2 hover:border-primary-500"} cursor-pointer text-gray-500 hover:text-gray-700 hover:border-b-2 hover:border-gray-400 `}>Update Brodcast Detail</button>
  

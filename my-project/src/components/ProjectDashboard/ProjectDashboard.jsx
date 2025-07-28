@@ -37,7 +37,7 @@ const ProjectDashboard = () => {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await api.get(`/projects/${projectId}/stats`);
+      const response = await api.get(`/projects/${projectId}/dashboard/stats`);
       if (response.data.success) {
         setStats(response.data.data);
         setLastUpdated(new Date().toLocaleTimeString());

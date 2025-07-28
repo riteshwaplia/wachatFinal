@@ -4,13 +4,36 @@ import { useAuth } from '../context/AuthContext';
 import { useTenant } from '../context/TenantContext';
 import { Menu, X, ChevronRight, ChevronLeft } from 'lucide-react';
 import Avatar from './Avatar';
+import { useRef } from 'react';
+import { useEffect } from 'react';
  
 const Header = ({ onToggleSidebar }) => {
   const { user, isLoggedIn, logout } = useAuth();
   const { siteConfig } = useTenant();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
- 
+   const dropdownRef = useRef(null);
+  const buttonRef = useRef(null);
+  // console.log("drop",dropdownRef.current);
+  // console.log("buttonref",buttonRef.current);
+   useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        // dropdownRef.current &&
+        // !dropdownRef.current.contains(event.target) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(event.target)
+      ) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   const handleLogout = () => {
     logout();
     setIsDropdownOpen(false);
@@ -40,6 +63,7 @@ const Header = ({ onToggleSidebar }) => {
         {isLoggedIn ? (
           <>
             <button
+            ref={buttonRef}
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               className="flex items-center space-x-2 focus:outline-none rounded-full p-1 hover:bg-gray-100 transition-colors"
               aria-expanded={isDropdownOpen}
@@ -58,7 +82,7 @@ const Header = ({ onToggleSidebar }) => {
             </button>
  
             {isDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg py-1 z-50 border border-gray-200">
+              <div  ref={dropdownRef} className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg py-1 z-50 border border-gray-200">
                 <div className="px-4 py-3 border-b border-gray-200">
                   <p className="text-sm font-medium text-gray-900">{user?.username}</p>
                   <p className="text-xs text-gray-500 truncate">{user?.email}</p>

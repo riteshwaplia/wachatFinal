@@ -38,7 +38,7 @@ sidebarOpen&&  <div onClick={()=>
       
       {/* Main Content Area */}
       <div className={`flex flex-col flex-1 transition-all duration-300 ${
-        sidebar && sidebarOpen ? 'md:ml-64' : 'ml-0'
+        sidebar && sidebarOpen ? 'md:ml-64' : 'md:ml-12'
       }`}>
         <Header  
         

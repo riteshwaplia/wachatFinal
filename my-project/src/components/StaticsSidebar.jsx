@@ -28,7 +28,7 @@ const StaticsSidebar = ({ isOpen, onToggle }) => {
  
 const navItems = [
   { id: 'tab1', label: 'User Profile',path:"/user/profile", icon: <FaUserCog size={18} /> },
-  { id: 'tab2', label: 'Update Password',path:"/user/update-password", icon: <TbLockPassword size={18} /> },
+  { id: 'tab2', label: 'Reset Password',path:"/user/reset-password", icon: <TbLockPassword size={18} /> },
   { id: 'tab3', label: 'Business Details', icon: <IoBusiness size={18} /> },
 ];
  

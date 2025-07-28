@@ -89,7 +89,7 @@ const UserSidebar = ({ isOpen, onToggle,isOff }) => {
             {siteConfig?.websiteName || 'User Panel'}
           </h2>
         ) : (
-          <div className="w-8 h-8 bg-primary-100 hidden md:block rounded-full flex items-center justify-center">
+          <div className="w-10 h-7 bg-primary-100 hidden md:flex rounded-full flex items-center justify-center">
             <span className="text-primary-600 font-bold  text-sm">
               {siteConfig?.websiteName?.charAt(0) || 'U'}
             </span>
@@ -152,7 +152,7 @@ const UserSidebar = ({ isOpen, onToggle,isOff }) => {
           {isOpen && <span>Projects</span>}
           
         </Link>  <Link
-          to="/user/setting"
+          to={`/project/${id}/setting`}
           className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-200 ${
             location.pathname.startsWith('/settings')
               ? 'bg-primary-50 text-primary-700 font-semibold'

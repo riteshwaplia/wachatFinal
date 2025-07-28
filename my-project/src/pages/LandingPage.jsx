@@ -32,9 +32,14 @@ import { CiLinkedin } from "react-icons/ci";
 import { RxCross2 } from "react-icons/rx";
 import { TiTick } from "react-icons/ti";
 import { GiDiamondTrophy } from "react-icons/gi";
+import { useLocation } from "react-router-dom";
 import { Link } from "react-router-dom";
-
-
+// import { RxCross2 } from "react-icons/rx";
+import { AiOutlineHome } from "react-icons/ai";
+import { FaWandMagicSparkles } from "react-icons/fa6";
+import { BiMessageRoundedDetail } from "react-icons/bi";
+import { IoIosContact } from "react-icons/io";
+import { AiOutlineLogin } from "react-icons/ai";
 gsap.registerPlugin(ScrollTrigger);
 
 
@@ -133,8 +138,19 @@ export default function LandingPage() {
     const scrolly = useScroll().scrollYProgress;
     const sectionRef = useRef(null);
     const isInView = useInView(sectionRef, { once: true });
+    const location = useLocation;
 
 
+
+
+
+const icons = {
+  Home:<AiOutlineHome size={18} className="text-primary-500"/> ,
+  Features: <FaWandMagicSparkles size={18} className="text-primary-500" />,
+  About: <BiMessageRoundedDetail size={18} className="text-primary-500" />,
+  Contact: <IoIosContact size={18} className="text-primary-500" />,
+  Login: <AiOutlineLogin size={18} className="text-primary-500" />,
+};
     const sectionsRef = useRef([]);
 
     useEffect(() => {
@@ -235,7 +251,16 @@ export default function LandingPage() {
         hidden: { opacity: 0, y: -10 },
         visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
     };
+//   useEffect(() => {
+//     if (sidebarOpen) {
+//      document.body.style.overflow = "hidden";
+//     } else {
+//       document.body.style.overflow = "";
+//     }
 
+//     // Cleanup on unmount
+//     return () =>   document.body.style.overflow = "";
+//   }, [sidebarOpen]);
     return (
 
 
@@ -272,7 +297,7 @@ export default function LandingPage() {
                     <nav className="hidden md:flex space-x-6 text-lg">
 
                         {[
-                            { label: "Products", dropdown: true },
+                            { label: "Products", dropdown: true, },
                             { label: "Pricing", link: "#pricing" },
                             { label: "Resources", link: "#resources" },
                             { label: "Log in", link: "/login" },
@@ -283,7 +308,7 @@ export default function LandingPage() {
                                 initial="hidden"
                                 animate="visible"
                                 variants={navItemVariants}
-                                className={` hover:text-primary-700 hover:underline  py-3 transition  cursor-pointer ${isScrolled ?"hover:text-primary-700 text-black ":"text-white"}`}
+                                className={` hover:text-primary-700 hover:underline  py-3 transition  cursor-pointer ${isScrolled ? "hover:text-primary-700 text-black " : "text-white"}`}
                                 onMouseEnter={() => item.dropdown && setShowDropdown(true)}
                                 onMouseLeave={() => item.dropdown && setShowDropdown(false)}
                             >
@@ -326,7 +351,7 @@ export default function LandingPage() {
 
                     <motion.button
                         whileHover={{ scale: 1.05 }}
-                        className={`bg-primary-400 md:block hidden  ${isScrolled?"text-black":"text-white"} px-5 py-2 rounded-lg  font-semibold shadow`}
+                        className={`bg-primary-400 md:block hidden  ${isScrolled ? "text-black" : "text-white"} px-5 py-2 rounded-lg  font-semibold shadow`}
                     >
                         Get Started
                     </motion.button>
@@ -334,6 +359,7 @@ export default function LandingPage() {
             </header>
 
             <AnimatePresence>
+                {sidebarOpen && <div onClick={()=>setSidebarOpen(false)} className="bg-black/30 overflow-hidden fixed top-0 w-full h-full left-0"></div>}
                 {sidebarOpen && (
                     <motion.aside
                         initial="hidden"
@@ -341,27 +367,36 @@ export default function LandingPage() {
                         exit="exit"
                         variants={sidebarVariants}
                         transition={{ duration: 0.4 }}
-                        className="fixed top-0 right-0 w-72 h-full bg-primary-500 text-black p-6 shadow-2xl z-50"
+                        className="fixed top-0 right-0 w-[250px] h-full bg-gradient-to-b from-violet-50 to-violet-100 text-black p-2 shadow-2xl z-50"
                     >
                         <button
                             onClick={() => setSidebarOpen(false)}
-                            className="text-right w-full text-purple-200 hover:text-black"
+                            className="text-right w-full block text-purple-200 hover:text-black"
                         >
-                            Close ✕
+                            <RxCross2 size={24} className="text-black inline-block" />
                         </button>
-                        <ul className="mt-8 space-y-4">
-   {["Home", "Features", "About", "Contact","login"].map((item, i) => (
-                                <Link to={item}>
-                                <motion.li
-                                    key={i}
-                                    whileHover={{ scale: 1.05 }}
-                                    className="cursor-pointer text-white hover:text-primary-300"
-                                >
-                                    {item}
-                                </motion.li>
-                                
-                                </Link>
-                            ))}
+                        <ul className="mt-8  space-y-4">
+                            {["Home", "Features", "About", "Contact", "Login"].map((item, i) => {
+                                const path = `/${item.toLowerCase()}`;
+                                const isActive = location.pathname === path;
+
+
+
+                                return (
+
+                                    <Link to={item}>
+                                        <motion.li
+                                            key={i}
+                                            whileHover={{ scale: 1.05 }}
+                                            className={`cursor-pointer mt-3 border-b border-b-black/30-dashed pb-2  flex items-center gap-3 ${isActive ? "bg-primary-200" : ""}  pt-2 rounded text-black  `}
+                                        >
+                                            {icons[item]}
+                                            {item}
+                                        </motion.li>
+
+                                    </Link>
+                                )
+                            })}
                         </ul>
                     </motion.aside>
                 )}
