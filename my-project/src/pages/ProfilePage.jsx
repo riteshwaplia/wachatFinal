@@ -38,7 +38,14 @@ export default function ProfilePage() {
     industry: 'it',
     currency: '$9000',
     timezone: 'day',
+    firstName: '',
+    lastName: '',
+    gender: '',
+    dob: '',
+    profilePicture: ''
   });
+
+
 
   const [tab, setTab] = useState("perDetails");
   const [userId, setUserId] = useState('')
@@ -61,7 +68,13 @@ export default function ProfilePage() {
           industry: res.data.industry || '',
           currency: res.data.currency || '',
           timezone: res.data.timezone || '',
+          firstName: res.data.firstName || '',
+          lastName: res.data.lastName || '',
+          gender: res.data.gender || '',
+          dob: res.data.dob || '',
+          profilePicture: res.data.profilePicture || ''
         });
+
         console.log("res", res);
       } catch (error) {
         console.log(error);
@@ -111,17 +124,24 @@ export default function ProfilePage() {
 
     try {
       const payload = {
+        name: user.name,
         email: user.email,
-        username: user.name, // or use a separate `username` field if you have it
-        firstName: user.firstName || '', // if present
-        lastName: user.lastName || '', // if present
-        mobileNumber: user.mobile,
-        profilePicture: user.profilePicture || '', // optional
+        phone: user.phone,
+        companySize:user.companySize,
+        timezone:user.timezone,
+        state: user.state,
+        country: user.country,
+        industry: user.industry,
+        currency: user.currency,
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
         gender: user.gender || '',
-        dob: user.dob || ''
+        dob: user.dob || '',
+        profilePicture: user.profilePicture || '', // You can replace this with uploaded image URL
       };
+
       console.log("useridddd", userId)
-      const response = await api.put(`/user/update-self/${userId}`, payload);
+      const response = await api.post(`/user/update-self/${userId}`, payload);
 
       if (response?.data?.success) {
         console.log('User updated successfully:', response.data);

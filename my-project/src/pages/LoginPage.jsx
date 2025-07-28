@@ -24,7 +24,6 @@ const LoginPage = () => {
 
 
 
-  console.log("loading", loading)
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage({});
@@ -101,7 +100,7 @@ const LoginPage = () => {
             <div className='text-white text-5xl'>SabNode</div>
           </div>
           <div className='mt-auto'>
-            <div className='grid grid-cols-6 w-[17vw] gap-8'>
+            <div className='grid grid-cols-6 w-[17vw] gap-6'>
               <div className='col-span-1 w-10 h-10 flex justify-center bg-white/30 items-center backdrop-blur rounded-full'>
                 <RiMessage3Line size={20} className='text-white' />
               </div>

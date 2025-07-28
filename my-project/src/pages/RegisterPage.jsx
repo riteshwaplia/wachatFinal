@@ -78,8 +78,18 @@ const RegisterPage = () => {
         ErrorToast(response.data?.message || 'Registration failed.');
       }
     } catch (error) {
-      const message = error.response?.data?.message || error.message || 'Something went wrong.';
-      console.log("errr", message)
+      const errorData = error.response?.data;
+      let message = 'Something went wrong';
+
+      if (Array.isArray(errorData?.errors) && errorData.errors.length > 0) {
+        message = errorData.errors[0]; // or join all: errorData.errors.join(', ')
+      } else if (errorData?.message) {
+        message = errorData.message;
+      } else {
+        message = error.message;
+      }
+
+      console.log("errr", message);
       ErrorToast(message);
     } finally {
       setLoading(false);
