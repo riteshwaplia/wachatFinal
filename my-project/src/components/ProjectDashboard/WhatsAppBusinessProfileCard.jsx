@@ -646,7 +646,7 @@ const WhatsAppBusinessProfileCard = ({ project, onUpdateProfile, loadingUpdate, 
       </div>
 
       {/* WhatsApp Badge */}
-      <div className="mt-6 pt-4 border-t border-[#e9edef] flex flex-col md:flex-row justify-between items-center gap-4">
+      {/* <div className="mt-6 pt-4 border-t border-[#e9edef] flex flex-col md:flex-row justify-between items-center gap-4">
         <div className="flex items-center gap-2">
           <div className="bg-[#25D366] w-7 h-7 rounded-full flex items-center justify-center">
             <FaWhatsapp className="text-white text-lg" />
@@ -659,7 +659,7 @@ const WhatsAppBusinessProfileCard = ({ project, onUpdateProfile, loadingUpdate, 
         <button className="bg-[#25D366] text-white px-4 py-2 rounded-md hover:bg-[#128C7E] transition-all text-sm">
           Contact Business
         </button>
-      </div>
+      </div> */}
     </div>
   );
 };

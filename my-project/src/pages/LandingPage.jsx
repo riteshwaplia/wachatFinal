@@ -288,7 +288,7 @@ export default function LandingPage() {
                 <img
                   src={logoUrl}
                   alt="Company Logo"
-                  className="w-[120px] h-auto"
+                  className="w-auto h-12"
                 />
               ) : (
                 "SabNode"
