@@ -10,7 +10,7 @@ export const validateRegistrationForm = (formData) => {
 
     if (!email?.trim()) {
         errors.email = "Email is required";
-    } 
+    }
     // else if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
     //     errors.email = "Enter a valid email address";
     // }
@@ -25,6 +25,42 @@ export const validateRegistrationForm = (formData) => {
         errors.confirmPassword = "Confirm Password is required";
     } else if (confirmPassword !== password) {
         errors.confirmPassword = "Passwords do not match";
+    }
+
+    return errors;
+};
+
+
+// businessProfileValidation.js
+export const validateBusinessProfile = (formData) => {
+    const errors = {};
+
+    // Business Name
+    if (!formData.name.trim()) {
+        errors.name = "Business name is required.";
+    } else if (formData.name.length > 50) {
+        errors.name = "Business name cannot exceed 50 characters.";
+    }
+
+    // WABA ID
+    if (!formData.wabaId.trim()) {
+        errors.wabaId = "WhatsApp Business Account ID is required.";
+    } else if (formData.wabaId.length > 60) {
+        errors.wabaId = "WABA ID cannot exceed 60 characters.";
+    }
+
+    // Meta App ID
+    if (!formData.metaAppId.trim()) {
+        errors.metaAppId = "WhatsApp Business App ID is required.";
+    } else if (formData.metaAppId.length > 60) {
+        errors.metaAppId = "Meta App ID cannot exceed 60 characters.";
+    }
+
+    // Access Token
+    if (!formData.accessToken.trim()) {
+        errors.accessToken = "Meta Access Token is required.";
+    } else if (formData.accessToken.length < 10) {
+        errors.accessToken = "Meta Access Token is too short.";
     }
 
     return errors;

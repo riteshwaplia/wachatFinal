@@ -138,13 +138,12 @@ const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick, fetchBu
               <InputField
                 label="Meta Access Token"
                 name="metaAccessToken"
-                type="text"
+                type="password"
                 value={businessdata.metaAccessToken}
                 onChange={(e) => handleChange("metaAccessToken", e.target.value)}
                 placeholder="Bearer EAAI..."
                 helperText={errros.metaAccessToken}
                 error={errros.metaAccessToken}
-                // maxlength={200}
 
               />
               <Button type='submit' className='block ml-auto mt-3'>Update</Button>

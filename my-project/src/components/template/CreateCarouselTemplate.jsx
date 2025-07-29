@@ -192,12 +192,12 @@ const CreateCarouselTemplate = () => {
       prev.map((card) =>
         card.id === cardId
           ? {
-              ...card,
-              bodyVariableExamples: {
-                ...card.bodyVariableExamples,
-                [varId]: value,
-              },
-            }
+            ...card,
+            bodyVariableExamples: {
+              ...card.bodyVariableExamples,
+              [varId]: value,
+            },
+          }
           : card
       )
     );
@@ -514,15 +514,15 @@ const CreateCarouselTemplate = () => {
               value={templateData.mainBodyText || ''}
               maxLength={1024}
               loading={loading}
-                carosual={false}
+              carosual={false}
             />
             <div className={`text-sm mt-1 ${mainBodyCharacterCount > 1024 ? "text-red-500" : "text-gray-500"}`}>
               Characters: {mainBodyCharacterCount}/1024
               {mainBodyCharacterCount > 1024 && " - Exceeds WhatsApp limit"}
             </div>
-             {errors.mainBodyText && (
-                <div className="text-sm text-red-500 mt-1">{errors.mainBodyText}</div>
-             )}
+            {errors.mainBodyText && (
+              <div className="text-sm text-red-500 mt-1">{errors.mainBodyText}</div>
+            )}
             {/* Variable Example Inputs for Main Body */}
             {templateData.mainBodyVariables && templateData.mainBodyVariables.length > 0 && (
               <div className="mt-2 p-2 border rounded bg-white">
@@ -600,9 +600,9 @@ const CreateCarouselTemplate = () => {
                     </div>
                   )}
                   {!card.headerImageUrl && (
-                     <div className="w-16 h-16 border rounded-md flex items-center justify-center bg-gray-200 text-gray-400">
-                        <FaImage size={24} />
-                     </div>
+                    <div className="w-16 h-16 border rounded-md flex items-center justify-center bg-gray-200 text-gray-400">
+                      <FaImage size={24} />
+                    </div>
                   )}
                 </div>
               </div>
@@ -672,10 +672,10 @@ const CreateCarouselTemplate = () => {
                 maxButtons={2}
                 error={errors[`card_${index}`]?.buttonsCount || errors[`card_${index}`]?.buttonText_0 || errors[`card_${index}`]?.buttonUrl_0 || errors[`card_${index}`]?.buttonPhone_0}
               />
-              {Object.keys(errors).some(key => key.startsWith(`card_${index}` ) && key.includes('button')) && (
-                 <div className="text-sm text-red-500 mt-1">
-                   Please check button details for Card {index + 1}.
-                 </div>
+              {Object.keys(errors).some(key => key.startsWith(`card_${index}`) && key.includes('button')) && (
+                <div className="text-sm text-red-500 mt-1">
+                  Please check button details for Card {index + 1}.
+                </div>
               )}
             </div>
           ))}
@@ -683,11 +683,10 @@ const CreateCarouselTemplate = () => {
           <Button
             type="submit"
             disabled={!isValid || !businessProfileId || loading}
-            className={`px-4 py-2 rounded text-white ${
-              isValid && businessProfileId && !loading
+            className={`px-4 py-2 rounded text-white ${isValid && businessProfileId && !loading
                 ? "bg-green-600 hover:bg-green-700"
                 : "bg-gray-400 cursor-not-allowed"
-            }`}
+              }`}
           >
             {loading ? "Creating..." : "Create Carousel Template"}
           </Button>

@@ -124,6 +124,9 @@ const ContactPage = () => {
         // Optionally update local state with newField
     };
 
+
+    console.log("blcakListSelectedrows", blcakListSelectedrows)
+
     const fetchFields = async () => {
         try {
             const fieldRes = await api.get(`/projects/${projectId}/contacts/fields`);
@@ -329,6 +332,19 @@ const ContactPage = () => {
     const handleBlockContact = async () => {
         try {
             let endpoint = '';
+            let idsToSend = [];
+
+            if (activeTab === "contactList") {
+                idsToSend = selectedrows;
+                if (idsToSend.length === 0) {
+                    return ErrorToast("Please select at least one contact to block.");
+                }
+            } else {
+                idsToSend = blcakListSelectedrows; // Use your blacklist selection state
+                if (idsToSend.length === 0) {
+                    return ErrorToast("Please select at least one contact to unblock.");
+                }
+            }
 
             if (activeTab === 'contactList') {
                 // /api/projects/:projectId/groups/bulk-block
@@ -338,8 +354,10 @@ const ContactPage = () => {
             }
 
             const response = await api.post(endpoint, {
-                ids: selectedrows
+                ids: idsToSend
             });
+            console.log("blcakListSelectedrows", blcakListSelectedrows)
+
 
             if (response.status === 200) {
                 setIsbulkOption(false);

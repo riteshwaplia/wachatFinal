@@ -72,7 +72,7 @@ const ProjectCard = ({ project, onEdit, onDelete, onClick }) => {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex space-x-2 ml-2">
+        {/* <div className="flex space-x-2 ml-2">
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -93,7 +93,7 @@ const ProjectCard = ({ project, onEdit, onDelete, onClick }) => {
           >
             <FiTrash2 size={16} />
           </button>
-        </div>
+        </div> */}
       </div>
 
       {/* Footer */}
@@ -160,9 +160,8 @@ const ProjectManagementPage = () => {
     } catch (error) {
       console.error("Error fetching projects:", error);
       setMessage({
-        text: `Error fetching projects: ${
-          error.response?.data?.message || t('failedToFetchProjects')
-        }`,
+        text: `Error fetching projects: ${error.response?.data?.message || t('failedToFetchProjects')
+          }`,
         type: "error",
       });
     } finally {
@@ -177,9 +176,8 @@ const ProjectManagementPage = () => {
     } catch (error) {
       console.error("Error fetching business profiles:", error);
       setMessage({
-        text: `Error fetching business profiles: ${
-          error.response?.data?.message || t('failedToFetchBusinessProfiles')
-        }`,
+        text: `Error fetching business profiles: ${error.response?.data?.message || t('failedToFetchBusinessProfiles')
+          }`,
         type: "error",
       });
     }
@@ -238,12 +236,11 @@ const ProjectManagementPage = () => {
     } catch (error) {
       console.error("Error:", error);
       setMessage({
-        text: `Error: ${
-          error.response?.data?.message ||
+        text: `Error: ${error.response?.data?.message ||
           (editingProject
             ? t('failedToUpdateProject')
             : t('failedToCreateProject'))
-        }`,
+          }`,
         type: "error",
       });
     }
@@ -275,9 +272,8 @@ const ProjectManagementPage = () => {
       } catch (error) {
         console.error("Error deleting project:", error);
         setMessage({
-          text: `Error deleting project: ${
-            error.response?.data?.message || t('unknownError')
-          }`,
+          text: `Error deleting project: ${error.response?.data?.message || t('unknownError')
+            }`,
           type: "error",
         });
       }
@@ -292,8 +288,8 @@ const ProjectManagementPage = () => {
     selectedBusiness === "all"
       ? projects
       : projects.filter(
-          (project) => project.businessProfileId?._id === selectedBusiness
-        );
+        (project) => project.businessProfileId?._id === selectedBusiness
+      );
 
   if (!user) {
     return (
@@ -306,12 +302,11 @@ const ProjectManagementPage = () => {
   return (
     <div className="flex min-h-screen bg-gray-50">
       {/* Mobile Filter Sidebar */}
-<div
-        className={`fixed inset-y-0 left-0 z-50 w-64  bg-white shadow-xl transform ${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } transition-transform duration-300 lg:hidden`}
+      <div
+        className={`fixed inset-y-0 left-0 z-50 w-64  bg-white shadow-xl transform ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+          } transition-transform duration-300 lg:hidden`}
       >
- 
+
         <div className="p-4 border-b border-gray-200 flex justify-between items-center bg-primary-500 text-white">
           <h3 className="font-medium">{t('filterProjects')}</h3>
           <button
@@ -338,7 +333,7 @@ const ProjectManagementPage = () => {
             ))}
           </select>
         </div>
-      </div> 
+      </div>
 
       {/* Main Content */}
       <div className="flex-1">
@@ -384,13 +379,12 @@ const ProjectManagementPage = () => {
           {/* Message Alert */}
           {message.text && (
             <div
-              className={`mb-6 p-3 rounded-md ${
-                message.type === "error"
+              className={`mb-6 p-3 rounded-md ${message.type === "error"
                   ? "bg-red-100 text-error"
                   : message.type === "success"
-                  ? "bg-secondary-100 text-secondary-700"
-                  : "bg-primary-100 text-primary-700"
-              }`}
+                    ? "bg-secondary-100 text-secondary-700"
+                    : "bg-primary-100 text-primary-700"
+                }`}
             >
               {t(message.text)}
             </div>
