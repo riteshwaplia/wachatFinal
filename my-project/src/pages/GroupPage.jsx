@@ -526,14 +526,14 @@ const GroupPage = () => {
                   )}
                   <button
                     onClick={() => {
-                      if (
-                        window.confirm(
-                          `${t('confirmDelete')} ${selectedGroups.length} ${t('group')}(s)?`
-                        )
-                      ) {
-                        handleBulkAction("delete");
-                        setIsBulkActionsOpen(false);
-                      }
+                      // if (
+                      //   window.confirm(
+                      //     `${t('confirmDelete')} ${selectedGroups.length} ${t('group')}(s)?`
+                      //   )
+                      // ) {
+                      //   handleBulkAction("delete");
+                      //   setIsBulkActionsOpen(false);
+                      // }
                       setBulkActionType("delete");
                       setShowBulkConfirmModal(true);
                       setIsBulkActionsOpen(false);

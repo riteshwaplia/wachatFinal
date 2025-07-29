@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import { getFlowsApi } from '../apis/FlowApi';
 
- 
+
 
 const FlowsPage = () => {
   const [flows, setFlows] = useState([]);
@@ -19,9 +19,10 @@ const FlowsPage = () => {
           _id: flow._id,
           name: flow.name,
           description: flow.description,
-          triggerKeyword: flow.triggerKeyword,
-          status: flow.status
+          triggerKeyword: flow.entryPoint,
+          status: flow.isActive
         }));
+        console.log("summaries", summaries)
         // Optional delay to simulate loading
         setTimeout(() => {
           setFlows(summaries);
@@ -84,19 +85,19 @@ const FlowCard = ({ flow, onOpen }) => (
 
       <div className="mt-2 flex flex-col sm:flex-row sm:items-center sm:justify-between text-sm text-gray-700">
         <div>
-          <span className="font-medium text-black">Trigger Keyword:</span>{" "}
+          <span className="font-medium text-black">entry point:</span>{" "}
           {flow.triggerKeyword || "N/A"}
         </div>
         <div className="mt-1 sm:mt-0">
           <span
-            className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${flow.status === "active"
+            className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${flow.status === true
               ? "bg-green-100 text-green-800"
-              : flow.status === "inactive"
+              : flow.status === false
                 ? "bg-yellow-100 text-yellow-800"
                 : "bg-gray-200 text-gray-700"
               }`}
           >
-            {flow.status}
+            {flow.status === true ? "Active" : "inActive"}
           </span>
         </div>
       </div>

@@ -27,13 +27,13 @@ const StaticSidebar = ({ isOpen, onToggle }) => {
     {
       id: 'tab1',
       label: 'User Profile',
-      path: `/project/${id}/user-profile`,
+      path: `/user-profile`,
       icon: <FaUserCog size={18} />,
     },
     {
       id: 'tab2',
       label: 'Update Password',
-      path: `/project/${id}/update-passsword`,
+      path: `/update-passsword`,
       icon: <TbLockPassword size={18} />,
     },
     {

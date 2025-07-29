@@ -71,7 +71,7 @@ function Flow() {
         const flow = res.data;
 
         const { nodes, edges, ...rest } = flow;
-
+        console.log("nodes", nodes)
         setNodes(nodes || []);
         setEdges(edges || []);
         setFlowUpdate(rest); // optional: if you want to keep name/description/etc

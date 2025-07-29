@@ -255,7 +255,7 @@ function AppContent() {
         {/* //user profile and settings */}
         {/* /project/688737673803284e7d52e8ea/user-profile */}
         <Route
-          path="/project/:id/user-profile"
+          path="/user-profile"
           element={
             <UserProfileLayout>
               <ProfilePage />
@@ -263,7 +263,7 @@ function AppContent() {
           }
         />
         <Route
-          path="/project/:id/update-password"
+          path="/update-password"
           element={
             <UserProfileLayout>
               <UpdatePassword />
