@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { SuccessToast } from '../utils/Toast';
+import { ErrorToast, SuccessToast } from '../utils/Toast';
 import { useParams } from 'react-router-dom';
 import api from '../utils/api';
 
