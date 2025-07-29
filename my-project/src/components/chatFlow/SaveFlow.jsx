@@ -3,7 +3,8 @@ import { createFlowApi, updateFlowApi } from '../../apis/FlowApi';
 import InputField from '../InputField';
 import Button from '../Button';
 import { useSearchParams } from 'react-router-dom';
- 
+import { ErrorToast, SuccessToast } from '../../utils/Toast';
+
 export default function SaveFlowFormModal({ nodes, edges, projectId, onClose, flowUpdateData }) {
     // ✅ Form state with default "active"
     const [formData, setFormData] = useState({
@@ -87,11 +88,11 @@ export default function SaveFlowFormModal({ nodes, edges, projectId, onClose, fl
             }
 
             console.log("Saved to DB:", response.data);
-            alert("Flow uploaded to database successfully!");
+            SuccessToast("Flow uploaded to database successfully!");
             onClose(); // Close modal after save
         } catch (error) {
             console.error("Error saving flow:", error);
-            alert("Failed to save flow to database!");
+            ErrorToast("Failed to save flow to database!");
         }
     };
 

@@ -51,7 +51,14 @@ const ContactForm = ({ initialData, onSubmit, onCancel, groups, isLoading, field
             });
             setPhone('');
         }
-        setCustomFields(fields)
+
+        const excludedLabels = ["Full Name", "Email Address", "Phone Number"];
+
+        const filteredFields = fields.filter(
+            (field) => !excludedLabels.includes(field.label)
+        );
+
+        setCustomFields(filteredFields);
 
         // 2. Simulate API call to fetch fields
 

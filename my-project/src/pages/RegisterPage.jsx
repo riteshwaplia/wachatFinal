@@ -10,6 +10,7 @@ import { MdArrowForward } from "react-icons/md";
 import { validateRegistrationForm } from '../utils/validation';
 import { ErrorToast, SuccessToast } from '../utils/Toast';
 import api from '../utils/api';
+import { useTranslation } from 'react-i18next';
 
 const RegisterPage = () => {
   const [form, setForm] = useState({
@@ -25,6 +26,7 @@ const RegisterPage = () => {
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const handleInputChange = (e) => {
     const { id, value } = e.target;
@@ -78,8 +80,18 @@ const RegisterPage = () => {
         ErrorToast(response.data?.message || 'Registration failed.');
       }
     } catch (error) {
-      const message = error.response?.data?.message || error.message || 'Something went wrong.';
-      console.log("errr", message)
+      const errorData = error.response?.data;
+      let message = 'Something went wrong';
+
+      if (Array.isArray(errorData?.errors) && errorData.errors.length > 0) {
+        message = errorData.errors[0]; // or join all: errorData.errors.join(', ')
+      } else if (errorData?.message) {
+        message = errorData.message;
+      } else {
+        message = error.message;
+      }
+
+      console.log("errr", message);
       ErrorToast(message);
     } finally {
       setLoading(false);
@@ -129,10 +141,8 @@ const RegisterPage = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 w-[95vw] md:w-[80vw] border rounded h-[80vh] overflow-hidden">
         {/* Left Side (Hidden on Mobile) */}
         <div className="col-span-2 hidden md:flex bg-primary-500 flex-col p-10 gap-y-3">
-          <h2 className="text-white font-semibold text-4xl">Welcome Back</h2>
-          <h3 className="text-white">
-            Sign in to access your WhatsApp marketing dashboard
-          </h3>
+          <h2 className="text-white font-semibold text-4xl">{t('welcomeBack')}</h2>
+          <h3 className="text-white">{t('signInToDashboard')}</h3>
           <div className="flex items-center flex-grow justify-center">
             <div className="text-white text-5xl font-bold">SabNode</div>
           </div>
@@ -142,22 +152,22 @@ const RegisterPage = () => {
                 <RiMessage3Line size={20} className="text-white" />
               </div>
               <div className="col-span-5">
-                <h3 className="text-white">WhatsApp Marketing</h3>
-                <h3 className="text-sm text-white/40">Engage Tenants</h3>
+                <h3 className="text-white">{t('whatsappMarketing')}</h3>
+                <h3 className="text-sm text-white/40">{t('engageTenants')}</h3>
               </div>
             </div>
           </div>
         </div>
 
         {/* Right Side (Form) */}
-        <Card title="Register Account" className="w-full max-w-md py-6">
+        <Card title={t('registerAccount')} className="w-full max-w-md py-6">
           {!otpSent ? (
             <form onSubmit={handleSubmit}>
               <InputField
                 id="username"
-                label="Username"
+                label={t('username')}
                 type="text"
-                placeholder="Enter your username"
+                placeholder={t('enterYourUsername')}
                 value={(form.username)}
                 onChange={handleInputChange}
                 error={errors.username}
@@ -167,9 +177,9 @@ const RegisterPage = () => {
               />
               <InputField
                 id="email"
-                label="Email Address"
+                label={t('emailAddress')}
                 type="email"
-                placeholder="Enter your email"
+                placeholder={t('enterYourEmail')}
                 value={form.email}
                 onChange={handleInputChange}
                 error={errors.email}
@@ -178,9 +188,9 @@ const RegisterPage = () => {
               />
               <InputField
                 id="password"
-                label="Password"
+                label={t('password')}
                 type="password"
-                placeholder="Enter your password"
+                placeholder={t('enterYourPassword')}
                 value={form.password}
                 onChange={handleInputChange}
                 error={errors.password}
@@ -190,9 +200,9 @@ const RegisterPage = () => {
               />
               <InputField
                 id="confirmPassword"
-                label="Confirm Password"
+                label={t('confirmPassword')}
                 type="password"
-                placeholder="Confirm your password"
+                placeholder={t('confirmYourPassword')}
                 value={form.confirmPassword}
                 onChange={handleInputChange}
                 error={errors.confirmPassword}
@@ -200,7 +210,7 @@ const RegisterPage = () => {
               />
               <Button type='submit' loading={loading} className="w-full mt-6" >
                 <div className="flex justify-center items-center gap-2">
-                  {/* {loading ? 'Registering...' : 'Register'} */}register
+                  {t('register')}
                   <MdArrowForward />
                 </div>
               </Button>
@@ -209,13 +219,13 @@ const RegisterPage = () => {
             <form onSubmit={handleOtpVerify} >
               <div className="m-4">
                 <label htmlFor="otp" className="block text-sm font-medium text-gray-700">
-                  OTP Verification
+                  {t('otpVerification')}
                 </label>
                 <input
                   id="otp"
                   name="otp"
                   type="text"
-                  placeholder="Enter OTP"
+                  placeholder={t('enterOtp')}
                   value={otp}
                   onChange={handleOtpChange}
                   maxLength={6}
@@ -225,7 +235,7 @@ const RegisterPage = () => {
 
               <Button type='submit' loading={loading} className="w-full mt-6" >
                 <div className="flex justify-center items-center gap-2">
-                  {/* {loading ? 'Registering...' : 'Register'} */}Verify
+                  {t('verify')}
                   <MdArrowForward />
                 </div>
               </Button>
@@ -235,9 +245,9 @@ const RegisterPage = () => {
           )}
 
           <p className="text-center text-sm text-gray-600 mt-4">
-            Already have an account?{' '}
+            {t('alreadyHaveAccount')}{' '}
             <Link to="/login" className="text-primary-500 hover:underline">
-              Login here
+              {t('loginHere')}
             </Link>
           </p>
         </Card>

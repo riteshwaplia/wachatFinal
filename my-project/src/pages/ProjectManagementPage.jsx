@@ -14,8 +14,10 @@ import {
 import Modal from "../components/Modal";
 
 import { FaWhatsapp } from "react-icons/fa";
+import { useTranslation } from 'react-i18next';
 
 const ProjectCard = ({ project, onEdit, onDelete, onClick }) => {
+  const { t } = useTranslation();
   return (
     <div
       className="bg-white p-6 rounded-2xl shadow-md border border-gray-200 hover:shadow-xl transition-all duration-300 cursor-pointer group"
@@ -30,11 +32,11 @@ const ProjectCard = ({ project, onEdit, onDelete, onClick }) => {
           {/* About + Website */}
           <div className="mt-2 space-y-2">
             <p className="text-sm text-gray-700">
-              <span className="font-medium">About:</span>{" "}
-              {project.about || "Helping customers faster with WhatsApp."}
+              <span className="font-medium">{t('about')}:</span>{' '}
+              {project.about || t('helpingCustomersFaster')}
             </p>
             <p className="text-sm text-gray-700 flex items-center">
-              <span className="font-medium">Website:</span>{" "}
+              <span className="font-medium">{t('website')}:</span>{' '}
               <a
                 href={project.website || "#"}
                 target="_blank"
@@ -42,7 +44,7 @@ const ProjectCard = ({ project, onEdit, onDelete, onClick }) => {
                 className="ml-1 text-primary-600 hover:underline flex items-center"
                 onClick={(e) => e.stopPropagation()}
               >
-                {project.website || "www.example.com"} <FiExternalLink className="ml-1" />
+                {project.website || t('exampleWebsite')} <FiExternalLink className="ml-1" />
               </a>
             </p>
           </div>
@@ -50,22 +52,22 @@ const ProjectCard = ({ project, onEdit, onDelete, onClick }) => {
           {/* WhatsApp Details */}
           <div className="mt-3 flex items-center text-sm text-gray-800">
             <FaWhatsapp className="text-green-500 mr-2" />
-            <span className="font-medium">WhatsApp:</span>{" "}
+            <span className="font-medium">{t('whatsapp')}:</span>{' '}
             <span className="ml-1">
-              {project.whatsappNumber || "+91 98765 43210"}
+              {project.whatsappNumber || t('defaultWhatsappNumber')}
             </span>
             {project.isWhatsappVerified && (
               <span className="ml-2 bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full">
-                Verified
+                {t('verified')}
               </span>
             )}
           </div>
 
           {/* Plan */}
           <p className="text-sm text-gray-600 mt-2">
-            <span className="font-medium">Plan:</span>{" "}
-            {project.activePlan || "Standard"} (
-            {project.planDuration || 30} days)
+            <span className="font-medium">{t('plan')}:</span>{' '}
+            {project.activePlan || t('standard')} (
+            {project.planDuration || 30} {t('days')})
           </p>
         </div>
 
@@ -77,7 +79,7 @@ const ProjectCard = ({ project, onEdit, onDelete, onClick }) => {
               onEdit(project);
             }}
             className="text-green-600 hover:text-green-800 p-2 rounded-full hover:bg-green-100 transition-colors"
-            aria-label="Edit project"
+            aria-label={t('editProject')}
           >
             <FiEdit2 size={16} />
           </button>
@@ -87,7 +89,7 @@ const ProjectCard = ({ project, onEdit, onDelete, onClick }) => {
               onDelete(project._id);
             }}
             className="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-100 transition-colors"
-            aria-label="Delete project"
+            aria-label={t('deleteProject')}
           >
             <FiTrash2 size={16} />
           </button>
@@ -97,7 +99,7 @@ const ProjectCard = ({ project, onEdit, onDelete, onClick }) => {
       {/* Footer */}
       <div className="mt-5 pt-3 border-t border-gray-100 flex justify-between items-center text-sm">
         <span className="text-gray-500">
-          Created: {new Date(project.createdAt).toLocaleDateString()}
+          {t('created')}: {new Date(project.createdAt).toLocaleDateString()}
         </span>
         <button
           onClick={(e) => {
@@ -106,7 +108,7 @@ const ProjectCard = ({ project, onEdit, onDelete, onClick }) => {
           }}
           className="flex items-center text-green-600 hover:text-green-800 group-hover:underline transition-all"
         >
-          View Dashboard <FiArrowRight className="ml-1" />
+          {t('viewDashboard')} <FiArrowRight className="ml-1" />
         </button>
       </div>
     </div>
@@ -134,6 +136,7 @@ const ProjectManagementPage = () => {
   const [message, setMessage] = useState({ text: "", type: "" });
   const [isLoading, setIsLoading] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { t } = useTranslation();
 
   const config = {
     headers: {
@@ -150,7 +153,7 @@ const ProjectManagementPage = () => {
       setProjects(res.data.data);
       if (res.data.data.length === 0) {
         setMessage({
-          text: res.data.message || "You haven't created any projects yet.",
+          text: res.data.message || t('noProjectsYet'),
           type: "info",
         });
       }
@@ -158,7 +161,7 @@ const ProjectManagementPage = () => {
       console.error("Error fetching projects:", error);
       setMessage({
         text: `Error fetching projects: ${
-          error.response?.data?.message || "Failed to fetch projects."
+          error.response?.data?.message || t('failedToFetchProjects')
         }`,
         type: "error",
       });
@@ -175,7 +178,7 @@ const ProjectManagementPage = () => {
       console.error("Error fetching business profiles:", error);
       setMessage({
         text: `Error fetching business profiles: ${
-          error.response?.data?.message || "Failed to fetch business profiles."
+          error.response?.data?.message || t('failedToFetchBusinessProfiles')
         }`,
         type: "error",
       });
@@ -214,8 +217,8 @@ const ProjectManagementPage = () => {
         text:
           res.data.message ||
           (editingProject
-            ? "Project updated successfully!"
-            : "Project created successfully!"),
+            ? t('projectUpdatedSuccessfully')
+            : t('projectCreatedSuccessfully')),
         type: "success",
       });
 
@@ -238,8 +241,8 @@ const ProjectManagementPage = () => {
         text: `Error: ${
           error.response?.data?.message ||
           (editingProject
-            ? "Failed to update project."
-            : "Failed to create project.")
+            ? t('failedToUpdateProject')
+            : t('failedToCreateProject'))
         }`,
         type: "error",
       });
@@ -261,11 +264,11 @@ const ProjectManagementPage = () => {
   };
 
   const handleDeleteProject = async (projectId) => {
-    if (window.confirm("Are you sure you want to delete this project?")) {
+    if (window.confirm(t('confirmDeleteProject'))) {
       try {
         const res = await api.delete(`/project/${projectId}`, config);
         setMessage({
-          text: res.data.message || "Project deleted successfully!",
+          text: res.data.message || t('projectDeletedSuccessfully'),
           type: "success",
         });
         fetchProjects();
@@ -273,7 +276,7 @@ const ProjectManagementPage = () => {
         console.error("Error deleting project:", error);
         setMessage({
           text: `Error deleting project: ${
-            error.response?.data?.message || "Unknown error."
+            error.response?.data?.message || t('unknownError')
           }`,
           type: "error",
         });
@@ -295,7 +298,7 @@ const ProjectManagementPage = () => {
   if (!user) {
     return (
       <div className="text-center py-10 text-error">
-        Please log in to manage your projects.
+        {t('pleaseLogInToManageProjects')}
       </div>
     );
   }
@@ -310,7 +313,7 @@ const ProjectManagementPage = () => {
       >
  
         <div className="p-4 border-b border-gray-200 flex justify-between items-center bg-primary-500 text-white">
-          <h3 className="font-medium">Filter Projects</h3>
+          <h3 className="font-medium">{t('filterProjects')}</h3>
           <button
             onClick={() => setIsSidebarOpen(false)}
             className="text-white hover:text-primary-100"
@@ -320,14 +323,14 @@ const ProjectManagementPage = () => {
         </div>
         <div className="p-4">
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Business Profile
+            {t('businessProfile')}
           </label>
           <select
             value={selectedBusiness}
             onChange={(e) => setSelectedBusiness(e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
           >
-            <option value="all">All Businesses</option>
+            <option value="all">{t('allBusinesses')}</option>
             {businessProfiles.map((business) => (
               <option key={business._id} value={business._id}>
                 {business.name}
@@ -349,7 +352,7 @@ const ProjectManagementPage = () => {
                 <FiFilter size={20} />
               </button>
               <h1 className="text-2xl font-bold text-gray-800 font-heading">
-                My Projects
+                {t('myProjects')}
               </h1>
             </div>
 
@@ -361,7 +364,7 @@ const ProjectManagementPage = () => {
                   onChange={(e) => setSelectedBusiness(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm"
                 >
-                  <option value="all">All Businesses</option>
+                  <option value="all">{t('allBusinesses')}</option>
                   {businessProfiles.map((business) => (
                     <option key={business._id} value={business._id}>
                       {business.name}
@@ -373,7 +376,7 @@ const ProjectManagementPage = () => {
                 onClick={() => navigate("/add-whatsapp-number")}
                 className="flex items-center justify-center gap-2 bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-md transition-colors whitespace-nowrap"
               >
-                <FiPlus /> New Project
+                <FiPlus /> {t('newProject')}
               </button>
             </div>
           </div>
@@ -389,7 +392,7 @@ const ProjectManagementPage = () => {
                   : "bg-primary-100 text-primary-700"
               }`}
             >
-              {message.text}
+              {t(message.text)}
             </div>
           )}
 
@@ -402,14 +405,14 @@ const ProjectManagementPage = () => {
             <div className="text-center py-10">
               <p className="text-gray-500 mb-4">
                 {selectedBusiness === "all"
-                  ? "No projects found"
-                  : "No projects found for selected business"}
+                  ? t('noProjectsFound')
+                  : t('noProjectsFoundForSelectedBusiness')}
               </p>
               <button
                 onClick={() => navigate("/add-whatsapp-number")}
                 className="flex items-center justify-center gap-2 mx-auto bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-md transition-colors"
               >
-                <FiPlus /> Create New Project
+                <FiPlus /> {t('createNewProject')}
               </button>
             </div>
           ) : (
@@ -431,12 +434,12 @@ const ProjectManagementPage = () => {
       {/* Create/Edit Project Modal */}
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
         <h2 className="text-xl font-semibold text-gray-800 mb-4 font-heading">
-          {editingProject ? "Edit Project" : "Create New Project"}
+          {editingProject ? t('editProject') : t('createNewProject')}
         </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Project Name *
+              {t('projectName')} *
             </label>
             <input
               type="text"
@@ -450,7 +453,7 @@ const ProjectManagementPage = () => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Assistant Name
+              {t('assistantName')}
             </label>
             <input
               type="text"
@@ -463,7 +466,7 @@ const ProjectManagementPage = () => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Business Profile
+              {t('businessProfile')}
             </label>
             <select
               name="businessProfileId"
@@ -471,7 +474,7 @@ const ProjectManagementPage = () => {
               value={formData.businessProfileId}
               onChange={handleInputChange}
             >
-              <option value="">Select Business Profile</option>
+              <option value="">{t('selectBusinessProfile')}</option>
               {businessProfiles.map((business) => (
                 <option key={business._id} value={business._id}>
                   {business.name}
@@ -482,7 +485,7 @@ const ProjectManagementPage = () => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              WhatsApp Number
+              {t('whatsappNumber')}
             </label>
             <input
               type="text"
@@ -506,13 +509,13 @@ const ProjectManagementPage = () => {
               htmlFor="isWhatsappVerified"
               className="ml-2 block text-sm text-gray-700"
             >
-              WhatsApp Verified
+              {t('whatsappVerified')}
             </label>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Active Plan
+              {t('activePlan')}
             </label>
             <select
               name="activePlan"
@@ -520,15 +523,15 @@ const ProjectManagementPage = () => {
               value={formData.activePlan}
               onChange={handleInputChange}
             >
-              <option value="Standard">Standard</option>
-              <option value="Premium">Premium</option>
-              <option value="Enterprise">Enterprise</option>
+              <option value="Standard">{t('standard')}</option>
+              <option value="Premium">{t('premium')}</option>
+              <option value="Enterprise">{t('enterprise')}</option>
             </select>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Plan Duration (days)
+              {t('planDuration')} ({t('days')})
             </label>
             <input
               type="number"
@@ -546,13 +549,13 @@ const ProjectManagementPage = () => {
               onClick={() => setIsModalOpen(false)}
               className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
             >
-              Cancel
+              {t('cancel')}
             </button>
             <button
               type="submit"
               className="px-4 py-2 bg-primary-500 text-white rounded-md hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors"
             >
-              {editingProject ? "Update Project" : "Create Project"}
+              {editingProject ? t('updateProject') : t('createProject')}
             </button>
           </div>
         </form>

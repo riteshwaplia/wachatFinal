@@ -37,7 +37,7 @@ const ProjectDashboard = () => {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await api.get(`/projects/${projectId}/stats`);
+      const response = await api.get(`/projects/${projectId}/dashboard/stats`);
       if (response.data.success) {
         setStats(response.data.data);
         setLastUpdated(new Date().toLocaleTimeString());
@@ -146,7 +146,7 @@ const ProjectDashboard = () => {
 
         <StatCard 
           title="Broadcasting" 
-          value={`${stats.broadcasting.success}/${stats.broadcasting.totalcontact}`} 
+          value={`${stats.broadcasting.success}/${stats.broadcasting.totalJobs}`} 
           icon={<Mail size={20} className="text-purple-500" />}
           link={`/project/${projectId}/broadcasting`}
         >

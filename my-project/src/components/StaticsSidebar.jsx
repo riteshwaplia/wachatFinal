@@ -26,11 +26,26 @@ const StaticsSidebar = ({ isOpen, onToggle }) => {
   const { id } = useParams();
   const { siteConfig } = useTenant();
  
-const navItems = [
-  { id: 'tab1', label: 'User Profile',path:"/user/profile", icon: <FaUserCog size={18} /> },
-  { id: 'tab2', label: 'Update Password',path:"/user/update-password", icon: <TbLockPassword size={18} /> },
-  { id: 'tab3', label: 'Business Details', icon: <IoBusiness size={18} /> },
-];
+  const navItems = [
+    {
+      id: 'tab1',
+      label: 'User Profile',
+      path: `/project/${id}/user-profile`,
+      icon: <FaUserCog size={18} />,
+    },
+    {
+      id: 'tab2',
+      label: 'Update Password',
+      // /project/:id/update-password
+      path: `/project/${id}/update-password`,
+      icon: <TbLockPassword size={18} />,
+    },
+    {
+      id: 'tab3',
+      label: 'Business Details',
+      icon: <IoBusiness size={18} />,
+    },
+  ];
  
   const isActive = (path) => {
     if (path === '/projects') {

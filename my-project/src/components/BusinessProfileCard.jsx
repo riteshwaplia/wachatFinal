@@ -9,15 +9,24 @@ import InputField from './InputField';
 import api from '../utils/api';
 
 const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick, fetchBusinessProfiles }) => {
-  const [businessData, setBusinessData] = useState({
-    name: profile.name || '',
-    wabaId: profile.metaBusinessId || '',
-    metaAccessToken: profile.metaAccessToken || '',
-    metaAppId: profile.metaAppId || '',
-  });
+  // const [businessData, setBusinessData] = useState({
+  //   name: profile.name || '',
+  //   wabaId: profile.metaBusinessId || '',
+  //   metaAccessToken: profile.metaAccessToken || '',
+  //   metaAppId: profile.metaAppId || '',
+  // });
 
-  const [errors, setErrors] = useState({});
-  const [modalOpen, setModalOpen] = useState(false);
+  const [businessdata, setBusinessData] = useState(
+    {
+      name: profile.name,
+      wabaId: profile.metaBusinessId,
+      metaAccessToken: profile.metaAccessToken,
+      metaAppId: profile.metaAppId
+    }
+
+  )
+  const [errros, setErrors] = useState({});
+  const [modalOpen, setModelOpen] = useState(false);
 
   const handleChange = (key, value) => {
     setBusinessData(prev => ({ ...prev, [key]: value }));
@@ -41,13 +50,18 @@ const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick, fetchBu
 
   const submitHandler = async e => {
     e.preventDefault();
-
-    const newErrors = {};
-    if (!businessData.name) newErrors.name = 'Business name is required';
-    if (!businessData.wabaId) newErrors.wabaId = 'WhatsApp Business Id is required';
-    if (!businessData.metaAccessToken) newErrors.metaAccessToken = 'Access Token is required';
-    if (!businessData.metaAppId) newErrors.metaAppId = 'metaAppId is required';
-
+    if (!businessdata.name) {
+      newErrors.name = "Business name is required";
+    }
+    if (!businessdata.wabaId) {
+      newErrors.wabaId = "Whatsapp Business Id is required";
+    }
+    if (!businessdata.metaAccessToken) {
+      newErrors.metaAccessToken = "Access Token is required";
+    }
+    if (!businessdata.metaAppId) {
+      newErrors.metaAppId = "metaAppId "
+    }
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
@@ -112,17 +126,16 @@ const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick, fetchBu
               <InputField
                 label="Meta Access Token"
                 name="metaAccessToken"
-                type="password"
-                value={businessData.metaAccessToken}
-                onChange={e => handleChange('metaAccessToken', e.target.value)}
+                type="text"
+                value={businessdata.metaAccessToken}
+                onChange={(e) => handleChange("metaAccessToken", e.target.value)}
                 placeholder="Bearer EAAI..."
-                error={errors.metaAccessToken}
-                helperText={errors.metaAccessToken}
-              />
+                helperText={errros.metaAccessToken}
+                error={errros.metaAccessToken}
+                // maxlength={200}
 
-              <Button type="submit" className="block ml-auto mt-3">
-                Update
-              </Button>
+              />
+              <Button type='submit' className='block ml-auto mt-3'>Update</Button>
             </form>
           </div>
         </Modal>

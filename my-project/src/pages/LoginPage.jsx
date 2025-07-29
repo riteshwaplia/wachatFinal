@@ -12,6 +12,7 @@ import { LuMessagesSquare } from "react-icons/lu";
 import { loginValidation } from '../utils/validation'; // ✅ import validation
 import { ErrorToast, SuccessToast } from '../utils/Toast'; // ✅ optional toast for better UX
 import ForgotPassword from '../components/login/ForgotPassword';
+import { useTranslation } from 'react-i18next';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -21,10 +22,9 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [forgotUi, setForgotUi] = useState(false)
+  const { t } = useTranslation();
 
 
-
-  console.log("loading", loading)
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage({});
@@ -48,7 +48,7 @@ const LoginPage = () => {
 
     try {
       setLoading(true)
-      await delay(300);
+      await delay(100);
       // const response = await api.post('/users/login', { email, password })
 
       const response = await login(email, password)
@@ -95,25 +95,25 @@ const LoginPage = () => {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center md:p-4">
       <div className='grid grid-cols-1 md:grid-cols-3 w-[95vw] md:w-[80vw] border rounded h-[80vh]'>
         <div className='col-span-2  md:flex hidden bg-primary-500 flex flex-col  p-10 gap-y-3'>
-          <h2 className='text-white font-semibold text-4xl'>Welcome Back</h2>
-          <h3 className='text-white'>Sign in to access your WhatsApp marketing dashboard</h3>
+          <h2 className='text-white font-semibold text-4xl'>{t('welcomeBack')}</h2>
+          <h3 className='text-white'>{t('signInToDashboard')}</h3>
           <div className='flex items-center flex-grow justify-center'>
             <div className='text-white text-5xl'>SabNode</div>
           </div>
           <div className='mt-auto'>
-            <div className='grid grid-cols-6 w-[17vw] gap-8'>
+            <div className='grid grid-cols-6 w-[17vw] gap-6'>
               <div className='col-span-1 w-10 h-10 flex justify-center bg-white/30 items-center backdrop-blur rounded-full'>
                 <RiMessage3Line size={20} className='text-white' />
               </div>
               <div className='col-span-5 '>
-                <h3 className='text-white'>Whatsapp Marketing</h3>
-                <h3 className='text-sm text-white/40'>Engage Tenants</h3>
+                <h3 className='text-white'>{t('whatsappMarketing')}</h3>
+                <h3 className='text-sm text-white/40'>{t('engageTenants')}</h3>
               </div>
             </div>
           </div>
         </div>
 
-        <Card title={forgotUi ? "Forgot Password" : "Login to Your Account"} className="w-full py-12 max-w-md">
+        <Card title={forgotUi ? t('forgotPassword') : t('loginToYourAccount')} className="w-full py-12 max-w-md">
           <div className='px-4 flex justify-center'>
             <div className='w-12 h-12 bg-primary-100 flex justify-center items-center rounded-full'>
               <LuMessagesSquare size={20} />
@@ -125,9 +125,9 @@ const LoginPage = () => {
               <form onSubmit={handleSubmit}>
                 <InputField
                   id="email"
-                  label="Email Address"
+                  label={t('emailAddress')}
                   type="email"
-                  placeholder="Enter your email"
+                  placeholder={t('enterYourEmail')}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   error={errorMessage.email}
@@ -135,9 +135,9 @@ const LoginPage = () => {
                 />
                 <InputField
                   id="password"
-                  label="Password"
+                  label={t('password')}
                   type="password"
-                  placeholder="Enter your password"
+                  placeholder={t('enterYourPassword')}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   error={errorMessage.password}
@@ -147,7 +147,7 @@ const LoginPage = () => {
                   onClick={() => setForgotUi(true)}
                   className='text-sm flex justify-end text-primary-500 cursor-pointer hover:underline'
                 >
-                  Forgot Password
+                  {t('forgotPassword')}
                 </span>
 
                 <Button
@@ -155,15 +155,15 @@ const LoginPage = () => {
                   className="w-full flex items-center justify-center gap-1 mt-6"
                   loading={loading}
                 >
-                  <div>{loading ? 'Logging In...' : 'Login'}</div>
+                  <div>{loading ? t('loggingIn') : t('login')}</div>
                   <div><CiLogin size={18} className='text-white' /></div>
                 </Button>
               </form>
 
               <p className="text-center text-sm text-gray-600 mt-4">
-                Don't have an account?{' '}
+                {t('dontHaveAccount')}{' '}
                 <Link to="/register" className="text-primary-500 hover:underline">
-                  Register here
+                  {t('registerHere')}
                 </Link>
               </p>
             </>
