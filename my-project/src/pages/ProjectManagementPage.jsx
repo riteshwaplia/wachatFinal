@@ -23,36 +23,6 @@ const ProjectCard = ({ project, onEdit, onDelete, onClick }) => {
       className="bg-white p-6 rounded-2xl shadow-md border border-gray-200 hover:shadow-xl transition-all duration-300 cursor-pointer group"
       onClick={onClick}
     >
-      {showProjectDeleteModal && (
-        <Modal
-          isOpen={showProjectDeleteModal}
-          onClose={() => setShowProjectDeleteModal(false)}
-          title="Delete Project"
-          size="sm"
-        >
-          <p className="mb-4 text-red-500 text-md">
-            Are you sure you want to delete this project? This action cannot be undone.
-          </p>
-          <div className="flex justify-end gap-3">
-            <Button variant="outline" onClick={() => setShowProjectDeleteModal(false)}>
-              Cancel
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={() => {
-                if (deleteTargetProjectId) {
-                  onDelete(deleteTargetProjectId); // call your actual delete function
-                }
-                setShowProjectDeleteModal(false);
-                setDeleteTargetProjectId(null);
-              }}
-            >
-              Confirm Delete
-            </Button>
-          </div>
-        </Modal>
-      )}
-
       <div className="flex justify-between items-start">
         <div className="flex-1">
           <h3 className="text-xl font-semibold text-gray-900 group-hover:text-green-600 transition-colors font-heading">
@@ -102,7 +72,7 @@ const ProjectCard = ({ project, onEdit, onDelete, onClick }) => {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex space-x-2 ml-2">
+        {/* <div className="flex space-x-2 ml-2">
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -116,26 +86,14 @@ const ProjectCard = ({ project, onEdit, onDelete, onClick }) => {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              setDeleteTargetProjectId(project._id);
-              setShowProjectDeleteModal(true);
+              onDelete(project._id);
             }}
             className="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-100 transition-colors"
             aria-label={t('deleteProject')}
           >
             <FiTrash2 size={16} />
           </button>
-
-          {/* <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete(project._id);
-            }}
-            className="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-100 transition-colors"
-            aria-label="Delete project"
-          >
-            <FiTrash2 size={16} />
-          </button> */}
-        </div>
+        </div> */}
       </div>
 
       {/* Footer */}
@@ -319,55 +277,198 @@ const ProjectManagementPage = () => {
           type: "error",
         });
       }
-      // }
-    };
-
-    const handleProjectClick = (projectId) => {
-      navigate(`/project/${projectId}/dashboard`);
-    };
-
-    const filteredProjects =
-      selectedBusiness === "all"
-        ? projects
-        : projects.filter(
-          (project) => project.businessProfileId?._id === selectedBusiness
-        );
-
-    if (!user) {
-      return (
-        <div className="text-center py-10 text-error">
-          {t('pleaseLogInToManageProjects')}
-        </div>
-      );
     }
+  };
 
+  const handleProjectClick = (projectId) => {
+    navigate(`/project/${projectId}/dashboard`);
+  };
+
+  const filteredProjects =
+    selectedBusiness === "all"
+      ? projects
+      : projects.filter(
+        (project) => project.businessProfileId?._id === selectedBusiness
+      );
+
+  if (!user) {
     return (
-      <div className="flex min-h-screen bg-gray-50">
-        {/* Mobile Filter Sidebar */}
-        <div
-          className={`fixed inset-y-0 left-0 z-50 w-64  bg-white shadow-xl transform ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-            } transition-transform duration-300 lg:hidden`}
-        >
+      <div className="text-center py-10 text-error">
+        {t('pleaseLogInToManageProjects')}
+      </div>
+    );
+  }
 
-          <div className="p-4 border-b border-gray-200 flex justify-between items-center bg-primary-500 text-white">
-            <h3 className="font-medium">{t('filterProjects')}</h3>
-            <button
-              onClick={() => setIsSidebarOpen(false)}
-              className="text-white hover:text-primary-100"
-            >
-              <FiX size={20} />
-            </button>
+  return (
+    <div className="flex min-h-screen bg-gray-50">
+      {/* Mobile Filter Sidebar */}
+      <div
+        className={`fixed inset-y-0 left-0 z-50 w-64  bg-white shadow-xl transform ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+          } transition-transform duration-300 lg:hidden`}
+      >
+
+        <div className="p-4 border-b border-gray-200 flex justify-between items-center bg-primary-500 text-white">
+          <h3 className="font-medium">{t('filterProjects')}</h3>
+          <button
+            onClick={() => setIsSidebarOpen(false)}
+            className="text-white hover:text-primary-100"
+          >
+            <FiX size={20} />
+          </button>
+        </div>
+        <div className="p-4">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            {t('businessProfile')}
+          </label>
+          <select
+            value={selectedBusiness}
+            onChange={(e) => setSelectedBusiness(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          >
+            <option value="all">{t('allBusinesses')}</option>
+            {businessProfiles.map((business) => (
+              <option key={business._id} value={business._id}>
+                {business.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1">
+        <div className="container mx-auto md:px-4 md:py-8 px-2 py-2">          {/* Header Section */}
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+            <div className="flex items-center">
+              <button
+                onClick={() => setIsSidebarOpen(true)}
+                className="lg:hidden mr-4 text-gray-600 hover:text-primary-600"
+              >
+                <FiFilter size={20} />
+              </button>
+              <h1 className="text-2xl font-bold text-gray-800 font-heading">
+                {t('myProjects')}
+              </h1>
+            </div>
+
+            {/* Actions Section */}
+            <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+              <div className="w-full sm:w-48">
+                <select
+                  value={selectedBusiness}
+                  onChange={(e) => setSelectedBusiness(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm"
+                >
+                  <option value="all">{t('allBusinesses')}</option>
+                  {businessProfiles.map((business) => (
+                    <option key={business._id} value={business._id}>
+                      {business.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <button
+                onClick={() => navigate("/add-whatsapp-number")}
+                className="flex items-center justify-center gap-2 bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-md transition-colors whitespace-nowrap"
+              >
+                <FiPlus /> {t('newProject')}
+              </button>
+            </div>
           </div>
-          <div className="p-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+
+          {/* Message Alert */}
+          {message.text && (
+            <div
+              className={`mb-6 p-3 rounded-md ${message.type === "error"
+                  ? "bg-red-100 text-error"
+                  : message.type === "success"
+                    ? "bg-secondary-100 text-secondary-700"
+                    : "bg-primary-100 text-primary-700"
+                }`}
+            >
+              {t(message.text)}
+            </div>
+          )}
+
+          {/* Loading State */}
+          {isLoading ? (
+            <div className="flex justify-center items-center py-20">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
+            </div>
+          ) : filteredProjects.length === 0 ? (
+            <div className="text-center py-10">
+              <p className="text-gray-500 mb-4">
+                {selectedBusiness === "all"
+                  ? t('noProjectsFound')
+                  : t('noProjectsFoundForSelectedBusiness')}
+              </p>
+              <button
+                onClick={() => navigate("/add-whatsapp-number")}
+                className="flex items-center justify-center gap-2 mx-auto bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-md transition-colors"
+              >
+                <FiPlus /> {t('createNewProject')}
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredProjects.map((project) => (
+                <ProjectCard
+                  key={project._id}
+                  project={project}
+                  onEdit={handleEditClick}
+                  onDelete={handleDeleteProject}
+                  onClick={() => handleProjectClick(project._id)}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Create/Edit Project Modal */}
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <h2 className="text-xl font-semibold text-gray-800 mb-4 font-heading">
+          {editingProject ? t('editProject') : t('createNewProject')}
+        </h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              {t('projectName')} *
+            </label>
+            <input
+              type="text"
+              name="name"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              value={formData.name}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              {t('assistantName')}
+            </label>
+            <input
+              type="text"
+              name="assistantName"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              value={formData.assistantName}
+              onChange={handleInputChange}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               {t('businessProfile')}
             </label>
             <select
-              value={selectedBusiness}
-              onChange={(e) => setSelectedBusiness(e.target.value)}
+              name="businessProfileId"
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              value={formData.businessProfileId}
+              onChange={handleInputChange}
             >
-              <option value="all">{t('allBusinesses')}</option>
+              <option value="">{t('selectBusinessProfile')}</option>
               {businessProfiles.map((business) => (
                 <option key={business._id} value={business._id}>
                   {business.name}
@@ -375,229 +476,86 @@ const ProjectManagementPage = () => {
               ))}
             </select>
           </div>
-        </div>
 
-        {/* Main Content */}
-        <div className="flex-1">
-          <div className="container mx-auto md:px-4 md:py-8 px-2 py-2">          {/* Header Section */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-              <div className="flex items-center">
-                <button
-                  onClick={() => setIsSidebarOpen(true)}
-                  className="lg:hidden mr-4 text-gray-600 hover:text-primary-600"
-                >
-                  <FiFilter size={20} />
-                </button>
-                <h1 className="text-2xl font-bold text-gray-800 font-heading">
-                  {t('myProjects')}
-                </h1>
-              </div>
-
-              {/* Actions Section */}
-              <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
-                <div className="w-full sm:w-48">
-                  <select
-                    value={selectedBusiness}
-                    onChange={(e) => setSelectedBusiness(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm"
-                  >
-                    <option value="all">{t('allBusinesses')}</option>
-                    {businessProfiles.map((business) => (
-                      <option key={business._id} value={business._id}>
-                        {business.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <button
-                  onClick={() => navigate("/add-whatsapp-number")}
-                  className="flex items-center justify-center gap-2 bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-md transition-colors whitespace-nowrap"
-                >
-                  <FiPlus /> {t('newProject')}
-                </button>
-              </div>
-            </div>
-
-            {/* Message Alert */}
-            {message.text && (
-              <div
-                className={`mb-6 p-3 rounded-md ${message.type === "error"
-                  ? "bg-red-100 text-error"
-                  : message.type === "success"
-                    ? "bg-secondary-100 text-secondary-700"
-                    : "bg-primary-100 text-primary-700"
-                  }`}
-              >
-                {t(message.text)}
-              </div>
-            )}
-
-            {/* Loading State */}
-            {isLoading ? (
-              <div className="flex justify-center items-center py-20">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
-              </div>
-            ) : filteredProjects.length === 0 ? (
-              <div className="text-center py-10">
-                <p className="text-gray-500 mb-4">
-                  {selectedBusiness === "all"
-                    ? t('noProjectsFound')
-                    : t('noProjectsFoundForSelectedBusiness')}
-                </p>
-                <button
-                  onClick={() => navigate("/add-whatsapp-number")}
-                  className="flex items-center justify-center gap-2 mx-auto bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-md transition-colors"
-                >
-                  <FiPlus /> {t('createNewProject')}
-                </button>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredProjects.map((project) => (
-                  <ProjectCard
-                    key={project._id}
-                    project={project}
-                    onEdit={handleEditClick}
-                    onDelete={handleDeleteProject}
-                    onClick={() => handleProjectClick(project._id)}
-                  />
-                ))}
-              </div>
-            )}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              {t('whatsappNumber')}
+            </label>
+            <input
+              type="text"
+              name="whatsappNumber"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              value={formData.whatsappNumber}
+              onChange={handleInputChange}
+            />
           </div>
-        </div>
 
-        {/* Create/Edit Project Modal */}
-        <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-          <h2 className="text-xl font-semibold text-gray-800 mb-4 font-heading">
-            {editingProject ? t('editProject') : t('createNewProject')}
-          </h2>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('projectName')} *
-              </label>
-              <input
-                type="text"
-                name="name"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                value={formData.name}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              id="isWhatsappVerified"
+              name="isWhatsappVerified"
+              className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+              checked={formData.isWhatsappVerified}
+              onChange={handleInputChange}
+            />
+            <label
+              htmlFor="isWhatsappVerified"
+              className="ml-2 block text-sm text-gray-700"
+            >
+              {t('whatsappVerified')}
+            </label>
+          </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('assistantName')}
-              </label>
-              <input
-                type="text"
-                name="assistantName"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                value={formData.assistantName}
-                onChange={handleInputChange}
-              />
-            </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              {t('activePlan')}
+            </label>
+            <select
+              name="activePlan"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              value={formData.activePlan}
+              onChange={handleInputChange}
+            >
+              <option value="Standard">{t('standard')}</option>
+              <option value="Premium">{t('premium')}</option>
+              <option value="Enterprise">{t('enterprise')}</option>
+            </select>
+          </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('businessProfile')}
-              </label>
-              <select
-                name="businessProfileId"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                value={formData.businessProfileId}
-                onChange={handleInputChange}
-              >
-                <option value="">{t('selectBusinessProfile')}</option>
-                {businessProfiles.map((business) => (
-                  <option key={business._id} value={business._id}>
-                    {business.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              {t('planDuration')} ({t('days')})
+            </label>
+            <input
+              type="number"
+              name="planDuration"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              value={formData.planDuration}
+              onChange={handleInputChange}
+              min="1"
+            />
+          </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('whatsappNumber')}
-              </label>
-              <input
-                type="text"
-                name="whatsappNumber"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                value={formData.whatsappNumber}
-                onChange={handleInputChange}
-              />
-            </div>
+          <div className="flex justify-end space-x-3 pt-4">
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(false)}
+              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              {t('cancel')}
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-primary-500 text-white rounded-md hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors"
+            >
+              {editingProject ? t('updateProject') : t('createProject')}
+            </button>
+          </div>
+        </form>
+      </Modal>
+    </div>
+  );
+};
 
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="isWhatsappVerified"
-                name="isWhatsappVerified"
-                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-                checked={formData.isWhatsappVerified}
-                onChange={handleInputChange}
-              />
-              <label
-                htmlFor="isWhatsappVerified"
-                className="ml-2 block text-sm text-gray-700"
-              >
-                {t('whatsappVerified')}
-              </label>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('activePlan')}
-              </label>
-              <select
-                name="activePlan"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                value={formData.activePlan}
-                onChange={handleInputChange}
-              >
-                <option value="Standard">{t('standard')}</option>
-                <option value="Premium">{t('premium')}</option>
-                <option value="Enterprise">{t('enterprise')}</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('planDuration')} ({t('days')})
-              </label>
-              <input
-                type="number"
-                name="planDuration"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                value={formData.planDuration}
-                onChange={handleInputChange}
-                min="1"
-              />
-            </div>
-
-            <div className="flex justify-end space-x-3 pt-4">
-              <button
-                type="button"
-                onClick={() => setIsModalOpen(false)}
-                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
-              >
-                {t('cancel')}
-              </button>
-              <button
-                type="submit"
-                className="px-4 py-2 bg-primary-500 text-white rounded-md hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors"
-              >
-                {editingProject ? t('updateProject') : t('createProject')}
-              </button>
-            </div>
-          </form>
-        </Modal>
-      </div>
-    );
-  };
-}
 export default ProjectManagementPage;
