@@ -26,6 +26,8 @@ const StaticsSidebar = ({ isOpen, onToggle }) => {
   const { id } = useParams();
   const { siteConfig } = useTenant();
 
+  const { logoUrl } = siteConfig;
+
   const navItems = [
     {
       id: 'tab1',
@@ -59,14 +61,40 @@ const StaticsSidebar = ({ isOpen, onToggle }) => {
       }`}>
       <div className="p-4 flex items-center justify-between  ">
         {isOpen ? (
-          <h2 className="text-xl font-bold font-heading  text-primary-700 truncate">
-            {siteConfig?.websiteName || 'User Panel'}
-          </h2>
+          <Link to="/" className="flex items-center">
+            {/* <span className="text-xl font-bold font-heading text-primary-700 hover:text-primary-600 transition-colors"> */}
+            {logoUrl ? (
+              <img
+                src={logoUrl}
+                alt="Company Logo"
+                className="w-auto h-12"
+              />
+            ) : (
+              "SabNode"
+            )}
+            {/* </span> */}
+          </Link>
+          // <h2 className="text-xl font-bold font-heading  text-primary-700 truncate">
+          //   {siteConfig?.websiteName || 'User Panel'}
+          // </h2>
         ) : (
           <div className="w-8 h-8 bg-primary-100 hidden md:block rounded-full flex items-center justify-center">
-            <span className="text-primary-600 font-bold  text-sm">
+            <Link to="/" className="flex items-center">
+              {/* <span className="text-xl font-bold font-heading text-primary-700 hover:text-primary-600 transition-colors"> */}
+              {logoUrl ? (
+                <img
+                  src={logoUrl}
+                  alt="Company Logo"
+                  className="w-auto h-12"
+                />
+              ) : (
+                "SabNode"
+              )}
+              {/* </span> */}
+            </Link>
+            {/* <span className="text-primary-600 font-bold  text-sm">
               {siteConfig?.websiteName?.charAt(0) || 'U'}
-            </span>
+            </span> */}
           </div>
         )}
         <button

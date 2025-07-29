@@ -268,14 +268,12 @@ export default function LandingPage() {
   return (
     <div className="bg-gradient-to-b from-violet-50 to-violet-100 min-h-screen text-black">
       <header
-        className={`sticky top-0 z-50 py-4 transition duration-500 ease-in-out ${
-          isScrolled ? " backdrop-blur-2xl" : "bg-primary-500"
-        }`}
+        className={`sticky top-0 z-50 py-4 transition duration-500 ease-in-out ${isScrolled ? " backdrop-blur-2xl" : "bg-primary-500"
+          }`}
       >
         <div
-          className={`max-w-7xl  mx-auto px-6 flex justify-between items-center ${
-            isScrolled ? " bg-white text-black rounded-full " : ""
-          } `}
+          className={`max-w-7xl  mx-auto px-6 flex justify-between items-center ${isScrolled ? " bg-white text-black rounded-full " : ""
+            } `}
         >
           <motion.div
             initial={{ opacity: 0, x: -50 }}
@@ -290,7 +288,7 @@ export default function LandingPage() {
                 <img
                   src={logoUrl}
                   alt="Company Logo"
-                  className="w-[120px] h-auto"
+                  className="w-auto h-12"
                 />
               ) : (
                 "SabNode"
@@ -327,11 +325,10 @@ export default function LandingPage() {
                 initial="hidden"
                 animate="visible"
                 variants={navItemVariants}
-                className={` hover:text-primary-700 hover:underline  py-3 transition  cursor-pointer ${
-                  isScrolled
-                    ? "hover:text-primary-700 text-black "
-                    : "text-white"
-                }`}
+                className={` hover:text-primary-700 hover:underline  py-3 transition  cursor-pointer ${isScrolled
+                  ? "hover:text-primary-700 text-black "
+                  : "text-white"
+                  }`}
                 onMouseEnter={() => item.dropdown && setShowDropdown(true)}
                 onMouseLeave={() => item.dropdown && setShowDropdown(false)}
               >
@@ -382,9 +379,8 @@ export default function LandingPage() {
               <select
                 value={i18n.language || "en"}
                 onChange={(e) => i18n.changeLanguage(e.target.value)}
-className={`bg-primary-400 md:block hidden  ${
-                isScrolled ? "text-black" : "text-white"
-              } px-5 py-2 rounded-lg  font-semibold shadow`}              >
+                className={`bg-primary-400 md:block hidden  ${isScrolled ? "text-black" : "text-white"
+                  } px-5 py-2 rounded-lg  font-semibold shadow`}              >
                 <option value="en">English</option>
                 <option value="hi">हिन्दी</option>
                 <option value="es">Español</option>
@@ -393,9 +389,8 @@ className={`bg-primary-400 md:block hidden  ${
             </div>
             <motion.button
               whileHover={{ scale: 1.05 }}
-              className={`bg-primary-400 md:block hidden  ${
-                isScrolled ? "text-black" : "text-white"
-              } px-5 py-2 rounded-lg  font-semibold shadow`}
+              className={`bg-primary-400 md:block hidden  ${isScrolled ? "text-black" : "text-white"
+                } px-5 py-2 rounded-lg  font-semibold shadow`}
             >
               Get Started
             </motion.button>
@@ -433,7 +428,7 @@ className={`bg-primary-400 md:block hidden  ${
                   </Link>
                 )
               )}
-              
+
             </ul>
           </motion.aside>
         )}
@@ -513,11 +508,10 @@ className={`bg-primary-400 md:block hidden  ${
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`md:px-5 px-2 py-1 rounded-md font-semibold border transition-all duration-300 shadow-sm ${
-                    activeTab === tab.id
-                      ? `bg-${tab.color}-500 text-black`
-                      : `bg-gray-100 text-gray-700 hover:bg-primary-500 hover:text-white`
-                  }`}
+                  className={`md:px-5 px-2 py-1 rounded-md font-semibold border transition-all duration-300 shadow-sm ${activeTab === tab.id
+                    ? `bg-${tab.color}-500 text-black`
+                    : `bg-gray-100 text-gray-700 hover:bg-primary-500 hover:text-white`
+                    }`}
                 >
                   <div className="flex flex-row  justify-center items-center md:gap-3">
                     <div className="text-[22px]">{tab.icon}</div>
