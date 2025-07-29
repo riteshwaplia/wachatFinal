@@ -26,6 +26,7 @@ export const TenantProvider = ({ children }) => {
 
         fetchSiteConfig();
     }, []);
+    console.log("site config", siteConfig);
 
     // Dynamically update favicon
     useEffect(() => {
@@ -39,7 +40,11 @@ export const TenantProvider = ({ children }) => {
             link.href = siteConfig.faviconUrl;
         }
     }, [siteConfig]);
-
+ useEffect(() => {
+    if (siteConfig?.websiteName) {
+      document.title = siteConfig.websiteName;
+    }
+  }, [siteConfig]);
     return (
         <TenantContext.Provider value={{ siteConfig, loading, error }}>
             {children}
