@@ -16,11 +16,13 @@ import BusinessProfileCard from '../components/BusinessProfileCard';
 import PhoneNumberCard from '../components/PhoneNumberCard';
 import { ErrorToast, SuccessToast } from '../utils/Toast';
 import { useTranslation } from 'react-i18next';
+import { validateBusinessProfile } from '../utils/validation';
 
 const WhatsappNumberRegistrationPage = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
     const { t } = useTranslation();
+    const [errors, setErrors] = useState({});
 
     // State management
     const [state, setState] = useState({
@@ -137,6 +139,11 @@ const WhatsappNumberRegistrationPage = () => {
     // --- Create New Business Profile ---
     const createBusinessProfile = async (e) => {
         e.preventDefault();
+        const validationErrors = validateBusinessProfile(formData);
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors);
+            return;
+        }
         updateState({ isLoading: true });
 
         try {
@@ -230,6 +237,8 @@ const WhatsappNumberRegistrationPage = () => {
             return;
         }
         setFormData(prev => ({ ...prev, [name]: value }));
+        setErrors({ ...errors, [e.target.name]: "" }); // clear error when typing
+
     };
 
 
@@ -372,7 +381,9 @@ const WhatsappNumberRegistrationPage = () => {
                         onChange={handleFormChange}
                         placeholder={t('businessNamePlaceholder')}
                         maxlength={50}
-                        required
+                        error={errors.name}
+                        helperText={errors.name}
+
                     />
                     <InputField
                         label={t('whatsappBusinessAccountId')}
@@ -381,7 +392,9 @@ const WhatsappNumberRegistrationPage = () => {
                         onChange={handleFormChange}
                         placeholder={t('whatsappBusinessAccountIdPlaceholder')}
                         maxlength={60}
-                        required
+                        error={errors.wabaId}
+                        helperText={errors.wabaId}
+
                     />
                     <InputField
                         label={t('whatsappBusinessAppId')}
@@ -389,8 +402,9 @@ const WhatsappNumberRegistrationPage = () => {
                         value={formData.metaAppId}
                         onChange={handleFormChange}
                         placeholder={t('whatsappBusinessAppIdPlaceholder')}
-                        required
                         maxlength={60}
+                        error={errors.metaAppId}
+                        helperText={errors.metaAppId}
 
                     />
                     <InputField
@@ -400,8 +414,10 @@ const WhatsappNumberRegistrationPage = () => {
                         value={formData.accessToken}
                         onChange={handleFormChange}
                         placeholder={t('metaAccessTokenPlaceholder')}
-                        required
-                        // maxlength={500}
+                        error={errors.accessToken}
+                        helperText={errors.accessToken}
+
+                    // maxlength={500}
                     />
                     <div className="flex justify-end space-x-3 pt-2">
                         <Button
