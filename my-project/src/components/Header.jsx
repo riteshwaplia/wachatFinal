@@ -22,6 +22,7 @@ const Header = ({ onToggleSidebar }) => {
 
   const { id } = useParams()
   const handleLogout = () => {
+    console.log("clickeddd")
     logout();
     setIsDropdownOpen(false);
   };
@@ -32,7 +33,7 @@ const Header = ({ onToggleSidebar }) => {
   };
 
   return (
-    <header className="bg-white shadow-sm py-3 px-4 md:px-6 flex items-center justify-between sticky top-0 z-20 w-[100vw] md:w-auto">
+    <header className="bg-white shadow-sm py-6 px-4 md:px-6 flex items-center justify-between sticky top-0 right-4 z-50 w-full">
       {/* Mobile menu button and brand */}
       <div className="flex items-center space-x-4">
         <button
@@ -91,34 +92,47 @@ const Header = ({ onToggleSidebar }) => {
             </button>
 
             {isDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg py-1 z-50 border border-gray-200">
+              <div className="absolute top-8 right-0 mt-3 w-60 bg-white rounded-xl shadow-xl py-2 z-50 border border-gray-200">
+
+                {/* User Info */}
                 <div className="px-4 py-3 border-b border-gray-200">
-                  <p className="text-sm font-medium text-gray-900">{user?.username}</p>
+                  <p className="text-sm font-semibold text-gray-900">{user?.username}</p>
                   <p className="text-xs text-gray-500 truncate">{user?.email}</p>
                 </div>
-                <Link
-                  to={`/project/${id}/user-profile`}
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  onClick={() => setIsDropdownOpen(false)}
-                >
-                  Profile Settings
-                </Link>
-                <Link
-                  to={`/project/${id}/dashboard`}
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  onClick={() => setIsDropdownOpen(false)}
-                >
-                  Dashboard
-                </Link>
+
+                {/* Links */}
+                <div className="py-1">
+                  <Link
+                    to="/user-profile"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                    onClick={() => setIsDropdownOpen(false)}
+                  >
+                    Profile Settings
+                  </Link>
+
+                  {/* Uncomment if needed */}
+                  {/* <Link
+        to={`/project/${id}/dashboard`}
+        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+        onClick={() => setIsDropdownOpen(false)}
+      >
+        Dashboard
+      </Link> */}
+                </div>
+
+                {/* Divider */}
                 <div className="border-t border-gray-200 my-1"></div>
+
+                {/* Logout */}
                 <button
                   onClick={handleLogout}
-                  className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 focus:outline-none"
+                  className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
                 >
-                  Sign out
+                  Sign Out
                 </button>
               </div>
             )}
+
           </>
         ) : (
           <div className="flex space-x-2">
