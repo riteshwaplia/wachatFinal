@@ -91,9 +91,9 @@ const ProjectDetail = () => {
     <div className="space-y-6 p-6"> {/* Added padding for better layout */}
       {/* Header with back button */}
       <div className="flex items-center space-x-4 mb-6">
-        <Link to="/projects" className="text-gray-600 hover:text-gray-800">
+        {/* <Link to="/projects" className="text-gray-600 hover:text-gray-800">
           <FiArrowLeft size={24} />
-        </Link>
+        </Link> */}
         <h1 className="text-3xl font-bold text-gray-800">Project Details</h1>
       </div>
 
@@ -103,13 +103,13 @@ const ProjectDetail = () => {
           <div className="flex justify-between items-center">
             <h1 className="text-2xl font-bold font-heading">{projectData.name}</h1>
             <div className="flex space-x-2">
-              <button
+              {/* <button
                 onClick={() => navigate(`/projects/${id}/edit`)} 
                 className="p-2 rounded-full hover:bg-indigo-700 transition-colors"
                 aria-label="Edit project"
               >
                 <FiEdit size={18} />
-              </button>
+              </button> */}
               {/* Add delete button if desired */}
             </div>
           </div>
@@ -215,7 +215,7 @@ const ProjectDetail = () => {
             </div>
           </Card>
 
-          <Card title="Project Status">
+          {/* <Card title="Project Status">
             <div className="space-y-4">
               <div>
                 <p className="text-sm font-medium text-gray-500">WhatsApp Status</p>
@@ -242,7 +242,7 @@ const ProjectDetail = () => {
                 <p className="text-xs text-gray-500 mt-1">85% - Good</p>
               </div>
             </div>
-          </Card>
+          </Card> */}
         </div>
       </div>
     </div>
