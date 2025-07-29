@@ -14,13 +14,47 @@ import {
 import Modal from "../components/Modal";
 
 import { FaWhatsapp } from "react-icons/fa";
+import Button from "../components/Button";
 
 const ProjectCard = ({ project, onEdit, onDelete, onClick }) => {
+  const [showProjectDeleteModal, setShowProjectDeleteModal] = useState(false);
+  const [deleteTargetProjectId, setDeleteTargetProjectId] = useState(null);
+
   return (
     <div
       className="bg-white p-6 rounded-2xl shadow-md border border-gray-200 hover:shadow-xl transition-all duration-300 cursor-pointer group"
       onClick={onClick}
     >
+      {showProjectDeleteModal && (
+        <Modal
+          isOpen={showProjectDeleteModal}
+          onClose={() => setShowProjectDeleteModal(false)}
+          title="Delete Project"
+          size="sm"
+        >
+          <p className="mb-4 text-red-500 text-md">
+            Are you sure you want to delete this project? This action cannot be undone.
+          </p>
+          <div className="flex justify-end gap-3">
+            <Button variant="outline" onClick={() => setShowProjectDeleteModal(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                if (deleteTargetProjectId) {
+                  onDelete(deleteTargetProjectId); // call your actual delete function
+                }
+                setShowProjectDeleteModal(false);
+                setDeleteTargetProjectId(null);
+              }}
+            >
+              Confirm Delete
+            </Button>
+          </div>
+        </Modal>
+      )}
+
       <div className="flex justify-between items-start">
         <div className="flex-1">
           <h3 className="text-xl font-semibold text-gray-900 group-hover:text-green-600 transition-colors font-heading">
@@ -84,13 +118,25 @@ const ProjectCard = ({ project, onEdit, onDelete, onClick }) => {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              onDelete(project._id);
+              setDeleteTargetProjectId(project._id);
+              setShowProjectDeleteModal(true);
             }}
             className="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-100 transition-colors"
             aria-label="Delete project"
           >
             <FiTrash2 size={16} />
           </button>
+
+          {/* <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete(project._id);
+            }}
+            className="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-100 transition-colors"
+            aria-label="Delete project"
+          >
+            <FiTrash2 size={16} />
+          </button> */}
         </div>
       </div>
 
@@ -157,9 +203,8 @@ const ProjectManagementPage = () => {
     } catch (error) {
       console.error("Error fetching projects:", error);
       setMessage({
-        text: `Error fetching projects: ${
-          error.response?.data?.message || "Failed to fetch projects."
-        }`,
+        text: `Error fetching projects: ${error.response?.data?.message || "Failed to fetch projects."
+          }`,
         type: "error",
       });
     } finally {
@@ -174,9 +219,8 @@ const ProjectManagementPage = () => {
     } catch (error) {
       console.error("Error fetching business profiles:", error);
       setMessage({
-        text: `Error fetching business profiles: ${
-          error.response?.data?.message || "Failed to fetch business profiles."
-        }`,
+        text: `Error fetching business profiles: ${error.response?.data?.message || "Failed to fetch business profiles."
+          }`,
         type: "error",
       });
     }
@@ -235,12 +279,11 @@ const ProjectManagementPage = () => {
     } catch (error) {
       console.error("Error:", error);
       setMessage({
-        text: `Error: ${
-          error.response?.data?.message ||
+        text: `Error: ${error.response?.data?.message ||
           (editingProject
             ? "Failed to update project."
             : "Failed to create project.")
-        }`,
+          }`,
         type: "error",
       });
     }
@@ -261,24 +304,23 @@ const ProjectManagementPage = () => {
   };
 
   const handleDeleteProject = async (projectId) => {
-    if (window.confirm("Are you sure you want to delete this project?")) {
-      try {
-        const res = await api.delete(`/project/${projectId}`, config);
-        setMessage({
-          text: res.data.message || "Project deleted successfully!",
-          type: "success",
-        });
-        fetchProjects();
-      } catch (error) {
-        console.error("Error deleting project:", error);
-        setMessage({
-          text: `Error deleting project: ${
-            error.response?.data?.message || "Unknown error."
+    // if (window.confirm("Are you sure you want to delete this project?")) {
+    try {
+      const res = await api.delete(`/project/${projectId}`, config);
+      setMessage({
+        text: res.data.message || "Project deleted successfully!",
+        type: "success",
+      });
+      fetchProjects();
+    } catch (error) {
+      console.error("Error deleting project:", error);
+      setMessage({
+        text: `Error deleting project: ${error.response?.data?.message || "Unknown error."
           }`,
-          type: "error",
-        });
-      }
+        type: "error",
+      });
     }
+    // }
   };
 
   const handleProjectClick = (projectId) => {
@@ -289,8 +331,8 @@ const ProjectManagementPage = () => {
     selectedBusiness === "all"
       ? projects
       : projects.filter(
-          (project) => project.businessProfileId?._id === selectedBusiness
-        );
+        (project) => project.businessProfileId?._id === selectedBusiness
+      );
 
   if (!user) {
     return (
@@ -303,12 +345,11 @@ const ProjectManagementPage = () => {
   return (
     <div className="flex min-h-screen bg-gray-50">
       {/* Mobile Filter Sidebar */}
-<div
-        className={`fixed inset-y-0 left-0 z-50 w-64  bg-white shadow-xl transform ${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } transition-transform duration-300 lg:hidden`}
+      <div
+        className={`fixed inset-y-0 left-0 z-50 w-64  bg-white shadow-xl transform ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+          } transition-transform duration-300 lg:hidden`}
       >
- 
+
         <div className="p-4 border-b border-gray-200 flex justify-between items-center bg-primary-500 text-white">
           <h3 className="font-medium">Filter Projects</h3>
           <button
@@ -335,7 +376,7 @@ const ProjectManagementPage = () => {
             ))}
           </select>
         </div>
-      </div> 
+      </div>
 
       {/* Main Content */}
       <div className="flex-1">
@@ -381,13 +422,12 @@ const ProjectManagementPage = () => {
           {/* Message Alert */}
           {message.text && (
             <div
-              className={`mb-6 p-3 rounded-md ${
-                message.type === "error"
-                  ? "bg-red-100 text-error"
-                  : message.type === "success"
+              className={`mb-6 p-3 rounded-md ${message.type === "error"
+                ? "bg-red-100 text-error"
+                : message.type === "success"
                   ? "bg-secondary-100 text-secondary-700"
                   : "bg-primary-100 text-primary-700"
-              }`}
+                }`}
             >
               {message.text}
             </div>
