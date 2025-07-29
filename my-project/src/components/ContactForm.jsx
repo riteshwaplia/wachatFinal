@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import PropTypes, { object } from 'prop-types';
+import PropTypes from 'prop-types';
+import { useParams } from 'react-router-dom';
 
 // Custom components
 import InputField from './InputField';
@@ -9,8 +10,10 @@ import Checkbox from './Checkbox';
 import LoadingSpinner from './Loader';
 import { MobileNumber } from './MobileNumber';
 import CustomSelect from './CustomSelect';
+import api from '../utils/api';
 
-const ContactForm = ({ initialData, onSubmit, onCancel, groups, isLoading, data }) => {
+const ContactForm = ({ initialData, onSubmit, onCancel, groups, isLoading, fields }) => {
+    const { id } = useParams();
     const [phone, setPhone] = useState('');
     const [formData, setFormData] = useState({
         name: '',
@@ -19,8 +22,15 @@ const ContactForm = ({ initialData, onSubmit, onCancel, groups, isLoading, data 
         isBlocked: false,
     });
     const [errors, setErrors] = useState({});
+    const [customFields, setCustomFields] = useState([
+
+    ]
+    );
+
+    console.log("fields", fields)
 
     useEffect(() => {
+        // 1. Set initial form data
         if (initialData) {
             setFormData({
                 name: initialData.name || '',
@@ -29,6 +39,7 @@ const ContactForm = ({ initialData, onSubmit, onCancel, groups, isLoading, data 
                     ? initialData.groupIds.map(group => group._id || group)
                     : [],
                 isBlocked: initialData.isBlocked || false,
+                ...initialData.customFields, // optional extra fields
             });
             setPhone(initialData.mobileNumber || '');
         } else {
@@ -40,12 +51,15 @@ const ContactForm = ({ initialData, onSubmit, onCancel, groups, isLoading, data 
             });
             setPhone('');
         }
-    }, [initialData]);
+        setCustomFields(fields)
+
+        // 2. Simulate API call to fetch fields
+
+    }, [initialData, id]);
 
     const handleInputChange = (e) => {
         const { name, value, type, checked, options } = e.target;
-        
-        // Clear error for the field being changed
+        console.log("chnaged", value)
         if (errors[name]) {
             setErrors(prev => ({ ...prev, [name]: '' }));
         }
@@ -67,7 +81,6 @@ const ContactForm = ({ initialData, onSubmit, onCancel, groups, isLoading, data 
     };
 
     const handlePhoneChange = (number) => {
-        // Clear phone error when changing
         if (errors.phone) {
             setErrors(prev => ({ ...prev, phone: '' }));
         }
@@ -75,17 +88,16 @@ const ContactForm = ({ initialData, onSubmit, onCancel, groups, isLoading, data 
     };
 
     const handleGroupChange = (selectedOptions) => {
-        // Clear group error when changing
         if (errors.groupIds) {
             setErrors(prev => ({ ...prev, groupIds: '' }));
         }
-        
+
         const selectedIds = Array.isArray(selectedOptions)
             ? selectedOptions.map(opt => opt.value)
             : selectedOptions?.value
                 ? [selectedOptions.value]
                 : [];
-                
+
         setFormData(prev => ({
             ...prev,
             groupIds: selectedIds,
@@ -94,36 +106,44 @@ const ContactForm = ({ initialData, onSubmit, onCancel, groups, isLoading, data 
 
     const validateForm = () => {
         const newErrors = {};
-        
+
         if (!formData.name.trim()) {
             newErrors.name = 'Name is required';
         }
-        
+
         if (!formData.email) {
             newErrors.email = 'Email is required';
         } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
             newErrors.email = 'Invalid email format';
         }
-        
+
         if (!phone) {
             newErrors.phone = 'Phone number is required';
         }
-        
+
         if (!formData.groupIds || formData.groupIds.length === 0) {
             newErrors.groupIds = 'Please select at least one group';
         }
+
+        // Validate custom fields
+        customFields.forEach(field => {
+            if (field.required && !formData[field.label]) {
+                newErrors[field.label] = `${field.label} is required`;
+            }
+        });
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
 
+    console.log("formData>>>>", formData,)
+
     const handleSubmit = (e) => {
         e.preventDefault();
-        
-        if (!validateForm()) {
-            return;
-        }
-        
+
+        if (!validateForm()) return;
+
+        console.log("formdata", formData)
         onSubmit({ ...formData, mobileNumber: phone });
     };
 
@@ -147,95 +167,109 @@ const ContactForm = ({ initialData, onSubmit, onCancel, groups, isLoading, data 
     }));
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4">
-            <InputField
-                id="contactName"
-                label="Name *"
-                type="text"
-                name="name"
-                placeholder="John Doe"
-                     value={(formData.name).replace(/[^a-zA-Z0-9]/g, '')}
-                onChange={handleInputChange}
-                error={errors.name}
-            />
-            
-            <InputField
-                id="contactEmail"
-                label="Email *"
-                type="email"
-                name="email"
-                placeholder="john.doe@example.com"
-                value={formData.email}
-                onChange={handleInputChange}
-                error={errors.email}
-            />
-            
-            <div>
-           
-                <MobileNumber
-                 
-                    value={phone}
-                    onChange={handlePhoneChange}
-                    country="in"
-                    autoattribute={true}
-                   
+        <div className="max-h-[700px] overflow-y-auto p-4 border dark:border-dark-border rounded-md">
+            <form onSubmit={handleSubmit} className="space-y-4">
+                <InputField
+                    id="contactName"
+                    label="Name *"
+                    type="text"
+                    name="name"
+                    placeholder="John Doe"
+                    value={(formData.name).replace(/[^a-zA-Z0-9]/g, '')}
+                    onChange={handleInputChange}
+                    error={errors.name}
                 />
-                {errors.phone && (
-                    <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
-                )}
-            </div>
-            
-            <CustomSelect
-                label="Groups *"
-                options={groupOptions}
-                placeholder="-- Select Groups --"
-                value={groupOptions.filter(opt => formData.groupIds.includes(opt.value))}
-                onChange={handleGroupChange}
-                isMulti={true}
-                error={errors.groupIds}
-            />
-            
-            <Checkbox
-                id="isBlocked"
-                label="Block Contact"
-                name="isBlocked"
-                checked={formData.isBlocked}
-                onChange={handleInputChange}
-            />
 
-            <div className="flex justify-end space-x-3 pt-4">
-                <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleCancel}
-                    disabled={isLoading}
-                >
-                    Cancel
-                </Button>
-                <Button
-                    type="submit"
-                    variant="primary"
-                    disabled={isLoading}
-                >
-                    {isLoading ? (
-                        <>
-                            <LoadingSpinner size="sm" color="white" className="mr-2" />
-                            <span>{initialData ? 'Updating...' : 'Creating...'}</span>
-                        </>
-                    ) : (
-                        initialData ? 'Update Contact' : 'Create Contact'
+                <InputField
+                    id="contactEmail"
+                    label="Email *"
+                    type="email"
+                    name="email"
+                    placeholder="john.doe@example.com"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    error={errors.email}
+                />
+
+                <div>
+                    <MobileNumber
+                        value={phone}
+                        onChange={handlePhoneChange}
+                        country="in"
+                        autoattribute={true}
+                    />
+                    {errors.phone && (
+                        <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
                     )}
-                </Button>
-            </div>
-        </form>
+                </div>
+
+                <CustomSelect
+                    label="Groups *"
+                    options={groupOptions}
+                    placeholder="-- Select Groups --"
+                    value={groupOptions.filter(opt => formData.groupIds.includes(opt.value))}
+                    onChange={handleGroupChange}
+                    isMulti={true}
+                    error={errors.groupIds}
+                />
+
+                {/* Dynamic Custom Fields */}
+                {customFields.map(field => (
+                    <InputField
+                        key={field.label}
+                        id={field.label}
+                        label={field.label + (field.required ? ' *' : '')}
+                        name={field.label}
+                        type={field.type}
+                        placeholder={`Enter ${field.label}`}
+                        value={formData[field.label] || ''}
+                        onChange={handleInputChange}
+                        error={errors[field.label]}
+                    />
+                ))}
+
+                <Checkbox
+                    id="isBlocked"
+                    label="Block Contact"
+                    name="isBlocked"
+                    checked={formData.isBlocked}
+                    onChange={handleInputChange}
+                />
+
+                <div className="flex justify-end space-x-3 pt-4">
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleCancel}
+                        disabled={isLoading}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        type="submit"
+                        variant="primary"
+                        disabled={isLoading}
+                    >
+                        {isLoading ? (
+                            <>
+                                <LoadingSpinner size="sm" color="white" className="mr-2" />
+                                <span>{initialData ? 'Updating...' : 'Creating...'}</span>
+                            </>
+                        ) : (
+                            initialData ? 'Update Contact' : 'Create Contact'
+                        )}
+                    </Button>
+                </div>
+            </form>
+        </div>
     );
 };
 
 ContactForm.propTypes = {
-    initialData: PropTypes.object, // Null or existing contact
+    initialData: PropTypes.object,
     onSubmit: PropTypes.func.isRequired,
     onCancel: PropTypes.func.isRequired,
-    groups: PropTypes.array.isRequired, // [{ _id, title }]
+    groups: PropTypes.array.isRequired,
     isLoading: PropTypes.bool,
     data: PropTypes.any,
 };

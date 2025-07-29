@@ -6,21 +6,38 @@ import { Menu, X, ChevronRight, ChevronLeft } from 'lucide-react';
 import Avatar from './Avatar';
 import { useRef } from 'react';
 import { useEffect } from 'react';
+import { useParams } from 'react-router-dom';
  
 const Header = ({ onToggleSidebar }) => {
   const { user, isLoggedIn, logout } = useAuth();
+    const { id } = useParams();
+    console.log("iddddd",id);
   const { siteConfig } = useTenant();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+   const [darkMode, setDarkMode] = useState(() => {
+    return localStorage.getItem('theme') === 'dark';
+  });
+  
    const dropdownRef = useRef(null);
   const buttonRef = useRef(null);
   // console.log("drop",dropdownRef.current);
   // console.log("buttonref",buttonRef.current);
+  useEffect(() => {
+    const root = window.document.documentElement;
+    if (darkMode) {
+      root.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      root.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [darkMode]);
    useEffect(() => {
     const handleClickOutside = (event) => {
       if (
-        // dropdownRef.current &&
-        // !dropdownRef.current.contains(event.target) &&
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target) &&
         buttonRef.current &&
         !buttonRef.current.contains(event.target)
       ) {
@@ -40,12 +57,13 @@ const Header = ({ onToggleSidebar }) => {
   };
  
   return (
-    <header className="bg-white shadow-sm py-3 px-4 md:px-6 flex items-center justify-between sticky top-0 z-20 w-[100vw] md:w-auto ">
+    <header className="bg-white dark:bg-dark-bg-primary shadow-sm py-3 px-4 md:px-6 flex items-center justify-between sticky top-0 z-20 w-[100vw] md:w-auto ">
       {/* Mobile menu button and brand */}
-      <div className="flex items-center space-x-4">
+  
+      <div className="flex  items-center space-x-4">
         <button
           onClick={onToggleSidebar}
-          className="p-1 rounded-md  z-40 cursor-pointer text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors lg:hidden"
+          className="p-1 rounded-md  z-40 cursor-pointer dark:dark-text-primary text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors lg:hidden"
           aria-label="Toggle sidebar"
         >
           {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
@@ -57,15 +75,23 @@ const Header = ({ onToggleSidebar }) => {
           </span>
         </Link>
       </div>
- 
+      {/* theme */}
+
+
       {/* User dropdown */}
       <div className="relative">
         {isLoggedIn ? (
-          <>
+          <div className='flex items-center gap-3'>
+<button
+  onClick={() => setDarkMode((prev) => !prev)}
+
+>
+  {darkMode ? '☀️ ' : '🌙 '}
+</button>
             <button
             ref={buttonRef}
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="flex items-center space-x-2 focus:outline-none rounded-full p-1 hover:bg-gray-100 transition-colors"
+              className="flex items-center space-x-2 focus:outline-none dark:text-white  rounded-full p-1 hover:bg-gray-100 transition-colors"
               aria-expanded={isDropdownOpen}
               aria-haspopup="true"
             >
@@ -75,14 +101,14 @@ const Header = ({ onToggleSidebar }) => {
                 alt={user?.username || 'User'}
                 size="sm"
               />
-              <span className="font-medium text-gray-800 hidden md:inline-flex items-center">
+              <span className="font-medium text-gray-800 dark:text-white hidden md:inline-flex items-center">
                 {user?.username || 'User'}
                 {isDropdownOpen ? <ChevronRight className="ml-1 transform rotate-90" size={16} /> : <ChevronRight className="ml-1" size={16} />}
               </span>
             </button>
  
             {isDropdownOpen && (
-              <div  ref={dropdownRef} className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg py-1 z-50 border border-gray-200">
+              <div  ref={dropdownRef} className="absolute right-0 mt-2 w-56 bg-white  rounded-lg shadow-lg py-1 z-50 border border-gray-200">
                 <div className="px-4 py-3 border-b border-gray-200">
                   <p className="text-sm font-medium text-gray-900">{user?.username}</p>
                   <p className="text-xs text-gray-500 truncate">{user?.email}</p>
@@ -95,7 +121,7 @@ const Header = ({ onToggleSidebar }) => {
                   Profile Settings
                 </Link>
                 <Link
-                  to="/dashboard"
+                  to={`/project/${id}/dashboard`}
                   className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   onClick={() => setIsDropdownOpen(false)}
                 >
@@ -110,9 +136,9 @@ const Header = ({ onToggleSidebar }) => {
                 </button>
               </div>
             )}
-          </>
+          </div>
         ) : (
-          <div className="flex space-x-2">
+          <div  className="flex space-x-2">
             <Link
               to="/login"
               className="px-3 py-1.5 text-sm font-medium text-primary-600 hover:text-primary-800 rounded-md transition-colors"

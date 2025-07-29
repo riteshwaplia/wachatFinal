@@ -19,7 +19,7 @@ const CustomSelect = ({
   return (
     <div className="flex flex-col gap-1">
       {label && (
-        <label className="text-sm font-medium text-text">
+        <label className="text-sm font-medium text-text dark:text-dark-text-primary">
           {label} {required && <span className="text-red-500">*</span>}
         </label>
       )}
@@ -32,7 +32,7 @@ const CustomSelect = ({
         isMulti={isMulti}
         isDisabled={disabled}
         name={name}
-        className={`w-full  rounded-md border 
+        className={`w-full dark:bg-dark-surface   rounded-md border 
             ${error
             ? "border-error focus:ring-error focus:border-error"
             : success

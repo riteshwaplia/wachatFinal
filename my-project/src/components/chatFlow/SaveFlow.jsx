@@ -46,10 +46,10 @@ export default function SaveFlowFormModal({ nodes, edges, projectId, onClose, fl
     // ✅ Validate form fields
     const validateForm = () => {
         const errors = {};
-        if (!formData.name) errors.name = 'Name is required';
-        if (!formData.triggerKeyword) errors.triggerKeyword = 'Trigger Keyword is required';
-        if (!formData.description) errors.description = 'Description is required';
-        if (!formData.status) errors.status = 'Status is required';
+        // if (!formData.name) errors.name = 'Name is required';
+        // if (!formData.triggerKeyword) errors.triggerKeyword = 'Trigger Keyword is required';
+        // if (!formData.description) errors.description = 'Description is required';
+        // if (!formData.status) errors.status = 'Status is required';
 
         setErrros(errors);
         return Object.keys(errors).length === 0;
@@ -109,7 +109,7 @@ export default function SaveFlowFormModal({ nodes, edges, projectId, onClose, fl
                 placeholder="e.g., Test Flow 2"
             />
 
-            <InputField
+            {/* <InputField
                 label="Trigger Keyword"
                 name="triggerKeyword"
                 value={formData.triggerKeyword}
@@ -137,7 +137,7 @@ export default function SaveFlowFormModal({ nodes, edges, projectId, onClose, fl
                 >
                     {formData.status === 'active' ? 'Active' : 'Inactive'}
                 </Button>
-            </div>
+            </div> */}
 
             <Button
                 className="px-4 py-2 bg-primary-700 text-white rounded mt-4 w-full"

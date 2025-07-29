@@ -3,7 +3,9 @@ import PropTypes from 'prop-types';
 import { BiShowAlt } from "react-icons/bi";
 import { GrFormViewHide } from "react-icons/gr";
 
+ 
 const InputField = ({
+  disable,
   label,
   id,
   children,
@@ -18,23 +20,23 @@ const InputField = ({
   
 }) => {
   const [showPassword, setShowPassword] = useState(false);
-
+ 
   const togglePassword = () => {
     setShowPassword(!showPassword);
   };
-
+ 
   const inputBaseStyles =
-    'block w-full px-4 py-2 border rounded-lg focus:outline-none transition-all duration-200 ease-in-out';
-  const labelStyles = 'block text-gray-700 text-sm font-medium mb-1';
+    'block w-full dark:boder-dark-border px-4 py-2 border dark:bg-dark-surface  rounded-lg focus:outline-none transition-all duration-200 ease-in-out';
+  const labelStyles = 'block text-gray-700 text-sm dark:text-dark-text-primary font-medium mb-1';
   const errorTextStyles = 'text-error text-xs mt-1';
   const helperTextStyles = 'text-gray-500 text-xs mt-1';
-
+ 
   const inputStateStyles = error
     ? 'border-error focus:ring-1 focus:ring-error focus:border-error'
-    : 'border-gray-300 focus:border-primary-400 focus:ring-1 focus:ring-primary-100';
-
+    : 'border-gray-300  dark:border-dark-border dark:focus:dark-border focus:border-primary-400 focus:ring-1 focus:ring-primary-100';
+ 
   const showPasswordToggle = type === 'password';
-
+ 
   return (
     <div className={`relative mb-4 ${className}`}>
       {label && (
@@ -42,7 +44,7 @@ const InputField = ({
           {label}
         </label>
       )}
-
+ 
       {showPasswordToggle && (
         <div
           onClick={togglePassword}
@@ -58,21 +60,22 @@ const InputField = ({
       {children}
         </div>
       <input
+        disabled={disable}
         id={id}
         type={showPasswordToggle ? (showPassword ? 'text' : 'password') : type}
         placeholder={placeholder}
         value={value}
         onChange={onChange}
-        className={`${inputBaseStyles} ${children?"pl-8 ":""} ${inputStateStyles} ${showPasswordToggle ? 'pr-10' : ''}`}
+        className={`${inputBaseStyles} dark:text-dark-text-primary ${children?"pl-8 ":""} ${inputStateStyles} ${showPasswordToggle ? 'pr-10' : ''}`}
         {...props}
       />
-
+ 
       {error && helperText && <p className={errorTextStyles}>{helperText}</p>}
       {!error && helperText && <p className={helperTextStyles}>{helperText}</p>}
     </div>
   );
 };
-
+ 
 InputField.propTypes = {
   label: PropTypes.string,
   id: PropTypes.string.isRequired,
@@ -84,5 +87,7 @@ InputField.propTypes = {
   helperText: PropTypes.string,
   className: PropTypes.string,
 };
-
+ 
 export default InputField;
+ 
+ 

@@ -45,10 +45,10 @@ const FlowsPage = () => {
 
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
+    <div className="min-h-screen bg-gray-50 p-4 dark:bg-dark-surface">
       <div className="w-full mx-auto">
         <header className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800">Chat Flows</h1>
+          <h1 className="text-3xl font-bold dark:text-dark-text-primary text-gray-800">Chat Flows</h1>
           <Link target="_blank" to={`/project/${id}/flow-builder`}>
             <button
               className="px-4 py-2  bg-primary-600 hover:bg-primary-700 text-white rounded-md "

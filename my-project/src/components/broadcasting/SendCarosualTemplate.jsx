@@ -3,7 +3,6 @@ import api from "../../utils/api"; // Using api directly for clarity, assuming a
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext"; // Adjust import path if AuthContext is elsewhere
 import io from "socket.io-client";
-import CustomSelect from "../CustomSelect";
 import * as XLSX from 'xlsx';
 
 // IMPORTANT: Ensure this matches your backend Socket.IO port
@@ -38,12 +37,12 @@ const cleanTemplateComponents = (components) => {
 };
 
 
-const SendMessagePage = () => {
+const SendCarosualTemplate = () => {
   const { user, token } = useAuth();
   const { id:projectId } = useParams(); // FIX: Changed from 'id' to 'projectId'
   const navigate = useNavigate();
   const customer_name = user?.username || user?.email || "User"; // Use username or email
-const [groups,setGroups] = useState([]);
+
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("group"); // 'single' or 'bulk'
@@ -55,8 +54,7 @@ const [groups,setGroups] = useState([]);
   const [singleMessageTemplateName, setSingleMessageTemplateName] = useState("");
   const [singleMessageTemplateLanguage, setSingleMessageTemplateLanguage] = useState("en_US");
   const [singleMessageTemplateComponents, setSingleMessageTemplateComponents] = useState(""); // Will be JSON string
-    const [selectedGroups, setSelectedGroups] = useState("");
-    console.log("selectedgroups",selectedGroups);
+
   const [singleMessageMediaLink, setSingleMessageMediaLink] = useState("");
   const [singleMessageMediaId, setSingleMessageMediaId] = useState("");
   const [singleMessageMediaFilename, setSingleMessageMediaFilename] = useState("");
@@ -88,16 +86,7 @@ const project = localStorage.getItem("currentProject")
   };
 
 
-useEffect(async()=>
-{
- let groupRes = await api.get(`/projects/${projectId}/contacts/groupList`);
-     setGroups(groupRes.data.data || []);
-},[])
 
-    const groupOptions = groups.map(group => ({
-        value: group._id,
-        label: group.title,
-    }));
 
   const fetchTemplatesAndContacts = async () => {
     setIsLoading(true);
@@ -105,7 +94,7 @@ useEffect(async()=>
       // Use projectDetails.businessProfileId._id for fetching templates
       // Ensure projectDetails is loaded before this call
      
-      const templatesRes = await api.get("/templates/allapprovedtemplates", { // Use api directly with /api/
+      const templatesRes = await api.get("/templates/allapprovedcarouseltemplates", { // Use api directly with /api/
         ...config,
         params: {
           businessProfileId: businessProfileId,
@@ -592,7 +581,6 @@ useEffect(async()=>
                   </select>
                   {templates.length === 0 && <p className="text-sm text-red-500 mt-1">No templates found for this project's linked WhatsApp account. Sync from Meta via the Template Management page.</p>}
                 </div>
-                <CustomSelect options={groupOptions} onChange={(opt)=>setSelectedGroups(opt)}/>
                 <div>
                   <label className="block text-gray-700">
                     Template Language Code (e.g., en_US):
@@ -637,9 +625,7 @@ useEffect(async()=>
                   <p className="text-xs text-gray-500 mt-1">
                     Define `parameters` array for HEADER, BODY, or BUTTON
                     components. For template with placeholders like , these variables will be replaced by fields from your contacts (e.g., 'Name', 'OrderId').
-                    The JSON here should match the structure Meta expects, but use
-                     {/* `{{variable_name}}`  */}
-                     for dynamic content.
+                    The JSON here should match the structure Meta expects, but use `{{variable_name}}` for dynamic content.
                   </p>
                 </div>
               </div>
@@ -1004,6 +990,6 @@ useEffect(async()=>
   );
 };
 
-export default SendMessagePage;
+export default SendCarosualTemplate;
 
 

@@ -681,10 +681,10 @@ const LiveChatPage = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
   return (
-    <div className="md:flex md:h-[calc(100vh-120px)] bg-white rounded-lg shadow-md mt-8 overflow-hidden">
+    <div className="md:flex md:h-[calc(100vh-120px)] bg-white dark:bg-dark-surface rounded-lg shadow-md mt-8 overflow-hidden">
       {" "}
       {/* Left Panel: Conversation List (unchanged) */}
-      <div className="md:w-1/3 w-full border-r border-gray-200 bg-gray-50 flex flex-col">
+      <div className="md:w-1/3 w-full border-r border-gray-200 dark:bg-dark-surface dark:border-r-dark-border bg-gray-50 flex flex-col">
         <div className="flex-grow overflow-y-auto">
           {!first && conversations.length === 0 ? (
             <p className="p-4 text-gray-500 text-sm">
@@ -1006,7 +1006,7 @@ const LiveChatPage = () => {
             </form>
           </>
         ) : (
-          <div className="flex-grow flex items-center justify-center text-gray-500">
+          <div className="flex-grow flex items-center justify-center dark:bg-dark-surface text-gray-500">
             Select a conversation to start chatting.
           </div>
         )}

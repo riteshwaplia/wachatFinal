@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { FiLoader } from 'react-icons/fi'; // Using Feather Icons for spinner
 
 const Button = ({
+  type='button',
   children,
   onClick,
   variant = 'primary',
@@ -59,6 +60,7 @@ const Button = ({
 
   return (
     <button
+      type={type}
       onClick={handleClick}
       disabled={disabled || loading}
       className={`${baseStyles} ${variantStyles} ${sizeStyles} ${className}`}

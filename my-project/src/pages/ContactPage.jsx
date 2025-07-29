@@ -107,7 +107,13 @@ const ContactPage = () => {
     const [isFiledOpen, setIsFIledOpen] = useState(false);
 
     const handleOpenModal = () => setIsFIledOpen(true);
-    const handleCloseModal = () => setIsFIledOpen(false);
+    // const handleCloseModal = () => setIsFIledOpen(false);
+    const [activeModal, setActiveModal] = useState(null); // 'add' | 'show' | null
+
+    const handleOpenAddModal = () => setActiveModal('add');
+    const handleOpenShowModal = () => setActiveModal('show');
+    const handleCloseModal = () => setActiveModal(null);
+
 
     const handleSuccess = (newField) => {
         console.log('New custom field added:', newField);
@@ -115,41 +121,11 @@ const ContactPage = () => {
         // Optionally update local state with newField
     };
 
-
-    // useEffect(() => {
-    //     const fetchFields = async () => {
-    //         try {
-    //             const res = await api.get(`/projects/${id}/contacts/fields`);
-    //             const rawFields = res.data.data || [];
-
-    //             const updatedFields = rawFields.map((field) => {
-    //                 const lowerLabel = field.label.toLowerCase();
-
-    //                 // Set required to true for specific labels
-    //                 if (
-    //                     lowerLabel === 'full name' ||
-    //                     lowerLabel === 'email address' ||
-    //                     lowerLabel === 'phone number'
-    //                 ) {
-    //                     return { ...field, required: true };
-    //                 }
-
-    //                 // Otherwise, mark as not required
-    //                 return { ...field, required: false };
-    //             });
-
-    //             setFields(updatedFields);
-    //         } catch (error) {
-    //             console.error('Failed to fetch custom fields', error);
-    //         }
-    //     };
-
-    //     fetchFields();
-    // }, []);
+ 
     useEffect(() => {
         const fetchFields = async () => {
             try {
-                const fieldRes = await api.get(`/projects/${projectId}/contacts/fields`, config);
+                const fieldRes = await api.get(`/projects/${projectId}/contacts/fields`);
                 setFields(fieldRes.data.data || []);
 
             } catch (err) {
@@ -160,7 +136,8 @@ const ContactPage = () => {
         if (projectId) {
             fetchFields();
         }
-    }, [projectId, token]);
+    }, []);
+
     const FieldOptions = fields.map(field => ({
         value: field.label,
         label: field.label
@@ -349,7 +326,7 @@ const ContactPage = () => {
                 // /api/projects/:projectId/groups/bulk-block
                 endpoint = `/projects/${projectId}/contacts/bulk-block`;
             } else {
-                endpoint = `/projects/${projectId}/contacts/bulkContactUpdate`;
+                endpoint = `/projects/${projectId}/contacts/bulk-unblock`;
             }
 
             const response = await api.post(endpoint, {
@@ -367,71 +344,70 @@ const ContactPage = () => {
     };
 
 
-    const fetchData = useCallback(
-        async () => {
-            setIsLoading(true);
-            setMessage('');
-            setMessageType('info');
+    const fetchData = useCallback(async () => {
+        setIsLoading(true);
+        setMessage('');
+        setMessageType('info');
 
-            try {
-                const params = {
-                    page: pagination.currentPage,
-                    limit: pagination.limit,
-                    search: debouncedSearchTerm
-                };
+        try {
+            const params = {
+                page: pagination.currentPage,
+                limit: pagination.limit,
+                search: debouncedSearchTerm
+            };
 
-                // Variables to hold the response
-                let contactRes = null;
-                let blacklistRes = null;
-                let groupRes = null;
+            // Variables to hold the response
+            let contactRes = null;
+            let blacklistRes = null;
+            let groupRes = null;
 
-                // Call API based on activeTab
-                if (activeTab === "contactList") {
-                    contactRes = await api.get(`/projects/${projectId}/contacts/contactList`, {
-                        ...config,
-                        params
-                    });
+            // Call API based on activeTab
+            if (activeTab === "contactList") {
+                contactRes = await api.get(`/projects/${projectId}/contacts/contactList`, {
+                    ...config,
+                    params
+                });
 
-                    setContacts(contactRes.data.data || []);
+                setContacts(contactRes.data.data || []);
 
-                    // Update pagination only for contacts
-                    setPagination(prev => ({
-                        ...prev,
-                        currentPage: contactRes.data.pagination?.currentPage || 1,
-                        total: contactRes.data.pagination?.total || 0,
-                        totalPages: contactRes.data.pagination?.totalPages || 1,
-                        limit: contactRes.data.pagination?.limit || prev.limit
-                    }));
-                }
-
-                if (activeTab === "blockList") {
-                    blacklistRes = await api.get(`/projects/${projectId}/contacts/blackList`, {
-                        params
-                    });
-                    setBlacklistedContacts(blacklistRes.data.data || []);
-                }
-
-                if (activeTab === "uploadCSV" || activeTab === "contactList") {
-                    groupRes = await api.get(`/projects/${projectId}/contacts/groupList`);
-                    setGroups(groupRes.data.data || []);
-                }
-
-                // Show empty message if no results
-                if (
-                    (activeTab === "contactList" && (!contactRes?.data.data || contactRes.data.data.length === 0)) ||
-                    (activeTab === "blockList" && (!blacklistRes?.data.data || blacklistRes.data.data.length === 0))
-                ) {
-                    setMessage("No contacts found. Add your first contact below!");
-                    setMessageType('info');
-                }
-            } catch (error) {
-                console.error("Error fetching data:", error);
-                setMessage(`Error: ${error.response?.data?.message || "Failed to load contact data."}`);
-                setMessageType("error");
-            } finally {
-                setIsLoading(false);
+                // Update pagination only for contacts
+                setPagination(prev => ({
+                    ...prev,
+                    currentPage: contactRes.data.pagination?.currentPage || 1,
+                    total: contactRes.data.pagination?.total || 0,
+                    totalPages: contactRes.data.pagination?.totalPages || 1,
+                    limit: contactRes.data.pagination?.limit || prev.limit
+                }));
             }
-        }, [activeTab, pagination.currentPage, pagination.limit, debouncedSearchTerm, projectId, config]);
+
+            if (activeTab === "blockList") {
+                blacklistRes = await api.get(`/projects/${projectId}/contacts/blackList`, {
+                    params
+                });
+                setBlacklistedContacts(blacklistRes.data.data || []);
+            }
+
+            if (activeTab === "uploadCSV" || activeTab === "contactList") {
+                groupRes = await api.get(`/projects/${projectId}/contacts/groupList`);
+                setGroups(groupRes.data.data || []);
+            }
+
+            // Show empty message if no results
+            if (
+                (activeTab === "contactList" && (!contactRes?.data.data || contactRes.data.data.length === 0)) ||
+                (activeTab === "blockList" && (!blacklistRes?.data.data || blacklistRes.data.data.length === 0))
+            ) {
+                setMessage("No contacts found. Add your first contact below!");
+                setMessageType('info');
+            }
+        } catch (error) {
+            console.error("Error fetching data:", error);
+            setMessage(`Error: ${error.response?.data?.message || "Failed to load contact data."}`);
+            setMessageType("error");
+        } finally {
+            setIsLoading(false);
+        }
+    }, [activeTab, pagination.currentPage, pagination.limit, debouncedSearchTerm, projectId, config]);
 
     // useEffect(() => {
     //     if (user && projectId) {
@@ -756,7 +732,7 @@ const ContactPage = () => {
             <div className="mb-8">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900">Contact Management</h1>
+                        <h1 className="text-3xl font-bold text-gray-900 dark:text-dark-text-primary">Contact Management</h1>
                         <p className="mt-2 text-gray-600">
                             Manage your project contacts and communication lists
                         </p>
@@ -777,9 +753,6 @@ const ContactPage = () => {
                         >
                             <Upload size={20} />
                             <span>Import</span>
-                        </Button>
-                        <Button>
-                            Export Contacts
                         </Button>
                     </div>
                 </div>
@@ -814,7 +787,8 @@ const ContactPage = () => {
                                 }`}
                         >
                             <Ban size={18} />
-                            <span>Block List ({blacklistedContacts.length})</span>
+                            <span>Block List ({blacklistedContacts.length})</span
+                            >
                         </button>
                         <button
                             onClick={() => setActiveTab('uploadCSV')}
@@ -838,7 +812,7 @@ const ContactPage = () => {
                     </div>
                     <input
                         type="text"
-                        className="focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 pr-12 py-2 border border-gray-300 rounded-md"
+                        className="focus:ring-primary-500 dark:bg-dark-surface dark:text-dark-text-primary focus:border-primary-500 block w-full pl-10 pr-12 py-2 border border-gray-300 rounded-md"
                         placeholder="Search contacts..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
@@ -860,17 +834,28 @@ const ContactPage = () => {
                     )}
 
                 </div>
-                <div>
-                    <Button onClick={handleOpenModal}>Add New Field</Button>
+                <div className="flex flex-row gap-3">
+                    <Button onClick={handleOpenAddModal}>Add New Field</Button>
+                    <Button onClick={handleOpenShowModal}>Show Field</Button>
 
-                    {isFiledOpen && (
+                    {activeModal === 'add' && (
                         <AddCustomFieldModal
-                            isOpen={isFiledOpen}
+                            isOpen={true}
                             onClose={handleCloseModal}
                             onSuccess={handleSuccess}
                         />
                     )}
+
+                    {activeModal === 'show' && (
+                        <AddCustomFieldModal
+                            isOpen={true}
+                            onClose={handleCloseModal}
+                            onSuccess={handleSuccess}
+                            fields={fields}
+                        />
+                    )}
                 </div>
+
 
                 {(selectedrows.length > 0 || blcakListSelectedrows.length > 0) && (
                     <div className="relative">
@@ -907,13 +892,13 @@ const ContactPage = () => {
                         {isbulkOption
 
                             && (
-                                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+                                <div className="absolute right-0 dark:bg-dark-surface mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
                                     <button
                                         onClick={() => {
                                             handleBlockContact();
                                             setIsBulkActionsOpen(false);
                                         }}
-                                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                                        className="flex items-center px-4 py-2 dark:text-dark-text-primary text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
                                     >
                                         {activeTab === 'contactList' ? <><FiArchive className="mr-2" /> Block contacts </> : <><FiUnlock className="mr-2" /> UnBlock contacts</>}
                                     </button>
@@ -942,7 +927,7 @@ const ContactPage = () => {
             </div>
 
             {/* Tab Content */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-auto scrollbar-custom overflow-y-scroll">
+            <div className="bg-white dark:bg-dark-surface dark:border-dark-border rounded-xl shadow-sm border border-gray-200 overflow-auto scrollbar-custom overflow-y-scroll">
 
                 {/* Contact List Tab */}
 
@@ -985,10 +970,10 @@ const ContactPage = () => {
 
                                     {isLoading ? (<div className="flex justify-center items-center h-64">
                                         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
-                                    </div>) : (
-                                        <table onClick={() => setIsbulkOption(false)} className="min-w-full   divide-gray-200">
+                                    </div>) : ( 
+                                        <table onClick={() => setIsbulkOption(false)} className="min-w-full dark:divide-dark-border  divide-gray-200">
 
-                                            <thead className="bg-gray-50   overflow-auto">
+                                            <thead className="bg-gray-50 dark:bg-dark-surface   overflow-auto">
                                                 <tr>
                                                     <th
                                                         className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-10"><input type="checkbox" onChange={handleSelectAll} /></th>
@@ -998,9 +983,9 @@ const ContactPage = () => {
                                                     <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                                 </tr>
                                             </thead>
-                                            <tbody className="bg-white divide-y  divide-gray-200">
+                                            <tbody className="bg-white divide-y dark:bg-dark-surface dark:divide-dark-border divide-gray-200">
                                                 {filteredContacts.map((contact) => (
-                                                    <tr key={contact._id} className="hover:bg-gray-50  transition-colors">
+                                                    <tr key={contact._id} className="hover:bg-gray-50 dark:hover:bg-dark-surface  transition-colors">
                                                         <td><input type="checkbox" checked={selectedrows.includes(contact._id)} className='w-14' onChange={() => handleRowSelect(contact._id)} /></td>
                                                         <td className="px-6 py-4 whitespace-nowrap">
                                                             <div className="flex items-center">
@@ -1110,7 +1095,7 @@ const ContactPage = () => {
                                             <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="bg-white divide-y divide-gray-200">
+                                    <tbody className="bg-white divide-y divide-gray-200 dark:bg-dark-surface">
                                         {filteredBlacklistedContacts.map((contact) => (
                                             <tr key={contact._id} className="hover:bg-gray-50 transition-colors">
                                                 <td><input type="checkbox" className='w-14' checked={blcakListSelectedrows.includes(contact._id)} onChange={(e) => handleBlackListRowSelect(contact._id)} /></td>
@@ -1204,7 +1189,7 @@ const ContactPage = () => {
 
                                                                         }))
                                                                 }}
-                                                                disabled={!!columnMapping[col]}
+                                                                // disabled={!!columnMapping[col]}
                                                                 className="bg-white border border-gray-300 rounded px-2 py-1 text-sm"
                                                             >
                                                                 <option value="">-- Select For --</option>
@@ -1259,7 +1244,7 @@ const ContactPage = () => {
                                         {/* <label className="block text-center text-xl text-sm font-medium text-gray-700 mb-2">
                                             Select file
                                         </label> */}
-                                        <div className=" flex bg-white   justify-center px-6   border-gray-300 rounded-md">
+                                        <div className=" flex bg-white dark:bg-dark-surface   justify-center px-6   border-gray-300 rounded-md dark:border-dark-border">
                                             <div className="space-y-1 text-center">
                                                 <div className=" text-sm text-gray-600 justify-center">
                                                     <div className="text-center mb-8 mt-3">
@@ -1341,8 +1326,8 @@ const ContactPage = () => {
 
 
 
-                            <div className="bg-white rounded-lg shadow p-6 border border-gray-200">
-                                <h3 className="text-lg font-medium text-gray-900 mb-4">File Format Requirements</h3>
+                            <div className="bg-white dark:bg-dark-surface rounded-lg shadow p-6 border border-gray-200">
+                                <h3 className="text-lg dark:text-dark-text-primary font-medium text-gray-900 mb-4">File Format Requirements</h3>
                                 <div className="prose prose-sm text-gray-500 mb-6">
                                     <p>Your import file should follow this format:</p>
                                     <ul className="list-disc pl-5 space-y-1">
@@ -1354,8 +1339,8 @@ const ContactPage = () => {
                                 </div>
 
                                 <div className="overflow-x-auto">
-                                    <table className="min-w-full divide-y divide-gray-200 border border-gray-200 text-sm">
-                                        <thead className="bg-gray-50">
+                                    <table className="min-w-full dark:bg-dark-surface dark:border-dark-border divide-y divide-gray-200 border border-gray-200 text-sm">
+                                        <thead className="bg-gray-50 dark:bg-dark-surface">
                                             <tr>
                                                 <th className="px-4 py-2 text-left font-medium text-gray-500 uppercase">Name</th>
                                                 <th className="px-4 py-2 text-left font-medium text-gray-500 uppercase">Email</th>
@@ -1363,7 +1348,7 @@ const ContactPage = () => {
                                                 <th className="px-4 py-2 text-left font-medium text-gray-500 uppercase">Groups</th>
                                             </tr>
                                         </thead>
-                                        <tbody className="bg-white divide-y divide-gray-200">
+                                        <tbody className="bg-white divide-y dark:text-dark-text-primary divide-gray-200 dark:bg-dark-surface">
                                             <tr>
                                                 <td className="px-4 py-2">John Doe</td>
                                                 <td className="px-4 py-2">john@example.com</td>
@@ -1404,7 +1389,7 @@ const ContactPage = () => {
             {/* <TablePagination currentPage={3} totalPages={4}/> */}
 
             {(activeTab === "contactList" || activeTab === "blockList") && pagination.total > 0 && (
-                <div className="px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between">
+                <div className="px-6 py-4 border-t border-gray-200 dark:border-t dark:border-t-dark-border flex flex-col sm:flex-row items-center justify-between">
                     {/* Pagination info + limit selector */}
                     <div className="flex items-center space-x-2 mb-4 sm:mb-0">
                         <span className="text-sm text-gray-700">
@@ -1422,7 +1407,7 @@ const ContactPage = () => {
                         <select
                             value={pagination.limit}
                             onChange={handleLimitChange}
-                            className="border border-gray-300 rounded-md px-2 py-1 text-sm"
+                            className="border border-gray-300 dark:bg-dark-surface dark:text-dark-text-primary rounded-md px-2 py-1 text-sm"
                         >
                             {[5, 10, 20, 50].map((num) => (
                                 <option key={num} value={num}>
@@ -1516,7 +1501,7 @@ const ContactPage = () => {
                     }}
                     groups={groups}
                     isLoading={isSubmitting}
-                // fileds={fields}
+                    fields={fields}
                 />
             </Modal>
         </div>
@@ -1524,6 +1509,3 @@ const ContactPage = () => {
 };
 
 export default ContactPage;
-
-
-

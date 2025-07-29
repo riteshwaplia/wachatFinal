@@ -13,59 +13,80 @@ import { IoMdPersonAdd } from "react-icons/io";
 import { useEffect } from 'react';
 import api from '../utils/api';
 import axios from 'axios';
-import { resolvePath } from 'react-router-dom';
+import { resolvePath, useParams } from 'react-router-dom';
 const getInitials = (name) => {
   if (!name) return '';
   const parts = name.trim().split(' ');
   return parts[0]?.[0]?.toUpperCase() + (parts[1]?.[0]?.toUpperCase() || '');
 };
+const token = localStorage.getItem("authToken");
 export default function ProfilePage() {
+  const userID = localStorage.getItem('userId');
+
   const [profileImage, setProfileImage] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
   const [errors, setErrors] = useState({});
   const [isEditable, setIsEditable] = useState(false);
-  const [data,setData] = useState({});
-  console.log("data",data);
+  const [data, setData] = useState({});
+  console.log("data", data);
   const [user, setUser] = useState({
-    name:"",
+    firstName: "",
+    lastName: "",
     email: "",
-    mobile: '916367891848',
-    password: '12345',
-    company: 'waplia',
-    country: 'India',
-    state: 'rajasthan',
-    companySize: 'large',
-    industry: 'it',
-    currency: '$9000',
-    timezone: 'day',
+    userName: "",
+    mobile: '',
+    // country: 'India',
+    // state: 'rajasthan',
+    // companySize: 'large',
+    // industry: 'it',
+    // currency: '$9000',
+    // timezone: 'day',
+    // firstName: '',
+    // lastName: '',
+    gender: '',
+    dob: '',
+    profilePicture: ''
   });
-  const [tab,setTab] = useState("perDetails");
-useEffect(()=>
-{
-const fetchProfile = async ()=>
-{
-  try {
-    const res = await api.get("/users/profile");
-setUser({
-        name: res.data.username || '',
-        email: res.data.email || '',
-        mobile: res.data.mobile || '',
-        password: '',
-        company: res.data.company || '',
-        country: res.data.country || 'India',
-        state: res.data.state || '',
-        companySize: res.data.companySize || '',
-        industry: res.data.industry || '',
-        currency: res.data.currency || '',
-        timezone: res.data.timezone || '',
-      });
-      console.log("res",res);
-  } catch (error) {
-    console.log(error);
-  }
-};
-fetchProfile();
-},[data])
+
+
+
+  const [tab, setTab] = useState("perDetails");
+  const [userId, setUserId] = useState('')
+
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await api.get("/users/profile");
+        console.log("res=>>>>>>>", res.data._id)
+        setUserId(res?.data?._id)
+        setUser({
+          // name: res.data.username || '',
+          // email: res.data.email || '',
+          // mobile: res.data.mobile || '',
+          // password: '',
+          // company: res.data.company || '',
+          // country: res.data.country || 'India',
+          // state: res.data.state || '',
+          // companySize: res.data.companySize || '',
+          // industry: res.data.industry || '',
+          // currency: res.data.currency || '',
+          // timezone: res.data.timezone || '',
+          // firstName: res.data.firstName || '',
+          // lastName: res.data.lastName || '',
+          // gender: res.data.gender || '',
+          // dob: res.data.dob || '',
+          // profilePicture: res.data.profilePicture || ''
+        });
+
+        console.log("res", res);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchProfile();
+  }, [data])
+  console.log("user", user)
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -73,32 +94,89 @@ fetchProfile();
       setPreviewImage(URL.createObjectURL(file));
     }
   };
- 
+
+  console.log("userId", userId)
+
   const handleChange = (key, value) => {
+    console.log("use>>>r", key, value)
     setUser((prev) => ({ ...prev, [key]: value }));
     if (errors[key]) setErrors((prev) => ({ ...prev, [key]: '' }));
   };
- 
-  const handleSubmit =async (e) => {
+
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+
     const newErrors = {};
-    if (!user.name) newErrors.name = 'Name is required';
+    if (!user.firstName) newErrors.firstName = 'Firstname is required';
+    if (!user.lastName) newErrors.lastName = "Lastname is required"
     if (!user.mobile) newErrors.phonenumber = 'Mobile is required';
-    if (!user.password) newErrors.password = 'Password is required';
-    if (!user.companySize) newErrors.companySize = 'Company size is required';
-    if (!user.email) {
-      newErrors.email = 'Email is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(user.email)) {
-      newErrors.email = 'Enter a valid email address';
-    }
+
+    // if (!user.companySize) newErrors.companySize = 'Company size is required';
+    // if (!user.email) {
+    //   newErrors.email = 'Email is required';
+    // } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(user.email)) {
+    //   newErrors.email = 'Enter a valid email address';
+    // }
+    console.log("erros", newErrors)
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
- 
-    console.log(user);
+    console.log("clicked")
+
+
+    try {
+      const payload = {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        userName: user.userName,
+        mobile: user.mobile,
+        gender: user.gender,
+        dob: user.dob,
+        profilePicture: user.profilePicture || ""
+        // email: user.email,
+        // phone: user.phone,
+        // companySize:user.companySize,
+        // timezone:user.timezone,
+        // state: user.state,
+        // country: user.country,
+        // industry: user.industry,
+        // currency: user.currency,
+        // firstName: user.firstName || '',
+        // lastName: user.lastName || '',
+        // gender: user.gender || '',
+        // dob: user.dob || '',
+        // profilePicture: user.profilePicture || '', // You can replace this with uploaded image URL
+      };
+
+      console.log("useridddd", userId)
+const response = await api.put(
+  `/users/update-self/${userId}`,
+  payload,
+  {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  }
+);
+
+      if (response?.data?.success) {
+        console.log('User updated successfully:', response.data);
+        // Optionally show success toast or redirect
+      } else {
+        console.error('Update failed:', response.data?.message);
+        // Optionally show error toast
+      }
+    } catch (error) {
+      console.error('API error:', error);
+      // Optionally show error toast
+    }
   };
- 
+
+
   const industryOptions = INDUSTRY_TYPES.map((i) => ({ value: i, label: i }));
   const countryOptions = countries.map((c) => ({ value: c.name, label: c.name }));
   const indianStateOptions = Object.entries(INDIAN_STATE).map(([key, val]) => ({ value: key, label: val }));
@@ -114,110 +192,185 @@ fetchProfile();
     { id: 9, name: '10,001 to 50,000 employees', value: 50000 },
   ];
   const compnayoptions = companySize.map((c) => ({ value: c.value, label: c.name }));
- 
+
+  const handlePhoneChange = (number) => {
+    if (errors.phonenumber) {
+      setErrors(prev => ({ ...prev, phonenumber: '' }));
+    }
+    setUser(prev => ({ ...prev, mobile: number }));
+  };
+
   return (
     <div className="text-gray-800  dark:text-gray-100">
- 
-{/* <button onClick={()=>setTab("perDetails")} className="flex p-4 items-center gap-3  border-b  font-semibold  w-full ">
-  <span><IoMdPersonAdd /></span>
-Personal Details
-</button> */}
-{/* <button onClick={()=>setTab("updatePass")} className="flex items-center gap-3 border-b  font-semibold p-4 w-full ">
-  <span><IoMdPersonAdd /></span>
-Update Password
-</button> */}
-{/* <button onClick={()=>setTab("BusiDetails")} className="flex items-center gap-3 border-b  font-semibold p-4 w-full ">
-  <span><IoMdPersonAdd /></span>
-Business Details
-</button> */}
-{/* <UserSidebar/> */}
- 
- 
-{
-  tab==="perDetails" &&
-   <div className=" flex-grow md:p-4 p-4 overflow-hidden md:p-6 lg:p-8 transition-all  duration-300 w-[100vw] md:w-auto">
-        <div className="flex flex-col gap-8">
-          <div className="flex relative flex-col md:flex-row items-center gap-6">
-            {previewImage ? (
-              <img src={previewImage} alt="Profile" className="w-40 h-40 rounded-full border-4 border-primary-500 object-cover" />
-            ) : (
-              <div className="w-40 h-40 rounded-full bg-accent-500 text-white text-5xl font-bold flex items-center justify-center">
-                {getInitials(user.name)}
+
+
+
+      {
+        tab === "perDetails" &&
+        <div className=" flex-grow md:p-4 p-4 overflow-hidden md:p-6 lg:p-8 transition-all  duration-300 w-[100vw] md:w-auto">
+          <div className="flex flex-col gap-8">
+            <div className="flex relative flex-col md:flex-row items-center gap-6">
+              {previewImage ? (
+                <img src={previewImage} alt="Profile" className="w-40 h-40 rounded-full border-4 border-primary-500 object-cover" />
+              ) : (
+                <div className="w-40 h-40 rounded-full bg-accent-500 text-white text-5xl font-bold flex items-center justify-center">
+                  {getInitials(user.name)}
+                </div>
+              )}
+              <div>
+                <h2 className="text-2xl font-heading text-primary-600">{user.name}</h2>
+                <p className="text-gray-500">User Profile</p>
               </div>
-            )}
-            <div>
-              <h2 className="text-2xl font-heading text-primary-600">{user.name}</h2>
-              <p className="text-gray-500">User Profile</p>
+              {isEditable && (
+                <label htmlFor="profile-upload" className="cursor-pointer absolute  top-[80px] left-[198px]  md:left-[140px] md:top-[100px] p-2 bg-gray-200 dark:bg-gray-700 rounded-full">
+                  <FaCamera size={20} className="text-gray-700 dark:text-white" />
+                  <input type="file" id="profile-upload" accept="image/*" onChange={handleImageChange} className="hidden" />
+                </label>
+              )}
             </div>
-            {isEditable && (
-              <label htmlFor="profile-upload" className="cursor-pointer absolute  top-[80px] left-[198px]  md:left-[140px] md:top-[100px] p-2 bg-gray-200 dark:bg-gray-700 rounded-full">
-                <FaCamera size={20} className="text-gray-700 dark:text-white" />
-                <input type="file" id="profile-upload" accept="image/*" onChange={handleImageChange} className="hidden" />
-              </label>
-            )}
-          </div>
- 
-          <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6">
-            <InputField label="Name" error={errors.name}  value={user.name} onChange={(e) => handleChange('name', e.target.value)} type="text" placeholder="Name" disabled={!isEditable} />
-            <InputField label="Email" error={errors.email}  value={user.email} onChange={(e) => handleChange('email', e.target.value)} type="email" placeholder="Email" disabled={!isEditable} />
-            <MobileNumber error={errors.phonenumber} label="Mobile Number" value={user.mobile} onChange={(e) => handleChange('mobile', e.target.value)} country="in" placeholder="Mobile Number" disabled={!isEditable} />
-            <InputField label="Password" error={errors.password}  value={user.password} onChange={(e) => handleChange('password', e.target.value)} type="password" placeholder="Password" disabled={!isEditable} />
- 
-            {isEditable ? (
-              <CustomSelect label="Company Size" options={compnayoptions} value={compnayoptions.find((o) => o.value === user.companySize)} onChange={(opt) => handleChange('companySize', opt?.value)} placeholder="-- Company Size --" />
-            ) : (
-              <InputField label="Company Size" value={user.companySize} disabled />
-            )}
- 
-            {isEditable ? (
-              <CustomSelect label="Country" options={countryOptions} value={countryOptions.find((o) => o.value === user.country)} onChange={(opt) => handleChange('country', opt?.value)} placeholder="-- Country --" />
-            ) : (
-              <InputField label="Country" value={user.country} disabled />
-            )}
- 
-            {isEditable && user.country.toLowerCase() === 'india' ? (
-              <CustomSelect label="State" options={indianStateOptions} value={indianStateOptions.find((o) => o.value === user.state)} onChange={(opt) => handleChange('state', opt?.value)} placeholder="-- State --" />
-            ) : (
-              <InputField label="State" value={user.state} disabled />
-            )}
- 
-            {isEditable ? (
-              <CustomSelect label="Industry" options={industryOptions} value={industryOptions.find((o) => o.value === user.industry)} onChange={(opt) => handleChange('industry', opt?.value)} placeholder="-- Industry --" />
-            ) : (
-              <InputField label="Industry" value={user.industry} disabled />
-            )}
- 
-            {isEditable ? (
-              <CustomSelect label="Currency" options={currencyOptions} value={currencyOptions.find((o) => o.value === user.currency)} onChange={(opt) => handleChange('currency', opt?.value)} placeholder="-- Currency --" />
-            ) : (
-              <InputField label="Currency" value={user.currency} disabled />
-            )}
- 
-            {isEditable ? (
-              <CustomSelect label="Time Zone" options={timeZoneOptions} value={timeZoneOptions.find((o) => o.value === user.timezone)} onChange={(opt) => handleChange('timezone', opt?.value)} placeholder="-- Timezone --" />
-            ) : (
-              <InputField label="Time Zone" value={user.timezone} disabled />
-            )}
- 
-            <div className="col-span-full flex justify-end gap-4">
-              <Button variant="outline" onClick={() => setIsEditable(!isEditable)}>{isEditable ? 'Cancel' : 'Edit'}</Button>
-              {isEditable && <Button type="submit">Save</Button>}
-            </div>
-          </form>
-        </div>
-      </div>
-}
-{/* {
-  tab==="updatePass" &&
- 
-} */}
-  {
-  tab==="BusiDetails" &&
-  <div className='h-screen w-full border' > Hyy</div>
-}
+
+            <form onSubmit={handleSubmit} className="grid grid-cols-1 text-black md:grid-cols-2 gap-3 md:gap-6">
+              <InputField label="First Name" error={errors.firstName} value={user.firstName} onChange={(e) => handleChange('firstName', e.target.value)} type="text" placeholder="Enter first name here..." disabled={!isEditable} />
+              <InputField label="Last Name" error={errors.lastName} value={user.lastName} onChange={(e) => handleChange('lastName', e.target.value)} type="text" placeholder="Enter last name here..." disabled={!isEditable} />
+              <InputField label="Email" value={user.email} onChange={(e) => handleChange('email', e.target.value)} type="email" placeholder="Enter your email here..." />
+              <InputField label="Username" error={errors.username} value={user.userName} onChange={(e) => handleChange('userName', e.target.value)} type="text" placeholder="Enter your username here..." disabled={!isEditable} />
+             <div className="mb-4">
+
+              
+  <label className="block text-sm font-medium text-[var(--color-txtsecondary)] mb-1">
+    Gender
+  </label>
+  <select
+    value={user.gender}
+    onChange={(e) => handleChange('gender', e.target.value)}
+    disabled={!isEditable}
+    className={`w-full px-3 py-2 rounded-md text-[var(--color-text)] bg-[var(--colorbg-input)] border border-[var(--color-border)] shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] transition ${
+      !isEditable ? 'bg-opacity-60 cursor-not-allowed' : ''
+    }`}
+  >
+    <option value="">Select Gender</option>
+    <option value="male">Male</option>
+    <option value="female">Female</option>
+    <option value="other">Other</option>
+  </select>
 </div>
-   
-    
-  
+
+
+             
+              <div className="mb-4">
+  <label className="block text-sm font-medium text-gray-700 mb-1">
+    Date of Birth
+  </label>
+  <input
+    type="date"
+    value={user.dob}
+    onChange={(e) => handleChange('dob', e.target.value)}
+    disabled={!isEditable}
+    className={`w-full px-3 py-2 border rounded-lg text-gray-800 shadow-sm focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-blue-500 ${
+      !isEditable ? 'bg-gray-100 cursor-not-allowed' : ''
+    }`}
+  />
+</div>
+
+              {/* <MobileNumber error={errors.phonenumber} label="Mobile Number" value={user.mobile ||  } onChange={handlePhoneChange} country="in" placeholder="Mobile Number" /> */}
+              <MobileNumber
+                disabled={!isEditable}
+                error={errors.phonenumber}
+                label="Mobile Number"
+                value={user.mobile || ''}
+                onChange={handlePhoneChange}
+                country="in"
+                autoFocus={false}
+              />
+
+
+              {/* <InputField label="Password" error={errors.password} value={user.password} onChange={(e) => handleChange('password', e.target.value)} type="password" placeholder="Password" disabled={!isEditable} />
+              <InputField label="First Name" error={errors.firstName} value={user.firstName} onChange={(e) => handleChange('firstName', e.target.value)} type="text" placeholder="firstname" disabled={!isEditable} />
+              <InputField label="Last Name" error={errors.lastName} value={user.lastName} onChange={(e) => handleChange('lastName', e.target.value)} type="text" placeholder="Lastname" disabled={!isEditable} /> */}
+              {/* {
+  isEditable ?(
+              <InputField label="First Name" error={errors.name} value={user.firstName} onChange={(e) => handleChange('firstName', e.target.value)} type="text" placeholder="Enter first name here..." disabled={!isEditable} />
+
+  ):(
+              <InputField disabled label="First Name" error={errors.name} value={user.firstName} onChange={(e) => handleChange('firstName', e.target.value)} type="text" placeholder="Enter first name here..." />
+
+  )
+}
+{
+  isEditable ?(
+                      <InputField label="Last Name" error={errors.lastName} value={user.lastName} onChange={(e) => handleChange('lastName', e.target.value)} type="text" placeholder="Enter last name here..." />
+
+  ):(
+                           <InputField disabled label="Last Name" error={errors.lastName} value={user.lastName} onChange={(e) => handleChange('lastName', e.target.value)} type="text" placeholder="Enter last name here..." />
+
+  )
+}
+{
+  isEditable ?(
+                                 <InputField  label="Email" error={errors.email} value={user.email} onChange={(e) => handleChange('email', e.target.value)} type="email" placeholder="Enter your email here..." />
+
+  ):(
+                                     <InputField disable={true} label="Email" error={errors.email} value={user.email} onChange={(e) => handleChange('email', e.target.value)} type="email" placeholder="Enter your email here..." />
+
+
+  ) */}
+              {/* } */}
+
+
+              {/* {isEditable ? (
+                <CustomSelect label="Company Size" options={compnayoptions} value={compnayoptions.find((o) => o.value === user.companySize)} onChange={(opt) => handleChange('companySize', opt?.value)} placeholder="-- Company Size --" />
+              ) : (
+                <InputField label="Company Size" value={user.companySize} disabled />
+              )}
+
+              {isEditable ? (
+                <CustomSelect label="Country" options={countryOptions} value={countryOptions.find((o) => o.value === user.country)} onChange={(opt) => handleChange('country', opt?.value)} placeholder="-- Country --" />
+              ) : (
+                <InputField label="Country" value={user.country} disabled />
+              )}
+
+              {isEditable && user.country.toLowerCase() === 'india' ? (
+                <CustomSelect label="State" options={indianStateOptions} value={indianStateOptions.find((o) => o.value === user.state)} onChange={(opt) => handleChange('state', opt?.value)} placeholder="-- State --" />
+              ) : (
+                <InputField label="State" value={user.state} disabled />
+              )}
+
+              {isEditable ? (
+                <CustomSelect label="Industry" options={industryOptions} value={industryOptions.find((o) => o.value === user.industry)} onChange={(opt) => handleChange('industry', opt?.value)} placeholder="-- Industry --" />
+              ) : (
+                <InputField label="Industry" value={user.industry} disabled />
+              )}
+
+              {isEditable ? (
+                <CustomSelect label="Currency" options={currencyOptions} value={currencyOptions.find((o) => o.value === user.currency)} onChange={(opt) => handleChange('currency', opt?.value)} placeholder="-- Currency --" />
+              ) : (
+                <InputField label="Currency" value={user.currency} disabled />
+              )}
+
+
+              {isEditable ? (
+                <CustomSelect label="Time Zone" options={timeZoneOptions} value={timeZoneOptions.find((o) => o.value === user.timezone)} onChange={(opt) => handleChange('timezone', opt?.value)} placeholder="-- Timezone --" />
+              ) : (
+                <InputField label="Time Zone" value={user.timezone} disabled />
+              )} */}
+
+              <div className="col-span-full flex justify-end gap-4">
+                <Button variant="outline" onClick={() => setIsEditable(!isEditable)}>{isEditable ? 'Cancel' : 'Edit'}</Button>
+                {isEditable && <Button type="submit">Save</Button>}
+              </div>
+            </form>
+          </div>
+        </div>
+      }
+
+
+      {
+        tab === "BusiDetails" &&
+        <div className='h-screen w-full border' > Hyy</div>
+      }
+    </div>
+
+
+
   );
 }

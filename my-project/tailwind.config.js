@@ -1,6 +1,7 @@
 // tailwind.config.js
 /** @type {import('tailwindcss').Config} */
 export default {
+   darkMode: 'class',
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
@@ -20,6 +21,7 @@ export default {
         'primary-700': '#1F5A7D',
         'primary-800': '#1A475F',
         'primary-900': '#153441',
+  
 
         // Secondary: A soft, inviting green
         'secondary-50': '#EEF9F1',
@@ -44,6 +46,28 @@ export default {
         'accent-700': '#7F4591',
         'accent-800': '#61326D',
         'accent-900': '#431F49',
+
+
+        // for dark
+
+'dark-bg-primary': '#0D1117',    // Very dark background (main app background)
+'dark-bg-secondary': '#161B22',  // Slightly lighter panel background
+'dark-surface': '#21262D',       // For cards and elevated surfaces
+'dark-border': '#30363D',        // For outlines/borders/dividers
+
+'dark-text-primary': '#C9D1D9',  // Main text color (light gray)
+'dark-text-secondary': '#8B949E',// Muted text (subtitles)
+'dark-text-muted': '#6E7681',    // Even more muted (timestamps, etc.)
+
+'dark-accent': '#58A6FF',        // Accent links, buttons
+'dark-accent-hover': '#1F6FEB',  // Darker hover
+'dark-success': '#238636',
+'dark-warning': '#F2CC60',
+'dark-error': '#F85149',
+
+'dark-scroll-thumb': '#30363D',
+'dark-scroll-track': '#161B22',
+        
 
         // --- Neutral / Grayscale Colors ---
         'gray-50': '#F9FAFB',  // Very light off-white (for subtle backgrounds)

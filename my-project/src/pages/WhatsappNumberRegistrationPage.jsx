@@ -112,13 +112,13 @@ const WhatsappNumberRegistrationPage = () => {
 
             if (res.data.success) {
                 updateState({
-                phoneNumbers: res.data.data || [],
-                isFetchingNumbers: false,
-                message: res.data.message || (res.data.data?.length
-                    ? `${res.data.data.length} numbers found`
-                    : 'No numbers found'),
-                messageType: res.data.data?.length ? 'success' : 'info'
-            });
+                    phoneNumbers: res.data.data || [],
+                    isFetchingNumbers: false,
+                    message: res.data.message || (res.data.data?.length
+                        ? `${res.data.data.length} numbers found`
+                        : 'No numbers found'),
+                    messageType: res.data.data?.length ? 'success' : 'info'
+                });
                 SuccessToast('Successfully fetched phone numbers');
             }
         } catch (error) {
@@ -222,8 +222,14 @@ const WhatsappNumberRegistrationPage = () => {
     // Handle form changes
     const handleFormChange = (e) => {
         const { name, value } = e.target;
+        // Allow only alphanumeric characters, spaces, @ and _
+        const isValid = /^[a-zA-Z0-9@_]*$/.test(value);
+        if (!isValid) {
+            return;
+        }
         setFormData(prev => ({ ...prev, [name]: value }));
     };
+
 
     // Loading state
     if (state.isLoading && !state.businessProfiles.length && !isAddBusinessModalOpen) {
@@ -298,6 +304,7 @@ const WhatsappNumberRegistrationPage = () => {
                                         isSelected={state.selectedProfile?._id === profile._id}
                                         isFetching={state.isFetchingNumbers && state.selectedProfile?._id === profile._id}
                                         onClick={() => fetchPhoneNumbers(profile)}
+                                        fetchBusinessProfiles={() => fetchBusinessProfiles()}
                                     />
                                 ))}
                             </div>
@@ -362,6 +369,7 @@ const WhatsappNumberRegistrationPage = () => {
                         value={formData.name}
                         onChange={handleFormChange}
                         placeholder="e.g., My Main Business"
+                        maxlength={50}
                         required
                     />
                     <InputField
@@ -370,6 +378,7 @@ const WhatsappNumberRegistrationPage = () => {
                         value={formData.wabaId}
                         onChange={handleFormChange}
                         placeholder="e.g., 123456789012345"
+                        maxlength={60}
                         required
                     />
                     <InputField
@@ -379,6 +388,8 @@ const WhatsappNumberRegistrationPage = () => {
                         onChange={handleFormChange}
                         placeholder="e.g., 123456789012345"
                         required
+                        maxlength={60}
+
                     />
                     <InputField
                         label="Meta Access Token"
@@ -388,6 +399,7 @@ const WhatsappNumberRegistrationPage = () => {
                         onChange={handleFormChange}
                         placeholder="Bearer EAAI..."
                         required
+                        maxlength={500}
                     />
                     <div className="flex justify-end space-x-3 pt-2">
                         <Button

@@ -40,6 +40,9 @@ import { FaWandMagicSparkles } from "react-icons/fa6";
 import { BiMessageRoundedDetail } from "react-icons/bi";
 import { IoIosContact } from "react-icons/io";
 import { AiOutlineLogin } from "react-icons/ai";
+import { useTenant } from "../context/TenantContext";
+
+
 gsap.registerPlugin(ScrollTrigger);
 
 
@@ -140,6 +143,7 @@ export default function LandingPage() {
     const isInView = useInView(sectionRef, { once: true });
     const location = useLocation;
 
+    const { siteConfig } = useTenant(); // Access siteConfig
 
 
 
@@ -152,6 +156,21 @@ const icons = {
   Login: <AiOutlineLogin size={18} className="text-primary-500" />,
 };
     const sectionsRef = useRef([]);
+
+
+
+    const handleIconClick = (url) => {
+        if (url) window.open(url, '_blank');
+    };
+
+    const openInNewTab = (url) => {
+        if (url && typeof url === 'string') {
+            window.open(url, '_blank', 'noopener,noreferrer');
+        }
+    };
+
+
+    const { heroSection, name, logoUrl, domain, testimonials, privacyPolicyUrl, termsOfServiceUrl, socialMediaLinks } = siteConfig;
 
     useEffect(() => {
         sectionsRef.current.forEach((section, index) => {
@@ -277,10 +296,18 @@ const icons = {
                         initial={{ opacity: 0, x: -50 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.6 }}
-                        className="text-2xl font-bold text-black "
+                        className="text-2xl font-bold text-black"
                     >
-                        <span className={`text-primary-300  ${isScrolled ? " text-primary-500" : ""} `}>Sab</span><span className={`${isScrolled ? "text-black" : "text-white"}`}>Node</span>
+                        <div className={isScrolled ? "text-primary-500" : "text-primary-300"}>
+                            {logoUrl ? (
+                                <img src={logoUrl} alt="Company Logo" className="w-[120px] h-auto" />
+                            ) : (
+                                "SabNode"
+                            )}
+                        </div>
+                        <span className={isScrolled ? "text-black" : "text-white"}></span>
                     </motion.div>
+
 
                     {(
                         <motion.button
@@ -418,8 +445,8 @@ const icons = {
                     transition={{ delay: 0.2, duration: 0.6 }}
                     className="text-4xl md:text-6xl font-bold leading-tight text-black"
                 >
-                    Revolutionize Your Business with <br />
-                    <span className="text-primary-300">Generative AI</span>
+                    {heroSection?.title || 'Hello, Your Welcome to Sabnode'} <br />
+                    <span className="text-primary-300">{heroSection?.subtitle || 'Your Welcome'}</span>
                 </motion.h1>
 
                 <motion.p
@@ -436,7 +463,7 @@ const icons = {
                         whileHover={{ scale: 1.05 }}
                         className="bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-lg font-semibold shadow"
                     >
-                        Request Demo
+                        {heroSection?.buttonText || 'Request Demof'}
                     </motion.button>
 
                     <motion.button
@@ -455,7 +482,7 @@ const icons = {
                 className="max-w-5xl mx-auto px-6 "
             >
                 <img
-                    src="https://i.cdn.newsbytesapp.com/images/l45520240607101828.jpeg"
+                    src="../images/wp.png"
                     alt="Dashboard preview"
                     className='mx-auto'
                 />
@@ -550,7 +577,7 @@ const icons = {
                             </button>
                         </div>
                         <div>
-                            <img src="https://sabnode.com/wp-content/uploads/2024/12/2ai.png" alt="sabnode demo" />
+                            <img src={heroSection?.image} alt="sabnode demo" />
                         </div>
                     </div>
                 </div>
@@ -1385,60 +1412,29 @@ const icons = {
                     <div className="font-bold text-xl text-center text-primary-800">Testimonials</div>
                     <div className="text-center text-3xl">What our <span className="text-primary-800">Users</span> say</div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-10">
-                        <div className="shadow-lg shadow-gray-50 p-5">
-                            <div className="grid grid-cols-3 gap-3 justify-center items-center">
-                                <div className="w-[88px] h-[88px] rounded-full border">
-                                    <img className="rounded-full w-full h-full" src="https://images.unsplash.com/photo-1613053341085-db794820ce43?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTl8fGluZmx1ZW5jZXJzfGVufDB8fDB8fHww" alt="" />
+                        {testimonials?.map(({ _id, quote, author, designation }) => (
+                            <div key={_id} className="shadow-lg shadow-gray-50 p-5">
+                                <div className="grid grid-cols-3 gap-3 justify-center items-center">
+                                    <div className="w-[88px] h-[88px] rounded-full border overflow-hidden">
+                                        <img
+                                            className="rounded-full w-full h-full object-cover"
+                                            src="https://images.unsplash.com/photo-1613053341085-db794820ce43?w=900&auto=format&fit=crop&q=60"
+                                            alt={author}
+                                        />
+                                    </div>
+                                    <div className="col-span-2">
+                                        <h3 className="text-lg font-semibold">{author}</h3>
+                                        <h4 className="text-sm text-gray-500">{designation}</h4>
+                                        <div className="text-yellow-500 flex gap-1 mt-1">
+                                            {[...Array(5)].map((_, i) => (
+                                                <IoStarOutline key={i} />
+                                            ))}
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="row-span-2">
-                                    <h3 className="text-lg">Maris</h3>
-                                    <h4 className="text-sm">London Uk.</h4>
-                                    <div className="text-yellow-500  flex gap-1"><IoStarOutline />
-                                        <IoStarOutline /><IoStarOutline /><IoStarOutline /><IoStarOutline /></div>
-
-                                </div>
+                                <div className="mt-4 text-sm text-gray-700 italic">“{quote}”</div>
                             </div>
-
-                            <div>
-                                “Sabnode's AI tools have completely transformed the way we interact with our customers. The chatbot feature is incredibly intuitive and handles multilingual conversations seamlessly, allowing us to reach a global audience. It's like having a 24/7 support team without the overhead costs!”
-                            </div>
-                        </div>
-                        <div className="shadow-lg shadow-gray-50 p-5">
-                            <div className="grid grid-cols-3 gap-3 justify-center items-center">
-                                <div className="w-[88px] h-[88px] rounded-full border">
-                                    <img className="rounded-full w-full h-full" src="https://images.unsplash.com/photo-1613053341085-db794820ce43?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTl8fGluZmx1ZW5jZXJzfGVufDB8fDB8fHww" alt="" />
-                                </div>
-                                <div className="row-span-2">
-                                    <h3 className="text-lg">Maris</h3>
-                                    <h4 className="text-sm">London Uk.</h4>
-                                    <div className="text-yellow-500  flex gap-1"><IoStarOutline />
-                                        <IoStarOutline /><IoStarOutline /><IoStarOutline /><IoStarOutline /></div>
-
-                                </div>
-                            </div>
-
-                            <div>
-                                “Sabnode's AI tools have completely transformed the way we interact with our customers. The chatbot feature is incredibly intuitive and handles multilingual conversations seamlessly, allowing us to reach a global audience. It's like having a 24/7 support team without the overhead costs!”
-                            </div>
-                        </div>
-                        <div className="shadow-lg shadow-gray-50 p-5">
-                            <div className="grid grid-cols-3 gap-3 justify-center items-center">
-                                <div className="w-[88px] h-[88px] rounded-full border">
-                                    <img className="rounded-full w-full h-full" src="https://images.unsplash.com/photo-1613053341085-db794820ce43?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTl8fGluZmx1ZW5jZXJzfGVufDB8fDB8fHww" alt="" />
-                                </div>
-                                <div className="row-span-2">
-                                    <h3 className="text-lg">Maris</h3>
-                                    <h4 className="text-sm">London Uk.</h4>
-                                    <div className="text-yellow-500  flex gap-1"><IoStarOutline />
-                                        <IoStarOutline /><IoStarOutline /><IoStarOutline /><IoStarOutline /></div>
-
-                                </div>
-                            </div>
-
-                            <div>
-                                “Sabnode's AI tools have completely transformed the way we interact with our customers. The chatbot feature is incredibly intuitive and handles multilingual conversations seamlessly, allowing us to reach a global audience. It's like having a 24/7 support team without the overhead costs!”
-                            </div>
-                        </div>
+                        ))}
                     </div>
                     <div>
                         <div className="max-w-7xl">
@@ -1456,10 +1452,22 @@ const icons = {
                                 aesthetics to interactive elements, find out what’s shaping the future of web design.
                             </p>
                             <div className="flex justify-center md:justify-start gap-4 text-xl text-white">
-                                <CiFacebook className="hover:text-gray-300 cursor-pointer" />
-                                <FaWhatsapp className="hover:text-gray-300 cursor-pointer" />
-                                <BsInstagram className="hover:text-gray-300 cursor-pointer" />
-                                <LiaLinkedin className="hover:text-gray-300 cursor-pointer" />
+                                <CiFacebook
+                                    onClick={() => handleIconClick(socialMediaLinks?.facebook)}
+                                    className="hover:text-gray-300 cursor-pointer"
+                                />
+                                <FaWhatsapp
+                                    onClick={() => handleIconClick(socialMediaLinks?.twitter)}
+                                    className="hover:text-gray-300 cursor-pointer"
+                                />
+                                <BsInstagram
+                                    onClick={() => handleIconClick(socialMediaLinks?.instagram)}
+                                    className="hover:text-gray-300 cursor-pointer"
+                                />
+                                <LiaLinkedin
+                                    onClick={() => handleIconClick(socialMediaLinks?.linkedin)}
+                                    className="hover:text-gray-300 cursor-pointer"
+                                />
                             </div>
                         </div>
 
@@ -1514,9 +1522,10 @@ const icons = {
                                 <div className="flex justify-center items-center  md:block md:space-y-2 gap-1">
                                     <li className="hover:underline cursor-pointer">
                                         Terms and Conditions</li>
-                                    <li className="hover:underline flex md:block gap-1 items-center cursor-pointer">
-                                        <span className="md:hidden block">|</span> Privacy Policy</li>
-                                    <li className="hover:underline cursor-pointer gap-1 md:block flex items-center">
+
+                                    <li onClick={() => openInNewTab(privacyPolicyUrl || '')} className="hover:underline flex md:block gap-1 items-center cursor-pointer">
+                                        <span className="md:hidden block">|</span >  Privacy Policy</li>
+                                    <li onClick={() => openInNewTab(termsOfServiceUrl || '')} className="hover:underline cursor-pointer gap-1 md:block flex items-center">
                                         <span className="md:hidden block">|</span> Refund Policy</li>
                                 </div>
                             </ul>
@@ -1524,7 +1533,7 @@ const icons = {
                     </div>
 
                     <div className="text-center py-4 text-sm bg-primary-700 text-gray-200 rounded-b-md">
-                        © 2025 All Rights Reserved by Sabnode.com
+                        © 2025 All Rights Reserved by {domain || 'sabnode.com'}
                     </div>
                 </footer>
 

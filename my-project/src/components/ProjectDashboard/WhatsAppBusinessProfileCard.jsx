@@ -464,9 +464,9 @@ const WhatsAppBusinessProfileCard = ({ project, onUpdateProfile, loadingUpdate, 
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-200">
+    <div className="bg-white rounded-2xl shadow-md p-6 border dark:bg-dark-surface dark:border-dark-border border-gray-200">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-semibold text-[#111b21]">WhatsApp Business Profile</h2>
+        <h2 className="text-xl font-semibold dark:text-dark-text-primary text-[#111b21]">WhatsApp Business Profile</h2>
         {isEditing ? (
           <div className="flex space-x-2">
             <button
@@ -524,7 +524,7 @@ const WhatsAppBusinessProfileCard = ({ project, onUpdateProfile, loadingUpdate, 
         </div>
 
         {/* Business Info */}
-        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-[#111b21]">
+        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-[#111b21] dark:text-dark-text-secondary">
           {isEditing ? (
             <>
               <InputField
@@ -597,23 +597,23 @@ const WhatsAppBusinessProfileCard = ({ project, onUpdateProfile, loadingUpdate, 
           ) : (
             <>
               <div>
-                <p className="font-medium text-[#54656f]">About</p>
+                <p className="font-medium text-[#54656f] dark:text-dark-text-primary">About</p>
                 <p>{project?.about || 'No about information'}</p>
               </div>
               <div>
-                <p className="font-medium text-[#54656f]">Industry</p>
+                <p className="font-medium text-[#54656f] dark:text-dark-text-primary">Industry</p>
                 <p>{project?.vertical || 'Not specified'}</p>
               </div>
               <div>
-                <p className="font-medium text-[#54656f]">Description</p>
+                <p className="font-medium text-[#54656f] dark:text-dark-text-primary">Description</p>
                 <p>{project?.description || 'No description provided'}</p>
               </div>
               <div>
-                <p className="font-medium text-[#54656f]">Address</p>
+                <p className="font-medium text-[#54656f] dark:text-dark-text-primary">Address</p>
                 <p>{project?.address || 'No address provided'}</p>
               </div>
               <div>
-                <p className="font-medium text-[#54656f]">Email</p>
+                <p className="font-medium text-[#54656f] dark:text-dark-text-primary">Email</p>
                 {project?.email ? (
                   <a href={`mailto:${project.email}`} className="text-[#25D366] hover:underline">
                     {project.email}
@@ -623,7 +623,7 @@ const WhatsAppBusinessProfileCard = ({ project, onUpdateProfile, loadingUpdate, 
                 )}
               </div>
               <div>
-                <p className="font-medium text-[#54656f]">Websites</p>
+                <p className="font-medium text-[#54656f] dark:text-dark-text-primary">Websites</p>
                 {project?.websites?.length > 0 ? (
                   project.websites.map((url, i) => (
                     <a
@@ -646,7 +646,7 @@ const WhatsAppBusinessProfileCard = ({ project, onUpdateProfile, loadingUpdate, 
       </div>
 
       {/* WhatsApp Badge */}
-      <div className="mt-6 pt-4 border-t border-[#e9edef] flex flex-col md:flex-row justify-between items-center gap-4">
+      <div className="mt-6 pt-4 border-t border-[#e9edef] flex dark:border-dark-border flex-col md:flex-row justify-between items-center gap-4">
         <div className="flex items-center gap-2">
           <div className="bg-[#25D366] w-7 h-7 rounded-full flex items-center justify-center">
             <FaWhatsapp className="text-white text-lg" />

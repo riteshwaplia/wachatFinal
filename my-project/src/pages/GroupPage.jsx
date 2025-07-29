@@ -383,7 +383,7 @@ const GroupPage = () => {
       <div className="mb-8">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">
+            <h1 className="text-3xl font-bold dark:text-dark-text-primary text-gray-900">
               Group Management
             </h1>
             <p className="mt-2 text-gray-600">
@@ -420,7 +420,7 @@ const GroupPage = () => {
           </div>
           <input
             type="text"
-            className="focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 pr-12 py-2 border border-gray-300 rounded-md"
+            className="focus:ring-primary-500 dark:bg-dark-surface dark:text-dark-text-primary focus:border-primary-500 block w-full pl-10 pr-12 py-2 border border-gray-300 rounded-md"
             placeholder="Search groups..."
             value={searchTerm}
             onChange={(e) => {
@@ -459,14 +459,14 @@ const GroupPage = () => {
                 />
               </Button>
               {isBulkActionsOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark-surface rounded-md shadow-lg py-1 z-10">
                   {activeTab === "active" ? (
                     <button
                       onClick={() => {
                         handleBulkAction("archive");
                         setIsBulkActionsOpen(false);
                       }}
-                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                      className="flex items-center px-4 py-2 dark:text-dark-text-primary  dark:hover:bg-dark-surface  text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
                     >
                       <FiArchive className="mr-2" /> Archive
                     </button>
@@ -476,7 +476,7 @@ const GroupPage = () => {
                         handleBulkAction("restore");
                         setIsBulkActionsOpen(false);
                       }}
-                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                      className="flex items-center px-4 py-2 dark:text-dark-text-primary dark:hover:bg-dark-surface text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
                     >
                       <FiRotateCcw className="mr-2" /> Restore
                     </button>
@@ -492,7 +492,7 @@ const GroupPage = () => {
                         setIsBulkActionsOpen(false);
                       }
                     }}
-                    className="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 w-full text-left"
+                    className="flex items-center px-4 py-2  dark:hover:bg-dark-surface  text-sm text-red-600 hover:bg-red-50 w-full text-left"
                   >
                     <FiTrash2 className="mr-2" /> Delete
                   </button>
@@ -542,7 +542,7 @@ const GroupPage = () => {
       </div>
 
       {/* Groups Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white dark:bg-dark-surface overflow-scroll rounded-xl shadow-sm dark:border-dark-border border border-gray-200 overflow-hidden">
         {groups.length === 0 ? (
           <div className="p-12 text-center">
             <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-gray-100 mb-4">
@@ -586,8 +586,8 @@ const GroupPage = () => {
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
           </div> : (
             <>
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+              <table className="min-w-full divide-y divide-gray-200 dark:divide-dark-surface">
+                <thead className="bg-gray-50 dark:bg-dark-surface">
                   <tr>
                     <th
                       scope="col"
@@ -629,9 +629,9 @@ const GroupPage = () => {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-white divide-y divide-gray-200 dark:bg-dark-surface dark:divide-y dark:divide-dark-border dark:bg-dark-surface">
                   {groups.map((group) => (
-                    <tr key={group._id} className="hover:bg-gray-50">
+                    <tr key={group._id} className="hover:bg-gray-50 dark:hover:bg-dark-surface">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <input
                           type="checkbox"
@@ -648,7 +648,7 @@ const GroupPage = () => {
                             </span>
                           </div>
                           <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">
+                            <div className="text-sm font-medium dark:text-dark-text-secondary text-gray-900">
                               {group.title}
                             </div>
                           </div>
@@ -720,7 +720,7 @@ const GroupPage = () => {
 
 
               {/* Pagination */}
-              <div className="px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between">
+              <div className="px-6 py-4 border-t dark:border-dark-border border-gray-200 flex flex-col sm:flex-row items-center justify-between">
                 <div className="flex items-center space-x-2 mb-4 sm:mb-0">
                   <span className="text-sm text-gray-700">
                     Showing <span className="font-medium">{(pagination.currentPage - 1) * pagination.limit + 1}</span> to <span className="font-medium">
@@ -730,7 +730,7 @@ const GroupPage = () => {
                   <select
                     value={pagination.limit}
                     onChange={handleLimitChange}
-                    className="border border-gray-300 rounded-md px-2 py-1 text-sm"
+                    className="border border-gray-300 rounded-md dark:bg-dark-surface dark:text-dark-text-primary px-2 py-1 text-sm"
                   >
                     <option value="5">5 per page</option>
                     <option value="10">10 per page</option>
@@ -828,7 +828,7 @@ const GroupPage = () => {
               id="description"
               name="description"
               rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              className="w-full dark:bg-dark-surface dark:text-dark-text-primary px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               value={formData.description}
               onChange={handleInputChange}
             />

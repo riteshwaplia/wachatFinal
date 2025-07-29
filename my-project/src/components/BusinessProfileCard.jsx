@@ -1,4 +1,3 @@
-// src/components/BusinessProfileCard.jsx
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import Button from './Button';
@@ -9,22 +8,31 @@ import Modal from './Modal';
 import InputField from './InputField';
 import axios from 'axios';
 import api from '../utils/api';
- 
- 
-const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick,fetchBusinessProfiles }) => {
-  // console.log("profilesssss",profile);
+
+
+const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick, fetchBusinessProfiles }) => {
+
   const [businessdata, setBusinessData] = useState(
     {
       name: profile.name,
       wabaId: profile.metaBusinessId,
-      accessToken: profile.metaAccessToken
+      accessToken: profile.metaAccessToken,
+      metaAppId: profile.metaAppId
     }
- 
+
   )
   const [errros, setErrors] = useState({});
   const [modalOpen, setModelOpen] = useState(false);
+
   const handleChange = (key, value) => {
+
+    const isValid = /^[a-zA-Z0-9@_]*$/.test(value);
+    if (!isValid) {
+      return;
+    }
     setBusinessData((prev) => ({ ...prev, [key]: value }));
+
+
     if (errros[key]) {
       setErrors((prev) => ({ ...prev, [key]: '' }));
     }
@@ -44,12 +52,15 @@ const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick,fetchBus
     if (!businessdata.accessToken) {
       newErrors.accessToken = "Access Token is required";
     }
+    if (!businessdata.metaAppId) {
+      newErrors.metaAppId = "metaAppId "
+    }
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return
     }
     try {
- 
+
       const res = await updateBusinessProfile(profile._id, businessdata);
       console.log("resss", res);
       if (res.data.success === true) {
@@ -60,18 +71,18 @@ const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick,fetchBus
         console.log("unable to update business profile");
       }
       setModelOpen(false);
- 
+
     } catch (error) {
       console.error(error);
     }
- 
+
   }
- 
+
   return (
     <div
       className={`p-4 rounded-lg border transition-all  ${isSelected
-          ? 'bg-primary-50 border-primary-300 shadow-md'
-          : 'border-gray-200 hover:bg-gray-50'
+        ? 'bg-primary-50 border-primary-300 shadow-md'
+        : 'border-gray-200 hover:bg-gray-50'
         }`}
     // onClick={onClick}
     >
@@ -90,8 +101,11 @@ const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick,fetchBus
                 value={businessdata.name}
                 onChange={(e) => handleChange("name", e.target.value)}
                 placeholder="e.g., My Main Business"
-                required
                 error={errros.name}
+                helperText={errros.name}
+                maxlength={50}
+
+
               />
               <InputField
                 disabled
@@ -100,9 +114,27 @@ const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick,fetchBus
                 value={businessdata.wabaId}
                 onChange={(e) => handleChange("wabaId", e.target.value)}
                 placeholder="e.g., 123456789012345"
-                required
+                maxlength={50}
+
                 error={errros.wabaId}
+                helperText={errros.wabaId}
+
               />
+
+              <InputField
+
+                label="WhatsApp metaAppId ID"
+                name="metaAppId"
+                value={businessdata.metaAppId}
+                onChange={(e) => handleChange("metaAppId", e.target.value)}
+                placeholder="e.g., 123456789012345"
+                maxlength={50}
+
+                error={errros.metaAppId}
+                helperText={errros.metaAppId}
+
+              />
+
               <InputField
                 label="Meta Access Token"
                 name="accessToken"
@@ -110,16 +142,19 @@ const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick,fetchBus
                 value={businessdata.accessToken}
                 onChange={(e) => handleChange("accessToken", e.target.value)}
                 placeholder="Bearer EAAI..."
-                required
+                helperText={errros.accessToken}
                 error={errros.accessToken}
+                maxlength={200}
+
               />
-              <Button className='block ml-auto mt-3'>Update</Button>
+              <Button type='submit' className='block ml-auto mt-3'>Update</Button>
             </form>
           </div>
         </Modal>
       }
       <div className='flex items-center justify-between'>
-        <h4 className="text-lg font-semibold text-primary-700 mb-2">{profile.name}</h4>
+        <h4 className="text-lg font-semibold text-primary-700 mb-2">{profile.name?.length > 30 ? profile.name.slice(0, 30) + '…' : profile.name}
+        </h4>
         <FiEdit className='cursor-pointer' onClick={(e) => { e.stopPropagation(), setModelOpen(true) }} />
       </div>
       <p className="text-gray-600 text-sm mb-3">WABA ID: {profile.metaBusinessId}</p>
@@ -127,7 +162,7 @@ const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick,fetchBus
         onClick={(e) => { e.stopPropagation(); onClick(); }}
         variant={isSelected ? 'primary' : 'outline'}
         size="sm"
-     
+
         disabled={isFetching}
         className="flex justify-center gap-2 items-center mx-auto w-full"
       >
@@ -141,13 +176,12 @@ const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick,fetchBus
     </div>
   );
 };
- 
+
 BusinessProfileCard.propTypes = {
   profile: PropTypes.object.isRequired,
   isSelected: PropTypes.bool,
   isFetching: PropTypes.bool,
   onClick: PropTypes.func.isRequired
 };
- 
+
 export default BusinessProfileCard;
- 
