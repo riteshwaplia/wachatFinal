@@ -27,6 +27,8 @@ const Header = ({ onToggleSidebar }) => {
     setIsDropdownOpen(false);
   };
 
+
+
   const handleLanguageChange = (e) => {
     const langCode = e.target.value;
     i18n.changeLanguage(langCode);
@@ -53,6 +55,7 @@ const Header = ({ onToggleSidebar }) => {
 
       {/* User dropdown and Language selector */}
       <div className="relative flex items-center space-x-4">
+
         {/* i18next Language Switcher */}
         <div className="relative">
           <select

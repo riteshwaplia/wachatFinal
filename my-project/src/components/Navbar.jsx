@@ -4,6 +4,9 @@ import PropTypes from 'prop-types';
 import { useTenant } from '../context/TenantContext';
 import { useTranslation } from 'react-i18next';
 
+// Simple dark mode toggle using DOM manipulation
+
+
 const Navbar = ({ links = [], brandName = 'Your Brand' }) => {
 
   const { siteConfig } = useTenant(); // Access siteConfig
@@ -21,7 +24,7 @@ const Navbar = ({ links = [], brandName = 'Your Brand' }) => {
         </a>
 
         {/* Navigation Links */}
-        <div className="hidden md:flex items-center space-x-6">
+        <div className="hidden md:flex items-center ">
           {links.map((link) => (
             <a
               key={link.href}
@@ -32,6 +35,7 @@ const Navbar = ({ links = [], brandName = 'Your Brand' }) => {
             </a>
           ))}
         </div>
+
         {/* Language Selector */}
         <div className="flex items-center ml-4">
           <select
@@ -44,6 +48,8 @@ const Navbar = ({ links = [], brandName = 'Your Brand' }) => {
             <option value="es">Español</option>
             <option value="fr">Français</option>
           </select>
+          {/* Night Mode Toggle Button */}
+
         </div>
         {/* Mobile menu button (hidden for now, but placeholder) */}
         <div className="md:hidden">
