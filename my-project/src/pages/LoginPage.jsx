@@ -19,78 +19,70 @@ const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState({});
-  const { login } = useAuth();
+  const { login, authLoading } = useAuth(); // Get authLoading from context
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
+  const [formLoading, setFormLoading] = useState(false); // Renamed for clarity
   const [forgotUi, setForgotUi] = useState(false)
   const { t } = useTranslation();
 
+ if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600">{t('verifyingSession')}</p>
+        </div>
+      </div>
+    );
+  }
+  console.log("LoginPage rendered",authLoading);
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setErrorMessage({});
+setFormLoading(true); // start loading
+  const data = { email, password };
+  const validationErrors = loginValidation(data);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setErrorMessage({});
+  if (Object.keys(validationErrors).length > 0) {
+    setErrorMessage(validationErrors);
+    setFormLoading(false); // stop loading if validation fails
+    return;
+  }
 
-    const data = { email, password };
-    const validationErrors = loginValidation(data);
+  if (password.length < 6) {
+    ErrorToast("password length must be at least 6");
+    setFormLoading(false); // stop loading if password is invalid
+    return;
+  }
 
-    console.log("validationErrors", validationErrors)
+  try {
+    const response = await login(email, password);
 
-    if (Object.keys(validationErrors).length > 0) {
-      setErrorMessage(validationErrors);
-      return;
-    }
+    if (response?.success) {
+      const user = response.user;
+      SuccessToast("Logged in Successfully");
 
-
-    if (password.length < 6) {
-      ErrorToast("password  length must be at least 6")
-      return
-    }
-    const delay = (ms) => new Promise((res) => setTimeout(res, ms));
-
-    try {
-      setLoading(true)
-      await delay(100);
-      // const response = await api.post('/users/login', { email, password })
-
-      const response = await login(email, password)
-
-
-
-      console.log("response from login:", response);
-
-      if (response?.success) {
-        const user = response.user;
-
-        SuccessToast("Logged in Successfully");
-
-        if (user?.role === "super_admin" || user?.role === "tanent_admin") {
-          navigate("/admin/dashboard");
-        } else if (user?.role === "user") {
-          navigate("/projects");
-        } else if (user?.role === "super_admin" || user?.role === "tanent_admin") {
-          navigate('/admin/add-tenant-admin')
-        }
-
-
-      } else {
-        ErrorToast("please provide valid credentials.");
-
+      if (user?.role === "super_admin" || user?.role === "tanent_admin") {
+        navigate("/admin/dashboard");
+      } else if (user?.role === "user") {
+        navigate("/projects");
+      } else if (user?.role === "super_admin" || user?.role === "tanent_admin") {
+        navigate('/admin/add-tenant-admin');
       }
-    } catch (error) {
-      console.error("Login error:", error);
-
-      const errMsg =
-        error?.response?.data?.message ||
-        error?.message ||
-        "Something went wrong. Please try again later.";
-
-      ErrorToast(errMsg);
-    } finally {
-      setLoading(false);
+    } else {
+      ErrorToast("Please provide valid credentials.");
     }
-  };
+  } catch (error) {
+    console.error("Login error:", error);
+    const errMsg =
+      error?.response?.data?.message ||
+      error?.message ||
+      "Something went wrong. Please try again later.";
+    ErrorToast(errMsg);
+  } finally {
+setFormLoading(false) }
+};
 
-  console.log("login loading", loading)
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center md:p-4">
@@ -155,9 +147,9 @@ const LoginPage = () => {
                 <Button
                   type="submit"
                   className="w-full flex items-center justify-center gap-1 mt-6"
-                  loading={loading}
+                  loading={formLoading}
                 >
-                  <div>{loading ? t('loggingIn') : t('login')}</div>
+                  <div>{formLoading ? t('loggingIn') : t('login')}</div>
                   <div><CiLogin size={18} className='text-white' /></div>
                 </Button>
               </form>
