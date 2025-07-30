@@ -18,25 +18,37 @@ const AddCustomFieldModal = ({ isOpen, onClose, onSuccess, fields }) => {
 
     setLoading(true);
     try {
+      setLoading(true);
       const newField = { key: label, type: type };
 
-      const res = await api.put(`/projects/${id}/contacts/contact-add-customField`, newField); // Update the URL if needed
+      const res = await api.put(
+        `/projects/${id}/contacts/contact-add-customField`,
+        newField
+      );
 
       if (res?.data?.success) {
         onSuccess(newField);
-        SuccessToast(res.data.message || 'Custom field added successfully');
-        setLabel('');
-        setType('');
+        SuccessToast(res.data.message || "Custom field added successfully");
+        setLabel("");
+        setType("");
         onClose(); // Close modal
       } else {
-        ErrorToast(res.data.message || 'Something went wrong');
+        ErrorToast(res.data.message || "Something went wrong");
       }
     } catch (error) {
-      console.error('Failed to save custom field', error);
-      ErrorToast('Failed to save custom field');
+      console.error("Failed to save custom field", error);
+
+      // Extract server error message if available
+      const serverMessage =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        "Failed to save custom field";
+
+      ErrorToast(serverMessage);
     } finally {
       setLoading(false);
     }
+
   };
 
   if (!isOpen) return null;
