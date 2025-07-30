@@ -5,12 +5,12 @@ import PropTypes from 'prop-types';
 const Card = ({ children, title, footer, className = '', ...props }) => {
   return (
     <div
-      className={`bg-white rounded-2xl shadow-custom-card overflow-hidden ${className}`}
+      className={`bg-white dark:bg-dark-surface rounded-2xl shadow-custom-card overflow-hidden ${className}`}
       {...props}
     >
       {title && (
-        <div className="px-6 py-4 border-b border-gray-100">
-          <h2 className="text-xl font-semibold text-gray-800">{title}</h2>
+        <div className="px-6 py-4 border-b border-gray-100 dark:broder-dark-border dark:text-dark-text-primary dark:border-dark-border">
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-dark-text-primary">{title}</h2>
         </div>
       )}
       <div className="p-6">

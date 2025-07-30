@@ -45,17 +45,17 @@ const UserProfileLayout = ({ children, sidebar = true }) => {
       )}
 
       {/* Main Content Area */}
-      <div className={`flex flex-col flex-1 transition-all duration-300 ${sidebar && sidebarOpen ? 'md:ml-64' : 'ml-0'
-        }`}>
-        <Header
-
-          onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-
-        <main onClick={() => {
-          if (window.innerWidth < 768) {
-            setSidebarOpen(false);
-          }
-        }
+      <div className={`flex flex-col flex-1 transition-all duration-300 ${
+        sidebar && sidebarOpen ? 'md:ml-64' : 'ml-0 md:ml-20'
+      }`}>
+        <Header  
+        
+        onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+        
+        <main onClick={()=>{
+           if (window.innerWidth < 768) {
+      setSidebarOpen(false);
+    }}
         } className="flex-grow md:p-4 p-2  overflow-hidden md:p-6 lg:p-8 transition-all duration-300 w-[100vw] md:w-auto  ">
           {children}
         </main>

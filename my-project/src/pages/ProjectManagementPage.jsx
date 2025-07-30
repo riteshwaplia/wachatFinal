@@ -20,12 +20,12 @@ const ProjectCard = ({ project, onEdit, onDelete, onClick }) => {
   const { t } = useTranslation();
   return (
     <div
-      className="bg-white p-6 rounded-2xl shadow-md border border-gray-200 hover:shadow-xl transition-all duration-300 cursor-pointer group"
+      className="bg-white p-6 dark:bg-dark-surface dark:border-dark-border text-dark-text-primary rounded-2xl shadow-md border border-gray-200 hover:shadow-xl transition-all duration-300 cursor-pointer group"
       onClick={onClick}
     >
       <div className="flex justify-between items-start">
         <div className="flex-1">
-          <h3 className="text-xl font-semibold text-gray-900 group-hover:text-green-600 transition-colors font-heading">
+          <h3 className="text-xl font-semibold dark:text-dark-text-primary text-gray-900 group-hover:text-green-600 transition-colors font-heading">
             {project.name}
           </h3>
 
@@ -323,7 +323,7 @@ const ProjectManagementPage = () => {
           <select
             value={selectedBusiness}
             onChange={(e) => setSelectedBusiness(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            className="w-full px-3 py-2 border border-gray-300 dark:bg-dark-surface dark:text-dark-text-primary rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
           >
             <option value="all">{t('allBusinesses')}</option>
             {businessProfiles.map((business) => (
@@ -336,8 +336,8 @@ const ProjectManagementPage = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1">
-        <div className="container mx-auto md:px-4 md:py-8 px-2 py-2">          {/* Header Section */}
+      <div className="flex-1 dark:bg-dark-bg-primary">
+        <div className="container dark:bg-dark-bg-primary mx-auto md:px-4 md:py-8 px-2 py-2">          {/* Header Section */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
             <div className="flex items-center">
               <button
@@ -346,7 +346,7 @@ const ProjectManagementPage = () => {
               >
                 <FiFilter size={20} />
               </button>
-              <h1 className="text-2xl font-bold text-gray-800 font-heading">
+              <h1 className="text-2xl dark:text-dark-text-primary font-bold text-gray-800 font-heading">
                 {t('myProjects')}
               </h1>
             </div>
@@ -357,7 +357,7 @@ const ProjectManagementPage = () => {
                 <select
                   value={selectedBusiness}
                   onChange={(e) => setSelectedBusiness(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-dark-surface dark:text-dark-text-primary focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm"
                 >
                   <option value="all">{t('allBusinesses')}</option>
                   {businessProfiles.map((business) => (
@@ -427,7 +427,7 @@ const ProjectManagementPage = () => {
 
       {/* Create/Edit Project Modal */}
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-        <h2 className="text-xl font-semibold text-gray-800 mb-4 font-heading">
+        <h2 className="text-xl font-semibold dark:text-dark-text-primary text-gray-800 mb-4 font-heading">
           {editingProject ? t('editProject') : t('createNewProject')}
         </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -438,7 +438,7 @@ const ProjectManagementPage = () => {
             <input
               type="text"
               name="name"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:bg-dark-surface dark:text-dark-text-primary rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               value={formData.name}
               onChange={handleInputChange}
               required
@@ -452,7 +452,7 @@ const ProjectManagementPage = () => {
             <input
               type="text"
               name="assistantName"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-dark-surface dark:text-dark-text-primary focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               value={formData.assistantName}
               onChange={handleInputChange}
             />
@@ -464,7 +464,7 @@ const ProjectManagementPage = () => {
             </label>
             <select
               name="businessProfileId"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-dark-surface dark:text-dark-text-primary focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               value={formData.businessProfileId}
               onChange={handleInputChange}
             >
@@ -484,7 +484,7 @@ const ProjectManagementPage = () => {
             <input
               type="text"
               name="whatsappNumber"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-dark-surface dark:text-dark-text-primary focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               value={formData.whatsappNumber}
               onChange={handleInputChange}
             />
@@ -513,7 +513,7 @@ const ProjectManagementPage = () => {
             </label>
             <select
               name="activePlan"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-dark-surface dark:text-dark-text-primary dark:focus-ring-1 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               value={formData.activePlan}
               onChange={handleInputChange}
             >
@@ -530,7 +530,7 @@ const ProjectManagementPage = () => {
             <input
               type="number"
               name="planDuration"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-dark-surface dark:text-dark-text-primary focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               value={formData.planDuration}
               onChange={handleInputChange}
               min="1"

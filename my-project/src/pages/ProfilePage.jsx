@@ -11,6 +11,7 @@ import { timeZoneOptions } from '../components/constants/timeZone';
 import { FaCamera } from 'react-icons/fa';
 import { IoMdPersonAdd } from "react-icons/io";
 import { useEffect } from 'react';
+import toast from 'react-hot-toast';
 import api from '../utils/api';
 import axios from 'axios';
 import { resolvePath, useParams } from 'react-router-dom';
@@ -61,8 +62,8 @@ export default function ProfilePage() {
         console.log("res=>>>>>>>", res.data._id)
         setUserId(res?.data?._id)
         setUser({
-          firstName: res.data.firstName,
-          lastName: res.data.lastName,
+          firstName:res.data.firstName,
+          lastName:res.data.lastName,
           userName: res.data.username || '',
           email: res.data.email || '',
           mobile: res.data.mobileNumber || '',
@@ -155,21 +156,21 @@ export default function ProfilePage() {
       };
 
       console.log("useridddd", userId)
-      const response = await api.put(
-        `/users/update-self/${userId}`,
-        payload,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      );
+const response = await api.put(
+  `/users/update-self/${userId}`,
+  payload,
+  {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  }
+);
 
       if (response?.data?.success) {
-        console.log('User updated successfully:', response.data);
+        toast.success('User profile updated successfully:', response.data);
         // Optionally show success toast or redirect
       } else {
-        console.error('Update failed:', response.data?.message);
+        toast.error('Update failed:', response.data?.message);
         // Optionally show error toast
       }
     } catch (error) {
@@ -236,9 +237,9 @@ export default function ProfilePage() {
               <InputField label="Last Name" error={errors.lastName} value={user.lastName} onChange={(e) => handleChange('lastName', e.target.value)} type="text" placeholder="Enter last name here..." disabled={!isEditable} />
               <InputField disable={true} label="Email" value={user.email} onChange={(e) => handleChange('email', e.target.value)} type="email" placeholder="Enter your email here..." />
               <InputField label="Username" error={errors.username} value={user.userName} onChange={(e) => handleChange('userName', e.target.value)} type="text" placeholder="Enter your username here..." disabled={!isEditable} />
-              {/* <div className="mb-4">
- 
- 
+             {/* <div className="mb-4">
+
+
   <label className="block text-sm font-medium text-[var(--color-txtsecondary)] mb-1">
     Gender
   </label>
@@ -258,7 +259,7 @@ export default function ProfilePage() {
 </div> */}
 
 
-              {/*              
+{/*              
               <div className="mb-4">
   <label className="block text-sm font-medium text-gray-700 mb-1">
     Date of Birth
@@ -292,29 +293,29 @@ export default function ProfilePage() {
               {/* {
   isEditable ?(
               <InputField label="First Name" error={errors.name} value={user.firstName} onChange={(e) => handleChange('firstName', e.target.value)} type="text" placeholder="Enter first name here..." disabled={!isEditable} />
- 
+
   ):(
               <InputField disabled label="First Name" error={errors.name} value={user.firstName} onChange={(e) => handleChange('firstName', e.target.value)} type="text" placeholder="Enter first name here..." />
- 
+
   )
 }
 {
   isEditable ?(
                       <InputField label="Last Name" error={errors.lastName} value={user.lastName} onChange={(e) => handleChange('lastName', e.target.value)} type="text" placeholder="Enter last name here..." />
- 
+
   ):(
                            <InputField disabled label="Last Name" error={errors.lastName} value={user.lastName} onChange={(e) => handleChange('lastName', e.target.value)} type="text" placeholder="Enter last name here..." />
- 
+
   )
 }
 {
   isEditable ?(
                                  <InputField  label="Email" error={errors.email} value={user.email} onChange={(e) => handleChange('email', e.target.value)} type="email" placeholder="Enter your email here..." />
- 
+
   ):(
                                      <InputField disable={true} label="Email" error={errors.email} value={user.email} onChange={(e) => handleChange('email', e.target.value)} type="email" placeholder="Enter your email here..." />
- 
- 
+
+
   ) */}
               {/* } */}
 
@@ -348,8 +349,8 @@ export default function ProfilePage() {
               ) : (
                 <InputField label="Currency" value={user.currency} disabled />
               )}
- 
- 
+
+
               {isEditable ? (
                 <CustomSelect label="Time Zone" options={timeZoneOptions} value={timeZoneOptions.find((o) => o.value === user.timezone)} onChange={(opt) => handleChange('timezone', opt?.value)} placeholder="-- Timezone --" />
               ) : (

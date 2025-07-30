@@ -3,6 +3,7 @@ import api from "../../utils/api";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import io from "socket.io-client";
+import CustomSelect from "../CustomSelect";
 import * as XLSX from 'xlsx';
 import GroupWiseBroadcasting from "./GroupWiseBroadcasting";
 import { toast } from "react-hot-toast";
@@ -254,6 +255,26 @@ const SendMessagePage = () => {
                 );
                 
                 setImageId(res.data?.id || res.data?.data.id || "");
+                const mediaHandle = res.data?.id || res.data?.data.id;
+                if (!mediaHandle) {
+                  alert("Upload succeeded but media handle missing");
+                  return;
+                }
+
+                // Update the HEADER example with new handle
+                const updatedComponents = parsed.map((comp) => {
+                  if (comp.type === "HEADER" && comp.format === "IMAGE") {
+                    return {
+                      ...comp,
+                      example: {
+                        header_handle: [mediaHandle],
+                      },
+                    };
+                  }
+                  return comp;
+                });
+
+                setBulkTemplateComponents(JSON.stringify(updatedComponents, null, 2));
                 toast.success("Image uploaded successfully");
               } catch (error) {
                 toast.error("Image upload failed");
@@ -262,7 +283,7 @@ const SendMessagePage = () => {
                 setIsLoading(prev => ({ ...prev, uploading: false }));
               }
             }}
-            className="block w-full border rounded-md p-2 bg-white"
+            className="block w-full border dark:bg-dark-surface rounded-md p-2 dark:text-dark-text-primary  bg-white"
             disabled={isLoading.uploading}
           />
           <p className="text-sm text-gray-500 mt-1">
@@ -349,7 +370,7 @@ const SendMessagePage = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6 bg-white rounded-lg shadow-md mt-8">
+    <div className="max-w-6xl mx-auto p-6 dark:bg-dark-surface bg-white rounded-lg shadow-md mt-8">
       <div className="flex border-b mb-6">
         <button
           className={`py-2 px-4 font-medium ${
@@ -369,7 +390,7 @@ const SendMessagePage = () => {
         </button>
       </div>
 
-      <div className="mb-8 p-4 border border-blue-200 rounded-lg bg-blue-50">
+      <div className="mb-8 p-4 border dark:bg-dark-surface dark:border-dark-border dark:text-dark-text-primary border-blue-200 rounded-lg bg-blue-50">
         <h3 className="text-xl font-semibold mb-3">Message Status</h3>
         {messageStatus.latest ? (
           <div className="space-y-2">
@@ -411,14 +432,14 @@ const SendMessagePage = () => {
       {activeTab === "group" ? (
         <GroupWiseBroadcasting />
       ) : (
-        <div className="p-4 border border-gray-200 rounded-lg">
-          <h3 className="text-xl font-semibold mb-4">Bulk Template Messages</h3>
+        <div className="p-4 border dark:border-dark-border dark:boder-dark-border border-gray-200 rounded-lg">
+          <h3 className="text-xl font-semibold dark:text-dark-text-primary mb-4">Bulk Template Messages</h3>
           
           <form onSubmit={handleBulkMessageSubmit} className="space-y-4">
             <div>
-              <label className="block font-medium mb-1">Template</label>
+              <label className="block dark:text-dark-text-primary font-medium mb-1">Template</label>
               <select
-                className="w-full border rounded-md p-2"
+                className="w-full border dark:bg-dark-surface dark:text-dark-text-primary rounded-md p-2"
                 value={bulkTemplateName}
                 onChange={(e) => setBulkTemplateName(e.target.value)}
                 required
@@ -441,9 +462,9 @@ const SendMessagePage = () => {
             {renderHeaderImageUpload()}
 
             <div>
-              <label className="block font-medium mb-1">Template Components</label>
+              <label className="block dark:text-dark-text-primary font-medium mb-1">Template Components</label>
               <textarea
-                className="w-full border rounded-md p-2 font-mono text-sm h-32"
+                className="w-full border dark:text-dark-text-primary dark:bg-dark-surface dark:border-dark-border rounded-md p-2 font-mono text-sm h-32"
                 value={bulkTemplateComponents}
                 onChange={(e) => setBulkTemplateComponents(e.target.value)}
                 placeholder="JSON components will auto-populate when template is selected"
@@ -454,11 +475,11 @@ const SendMessagePage = () => {
             {renderTemplatePreview()}
 
             <div>
-              <label className="block font-medium mb-1">Contacts File</label>
+              <label className="block dark:text-dark-text-primary font-medium mb-1">Contacts File</label>
               <input
                 type="file"
                 id="bulkContactsFile"
-                className="w-full border rounded-md p-2"
+                className="w-full border dark:text-dark-text-primary dark:bg-dark-surface rounded-md p-2"
                 onChange={handleBulkFileChange}
                 accept=".csv,.xlsx,.xls"
                 required

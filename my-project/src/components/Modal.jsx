@@ -57,12 +57,12 @@ const Modal = ({
       {...props}
     >
       <div
-        className={`bg-white rounded-xl shadow-2xl relative w-full ${sizeClasses} transform transition-transform duration-300 ease-out`}
+        className={`bg-white dark:bg-dark-surface rounded-xl shadow-2xl relative w-full ${sizeClasses} transform transition-transform duration-300 ease-out`}
         onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside content
       >
         {/* Modal Header */}
         <div className="flex justify-between items-center px-6 py-4 border-b border-gray-100">
-          <h3 id="modal-title" className="text-xl font-semibold text-gray-800">
+          <h3 id="modal-title" className="text-xl dark:text-dark-text-primary font-semibold text-gray-800">
             {title}
           </h3>
           <button

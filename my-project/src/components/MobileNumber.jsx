@@ -25,6 +25,7 @@ export const MobileNumber = ({
         <PhoneInput
           country={country}
           countryCodeEditable={false}
+          className="dark:text-dark-text-primary dark:bg-dark-surface"
           value={value}
           onChange={(phone, countryData) => {
             onChange(phone, countryData);

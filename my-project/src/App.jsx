@@ -44,6 +44,7 @@ import UserProfileLayout from './layout/userProfileLayout';
 import CreateCarouselTemplate from './components/template/CreateCarouselTemplate';
 import SendCarosualTemplate from './components/broadcasting/SendCarosualTemplate';
 
+ 
 const AdminRoute = ({ children }) => (
   <ProtectedRoute roles={["super_admin", "tenant_admin"]}>
     <AdminLayout>{children}</AdminLayout>
@@ -249,6 +250,35 @@ function AppContent() {
 
         {/* <Route path="/projects/:projectId/flow-builder" element={<FlowBuilder />} />
             <Route path="/projects/:projectId/flow-builder/:flowId" element={<FlowBuilder />} /> For editing existing flow */}
+     
+     
+     {/* //user profile and settings */}
+     <Route
+        path="/user/profile"
+        element={
+          <UserProfileLayout>
+            <ProfilePage />
+          </UserProfileLayout>
+        }
+      />
+    <Route
+        path="/user/update-password"
+        element={
+          <UserProfileLayout>
+      <UpdatePassword/>
+          </UserProfileLayout>
+        }
+      />
+ 
+      <Route
+        path="/project/:id/setting"
+        element={
+          <UserLayout>
+            <UserSetting />
+          </UserLayout>
+        }
+      />
+      {/* <Route
 
 
         {/* //user profile and settings */}
@@ -347,6 +377,7 @@ function AppContent() {
 
 function App() {
   return (
+
     <Router>
       <TenantProvider>
         <AuthProvider>
@@ -354,6 +385,7 @@ function App() {
         </AuthProvider>
       </TenantProvider>
     </Router>
+     
   );
 }
 

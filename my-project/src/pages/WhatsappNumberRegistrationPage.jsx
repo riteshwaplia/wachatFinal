@@ -203,7 +203,7 @@ const WhatsappNumberRegistrationPage = () => {
                 metaPhoneNumberID: numberData.id,
                 whatsappNumber: numberData.display_phone_number,
                 activePlan: 'Standard',
-                planDuration: 365
+                planDuration: "365"
             });
 
             if (projectRes.data.success) {
@@ -267,7 +267,7 @@ const WhatsappNumberRegistrationPage = () => {
             {/* Header Section */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
                 <div>
-                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+                    <h1 className="text-2xl dark:text-dark-text-primary sm:text-3xl font-bold text-gray-900">
                         {t('whatsappBusinessIntegration')}
                     </h1>
                     <p className="mt-1 text-gray-600">

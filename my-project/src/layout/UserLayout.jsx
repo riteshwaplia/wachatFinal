@@ -12,7 +12,7 @@ const UserLayout = ({ children, sidebar = true }) => {
   }, []);
  
   return (
-    <div className="flex min-h-screen bg-gray-50 w-full overflow-scroll">
+    <div className="flex min-h-screen dark:bg-dark-bg-primary bg-gray-50 w-full overflow-scroll">
       {/* overlay */}
      {
 sidebarOpen&&  <div onClick={()=>
@@ -38,7 +38,7 @@ sidebarOpen&&  <div onClick={()=>
       
       {/* Main Content Area */}
       <div className={`flex flex-col flex-1 transition-all duration-300 ${
-        sidebar && sidebarOpen ? 'md:ml-64' : 'ml-0'
+        sidebar && sidebarOpen ? 'md:ml-64' : 'md:ml-12'
       }`}>
         <Header  
         
@@ -48,7 +48,7 @@ sidebarOpen&&  <div onClick={()=>
            if (window.innerWidth < 768) {
       setSidebarOpen(false);
     }}
-        } className="flex-grow md:p-4 overflow-hidden md:p-6 lg:p-8 transition-all duration-300 w-[100vw] md:w-auto  ">
+        } className="flex-grow md:p-4  dark:bg-dark-bg-primary overflow-hidden md:p-6 lg:p-8 transition-all duration-300 w-[100vw] md:w-auto  ">
           {children}
         </main>
       </div>

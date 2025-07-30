@@ -14,7 +14,7 @@ const Button = ({
   className = '',
   ...props
 }) => {
-  let baseStyles = 'font-semibold rounded-lg transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-opacity-75 flex items-center justify-center';
+  let baseStyles = 'font-semibold rounded-lg transition-all  duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-opacity-75 flex items-center justify-center';
   let variantStyles = '';
   let sizeStyles = '';
 

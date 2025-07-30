@@ -186,7 +186,7 @@ const ContactForm = ({ initialData, onSubmit, onCancel, groups, isLoading, field
     }));
 
     return (
-        <div className="max-h-[700px] overflow-y-auto p-4 border rounded-md">
+        <div className="max-h-[700px] overflow-y-auto p-4 border dark:border-dark-border rounded-md">
             <form onSubmit={handleSubmit} className="space-y-4">
                 <InputField
                     id="contactName"

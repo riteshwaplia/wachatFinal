@@ -84,7 +84,7 @@ const BulkMessagingDashboard = () => {
       {/* Header with stats and new broadcast button */}
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">{t('broadcastCenter')}</h1>
+          <h1 className="text-2xl font-bold dark:text-dark-text-primary text-gray-800">{t('broadcastCenter')}</h1>
           <p className="mt-1 text-sm text-gray-500">
             {t('manageBulkMessageCampaigns')}
           </p>
@@ -107,7 +107,7 @@ const BulkMessagingDashboard = () => {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 mb-8">
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
+        <div className="bg-white p-4 dark:bg-dark-surface dark:border-dark-border rounded-lg border border-gray-200">
           <div className="flex items-center">
             <div className="bg-blue-100 p-3 rounded-full">
               <svg className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -116,12 +116,12 @@ const BulkMessagingDashboard = () => {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">{t('totalMessages')}</p>
-              <p className="text-2xl font-semibold text-gray-900">{stats.total}</p>
+              <p className="text-2xl font-semibold text-gray-900 dark:text-dark-text-primary">{stats.total}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
+        <div className="bg-white p-4 rounded-lg dark:bg-dark-surface dark:border-dark-border border border-gray-200">
           <div className="flex items-center">
             <div className="bg-green-100 p-3 rounded-full">
               <svg className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -130,7 +130,7 @@ const BulkMessagingDashboard = () => {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">{t('delivered')}</p>
-              <p className="text-2xl font-semibold text-gray-900">{stats.delivered}</p>
+              <p className="text-2xl font-semibold text-gray-900 dark:text-dark-text-primary">{stats.delivered}</p>
             </div>
           </div>
         </div>
@@ -150,7 +150,7 @@ const BulkMessagingDashboard = () => {
           </div>
         </div> */}
 
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
+        <div className="bg-white p-4 rounded-lg dark:bg-dark-surface dark:border-dark-border border border-gray-200">
           <div className="flex items-center">
             <div className="bg-red-100 p-3 rounded-full">
               <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -159,16 +159,17 @@ const BulkMessagingDashboard = () => {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">{t('failed')}</p>
-              <p className="text-2xl font-semibold text-gray-900">{stats.failed}</p>
+              <p className="text-2xl font-semibold text-gray-900 dark:text-dark-text-primary">{stats.failed}</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Broadcast List */}
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-medium text-gray-900">{t('recentBroadcasts')}</h3>
+      <div className="bg-white rounded-lg border dark:bg-dark-surface dark:border-dark-surface border-gray-200 overflow-hidden">
+        <div className="px-6 py-4 border-b dark:border-dark-border border-gray-200">
+          <h3 className="text-lg font-medium text-gray-900 dark:text-dark-text-primary
+">{t('recentBroadcasts')}</h3>
         </div>
         <div className="divide-y divide-gray-200">
           {loading ? (
@@ -326,7 +327,7 @@ const BulkMessagingDashboard = () => {
                               </th> */}
                             </tr>
                           </thead>
-                          <tbody className="bg-white divide-y divide-gray-200">
+                          <tbody className="bg-white divide-y divide-gray-200 dark:bg-dark-surface">
                             {selectedBroadcast.messages.slice(0, 10).map((message) => (
                               <tr key={message._id}>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">

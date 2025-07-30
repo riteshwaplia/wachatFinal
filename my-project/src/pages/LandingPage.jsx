@@ -38,7 +38,14 @@ import { CiLinkedin } from "react-icons/ci";
 import { RxCross2 } from "react-icons/rx";
 import { TiTick } from "react-icons/ti";
 import { GiDiamondTrophy } from "react-icons/gi";
+import { useLocation } from "react-router-dom";
 import { Link } from "react-router-dom";
+// import { RxCross2 } from "react-icons/rx";
+import { AiOutlineHome } from "react-icons/ai";
+import { FaWandMagicSparkles } from "react-icons/fa6";
+import { BiMessageRoundedDetail } from "react-icons/bi";
+import { IoIosContact } from "react-icons/io";
+import { AiOutlineLogin } from "react-icons/ai";
 import { useTenant } from "../context/TenantContext";
 import { useTranslation } from "react-i18next";
 

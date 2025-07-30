@@ -31,7 +31,7 @@ const Table = ({
         </thead>
 
         {/* Table Body */}
-        <tbody className="bg-white divide-y divide-gray-200">
+        <tbody className="bg-white divide-y divide-gray-200 dark:bg-dark-surface">
           {loading ? (
             <tr>
               <td colSpan={columns.length} className="px-6 py-4 text-center text-gray-500">
