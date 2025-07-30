@@ -24,6 +24,7 @@ import LoadingSpinner from "../components/Loader";
 import InputField from "../components/InputField";
 // import { ErrorToast } from "../utils/Toast";
 import { useTranslation } from 'react-i18next';
+import { ErrorToast, SuccessToast } from "../utils/Toast";
 
 const GroupPage = () => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -217,39 +218,58 @@ const GroupPage = () => {
   }
 
   // Handle form submission
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    const isValid = validateGroupData();
-    if (!isValid) {
-      return
+  const isValid = validateGroupData();
+  if (!isValid) return;
+
+  setLoding(true);
+
+  try {
+    const endpoint = editingGroup
+      ? `/projects/${projectId}/groups/${editingGroup._id}`
+      : `/projects/${projectId}/groups`;
+    const method = editingGroup ? "put" : "post";
+
+    const res = await api[method](endpoint, formData, config);
+
+    // ✅ Show success toast
+    SuccessToast(res.data.message || "Group saved successfully");
+
+    // ✅ Reset form and close modal
+    setFormData({ title: "", description: "" });
+    setEditingGroup(null);
+    setIsModalOpen(false);
+    fetchGroups();
+  } catch (error) {
+    console.error("Save group failed:", error);
+
+    let errorMessage = "Failed to save group";
+
+    if (error.response) {
+      const data = error.response.data;
+
+      if (data.message) {
+        errorMessage = data.message;
+      } else if (Array.isArray(data.errors)) {
+        errorMessage = data.errors.join(", ");
+      } else if (typeof data === "string") {
+        errorMessage = data;
+      }
+    } else if (error.request) {
+      errorMessage = "No response from server. Please try again.";
+    } else {
+      errorMessage = error.message || errorMessage;
     }
-    setLoding(true);
 
-    try {
-      const endpoint = editingGroup
-        ? `/projects/${projectId}/groups/${editingGroup._id}`
-        : `/projects/${projectId}/groups`;
-      const method = editingGroup ? "put" : "post";
+    // ✅ Show error toast
+    ErrorToast(errorMessage);
+  } finally {
+    setLoding(false);
+  }
+};
 
-
-
-      const res = await api[method](endpoint, formData, config);
-
-      setMessage({ text: res.data.message, type: "success" });
-      setFormData({ title: "", description: "" });
-      setEditingGroup(null);
-      setIsModalOpen(false);
-      fetchGroups();
-    } catch (error) {
-      setMessage({
-        text: error.response?.data?.message || "Failed to save group",
-        type: "error"
-      });
-    } finally {
-      setLoding(false)
-    }
-  };
 
   // Toggle group status (active/archive)
   const toggleGroupStatus = async (groupId, isCurrentlyActive) => {
@@ -788,15 +808,16 @@ const GroupPage = () => {
                     </span> {t('of')} <span className="font-medium">{pagination.total}</span> {t('results')}
                   </span>
                   <select
-                    value={pagination.limit}
-                    onChange={handleLimitChange}
-                    className="border border-gray-300 rounded-md dark:bg-dark-surface dark:text-dark-text-primary px-2 py-1 text-sm"
-                  >
-                    <option value="5">{t('perPage')}</option>
-                    <option value="10">{t('perPage')}</option>
-                    <option value="20">{t('perPage')}</option>
-                    <option value="50">{t('perPage')}</option>
-                  </select>
+                            value={pagination.limit}
+                            onChange={handleLimitChange}
+                            className="border border-gray-300 dark:bg-dark-surface dark:text-dark-text-primary rounded-md px-2 py-1 text-sm"
+                        >
+                            {[5, 10, 20, 50].map((num) => (
+                                <option key={num} value={num}>
+                                    {num} {t('perPage')}
+                                </option>
+                            ))}
+                        </select>
                 </div>
                 <div className="flex space-x-2">
                   <Button
