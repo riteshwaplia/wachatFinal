@@ -306,6 +306,7 @@ const ContactPage = () => {
 
     const bulkDeleteContact = async () => {
         try {
+            setIsLoading(true)
             const response = await api.put(
                 `/projects/${projectId}/contacts/bulkContactUpdate/delete`,
                 {
@@ -326,6 +327,9 @@ const ContactPage = () => {
         } catch (error) {
             console.log("error", error.message);
         }
+        finally {
+            setIsLoading(false)
+        }
     }
 
 
@@ -345,7 +349,7 @@ const ContactPage = () => {
                     return ErrorToast("Please select at least one contact to unblock.");
                 }
             }
-
+            setIsLoading(true)
             if (activeTab === 'contactList') {
                 // /api/projects/:projectId/groups/bulk-block
                 endpoint = `/projects/${projectId}/contacts/bulk-block`;
@@ -366,6 +370,8 @@ const ContactPage = () => {
         } catch (error) {
             setIsbulkOption(false);
             console.log("error", error.message);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -579,7 +585,7 @@ const ContactPage = () => {
 
     const handleDeleteContact = async () => {
         // if (window.confirm('Are you sure you want to delete this contact?')) {
-        //     setIsLoading(true);
+        setIsLoading(true);
         try {
             const res = await api.delete(`/projects/${projectId}/contacts/deleteContact/${selectedContactId}`);
             setMessage(res.data.message || 'Contact deleted successfully!');
@@ -732,6 +738,7 @@ const ContactPage = () => {
                             Cancel
                         </Button>
                         <Button
+                            loading={isLoading}
                             variant="primary"
                             onClick={() => {
                                 bulkDeleteContact(); // Call your API
@@ -756,7 +763,7 @@ const ContactPage = () => {
                         <Button variant="outline" onClick={() => setShowConfirmModal(false)}>
                             {t('cancel')}
                         </Button>
-                        <Button variant="primary" onClick={() => handleDeleteContact()}>
+                        <Button loading={isLoading} variant="primary" onClick={() => handleDeleteContact()}>
                             {t('confirm')}
                         </Button>
                     </div>
@@ -951,6 +958,7 @@ const ContactPage = () => {
                             && (
                                 <div className="absolute right-0 dark:bg-dark-surface mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
                                     <button
+                                        disabled={isLoading}
                                         onClick={() => {
                                             handleBlockContact();
                                             // setIsBulkActionsOpen(false); // This variable is not defined

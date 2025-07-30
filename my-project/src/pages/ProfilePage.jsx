@@ -325,25 +325,25 @@ const response = await api.put(
               ) : (
                 <InputField label="Company Size" value={user.companySize} disabled />
               )}
-
+ 
               {isEditable ? (
                 <CustomSelect label="Country" options={countryOptions} value={countryOptions.find((o) => o.value === user.country)} onChange={(opt) => handleChange('country', opt?.value)} placeholder="-- Country --" />
               ) : (
                 <InputField label="Country" value={user.country} disabled />
               )}
-
+ 
               {isEditable && user.country.toLowerCase() === 'india' ? (
                 <CustomSelect label="State" options={indianStateOptions} value={indianStateOptions.find((o) => o.value === user.state)} onChange={(opt) => handleChange('state', opt?.value)} placeholder="-- State --" />
               ) : (
                 <InputField label="State" value={user.state} disabled />
               )}
-
+ 
               {isEditable ? (
                 <CustomSelect label="Industry" options={industryOptions} value={industryOptions.find((o) => o.value === user.industry)} onChange={(opt) => handleChange('industry', opt?.value)} placeholder="-- Industry --" />
               ) : (
                 <InputField label="Industry" value={user.industry} disabled />
               )}
-
+ 
               {isEditable ? (
                 <CustomSelect label="Currency" options={currencyOptions} value={currencyOptions.find((o) => o.value === user.currency)} onChange={(opt) => handleChange('currency', opt?.value)} placeholder="-- Currency --" />
               ) : (

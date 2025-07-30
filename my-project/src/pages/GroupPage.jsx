@@ -90,17 +90,27 @@ const GroupPage = () => {
   const validateGroupData = () => {
     const errors = {};
 
-    if (!formData.title.trim()) {
+    // Trim to remove spaces at start/end
+    const title = formData.title.trim();
+
+    // 1️⃣ Required check
+    if (!title) {
       errors.title = "Group name is required";
     }
+    // 2️⃣ Special character check (allow only letters, numbers, and spaces)
+    else if (!/^[a-zA-Z0-9 ]+$/.test(title)) {
+      errors.title = "Special characters are not allowed";
+    }
 
-    // Show toast for each error
+    // Show errors if any
     if (Object.keys(errors).length > 0) {
-      setErrors(errors)
+      setErrors(errors);           // For UI error display
+      // Optionally show a toast
+      // ErrorToast(Object.values(errors)[0]);  
       return false;
     }
 
-    return true;
+    return true; // ✅ Validation passed
   };
 
 
@@ -153,20 +163,7 @@ const GroupPage = () => {
 
       }
 
-      // if (res.data.success) {
-      //   setGroups(res.data.data);
-      //   console.log("res.>>>>>>>>>", res.data?.pagination?.total)
-      //   setPagination({
-      //     currentPage: res.data.pagination.currentPage || 1,
-      //     total: res.data.pagination.total || 0,
-      //     totalPages: res.data?.pagination.totalPages || 0,
-      //     limit: pagination?.limit || 10
-      //   });
-      //   setLoding(false)
-      //   setMessage({ text: res.data.message, type: "success" });
-      // } else {
-      //   setMessage({ text: res.data.message, type: "error" });
-      // }
+
       setSelectedGroups([]);
     } catch (error) {
       console.error("Error fetching groups:", error);
@@ -207,18 +204,17 @@ const GroupPage = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-if (name === 'title') {
-    const isValid = /^[a-zA-Z0-9]*$/.test(value);
-    setErrors((prev) => ({
-      ...prev,
-      title: isValid ? '' : 'Only letters and numbers are allowed',
-    }));
-    if (erorrs[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
-    }}
-
-
-  };
+    if (name === 'title') {
+      const isValid = /^[a-zA-Z0-9]*$/.test(value);
+      setErrors((prev) => ({
+        ...prev,
+        title: isValid ? '' : 'Specal characters are not allowed',
+      }));
+      if (erorrs[name]) {
+        setErrors(prev => ({ ...prev, [name]: '' }));
+      }
+    }
+  }
 
   // Handle form submission
   const handleSubmit = async (e) => {
@@ -228,6 +224,8 @@ if (name === 'title') {
     if (!isValid) {
       return
     }
+    setLoding(true);
+
     try {
       const endpoint = editingGroup
         ? `/projects/${projectId}/groups/${editingGroup._id}`
@@ -248,12 +246,15 @@ if (name === 'title') {
         text: error.response?.data?.message || "Failed to save group",
         type: "error"
       });
+    } finally {
+      setLoding(false)
     }
   };
 
   // Toggle group status (active/archive)
   const toggleGroupStatus = async (groupId, isCurrentlyActive) => {
     try {
+      setLoding(true)
       const endpoint = isCurrentlyActive
         ? `/projects/${projectId}/groups/archive/${groupId}`
         : `/projects/${projectId}/groups/removeArchive/${groupId}`;
@@ -266,6 +267,8 @@ if (name === 'title') {
         text: error.response?.data?.message || "Failed to toggle group status",
         type: "error"
       });
+    } finally {
+      setIsLoading(false)
     }
   };
 
@@ -277,6 +280,7 @@ if (name === 'title') {
 
   const handleDelete = async () => {
     try {
+      setLoding(true)
       const res = await api.delete(
         `/projects/${projectId}/groups/${groupId}`,
         config
@@ -291,6 +295,7 @@ if (name === 'title') {
     } finally {
       setShowConfirmModal(false);
       setGroupId(null);
+      setIsLoading(false)
     }
   };
 
@@ -304,6 +309,7 @@ if (name === 'title') {
     try {
       let endpoint = "";
       let method = "";
+      setLoding(true)
 
       switch (action) {
         case "archive":
@@ -330,6 +336,8 @@ if (name === 'title') {
         text: error.response?.data?.message || "Failed to perform bulk action",
         type: "error"
       });
+    } finally {
+      setIsLoading(false)
     }
   };
 
@@ -420,7 +428,7 @@ if (name === 'title') {
             <Button variant="outline" onClick={() => setShowConfirmModal(false)}>
               {t('cancel')}
             </Button>
-            <Button variant="primary" onClick={handleDelete}>
+            <Button loading={loading} variant="primary" onClick={handleDelete}>
               {t('confirm')}
             </Button>
           </div>
@@ -898,7 +906,7 @@ if (name === 'title') {
             >
               {t('cancel')}
             </Button>
-            <Button type="submit" variant="primary">
+            <Button loading={loading} type="submit" variant="primary">
               {editingGroup ? t('updateGroup') : t('createGroup')}
             </Button>
           </div>
