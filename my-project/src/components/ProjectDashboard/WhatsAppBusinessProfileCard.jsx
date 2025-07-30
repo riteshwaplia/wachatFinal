@@ -464,7 +464,7 @@ const WhatsAppBusinessProfileCard = ({ project, onUpdateProfile, loadingUpdate, 
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-200">
+    <div className=" rounded-2xl shadow-md p-6 border border-gray-200 bg-teal-100">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-semibold text-[#111b21]">WhatsApp Business Profile</h2>
         {isEditing ? (
