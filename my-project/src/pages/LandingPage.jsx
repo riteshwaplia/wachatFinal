@@ -279,7 +279,7 @@ export default function LandingPage() {
           }`}
       >
         <div
-          className={`max-w-7xl  mx-auto px-6 flex justify-between items-center ${isScrolled ? " bg-white text-black rounded-full " : ""
+          className={`max-w-7xl  mx-auto px-6 flex justify-between litems-center ${isScrolled ? " bg-white text-black rounded-full " : ""
             } `}
         >
           <motion.div
@@ -304,84 +304,9 @@ export default function LandingPage() {
             <span className={isScrolled ? "text-black" : "text-white"}></span>
           </motion.div>
 
-          {
-            <motion.button
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              whileHover={{ scale: 1.1 }}
-              onClick={() => setSidebarOpen(true)}
-              className="md:hidden p-2 md:p-0 text-black"
-            >
-              <Menu
-                className={` ${isScrolled ? "text-black" : "text-white"}`}
-                size={28}
-              />
-            </motion.button>
-          }
 
-          {/* <nav className="hidden md:flex space-x-6 text-lg">
-            {[
-              { label: "Products", dropdown: true },
-              { label: "Pricing", link: "#pricing" },
-              { label: "Resources", link: "#resources" },
-              { label: "Log in", link: "/login" },
-            ].map((item, i) => (
-              <motion.div
-                key={i}
-                custom={i}
-                initial="hidden"
-                animate="visible"
-                variants={navItemVariants}
-                className={` hover:text-primary-700 hover:underline  py-3 transition  cursor-pointer ${isScrolled
-                  ? "hover:text-primary-700 text-black "
-                  : "text-white"
-                  }`}
-                onMouseEnter={() => item.dropdown && setShowDropdown(true)}
-                onMouseLeave={() => item.dropdown && setShowDropdown(false)}
-              >
-                <Link to={item.link} className="flex items-center gap-2">
-                  {item.label}
-                  {item.dropdown && (
-                    <motion.span
-                      animate={{ rotate: showDropdown ? 180 : 0 }}
-                      transition={{ duration: 0.1, ease: "easeInOut" }}
-                    >
-                      <RxCaretUp />
-                    </motion.span>
-                  )}
-                </Link>
 
-                {item.dropdown && showDropdown && (
-                  <motion.div
-                    initial="hidden"
-                    animate="visible"
-                    exit="hidden"
-                    variants={dropdownVariants}
-                    className="absolute top-full left-0  mt-2 w-[100vw]  bg-white text-black  shadow-xl p-4 z-50"
-                  >
-                    <ul className="grid grid-cols-3 gap-4 w-full">
-                      {[
-                        "Wachat",
-                        "Sabnode AI",
-                        "Socialproof",
-                        "Botpion",
-                        "Pingblast",
-                        "SitesPY",
-                      ].map((subItem, idx) => (
-                        <li
-                          key={idx}
-                          className="hover:text-purple-600 transition font-medium"
-                        >
-                          {subItem}
-                        </li>
-                      ))}
-                    </ul>
-                  </motion.div>
-                )}
-              </motion.div>
-            ))}
-          </nav> */}
-
+ 
           <nav className="hidden md:flex space-x-6 text-lg">
             {[
               { label: "Products", dropdown: true },
@@ -449,12 +374,12 @@ export default function LandingPage() {
             ))}
           </nav>
 
-          <div className="flex items-center space-x-4">
+          <div className="flex lg:items-center  item-end space-x-4">
             <div className="flex items-center ml-4">
               <select
                 value={i18n.language || "en"}
                 onChange={(e) => i18n.changeLanguage(e.target.value)}
-                className={`bg-primary-400 md:block hidden  ${isScrolled ? "text-black" : "text-white"
+                className={`bg-primary-400   ${isScrolled ? "text-black" : "text-white"
                   } px-5 py-2 rounded-lg  font-semibold shadow`}              >
                 <option value="en">English</option>
                 <option value="hi">हिन्दी</option>
@@ -462,6 +387,7 @@ export default function LandingPage() {
                 <option value="fr">Français</option>
               </select>
             </div>
+
             <motion.button
               whileHover={{ scale: 1.05 }}
               className={`bg-primary-400 md:block hidden  ${isScrolled ? "text-black" : "text-white"
@@ -470,45 +396,134 @@ export default function LandingPage() {
               Get Started
             </motion.button>
           </div>
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            whileHover={{ scale: 1.1 }}
+            onClick={() => setSidebarOpen(true)}
+            className="md:hidden p-2 md:p-0 text-black"
+          >
+            <Menu
+              className={` ${isScrolled ? "text-black" : "text-white"}`}
+              size={28}
+            />
+          </motion.button>
         </div>
       </header>
 
       <AnimatePresence>
         {sidebarOpen && (
-          <motion.aside
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            variants={sidebarVariants}
-            transition={{ duration: 0.4 }}
-            className="fixed top-0 right-0 w-72 h-full bg-primary-500 text-black p-6 shadow-2xl z-50"
-          >
-            <button
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
               onClick={() => setSidebarOpen(false)}
-              className="text-right w-full text-purple-200 hover:text-black"
-            >
-              Close ✕
-            </button>
-            <ul className="mt-8 space-y-4">
-              {["Home", "Features", "About", "Contact", "login"].map(
-                (item, i) => (
-                  <Link to={item}>
-                    <motion.li
-                      key={i}
-                      whileHover={{ scale: 1.05 }}
-                      className="cursor-pointer text-white hover:text-primary-300"
-                    >
-                      {item}
-                    </motion.li>
-                  </Link>
-                )
-              )}
+            />
 
-            </ul>
-          </motion.aside>
+            <motion.aside
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              variants={sidebarVariants}
+              transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
+              className="fixed top-0 right-0 w-80 sm:w-96 h-full bg-gradient-to-br from-primary-500/95 via-primary-500 to-primary-600 backdrop-blur-xl border-l border-white/10 shadow-2xl z-50 max-w-[85vw] sm:max-w-none"
+            >
+              <div className="relative h-full overflow-hidden">
+                {/* Glass morphism overlay */}
+                <div className="absolute inset-0 bg-gradient-to-b from-white/5 via-transparent to-black/5 pointer-events-none" />
+
+                <div className="relative flex flex-col h-full px-8 sm:px-10 py-10 sm:py-12">
+                  {/* Header */}
+                  <div className="flex items-center justify-between mb-16">
+                    <div className="flex items-center space-x-3">
+                      {/* <div className="w-2 h-8 bg-gradient-to-b from-white/80 to-white/40 rounded-full" /> */}
+                      <span className="text-white/90 font-semibold text-lg tracking-wide">Menu</span>
+                    </div>
+
+                    <motion.button
+                      whileHover={{ scale: 1.1, rotate: 90 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => setSidebarOpen(false)}
+                      className="relative group rounded-2xl  hover:bg-white/20 border border-white/20 hover:border-white/30  duration-300"
+                    >
+                      <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      <svg className="w-5 h-5 text-white relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </motion.button>
+                  </div>
+
+                  {/* Navigation */}
+                  <nav className="flex-1 space-y-3 ">
+                    {["Home", "Features", "About", "Contact", "Login"].map((item, i) => (
+                      <Link to={"#"} key={i}>
+                        <motion.div
+                          initial={{ opacity: 0, x: 20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: i * 0.1, duration: 0.4 }}
+                          whileHover={{
+                            scale: 1.02,
+                            x: 8,
+                            transition: { duration: 0.2, ease: "easeOut" }
+                          }}
+                          whileTap={{ scale: 0.98 }}
+                          className="group relative cursor-pointer"
+                        >
+                          <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-white/5 to-white/10 opacity-0 group-hover:opacity-100 transition-all duration-300 blur-sm" />
+                          <div className="relative flex items-center py-5 px-6 rounded-2xl border border-transparent group-hover:border-white/20 group-hover:bg-white/10 transition-all duration-300">
+                            <div className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-white/60 to-primary-300 mr-4 group-hover:scale-125 transition-transform duration-300" />
+                            <span className="text-white group-hover:text-primary-300 font-medium text-lg tracking-wide transition-colors duration-300">
+                              {item}
+                            </span>
+                            <motion.div
+                              className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                              whileHover={{ x: 4 }}
+                            >
+                              <svg className="w-4 h-4 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                              </svg>
+                            </motion.div>
+                          </div>
+                        </motion.div>
+                      </Link>
+                    ))}
+                  </nav>
+
+                  {/* Footer */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.6, duration: 0.4 }}
+                    className="relative mt-8 pt-8"
+                  >
+                    <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-white/20 to-white/5 border border-white/20 flex items-center justify-center">
+                          <div className="w-3 h-3 rounded-full bg-gradient-to-br from-primary-300 to-white/80" />
+                        </div>
+                        <div>
+                          <div className="text-white/90 text-sm font-medium">Navigation</div>
+                          <div className="text-white/50 text-xs">Premium Menu</div>
+                        </div>
+                      </div>
+                      <div className="flex space-x-1">
+                        {[...Array(3)].map((_, i) => (
+                          <div key={i} className="w-1.5 h-1.5 rounded-full bg-white/30" />
+                        ))}
+                      </div>
+                    </div>
+                  </motion.div>
+                </div>
+              </div>
+            </motion.aside>
+          </>
         )}
       </AnimatePresence>
-
       <div className="text-center px-6 py-16 md:py-15">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
