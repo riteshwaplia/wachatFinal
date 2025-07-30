@@ -128,7 +128,7 @@ const TemplateDetail = () => {
                           {component.buttons?.map((btn, btnIndex) => (
                             <div
                               key={btnIndex}
-                              className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center 
+                              className={`w-full text-left dark:bg-dark-surface px-3 py-2 rounded-lg text-sm flex items-center 
                                 ${btn.type === 'URL' 
                                   ? 'bg-[#008069] text-white' 
                                   : 'bg-[#f0f2f5] text-[#008069] border border-[#008069]'

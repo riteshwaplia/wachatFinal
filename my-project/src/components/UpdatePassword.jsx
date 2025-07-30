@@ -3,7 +3,6 @@ import InputField from './InputField';
 import Button from './Button';
 import toast from 'react-hot-toast';
 import api from '../utils/api';
-import { useAuth } from '../context/AuthContext';
 import { MdOutlineUpdate } from "react-icons/md";
 import { TbLockPassword } from "react-icons/tb";
 export default function UpdatePassword() {
@@ -12,7 +11,7 @@ export default function UpdatePassword() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const { logout } = useAuth();
+
 
   const handleSubmit = async (e) => {
 
@@ -40,21 +39,29 @@ export default function UpdatePassword() {
 
     setErrors({});
     setLoading(true);
-    try {
-      const response = await api.put(`/users/reset-password`, { "oldPassword": oldpassword, newPassword });
-      console.log("response", response);
-      if (response.data.status === 200) {
-        toast.success("password updated");
-        setOldPassword("");
-        setNewPassword("");
-        setConfirmPassword("");
-        logout();
+try {
+  const response = await api.put(`/users/reset-password`, {
+    oldPassword: oldpassword,
+    newPassword,
+  });
 
-      }
+  // This only runs for 2xx responses
+  if (response.data.status === 200) {
+    toast.success("Password updated");
+    setOldPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
 
-    } catch (error) {
-      console.error("Error fetching bulk send jobs:", error);
-    }
+  }
+
+} catch (error) {
+  if (error.response && error.response.data.status === 400) {
+    toast.error("Old password is incorrect");
+  } else {
+    toast.error("Something went wrong");
+    console.error("Reset password error:", error);
+  }
+}
     finally {
       setLoading(false);
     }

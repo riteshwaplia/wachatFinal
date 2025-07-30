@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { SuccessToast } from '../utils/Toast';
+import { ErrorToast, SuccessToast } from '../utils/Toast';
 import { useParams } from 'react-router-dom';
 import api from '../utils/api';
 
@@ -40,12 +40,13 @@ const AddCustomFieldModal = ({ isOpen, onClose, onSuccess, fields }) => {
 
   if (!isOpen) return null;
 
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
       {fields ? (<>
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-dark-surface rounded-xl shadow-lg p-6 w-full max-w-md max-h-[80vh] overflow-y-auto">
-            <h2 className="text-xl font-semibold mb-4 dark:text-dark-text-primary text-center">Custom Fields</h2>
+            <h2 className="text-xl dark:text-dark-text-primary font-semibold mb-4 dark:text-dark-text-primary text-center">Custom Fields</h2>
 
             <form className="space-y-4">
               {fields.map((field, index) => (
@@ -60,7 +61,10 @@ const AddCustomFieldModal = ({ isOpen, onClose, onSuccess, fields }) => {
                     className="border border-gray-300 dark:bg-dark-surface rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
                   />
                 </div>
+
+
               ))}
+              {fields.length === 0 && <><p>No any custom fields exist</p></>}
             </form>
 
             <div className="flex justify-end mt-6">
@@ -75,7 +79,7 @@ const AddCustomFieldModal = ({ isOpen, onClose, onSuccess, fields }) => {
           </div>
         </div></>) :
         <div className="bg-white rounded-lg shadow-lg w-full dark:bg-dark-surface max-w-md p-6">
-          <h2 className="text-xl font-semibold mb-4 dark:text-dark-text-primary">Add Custom Field</h2>
+          <h2 className="text-xl dark:text-dark-text-primary font-semibold mb-4 dark:text-dark-text-primary">Add Custom Field</h2>
 
           <div className="mb-4">
             <label htmlFor="label" className="block text-sm font-medium text-gray-700 mb-1">
@@ -94,7 +98,7 @@ const AddCustomFieldModal = ({ isOpen, onClose, onSuccess, fields }) => {
                 }
               }}
               placeholder="e.g. Company Name"
-              className="w-full px-3 py-2 border border-gray-300 dark:bg-dark-surface rounded-md focus:outline-none focus:ring focus:ring-primary-200"
+              className="w-full px-3 dark:text-dark-text-primary py-2 border border-gray-300 dark:bg-dark-surface rounded-md focus:outline-none focus:ring focus:ring-primary-200"
             />
           </div>
 

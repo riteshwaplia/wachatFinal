@@ -1,13 +1,22 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTenant } from '../context/TenantContext';
-import { Menu, X, ChevronRight, ChevronLeft } from 'lucide-react';
+import { Menu, X, ChevronDown, ChevronUp } from 'lucide-react';
 import Avatar from './Avatar';
 import { useRef } from 'react';
 import { useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+
  
+import { useTranslation } from 'react-i18next';
+
+const languages = [
+  { code: 'en', name: 'English' },
+  { code: 'hi', name: 'Hindi' },
+  { code: 'es', name: 'Spanish' },
+  { code: 'fr', name: 'French' },
+];
+
 const Header = ({ onToggleSidebar }) => {
   const { user, isLoggedIn, logout } = useAuth();
     const { id } = useParams();
@@ -51,35 +60,59 @@ const Header = ({ onToggleSidebar }) => {
     };
   }, []);
 
+  const { i18n } = useTranslation();
+
   const handleLogout = () => {
+    console.log("clickeddd")
     logout();
     setIsDropdownOpen(false);
   };
- 
+
+  const handleLanguageChange = (e) => {
+    const langCode = e.target.value;
+    i18n.changeLanguage(langCode);
+  };
+
   return (
-    <header className="bg-white dark:bg-dark-bg-primary shadow-sm py-3 px-4 md:px-6 flex items-center justify-between sticky top-0 z-20 w-[100vw] md:w-auto ">
+    <header className="bg-white dark:bg-dark-surface shadow-sm py-6 px-4 md:px-6 flex items-center justify-between sticky top-0 right-4 z-50 w-full">
       {/* Mobile menu button and brand */}
   
       <div className="flex  items-center space-x-4">
         <button
           onClick={onToggleSidebar}
-          className="p-1 rounded-md  z-40 cursor-pointer dark:dark-text-primary text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors lg:hidden"
+          className="p-1 rounded-md z-40 cursor-pointer text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors lg:hidden"
           aria-label="Toggle sidebar"
         >
           {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
-        
+
         <Link to="/" className="flex items-center">
           <span className="text-xl font-bold font-heading text-primary-700 hover:text-primary-600 transition-colors">
-            {siteConfig?.websiteName || "My App"}
+            {siteConfig?.websiteName || 'My App'}
           </span>
         </Link>
       </div>
-      {/* theme */}
 
+      {/* User dropdown and Language selector */}
+      <div className="relative flex items-center space-x-4">
+        {/* i18next Language Switcher */}
+        <div className="relative">
+          <select
+            value={i18n.language || 'en'}
+            onChange={handleLanguageChange}
+            className="block appearance-none w-full bg-white dark:bg-dark-surface dark:text-dark-text-primary dark:border-dark-border border border-gray-300 hover:border-gray-400 px-4 py-2 pr-8 rounded-md shadow leading-tight focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent cursor-pointer"
+          >
+            {languages.map((lang) => (
+              <option key={lang.code} value={lang.code}>
+                {lang.name}
+              </option>
+            ))}
+          </select>
+          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+            <ChevronDown size={16} />
+          </div>
+        </div>
 
-      {/* User dropdown */}
-      <div className="relative">
         {isLoggedIn ? (
           <div className='flex items-center gap-3'>
 <button
@@ -91,7 +124,7 @@ const Header = ({ onToggleSidebar }) => {
             <button
             ref={buttonRef}
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="flex items-center space-x-2 focus:outline-none dark:text-white  rounded-full p-1 hover:bg-gray-100 transition-colors"
+              className="flex items-center space-x-2 dark:hover:bg-dark-surface focus:outline-none dark:text-white  rounded-full p-1 hover:bg-gray-100 transition-colors"
               aria-expanded={isDropdownOpen}
               aria-haspopup="true"
             >
@@ -103,36 +136,38 @@ const Header = ({ onToggleSidebar }) => {
               />
               <span className="font-medium text-gray-800 dark:text-white hidden md:inline-flex items-center">
                 {user?.username || 'User'}
-                {isDropdownOpen ? <ChevronRight className="ml-1 transform rotate-90" size={16} /> : <ChevronRight className="ml-1" size={16} />}
+                {isDropdownOpen ? <ChevronUp className="ml-1" size={16} /> : <ChevronDown className="ml-1" size={16} />}
               </span>
             </button>
- 
+
             {isDropdownOpen && (
-              <div  ref={dropdownRef} className="absolute right-0 mt-2 w-56 bg-white  rounded-lg shadow-lg py-1 z-50 border border-gray-200">
-                <div className="px-4 py-3 border-b border-gray-200">
-                  <p className="text-sm font-medium text-gray-900">{user?.username}</p>
+              <div  ref={dropdownRef} className="absolute right-0 mt-2 top-8 w-56 bg-white z-50 dark:bg-dark-surface dark:border-dark-border rounded-lg shadow-lg py-1 z-50 border border-gray-200">
+                <div className="px-4 py-3 border-b dark:border-dark-border border-gray-200">
+                  <p className="text-sm font-semibold dark:text-dark-text-primary text-gray-900">{user?.username}</p>
                   <p className="text-xs text-gray-500 truncate">{user?.email}</p>
                 </div>
                 <Link
                   to="/user/profile"
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  className="block px-4 py-2 dark:hover:bg-dark-surface text-sm text-gray-700 dark:text-dark-text-primary hover:bg-gray-100"
                   onClick={() => setIsDropdownOpen(false)}
                 >
                   Profile Settings
                 </Link>
-                <Link
+                {/* <Link
                   to={`/project/${id}/dashboard`}
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  className="block px-4 py-2 text-sm dark:text-dark-text-primary  text-gray-700 hover:bg-gray-100"
                   onClick={() => setIsDropdownOpen(false)}
                 >
                   Dashboard
-                </Link>
-                <div className="border-t border-gray-200 my-1"></div>
+                </Link> */}
+                <div className="border-t dark:border-dark-border border-gray-200 my-1"></div>
+
+                {/* Logout */}
                 <button
                   onClick={handleLogout}
-                  className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 focus:outline-none"
+                  className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
                 >
-                  Sign out
+                  Sign Out
                 </button>
               </div>
             )}
@@ -157,6 +192,5 @@ const Header = ({ onToggleSidebar }) => {
     </header>
   );
 };
- 
+
 export default Header;
- 

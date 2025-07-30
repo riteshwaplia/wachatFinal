@@ -11,6 +11,7 @@ import { timeZoneOptions } from '../components/constants/timeZone';
 import { FaCamera } from 'react-icons/fa';
 import { IoMdPersonAdd } from "react-icons/io";
 import { useEffect } from 'react';
+import toast from 'react-hot-toast';
 import api from '../utils/api';
 import axios from 'axios';
 import { resolvePath, useParams } from 'react-router-dom';
@@ -61,9 +62,11 @@ export default function ProfilePage() {
         console.log("res=>>>>>>>", res.data._id)
         setUserId(res?.data?._id)
         setUser({
-          // name: res.data.username || '',
-          // email: res.data.email || '',
-          // mobile: res.data.mobile || '',
+          firstName:res.data.firstName,
+          lastName:res.data.lastName,
+          userName: res.data.username || '',
+          email: res.data.email || '',
+          mobile: res.data.mobileNumber || '',
           // password: '',
           // company: res.data.company || '',
           // country: res.data.country || 'India',
@@ -134,8 +137,8 @@ export default function ProfilePage() {
         email: user.email,
         userName: user.userName,
         mobile: user.mobile,
-        gender: user.gender,
-        dob: user.dob,
+        // gender: user.gender,
+        // dob: user.dob,
         profilePicture: user.profilePicture || ""
         // email: user.email,
         // phone: user.phone,
@@ -164,10 +167,10 @@ const response = await api.put(
 );
 
       if (response?.data?.success) {
-        console.log('User updated successfully:', response.data);
+        toast.success('User profile updated successfully:', response.data);
         // Optionally show success toast or redirect
       } else {
-        console.error('Update failed:', response.data?.message);
+        toast.error('Update failed:', response.data?.message);
         // Optionally show error toast
       }
     } catch (error) {
@@ -232,11 +235,11 @@ const response = await api.put(
             <form onSubmit={handleSubmit} className="grid grid-cols-1 text-black md:grid-cols-2 gap-3 md:gap-6">
               <InputField label="First Name" error={errors.firstName} value={user.firstName} onChange={(e) => handleChange('firstName', e.target.value)} type="text" placeholder="Enter first name here..." disabled={!isEditable} />
               <InputField label="Last Name" error={errors.lastName} value={user.lastName} onChange={(e) => handleChange('lastName', e.target.value)} type="text" placeholder="Enter last name here..." disabled={!isEditable} />
-              <InputField label="Email" value={user.email} onChange={(e) => handleChange('email', e.target.value)} type="email" placeholder="Enter your email here..." />
+              <InputField disable={true} label="Email" value={user.email} onChange={(e) => handleChange('email', e.target.value)} type="email" placeholder="Enter your email here..." />
               <InputField label="Username" error={errors.username} value={user.userName} onChange={(e) => handleChange('userName', e.target.value)} type="text" placeholder="Enter your username here..." disabled={!isEditable} />
-             <div className="mb-4">
+             {/* <div className="mb-4">
 
-              
+
   <label className="block text-sm font-medium text-[var(--color-txtsecondary)] mb-1">
     Gender
   </label>
@@ -253,10 +256,10 @@ const response = await api.put(
     <option value="female">Female</option>
     <option value="other">Other</option>
   </select>
-</div>
+</div> */}
 
 
-             
+{/*              
               <div className="mb-4">
   <label className="block text-sm font-medium text-gray-700 mb-1">
     Date of Birth
@@ -270,7 +273,7 @@ const response = await api.put(
       !isEditable ? 'bg-gray-100 cursor-not-allowed' : ''
     }`}
   />
-</div>
+</div> */}
 
               {/* <MobileNumber error={errors.phonenumber} label="Mobile Number" value={user.mobile ||  } onChange={handlePhoneChange} country="in" placeholder="Mobile Number" /> */}
               <MobileNumber

@@ -14,7 +14,7 @@ const RadioButton = ({
   ...props
 }) => {
   const baseStyles = 'h-5 w-5 text-primary-500 border-gray-300 focus:ring-primary-400 focus:ring-2';
-  const labelStyles = 'ml-2 text-gray-800 text-base';
+  const labelStyles = 'ml-2 text-gray-800 dark:text-dark-text-primary text-base';
   const disabledStyles = 'opacity-60 cursor-not-allowed';
 
   return (

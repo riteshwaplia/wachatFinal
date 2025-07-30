@@ -2,10 +2,10 @@
 
 import axios from "axios";
 import api from "../utils/api";
-  const project = localStorage.getItem("currentProject")
-    ? JSON.parse(localStorage.getItem("currentProject"))
-    : null;
-  const businessProfileId = project?.businessProfileId._id || null;
+const project = localStorage.getItem("currentProject")
+  ? JSON.parse(localStorage.getItem("currentProject"))
+  : null;
+const businessProfileId = project?.businessProfileId._id || null;
 export const createTemplateApi = async (data) => {
   const id = data.id;
   try {
@@ -24,7 +24,7 @@ export const uploadMedaiData = async (file, businessProfileId, projectId) => {
   const formData = new FormData();
   formData.append("file", file);
   formData.append("projectId", projectId);
-  
+
   if (businessProfileId) {
     formData.append("businessProfileId", businessProfileId);
   }
@@ -57,21 +57,22 @@ export const uploadMedaiData = async (file, businessProfileId, projectId) => {
   }
 };
 
-export  const getAllTemplates = async () => {
-    try {
-      const res = await api.get("/templates", {
-        params: {
-          businessProfileId: businessProfileId,
-        },
-      });
-      return (res.data.data);
-      
-    } catch (error) {
-      return {
-        success: false,
-        message: error.response?.data?.message || error.message || "Failed to fetch templates",}
-    } 
-  };
+export const getAllTemplates = async () => {
+  try {
+    const res = await api.get("/templates", {
+      params: {
+        businessProfileId: businessProfileId,
+      },
+    });
+    return (res.data.data);
+
+  } catch (error) {
+    return {
+      success: false,
+      message: error.response?.data?.message || error.message || "Failed to fetch templates",
+    }
+  }
+};
 // NEW: Function to create a carousel message template
 export const createCarouselTemplateApi = async (carouselTemplateData) => {
   try {

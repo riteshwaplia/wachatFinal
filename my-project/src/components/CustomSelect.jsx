@@ -37,11 +37,11 @@ const CustomSelect = ({
             ? "border-error focus:ring-error focus:border-error"
             : success
               ? "border-success focus:ring-success focus:border-success"
-              : "border-border focus:ring-primary focus:border-primary transition-all"
+              : "border-gray-200 focus:ring-primary focus:border-primary transition-all"
           } ${disabled
             ? "bg-gray-100 dark:bg-gray-800 cursor-not-allowed"
-            : "bg-card"
-          } text-text placeholder-gray-400 focus:outline-none bg-inputbg focus:ring-2 focus:ring-button transition-colors`}
+            : "border-gray-300 dark:border-gray-300"
+          } text-black placeholder-gray-400 focus:outline-none bg-inputbg focus:ring-2 focus:ring-button transition-colors`}
 
         classNamePrefix={`custom-select`}
       />

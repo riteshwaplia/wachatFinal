@@ -4,6 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext"; // Adjust import path if AuthContext is elsewhere
 import io from "socket.io-client";
 import * as XLSX from 'xlsx';
+import GroupWiseBroadcasting from "./GroupWiseBroadcasting";
 
 // IMPORTANT: Ensure this matches your backend Socket.IO port
 const VITE_SOCKET_IO_URL = import.meta.env.VITE_SOCKET_IO_URL || 'http://localhost:5001'; // Assuming your server runs on 5001
@@ -37,7 +38,7 @@ const cleanTemplateComponents = (components) => {
 };
 
 
-const SendCarosualTemplate = () => {
+const SendMessagePage = () => {
   const { user, token } = useAuth();
   const { id:projectId } = useParams(); // FIX: Changed from 'id' to 'projectId'
   const navigate = useNavigate();
@@ -94,7 +95,7 @@ const project = localStorage.getItem("currentProject")
       // Use projectDetails.businessProfileId._id for fetching templates
       // Ensure projectDetails is loaded before this call
      
-      const templatesRes = await api.get("/templates/allapprovedcarouseltemplates", { // Use api directly with /api/
+      const templatesRes = await api.get("/templates/allapprovedtemplates", { // Use api directly with /api/
         ...config,
         params: {
           businessProfileId: businessProfileId,
@@ -826,7 +827,7 @@ const project = localStorage.getItem("currentProject")
             }}
             className="block w-full border border-gray-300 rounded-md p-2 bg-white"
           />
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-sm text-gray-500 mt-1 dark:text-dark-text-primary">
             Upload the image to be used in the HEADER of your template. It will be auto-attached.
           </p>
         </div>
@@ -990,6 +991,6 @@ const project = localStorage.getItem("currentProject")
   );
 };
 
-export default SendCarosualTemplate;
+export default SendMessagePage;
 
 

@@ -52,11 +52,14 @@ import {
 } from 'lucide-react';
 import { object } from 'prop-types';
 import AddCustomFieldModal from './TeamMembers';
+import { useTranslation } from 'react-i18next';
+import { ErrorToast } from '../utils/Toast';
 
 const ContactPage = () => {
     const { user, token } = useAuth();
     const { id: projectId } = useParams();
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
     // Data states
     const [contacts, setContacts] = useState([]);
@@ -112,8 +115,8 @@ const ContactPage = () => {
 
     const handleOpenAddModal = () => setActiveModal('add');
     const handleOpenShowModal = () => setActiveModal('show');
-    const handleCloseModal = () => setActiveModal(null);
 
+    const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
 
     const handleSuccess = (newField) => {
         console.log('New custom field added:', newField);
@@ -121,22 +124,30 @@ const ContactPage = () => {
         // Optionally update local state with newField
     };
 
- 
+
+    console.log("blcakListSelectedrows", blcakListSelectedrows)
+
+    const fetchFields = async () => {
+        try {
+            const fieldRes = await api.get(`/projects/${projectId}/contacts/fields`);
+            setFields(fieldRes.data.data || []);
+        } catch (err) {
+            console.error("Error fetching fields:", err);
+        }
+    };
+
     useEffect(() => {
-        const fetchFields = async () => {
-            try {
-                const fieldRes = await api.get(`/projects/${projectId}/contacts/fields`);
-                setFields(fieldRes.data.data || []);
-
-            } catch (err) {
-                console.error("Error fetching groups:", err);
-            }
-        };
-
         if (projectId) {
             fetchFields();
         }
-    }, []);
+    }, [projectId]); // include projectId in dependencies
+
+    const handleCloseModal = async () => {
+        setActiveModal(null);
+        if (projectId) await fetchFields(); // Re-fetch fields on modal close
+    };
+
+
 
     const FieldOptions = fields.map(field => ({
         value: field.label,
@@ -321,6 +332,19 @@ const ContactPage = () => {
     const handleBlockContact = async () => {
         try {
             let endpoint = '';
+            let idsToSend = [];
+
+            if (activeTab === "contactList") {
+                idsToSend = selectedrows;
+                if (idsToSend.length === 0) {
+                    return ErrorToast("Please select at least one contact to block.");
+                }
+            } else {
+                idsToSend = blcakListSelectedrows; // Use your blacklist selection state
+                if (idsToSend.length === 0) {
+                    return ErrorToast("Please select at least one contact to unblock.");
+                }
+            }
 
             if (activeTab === 'contactList') {
                 // /api/projects/:projectId/groups/bulk-block
@@ -330,8 +354,10 @@ const ContactPage = () => {
             }
 
             const response = await api.post(endpoint, {
-                ids: selectedrows
+                ids: idsToSend
             });
+            console.log("blcakListSelectedrows", blcakListSelectedrows)
+
 
             if (response.status === 200) {
                 setIsbulkOption(false);
@@ -529,6 +555,7 @@ const ContactPage = () => {
             fetchData();
         } catch (error) {
             console.error('Error saving contact:', error);
+            ErrorToast(error || "something went wrong")
             setMessage(`Error: ${error.response?.data?.message || 'Failed to save contact.'}`);
             setMessageType('error');
         } finally {
@@ -689,6 +716,34 @@ const ContactPage = () => {
 
     return (
         <div className="md:max-w-7xl  p-3 w-full  mx-auto  md:px-6 lg:px-8 py-8">
+
+            {showDeleteConfirmModal && (
+                <Modal
+                    isOpen={showDeleteConfirmModal}
+                    onClose={() => setShowDeleteConfirmModal(false)}
+                    title="Delete Groups"
+                    size="sm"
+                >
+                    <p className="mb-4 text-lg text-red-500">
+                        Are you sure you want to delete {selectedrows.length} contact(s)?
+                    </p>
+                    <div className="flex justify-end space-x-3">
+                        <Button variant="outline" onClick={() => setShowDeleteConfirmModal(false)}>
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="primary"
+                            onClick={() => {
+                                bulkDeleteContact(); // Call your API
+                                setShowDeleteConfirmModal(false);
+                            }}
+                        >
+                            Confirm
+                        </Button>
+                    </div>
+                </Modal>
+            )}
+
             {
                 <Modal
                     isOpen={showConfirmModal}
@@ -696,13 +751,13 @@ const ContactPage = () => {
                     title="Delete Contact"
                     size="sm" // Can be 'sm', 'md', 'lg'
                 >
-                    <p className='mb-4  text-xl text-red-500 '>Are you sure you want to delete this contact?</p>
+                    <p className='mb-4  text-xl text-red-500 '>{t('confirmDeleteContact')}</p>
                     <div className="flex justify-end space-x-3">
                         <Button variant="outline" onClick={() => setShowConfirmModal(false)}>
-                            Cancel
+                            {t('cancel')}
                         </Button>
                         <Button variant="primary" onClick={() => handleDeleteContact()}>
-                            Confirm
+                            {t('confirm')}
                         </Button>
                     </div>
                 </Modal>
@@ -716,25 +771,27 @@ const ContactPage = () => {
                     title="Block Contact"
                     size="sm" // Can be 'sm', 'md', 'lg'
                 >
-                    <p className='mb-4  text-xl text-red-500 '>Are you sure you want to block this contact?</p>
+                    <p className='mb-4  text-xl text-red-500 '>{t('confirmBlockContact')}</p>
                     <div className="flex justify-end space-x-3">
                         <Button variant="outline" onClick={() => setShowBlockModel(false)}>
-                            Cancel
+                            {t('cancel')}
                         </Button>
                         <Button variant="primary" onClick={() => handleBlockUnblockContact(null, true)}>
-                            Confirm
+                            {t('confirm')}
                         </Button>
                     </div>
                 </Modal>
             }
 
+
+
             {/* Header Section */}
             <div className="mb-8">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900 dark:text-dark-text-primary">Contact Management</h1>
+                        <h1 className="text-3xl font-bold text-gray-900 dark:text-dark-text-primary">{t('contactManagement')}</h1>
                         <p className="mt-2 text-gray-600">
-                            Manage your project contacts and communication lists
+                            {t('manageProjectContacts')}
                         </p>
                     </div>
                     <div className="flex items-center space-x-1 md:space-x-3">
@@ -744,7 +801,7 @@ const ContactPage = () => {
                             className="flex items-center space-x-2 shadow-sm"
                         >
                             <PlusCircle size={20} />
-                            <span>New Contact</span>
+                            <span>{t('newContact')}</span>
                         </Button>
                         <Button
                             onClick={() => setActiveTab('uploadCSV')}
@@ -752,7 +809,7 @@ const ContactPage = () => {
                             className="flex items-center space-x-2"
                         >
                             <Upload size={20} />
-                            <span>Import</span>
+                            <span>{t('import')}</span>
                         </Button>
                     </div>
                 </div>
@@ -777,7 +834,7 @@ const ContactPage = () => {
                                 }`}
                         >
                             <Users size={18} />
-                            <span>Contacts ({contacts.length})</span>
+                            <span>{t('contacts')} ({contacts.length})</span>
                         </button>
                         <button
                             onClick={() => setActiveTab('blockList')}
@@ -787,7 +844,7 @@ const ContactPage = () => {
                                 }`}
                         >
                             <Ban size={18} />
-                            <span>Block List ({blacklistedContacts.length})</span
+                            <span>{t('blockList')} ({blacklistedContacts.length})</span
                             >
                         </button>
                         <button
@@ -798,7 +855,7 @@ const ContactPage = () => {
                                 }`}
                         >
                             <Upload size={18} />
-                            <span>Import Contacts</span>
+                            <span>{t('importContacts')}</span>
                         </button>
                     </nav>
                 </div>
@@ -813,7 +870,7 @@ const ContactPage = () => {
                     <input
                         type="text"
                         className="focus:ring-primary-500 dark:bg-dark-surface dark:text-dark-text-primary focus:border-primary-500 block w-full pl-10 pr-12 py-2 border border-gray-300 rounded-md"
-                        placeholder="Search contacts..."
+                        placeholder={t('searchContacts')}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         onKeyDown={(e) => {
@@ -835,8 +892,8 @@ const ContactPage = () => {
 
                 </div>
                 <div className="flex flex-row gap-3">
-                    <Button onClick={handleOpenAddModal}>Add New Field</Button>
-                    <Button onClick={handleOpenShowModal}>Show Field</Button>
+                    <Button onClick={handleOpenAddModal}>{t('addNewField')}</Button>
+                    <Button onClick={handleOpenShowModal}>{t('showField')}</Button>
 
                     {activeModal === 'add' && (
                         <AddCustomFieldModal
@@ -864,7 +921,7 @@ const ContactPage = () => {
                             onClick={() => setIsbulkOption(!isbulkOption)}
                             className="flex items-center space-x-2"
                         >
-                            <span>Bulk Actions</span>
+                            <span>{t('bulkActions')}</span>
                             <FiChevronDown
                                 className={`transition-transform ${isbulkOption ? "transform rotate-180" : ""
                                     }`}
@@ -896,30 +953,43 @@ const ContactPage = () => {
                                     <button
                                         onClick={() => {
                                             handleBlockContact();
-                                            setIsBulkActionsOpen(false);
+                                            // setIsBulkActionsOpen(false); // This variable is not defined
                                         }}
                                         className="flex items-center px-4 py-2 dark:text-dark-text-primary text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
                                     >
-                                        {activeTab === 'contactList' ? <><FiArchive className="mr-2" /> Block contacts </> : <><FiUnlock className="mr-2" /> UnBlock contacts</>}
+                                        {activeTab === 'contactList' ? <><FiArchive className="mr-2" /> {t('blockContacts')} </> : <><FiUnlock className="mr-2" /> {t('unBlockContacts')}</>}
                                     </button>
 
 
-                                    <button
+                                    {/* <button
                                         onClick={() => {
-                                            bulkDeleteContact()
-                                            //   if (
-                                            //     window.confirm(
-                                            //       `Are you sure you want to delete ${selectedGroups.length} group(s)?`
-                                            //     )
-                                            //   ) {
-                                            //     // handleBulkAction("delete");
-                                            //     // setIsBulkActionsOpen(false);
-                                            //   }
+                                            // bulkDeleteContact()
+                                              if (
+                                                window.confirm(
+                                                  `Are you sure you want to delete ${selectedGroups.length} group(s)?`
+                                                )
+                                              ) {
+                                                // handleBulkAction("delete");
+                                                // setIsBulkActionsOpen(false);
+                                              }
                                         }}
                                         className="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 w-full text-left"
                                     >
+                                        <FiTrash2 className="mr-2" /> {t('delete')}
+                                        <FiTrash2 className="mr-2" /> Delete
+                                    </button> */}
+                                    <button
+                                        variant="ghost"
+                                        onClick={() => {
+                                            setShowDeleteConfirmModal(true);
+                                            setIsBulkActionsOpen(false);
+                                        }}
+                                        className="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 w-full text-left"
+
+                                    >
                                         <FiTrash2 className="mr-2" /> Delete
                                     </button>
+
                                 </div>
                             )}
                     </div>
@@ -948,13 +1018,13 @@ const ContactPage = () => {
                                     <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-gray-100 mb-4">
                                         <Users className="h-6 w-6 text-gray-400" />
                                     </div>
-                                    <h3 className="text-lg font-medium text-gray-900 mb-1">
-                                        {searchTerm ? 'No matching contacts' : 'No contacts yet'}
+                                    <h3 className="text-lg font-medium dark:text-dark-text-primary text-gray-900 mb-1 dark:text-dark-text-primary">
+                                        {searchTerm ? t('noMatchingContacts') : t('noContactsYet')}
                                     </h3>
                                     <p className="text-gray-500 mb-4">
                                         {searchTerm
-                                            ? 'Try a different search term'
-                                            : 'Get started by adding your first contact'}
+                                            ? t('tryDifferentSearchTerm')
+                                            : t('getStartedByAddingYourFirstContact')}
                                     </p>
                                     <Button
                                         onClick={() => { setEditingContact(null); setIsModalOpen(true); }}
@@ -962,7 +1032,7 @@ const ContactPage = () => {
                                         className="flex items-center space-x-2 mx-auto"
                                     >
                                         <PlusCircle size={18} />
-                                        <span>Add Contact</span>
+                                        <span>{t('addContact')}</span>
                                     </Button>
                                 </div>
                             ) : (
@@ -977,10 +1047,10 @@ const ContactPage = () => {
                                                 <tr>
                                                     <th
                                                         className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-10"><input type="checkbox" onChange={handleSelectAll} /></th>
-                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
-                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Details</th>
-                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Groups</th>
-                                                    <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('contact')}</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('details')}</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('groups')}</th>
+                                                    <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{t('actions')}</th>
                                                 </tr>
                                             </thead>
                                             <tbody className="bg-white divide-y dark:bg-dark-surface dark:divide-dark-border divide-gray-200">
@@ -993,7 +1063,7 @@ const ContactPage = () => {
                                                                     <User className="h-5 w-5 text-primary-600" />
                                                                 </div>
                                                                 <div className="ml-4">
-                                                                    <div className="text-sm font-medium text-gray-900">{contact.name}</div>
+                                                                    <div className="text-sm font-medium dark:text-dark-text-primary text-gray-900">{contact.name}</div>
                                                                     <div className="text-sm text-gray-500">{contact.email}</div>
                                                                 </div>
                                                             </div>
@@ -1027,7 +1097,7 @@ const ContactPage = () => {
                                                                     variant="ghost"
                                                                     size="sm"
                                                                     className="text-gray-600 hover:text-red-500"
-                                                                    tooltip="Edit"
+                                                                    tooltip={t('edit')}
                                                                 >
                                                                     <Edit size={16} />
                                                                 </Button>
@@ -1036,7 +1106,7 @@ const ContactPage = () => {
                                                                     variant="ghost"
                                                                     size="sm"
                                                                     className="text-gray-600 hover:text-orange-600"
-                                                                    tooltip="Block"
+                                                                    tooltip={t('block')}
                                                                 >
                                                                     <Ban size={16} />
                                                                 </Button>
@@ -1047,7 +1117,7 @@ const ContactPage = () => {
                                                                     variant="ghost"
                                                                     size="sm"
                                                                     className="text-gray-600 hover:text-red-600"
-                                                                    tooltip="Delete"
+                                                                    tooltip={t('delete')}
                                                                 >
                                                                     <Trash2 size={16} />
                                                                 </Button>
@@ -1076,11 +1146,11 @@ const ContactPage = () => {
                                 <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-gray-100 mb-4">
                                     <Ban className="h-6 w-6 text-gray-400" />
                                 </div>
-                                <h3 className="text-lg font-medium text-gray-900 mb-1">
-                                    No blocked contacts
+                                <h3 className="text-lg font-medium text-gray-900 dark:text-dark-text-primary mb-1">
+                                    {t('noBlockedContacts')}
                                 </h3>
                                 <p className="text-gray-500">
-                                    Contacts you block will appear here
+                                    {t('blockedContactsWillAppearHere')}
                                 </p>
                             </div>
                         ) : (
@@ -1090,9 +1160,9 @@ const ContactPage = () => {
                                         <tr>
 
                                             <th className='w-14'><input type="checkbox" onChange={handleBlackListSelectAll} /></th>
-                                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
-                                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Blocked On</th>
-                                            <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('contact')}</th>
+                                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('blockedOn')}</th>
+                                            <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{t('actions')}</th>
                                         </tr>
                                     </thead>
                                     <tbody className="bg-white divide-y divide-gray-200 dark:bg-dark-surface">
@@ -1105,7 +1175,7 @@ const ContactPage = () => {
                                                             <Ban className="h-5 w-5 text-red-600" />
                                                         </div>
                                                         <div className="ml-4">
-                                                            <div className="text-sm font-medium text-gray-900">{contact.name}</div>
+                                                            <div className="text-sm font-medium dark:text-dark-text-primary text-gray-900">{contact.name}</div>
                                                             <div className="text-sm text-gray-500">{contact.mobileNumber}</div>
                                                         </div>
                                                     </div>
@@ -1120,7 +1190,7 @@ const ContactPage = () => {
                                                             variant="ghost"
                                                             size="sm"
                                                             className="text-gray-600 hover:text-red-600"
-                                                            tooltip="Unblock"
+                                                            tooltip={t('unblock')}
                                                         >
                                                             <Unlink size={16} />
                                                         </Button>
@@ -1131,7 +1201,7 @@ const ContactPage = () => {
                                                             variant="ghost"
                                                             size="sm"
                                                             className="text-gray-600 hover:text-red-600"
-                                                            tooltip="Delete"
+                                                            tooltip={t('delete')}
                                                         >
                                                             <Trash2 size={16} />
                                                         </Button>
@@ -1161,13 +1231,13 @@ const ContactPage = () => {
                                 }));
                             }
 
-                            } placeholder='please select Group...' className="mb-5 " />
+                            } placeholder={t('pleaseSelectGroup')} className="mb-5 " />
                             {errors &&
                                 <div className='text-red-500 text-sm ml-1'>{errors.groups}</div>
                             }
                             {parsedContacts.length > 0 && (
                                 <div className="bg-white border border-gray-200 rounded-lg p-4 mt-6">
-                                    <h3 className="text-lg font-medium mb-4 text-gray-900">Map Fields to Columns</h3>
+                                    <h3 className="text-lg font-medium mb-4 text-gray-900">{t('mapFieldsToColumns')}</h3>
                                     <div className="overflow-x-auto">
                                         <table className="min-w-full divide-y divide-gray-200 border border-gray-300 text-sm">
                                             <thead className="bg-gray-50">
@@ -1192,7 +1262,7 @@ const ContactPage = () => {
                                                                 // disabled={!!columnMapping[col]}
                                                                 className="bg-white border border-gray-300 rounded px-2 py-1 text-sm"
                                                             >
-                                                                <option value="">-- Select For --</option>
+                                                                <option value="">-- {t('selectFor')} --</option>
                                                                 {fieldValues
                                                                     .filter((field) => {
                                                                         if (field === 'dont use') return true; // allow "dont use" always
@@ -1238,7 +1308,7 @@ const ContactPage = () => {
 
 
 
-                            <div className="bg-gray-50 rounded-lg mt-5  border-2 border-dashed border-gray-300  mb-3  ">
+                            <div className="bg-gray-50 rounded-lg mt-5 dark:border-dark-border dark:border-dashed  border-2 border-dashed border-gray-300  mb-3  ">
                                 <form onSubmit={handleUploadContacts} >
                                     <div>
                                         {/* <label className="block text-center text-xl text-sm font-medium text-gray-700 mb-2">
@@ -1252,9 +1322,9 @@ const ContactPage = () => {
                                                             <Upload className="h-6 w-6 text-primary-600" />
                                                         </div>
 
-                                                        <h2 className="text-2xl font-bold text-gray-900 mb-2 ">Import Contacts</h2>
+                                                        <h2 className="text-2xl font-bold text-gray-900 mb-2 dark:text-dark-text-primary">{t('importContacts')}</h2>
                                                         <p className="text-gray-600">
-                                                            Upload a CSV or Excel file to import multiple contacts at once
+                                                            {t('uploadCSVOrExcelFileToImportMultipleContactsAtOnce')}
                                                         </p>
                                                     </div>
                                                     <label
@@ -1263,7 +1333,7 @@ const ContactPage = () => {
                                                     >
 
                                                         {!file && (
-                                                            <div className='border  px-2 py-2 bg-blue-100 flex items-center justify-center mb-4 gap-2 rounded inline-block'>Upload a file
+                                                            <div className='border  px-2 py-2 bg-blue-100 dark:bg-dark-surface dark:border-dark-border flex items-center justify-center mb-4 gap-2 rounded inline-block'>{t('uploadAFile')}
                                                                 <FiUploadCloud size={18} />
                                                             </div>
                                                         )}
@@ -1316,39 +1386,39 @@ const ContactPage = () => {
                                     {isSubmitting ? (
                                         <>
                                             <LoadingSpinner size="sm" color="white" className="mr-2" />
-                                            Importing...
+                                            {t('importing')}
                                         </>
                                     ) : (
-                                        'Import Contacts'
+                                        t('importContacts')
                                     )}
                                 </Button>
                             </form>
 
 
 
-                            <div className="bg-white dark:bg-dark-surface rounded-lg shadow p-6 border border-gray-200">
-                                <h3 className="text-lg dark:text-dark-text-primary font-medium text-gray-900 mb-4">File Format Requirements</h3>
+                            <div className="bg-white dark:bg-dark-surface dark:border-dark-border rounded-lg shadow p-6 border border-gray-200">
+                                <h3 className="text-lg dark:text-dark-text-primary font-medium text-gray-900 mb-4">{t('fileFormatRequirements')}</h3>
                                 <div className="prose prose-sm text-gray-500 mb-6">
-                                    <p>Your import file should follow this format:</p>
+                                    <p>{t('yourImportFileShouldFollowThisFormat')}</p>
                                     <ul className="list-disc pl-5 space-y-1">
-                                        <li>First row must contain headers (Name, Email, Phone, Groups)</li>
-                                        <li>Each subsequent row represents one contact</li>
-                                        <li>Groups should be comma-separated group IDs</li>
-                                        <li>Phone numbers should include country code</li>
+                                        <li>{t('firstRowMustContainHeadersNameEmailPhoneGroups')}</li>
+                                        <li>{t('eachSubsequentRowRepresentsOneContact')}</li>
+                                        <li>{t('groupsShouldBeCommaSeparatedGroupIds')}</li>
+                                        <li>{t('phoneNumbersShouldIncludeCountryCode')}</li>
                                     </ul>
                                 </div>
 
                                 <div className="overflow-x-auto">
-                                    <table className="min-w-full dark:bg-dark-surface dark:border-dark-border divide-y divide-gray-200 border border-gray-200 text-sm">
+                                    <table className="min-w-full dark:bg-dark-surface dark:divide-dark-border dark:border-dark-border divide-y divide-gray-200 border border-gray-200 text-sm">
                                         <thead className="bg-gray-50 dark:bg-dark-surface">
                                             <tr>
-                                                <th className="px-4 py-2 text-left font-medium text-gray-500 uppercase">Name</th>
-                                                <th className="px-4 py-2 text-left font-medium text-gray-500 uppercase">Email</th>
-                                                <th className="px-4 py-2 text-left font-medium text-gray-500 uppercase">Phone</th>
-                                                <th className="px-4 py-2 text-left font-medium text-gray-500 uppercase">Groups</th>
+                                                <th className="px-4 py-2 text-left font-medium text-gray-500 uppercase">{t('name')}</th>
+                                                <th className="px-4 py-2 text-left font-medium text-gray-500 uppercase">{t('email')}</th>
+                                                <th className="px-4 py-2 text-left font-medium text-gray-500 uppercase">{t('phone')}</th>
+                                                <th className="px-4 py-2 text-left font-medium text-gray-500 uppercase">{t('groups')}</th>
                                             </tr>
                                         </thead>
-                                        <tbody className="bg-white divide-y dark:text-dark-text-primary divide-gray-200 dark:bg-dark-surface">
+                                        <tbody className="bg-white divide-y dark:divide-dark-border  dark:text-dark-text-primary divide-gray-200 dark:bg-dark-surface">
                                             <tr>
                                                 <td className="px-4 py-2">John Doe</td>
                                                 <td className="px-4 py-2">john@example.com</td>
@@ -1378,7 +1448,7 @@ const ContactPage = () => {
                                         }}
                                     >
                                         <Download size={16} />
-                                        <span>Download Template</span>
+                                        <span>{t('downloadTemplate')}</span>
                                     </Button>
                                 </div>
                             </div>
@@ -1393,15 +1463,15 @@ const ContactPage = () => {
                     {/* Pagination info + limit selector */}
                     <div className="flex items-center space-x-2 mb-4 sm:mb-0">
                         <span className="text-sm text-gray-700">
-                            Showing{" "}
+                            {t('showing')}
                             <span className="font-medium">
                                 {Math.min((pagination.currentPage - 1) * pagination.limit + 1, pagination.total)}
                             </span>{" "}
-                            to{" "}
+                            {t('to')}
                             <span className="font-medium">
                                 {Math.min(pagination.currentPage * pagination.limit, pagination.total)}
                             </span>{" "}
-                            of <span className="font-medium">{pagination.total}</span> results
+                            {t('of')} <span className="font-medium">{pagination.total}</span> {t('results')}
                         </span>
 
                         <select
@@ -1411,7 +1481,7 @@ const ContactPage = () => {
                         >
                             {[5, 10, 20, 50].map((num) => (
                                 <option key={num} value={num}>
-                                    {num} per page
+                                    {num} {t('perPage')}
                                 </option>
                             ))}
                         </select>
@@ -1427,7 +1497,7 @@ const ContactPage = () => {
                                 className="flex items-center"
                             >
                                 <FiChevronLeft size={16} className="mr-1" />
-                                Previous
+                                {t('previous')}
                             </Button>
 
                             {/* Page numbers */}
@@ -1465,7 +1535,7 @@ const ContactPage = () => {
                                 disabled={pagination.currentPage >= pagination.totalPages}
                                 className="flex items-center"
                             >
-                                Next
+                                {t('next')}
                                 <FiChevronRight size={16} className="ml-1" />
                             </Button>
                         </div>
@@ -1489,7 +1559,7 @@ const ContactPage = () => {
 
 
 
-                title={editingContact ? 'Edit Contact' : 'Create New Contact'}
+                title={editingContact ? t('editContact') : t('createNewContact')}
                 size="lg"
             >
                 <ContactForm

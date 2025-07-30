@@ -3,6 +3,7 @@ import api from '../utils/api';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FiChevronRight, FiExternalLink, FiDownload } from 'react-icons/fi';
 import Button from '../components/Button';
+import { useTranslation } from 'react-i18next';
 
 const BulkMessagingDashboard = () => {
   const router = useNavigate();
@@ -18,6 +19,7 @@ const BulkMessagingDashboard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const params = useParams();
   const projectId = params.id;
+  const { t } = useTranslation();
 
   // Fetch broadcast jobs on component mount
   useEffect(() => {
@@ -82,9 +84,9 @@ const BulkMessagingDashboard = () => {
       {/* Header with stats and new broadcast button */}
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-2xl font-bold dark:text-dark-text-primary text-gray-800">Broadcast Center</h1>
+          <h1 className="text-2xl font-bold dark:text-dark-text-primary text-gray-800">{t('broadcastCenter')}</h1>
           <p className="mt-1 text-sm text-gray-500">
-            Manage your bulk message campaigns
+            {t('manageBulkMessageCampaigns')}
           </p>
         </div>
         <div className='flex items-center space-x-4'>
@@ -92,13 +94,13 @@ const BulkMessagingDashboard = () => {
           onClick={createNewBroadcast}
           // className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
         >
-          + New Broadcast
+          + {t('newBroadcast')}
         </Button>
         <Button
           onClick={createNewCarosualBroadcast}
           // className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
         >
-          +New Carosual Broadcast
+          + {t('newCarouselBroadcast')}
         </Button>
         </div>
       </div>
@@ -113,8 +115,8 @@ const BulkMessagingDashboard = () => {
               </svg>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Total Messages</p>
-              <p className="text-2xl font-semibold text-gray-900">{stats.total}</p>
+              <p className="text-sm font-medium text-gray-500">{t('totalMessages')}</p>
+              <p className="text-2xl font-semibold text-gray-900 dark:text-dark-text-primary">{stats.total}</p>
             </div>
           </div>
         </div>
@@ -127,8 +129,8 @@ const BulkMessagingDashboard = () => {
               </svg>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Delivered</p>
-              <p className="text-2xl font-semibold text-gray-900">{stats.delivered}</p>
+              <p className="text-sm font-medium text-gray-500">{t('delivered')}</p>
+              <p className="text-2xl font-semibold text-gray-900 dark:text-dark-text-primary">{stats.delivered}</p>
             </div>
           </div>
         </div>
@@ -156,8 +158,8 @@ const BulkMessagingDashboard = () => {
               </svg>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Failed</p>
-              <p className="text-2xl font-semibold text-gray-900">{stats.failed}</p>
+              <p className="text-sm font-medium text-gray-500">{t('failed')}</p>
+              <p className="text-2xl font-semibold text-gray-900 dark:text-dark-text-primary">{stats.failed}</p>
             </div>
           </div>
         </div>
@@ -166,13 +168,14 @@ const BulkMessagingDashboard = () => {
       {/* Broadcast List */}
       <div className="bg-white rounded-lg border dark:bg-dark-surface dark:border-dark-surface border-gray-200 overflow-hidden">
         <div className="px-6 py-4 border-b dark:border-dark-border border-gray-200">
-          <h3 className="text-lg font-medium text-gray-900">Recent Broadcasts</h3>
+          <h3 className="text-lg font-medium text-gray-900 dark:text-dark-text-primary
+">{t('recentBroadcasts')}</h3>
         </div>
         <div className="divide-y divide-gray-200">
           {loading ? (
-            <div className="p-6 text-center">Loading broadcasts...</div>
+            <div className="p-6 text-center">{t('loadingBroadcasts')}</div>
           ) : broadcasts.length === 0 ? (
-            <div className="p-6 text-center text-gray-500">No broadcasts found</div>
+            <div className="p-6 text-center text-gray-500">{t('noBroadcastsFound')}</div>
           ) : (
             broadcasts.map((broadcast) => (
               <div 
@@ -182,11 +185,11 @@ const BulkMessagingDashboard = () => {
               >
                 <div className="flex items-center justify-between">
                   <div>
-                    <h4 className="font-medium text-gray-900">{broadcast.templateName || 'Untitled Broadcast'}</h4>
+                    <h4 className="font-medium text-gray-900">{broadcast.templateName || t('untitledBroadcast')}</h4>
                     <div className="mt-1 flex items-center text-sm text-gray-500">
                       <span>{formatDate(broadcast.createdAt)}</span>
                       <span className="mx-2">•</span>
-                      <span>{broadcast.totalContacts || 0} recipients</span>
+                      <span>{broadcast.totalContacts || 0} {t('recipients')}</span>
                     </div>
                   </div>
                   <div className="flex items-center">
@@ -205,7 +208,7 @@ const BulkMessagingDashboard = () => {
                 <div className="mt-3 flex space-x-4 text-sm">
                   <div className="flex items-center text-green-600">
                     <span className="font-medium">{broadcast.totalSent || 0}</span>
-                    <span className="ml-1">Delivered</span>
+                    <span className="ml-1">{t('delivered')}</span>
                   </div>
                   {/* <div className="flex items-center text-blue-500">
                     <span className="font-medium">{broadcast.readCount || 0}</span>
@@ -213,7 +216,7 @@ const BulkMessagingDashboard = () => {
                   </div> */}
                   <div className="flex items-center text-red-600">
                     <span className="font-medium">{broadcast.totalFailed || 0}</span>
-                    <span className="ml-1">Failed</span>
+                    <span className="ml-1">{t('failed')}</span>
                   </div>
                 </div>
               </div>
@@ -240,7 +243,7 @@ const BulkMessagingDashboard = () => {
                           {selectedBroadcast.jobDetails.templateName}
                         </h3>
                         <p className="mt-1 text-sm text-gray-500">
-                          Created on {formatDate(selectedBroadcast.jobDetails.createdAt)}
+                          {t('createdOn')}: {formatDate(selectedBroadcast.jobDetails.createdAt)}
                         </p>
                       </div>
                       <button
@@ -255,19 +258,19 @@ const BulkMessagingDashboard = () => {
 
                     <div className="mt-6 grid grid-cols-1 gap-y-4 gap-x-8 sm:grid-cols-2">
                       <div>
-                        <p className="text-sm font-medium text-gray-500">Template Name</p>
+                        <p className="text-sm font-medium text-gray-500">{t('templateName')}</p>
                         <p className="mt-1 text-sm text-gray-900">{selectedBroadcast.jobDetails.templateName}</p>
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-gray-500">Language</p>
+                        <p className="text-sm font-medium text-gray-500">{t('language')}</p>
                         <p className="mt-1 text-sm text-gray-900">{selectedBroadcast.jobDetails.language}</p>
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-gray-500">Total Recipients</p>
+                        <p className="text-sm font-medium text-gray-500">{t('totalRecipients')}</p>
                         <p className="mt-1 text-sm text-gray-900">{selectedBroadcast.jobDetails.totalContacts}</p>
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-gray-500">Status</p>
+                        <p className="text-sm font-medium text-gray-500">{t('status')}</p>
                         <p className="mt-1">
                           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                             selectedBroadcast.jobDetails.status === 'completed' ? 'bg-green-100 text-green-800' :
@@ -281,11 +284,11 @@ const BulkMessagingDashboard = () => {
                     </div>
 
                     <div className="mt-6">
-                      <h4 className="text-sm font-medium text-gray-500 mb-2">Status Breakdown</h4>
+                      <h4 className="text-sm font-medium text-gray-500 mb-2">{t('statusBreakdown')}</h4>
                       <div className="grid grid-cols-2 gap-4">
                         <div className="bg-green-50 p-3 rounded-lg text-center">
                           <p className="text-2xl font-semibold text-green-600">{selectedBroadcast.jobDetails.totalSent || 0}</p>
-                          <p className="text-xs text-green-800">Delivered</p>
+                          <p className="text-xs text-green-800">{t('delivered')}</p>
                         </div>
                         {/* <div className="bg-blue-50 p-3 rounded-lg text-center">
                           <p className="text-2xl font-semibold text-blue-600">{selectedBroadcast.jobDetails.readCount || 0}</p>
@@ -293,14 +296,14 @@ const BulkMessagingDashboard = () => {
                         </div> */}
                         <div className="bg-red-50 p-3 rounded-lg text-center">
                           <p className="text-2xl font-semibold text-red-600">{selectedBroadcast.jobDetails.totalFailed || 0}</p>
-                          <p className="text-xs text-red-800">Failed</p>
+                          <p className="text-xs text-red-800">{t('failed')}</p>
                         </div>
                       </div>
                     </div>
 
                     <div className="mt-6">
                       <div className="flex justify-between items-center mb-3">
-                        <h4 className="text-sm font-medium text-gray-500">Message Details</h4>
+                        <h4 className="text-sm font-medium text-gray-500">{t('messageDetails')}</h4>
                         {/* <button className="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                           <FiDownload className="mr-2 h-4 w-4" />
                           Export CSV
@@ -311,13 +314,13 @@ const BulkMessagingDashboard = () => {
                           <thead className="bg-gray-50">
                             <tr>
                               <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Recipient
+                                {t('recipient')}
                               </th>
                               <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Status
+                                {t('status')}
                               </th>
                               <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Time
+                                {t('time')}
                               </th>
                               {/* <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Actions
@@ -336,7 +339,7 @@ const BulkMessagingDashboard = () => {
                                     message.status === 'read' ? 'bg-blue-100 text-blue-800' :
                                     'bg-red-100 text-red-800'
                                   }`}>
-                                    {message.status}
+                                    {t(message.status)}
                                   </span>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -362,7 +365,7 @@ const BulkMessagingDashboard = () => {
                   className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
                   onClick={closeModal}
                 >
-                  Close
+                  {t('close')}
                 </button>
               </div>
             </div>

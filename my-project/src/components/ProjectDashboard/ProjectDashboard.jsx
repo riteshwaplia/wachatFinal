@@ -108,7 +108,7 @@ const ProjectDashboard = () => {
           icon={<Phone size={20} className="text-primary-500" />}
           link={`/project/${projectId}/contacts`}
         >
-          <div className="text-sm text-gray-500 mt-1">
+          <div className="text-sm text-gray-500 mt-1 dark:text-dark-text-primary ">
             <span className="text-green-500">+{stats.contacts.newThisWeek}</span> this week
           </div>
         </StatCard>
@@ -120,11 +120,11 @@ const ProjectDashboard = () => {
           link={`/project/${projectId}/group`}
         >
           <div className="flex space-x-4 text-sm mt-1">
-            <span className="text-gray-500">
-              <span className="text-green-500">{stats.groups.active}</span> active
+            <span className="text-gray-500 dark:text-dark-text-primary">
+              <span className="text-green-500 dark:text-dark-text-primary">{stats.groups.active}</span> active
             </span>
-            <span className="text-gray-500">
-              <span className="text-gray-400">{stats.groups.inactive}</span> inactive
+            <span className="text-gray-500 dark:text-dark-text-primary">
+              <span className="text-gray-400 dark:text-dark-text-primary">{stats.groups.inactive}</span> inactive
             </span>
           </div>
         </StatCard>
@@ -147,7 +147,7 @@ const ProjectDashboard = () => {
 
         <StatCard 
           title="Broadcasting" 
-          value={`${stats.broadcasting.success}/${stats.broadcasting.totalcontact}`} 
+          value={`${stats.broadcasting.success}/${stats.broadcasting.totalJobs}`} 
           icon={<Mail size={20} className="text-purple-500" />}
           link={`/project/${projectId}/broadcasting`}
         >
@@ -155,8 +155,8 @@ const ProjectDashboard = () => {
             <span className="text-gray-500">
               <span className="text-green-500">{stats.broadcasting.success}</span> success
             </span>
-            <span className="text-gray-500">
-              <span className="text-red-500">{stats.broadcasting.failed}</span> failed
+            <span className="text-gray-500 dark:text-dark-text-primary">
+              <span className="text-red-500 dark:text-dark-text-primary">{stats.broadcasting.failed}</span> failed
             </span>
             {/* <span className="text-gray-500">
               <span className="text-blue-500">{stats.broadcasting.scheduled}</span> scheduled
@@ -192,7 +192,7 @@ const ProjectDashboard = () => {
               <span className="text-blue-500">{stats.liveChat.unread}</span> messages
             </span>
             <span className="text-gray-500">
-              <span className="text-green-500">{stats.liveChat.responseRate}%</span> response rate
+              <span className="text-green-500 dark:text-dark-text-primary">{stats.liveChat.responseRate}%</span> response rate
             </span>
           </div>
         </StatCard>

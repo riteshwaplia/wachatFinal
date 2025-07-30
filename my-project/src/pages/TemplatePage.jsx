@@ -243,7 +243,7 @@ const TemplatePage = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-3xl dark:text-dark-text-primary font-bold text-gray-900">
             WhatsApp Templates
           </h1>
           <p className="text-gray-600 mt-2">
@@ -295,7 +295,7 @@ const TemplatePage = () => {
           ))}
         </div>
       ) : templates.length === 0 ? (
-        <div className="text-center py-12 bg-gray-50 dark:bg-dark-surface rounded-lg">
+        <div className="text-center dark:bg-dark-surface py-12 bg-gray-50 rounded-lg">
           <p className="text-gray-500 mb-4">No templates found</p>
           {/* <Button
             variant="primary"
