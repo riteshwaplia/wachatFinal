@@ -83,7 +83,7 @@ const ProjectDashboard = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-4">
       {/* <CreateFlowButton/> */}
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-800 dark:text-dark-text-primary">Project Dashboard</h1>
