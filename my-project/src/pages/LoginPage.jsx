@@ -13,6 +13,7 @@ import { loginValidation } from '../utils/validation'; // ✅ import validation
 import { ErrorToast, SuccessToast } from '../utils/Toast'; // ✅ optional toast for better UX
 import ForgotPassword from '../components/login/ForgotPassword';
 import { useTranslation } from 'react-i18next';
+import { KeyRound } from 'lucide-react';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -68,8 +69,8 @@ const LoginPage = () => {
           navigate("/projects");
         } else if (user?.role === "super_admin" || user?.role === "tanent_admin") {
           navigate('/admin/add-tenant-admin')
-        } 
-        
+        }
+
 
       } else {
         ErrorToast("please provide valid credentials.");
@@ -114,9 +115,10 @@ const LoginPage = () => {
         </div>
 
         <Card title={forgotUi ? t('forgotPassword') : t('loginToYourAccount')} className="w-full py-12 max-w-md">
-          <div className='px-4 flex justify-center'>
+          <div className='px-4 flex my-12 justify-center'>
             <div className='w-12 h-12 bg-primary-100 flex justify-center items-center rounded-full'>
-              <LuMessagesSquare size={20} />
+              <KeyRound size={20} />
+
             </div>
           </div>
 

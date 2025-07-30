@@ -11,7 +11,7 @@ import api from '../utils/api';
 
 
 const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick, fetchBusinessProfiles }) => {
-
+  const [loading, setLoading] = useState(false);
   const [businessdata, setBusinessData] = useState(
     {
       name: profile.name,
@@ -25,22 +25,27 @@ const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick, fetchBu
   const [modalOpen, setModelOpen] = useState(false);
 
   const handleChange = (key, value) => {
-
+    // ✅ Allow letters, numbers, @, and underscore only
     const isValid = /^[a-zA-Z0-9@_]*$/.test(value);
+
     if (!isValid) {
-      return;
+      // ❌ Show error message for that field
+      setErrors((prev) => ({ ...prev, [key]: "Special characters are not allowed" }));
+      return; // Don't update state with invalid input
     }
+
+    // ✅ Update state
     setBusinessData((prev) => ({ ...prev, [key]: value }));
 
+    // ✅ Clear error if exists
+    setErrors((prev) => ({ ...prev, [key]: '' }));
+  };
 
-    if (errros[key]) {
-      setErrors((prev) => ({ ...prev, [key]: '' }));
-    }
-  }
   const updateBusinessProfile = async (id, data) => {
     return api.put(`/users/business-profiles/${id}`, data);
   };
   const submitHandler = async (e) => {
+
     const newErrors = {};
     e.preventDefault();
     if (!businessdata.name) {
@@ -59,6 +64,7 @@ const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick, fetchBu
       setErrors(newErrors);
       return
     }
+    setLoading(true)
     try {
 
       const res = await updateBusinessProfile(profile._id, businessdata);
@@ -74,6 +80,8 @@ const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick, fetchBu
 
     } catch (error) {
       console.error(error);
+    } finally {
+      setLoading(false);
     }
 
   }
@@ -146,7 +154,7 @@ const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick, fetchBu
                 error={errros.metaAccessToken}
 
               />
-              <Button type='submit' className='block ml-auto mt-3'>Update</Button>
+              <Button loading={loading} type='submit' className='block ml-auto mt-3'>Update</Button>
             </form>
           </div>
         </Modal>

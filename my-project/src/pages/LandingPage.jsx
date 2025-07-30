@@ -14,7 +14,7 @@ import { BsInstagram, BsRobot } from "react-icons/bs";
 import { SiCivicrm } from "react-icons/si";
 import { IoIosLink } from "react-icons/io";
 import { FaRobot, FaArrowRight } from "react-icons/fa";
-import { GiArtificialIntelligence } from "react-icons/gi";
+import { GiArtificialIntelligence, GiSharkBite } from "react-icons/gi";
 import { GiBlast } from "react-icons/gi";
 import { CgMenuLeft } from "react-icons/cg";
 import { FaSortAmountUp } from "react-icons/fa";
@@ -312,7 +312,7 @@ export default function LandingPage() {
             </motion.button>
           }
 
-          <nav className="hidden md:flex space-x-6 text-lg">
+          {/* <nav className="hidden md:flex space-x-6 text-lg">
             {[
               { label: "Products", dropdown: true },
               { label: "Pricing", link: "#pricing" },
@@ -373,7 +373,75 @@ export default function LandingPage() {
                 )}
               </motion.div>
             ))}
+          </nav> */}
+
+          <nav className="hidden md:flex space-x-6 text-lg">
+            {[
+              { label: "Products", dropdown: true },
+              { label: "Pricing", link: "#pricing" },
+              { label: "Resources", link: "#resources" },
+              { label: "Log in", link: "/login" },
+            ].map((item, i) => (
+              <motion.div
+                key={i}
+                custom={i}
+                initial="hidden"
+                animate="visible"
+                variants={navItemVariants}
+                className={`relative py-3 transition cursor-pointer ${isScrolled ? "hover:text-primary-700 text-black" : "text-white"
+                  }`}
+                onMouseEnter={() => item.dropdown && setShowDropdown(item.label)}
+                onMouseLeave={() => item.dropdown && setShowDropdown(null)}
+              >
+                <Link
+                  to={item.link || "#"}
+                  className="flex items-center gap-2 hover:text-primary-700 hover:underline"
+                >
+                  {item.label}
+                  {item.dropdown && (
+                    <motion.span
+                      animate={{ rotate: showDropdown === item.label ? 180 : 0 }}
+                      transition={{ duration: 0.1, ease: "easeInOut" }}
+                    >
+                      <RxCaretUp />
+                    </motion.span>
+                  )}
+                </Link>
+
+                {item.dropdown && showDropdown === item.label && (
+                  <motion.div
+                    initial="hidden"
+                    animate="visible"
+                    exit="hidden"
+                    variants={dropdownVariants}
+                    className="absolute left-0 mt-2 bg-white text-black shadow-xl p-6 z-50
+               w-[90vw] max-w-[800px] h-auto   rounded-xl"
+                  >
+                    <ul className="grid grid-cols-2 md:grid-cols-3 gap-6  h-full">
+                      {[
+                        "Wachat",
+                        "Sabnode AI",
+                        "Socialproof",
+                        "Botpion",
+                        "Pingblast",
+                        "SitesPY",
+                      ].map((subItem, idx) => (
+                        <Link to="#">  <li
+                          key={idx}
+                          className="hover:text-purple-600  cursor-pointer transition font-medium "
+                        >
+                          {subItem}
+                        </li></Link>
+                      ))}
+                    </ul>
+                  </motion.div>
+                )}
+
+
+              </motion.div>
+            ))}
           </nav>
+
           <div className="flex items-center space-x-4">
             <div className="flex items-center ml-4">
               <select
@@ -489,9 +557,10 @@ export default function LandingPage() {
         className="max-w-5xl mx-auto px-6 "
       >
         <img
-          src="../images/wp.png"
+
+          src="https://cdn.pixabay.com/photo/2017/05/30/16/40/phone-2357525_1280.png"
           alt="Dashboard preview"
-          className="mx-auto"
+          className="mx-auto w-auto h-[30vh] rounded-lg"
         />
       </motion.div>
       <div>
