@@ -318,7 +318,10 @@ const TemplatePage = () => {
   handleSyncTemplates={() => handleSyncTemplates()}
 />
           ))}
-          {totalPages > 1 && (
+        
+        </div>
+      )}
+  {totalPages > 1 && (
             <div className="mt-6 flex justify-center space-x-2">
               <Button
                 variant="secondary"
@@ -341,9 +344,6 @@ const TemplatePage = () => {
               </Button>
             </div>
           )}
-        </div>
-      )}
-
       {/* Delete Confirmation Modal */}
       <Modal
         isOpen={!!templateToDelete}

@@ -255,6 +255,26 @@ const SendMessagePage = () => {
                 );
                 
                 setImageId(res.data?.id || res.data?.data.id || "");
+                const mediaHandle = res.data?.id || res.data?.data.id;
+                if (!mediaHandle) {
+                  alert("Upload succeeded but media handle missing");
+                  return;
+                }
+
+                // Update the HEADER example with new handle
+                const updatedComponents = parsed.map((comp) => {
+                  if (comp.type === "HEADER" && comp.format === "IMAGE") {
+                    return {
+                      ...comp,
+                      example: {
+                        header_handle: [mediaHandle],
+                      },
+                    };
+                  }
+                  return comp;
+                });
+
+                setBulkTemplateComponents(JSON.stringify(updatedComponents, null, 2));
                 toast.success("Image uploaded successfully");
               } catch (error) {
                 toast.error("Image upload failed");
