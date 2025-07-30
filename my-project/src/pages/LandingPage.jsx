@@ -198,35 +198,35 @@ export default function LandingPage() {
   const divRef = useRef();
 
   // useGSAP(() => {
-  //   // Pin the first box when it scrolls into view
-  //   gsap.to(helloRef.current, {
-  //     scrollTrigger: {
-  //       trigger: helloRef.current,
-  //       start: "top top",
-  //       end: "+=300",       // how long it's pinned
-  //       pin: true,
-  //       scrub: true,
-  //       // markers: true,
-  //     },
-  //   });
+  // // Pin the first box when it scrolls into view
+  // gsap.to(helloRef.current, {
+  // scrollTrigger: {
+  // trigger: helloRef.current,
+  // start: "top top",
+  // end: "+=300", // how long it's pinned
+  // pin: true,
+  // scrub: true,
+  // // markers: true,
+  // },
+  // });
   // }, []);
 
   // useGSAP(() => {
-  //   // Animate second box to scroll up and partially cover the pinned one
-  //   gsap.fromTo(
-  //     boxRef.current,
-  //     { y: 200 },
-  //     {
-  //       y: 30, // 30px below the first box
-  //       scrollTrigger: {
-  //         trigger: boxRef.current,
-  //         start: "top center",
-  //         scrub: true,
-  //         pin: true,
-  //         // markers: true,
-  //       },
-  //     }
-  //   );
+  // // Animate second box to scroll up and partially cover the pinned one
+  // gsap.fromTo(
+  // boxRef.current,
+  // { y: 200 },
+  // {
+  // y: 30, // 30px below the first box
+  // scrollTrigger: {
+  // trigger: boxRef.current,
+  // start: "top center",
+  // scrub: true,
+  // pin: true,
+  // // markers: true,
+  // },
+  // }
+  // );
   // }, []);
   useEffect(() => {
     gsap.fromTo(
@@ -279,7 +279,7 @@ export default function LandingPage() {
           }`}
       >
         <div
-          className={`max-w-7xl  mx-auto px-6 flex justify-between items-center ${isScrolled ? " bg-white text-black rounded-full " : ""
+          className={`max-w-7xl mx-auto px-6 flex justify-between litems-center ${isScrolled ? " bg-white text-black rounded-full " : ""
             } `}
         >
           <motion.div
@@ -304,83 +304,8 @@ export default function LandingPage() {
             <span className={isScrolled ? "text-black" : "text-white"}></span>
           </motion.div>
 
-          {
-            <motion.button
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              whileHover={{ scale: 1.1 }}
-              onClick={() => setSidebarOpen(true)}
-              className="md:hidden p-2 md:p-0 text-black"
-            >
-              <Menu
-                className={` ${isScrolled ? "text-black" : "text-white"}`}
-                size={28}
-              />
-            </motion.button>
-          }
 
-          {/* <nav className="hidden md:flex space-x-6 text-lg">
-            {[
-              { label: "Products", dropdown: true },
-              { label: "Pricing", link: "#pricing" },
-              { label: "Resources", link: "#resources" },
-              { label: "Log in", link: "/login" },
-            ].map((item, i) => (
-              <motion.div
-                key={i}
-                custom={i}
-                initial="hidden"
-                animate="visible"
-                variants={navItemVariants}
-                className={` hover:text-primary-700 hover:underline  py-3 transition  cursor-pointer ${isScrolled
-                  ? "hover:text-primary-700 text-black "
-                  : "text-white"
-                  }`}
-                onMouseEnter={() => item.dropdown && setShowDropdown(true)}
-                onMouseLeave={() => item.dropdown && setShowDropdown(false)}
-              >
-                <Link to={item.link} className="flex items-center gap-2">
-                  {item.label}
-                  {item.dropdown && (
-                    <motion.span
-                      animate={{ rotate: showDropdown ? 180 : 0 }}
-                      transition={{ duration: 0.1, ease: "easeInOut" }}
-                    >
-                      <RxCaretUp />
-                    </motion.span>
-                  )}
-                </Link>
 
-                {item.dropdown && showDropdown && (
-                  <motion.div
-                    initial="hidden"
-                    animate="visible"
-                    exit="hidden"
-                    variants={dropdownVariants}
-                    className="absolute top-full left-0  mt-2 w-[100vw]  bg-white text-black  shadow-xl p-4 z-50"
-                  >
-                    <ul className="grid grid-cols-3 gap-4 w-full">
-                      {[
-                        "Wachat",
-                        "Sabnode AI",
-                        "Socialproof",
-                        "Botpion",
-                        "Pingblast",
-                        "SitesPY",
-                      ].map((subItem, idx) => (
-                        <li
-                          key={idx}
-                          className="hover:text-purple-600 transition font-medium"
-                        >
-                          {subItem}
-                        </li>
-                      ))}
-                    </ul>
-                  </motion.div>
-                )}
-              </motion.div>
-            ))}
-          </nav> */}
 
           <nav className="hidden md:flex space-x-6 text-lg">
             {[
@@ -422,9 +347,9 @@ export default function LandingPage() {
                     exit="hidden"
                     variants={dropdownVariants}
                     className="absolute left-0 mt-2 bg-white text-black shadow-xl p-6 z-50
-               w-[90vw] max-w-[800px] h-auto   rounded-xl"
+w-[90vw] max-w-[800px] h-auto rounded-xl"
                   >
-                    <ul className="grid grid-cols-2 md:grid-cols-3 gap-6  h-full">
+                    <ul className="grid grid-cols-2 md:grid-cols-3 gap-6 h-full">
                       {[
                         "Wachat",
                         "Sabnode AI",
@@ -433,9 +358,9 @@ export default function LandingPage() {
                         "Pingblast",
                         "SitesPY",
                       ].map((subItem, idx) => (
-                        <Link to="#">  <li
+                        <Link to="#"> <li
                           key={idx}
-                          className="hover:text-purple-600  cursor-pointer transition font-medium "
+                          className="hover:text-purple-600 cursor-pointer transition font-medium "
                         >
                           {subItem}
                         </li></Link>
@@ -449,66 +374,156 @@ export default function LandingPage() {
             ))}
           </nav>
 
-          <div className="flex items-center space-x-4">
+          <div className="flex lg:items-center item-end space-x-4">
             <div className="flex items-center ml-4">
               <select
                 value={i18n.language || "en"}
                 onChange={(e) => i18n.changeLanguage(e.target.value)}
-                className={`bg-primary-400 md:block hidden  ${isScrolled ? "text-black" : "text-white"
-                  } px-5 py-2 rounded-lg  font-semibold shadow`}              >
+                className={`bg-primary-400 ${isScrolled ? "text-black" : "text-white"
+                  } px-5 py-2 rounded-lg font-semibold shadow`} >
                 <option value="en">English</option>
                 <option value="hi">हिन्दी</option>
                 <option value="es">Español</option>
                 <option value="fr">Français</option>
               </select>
             </div>
+
             <motion.button
               whileHover={{ scale: 1.05 }}
-              className={`bg-primary-400 md:block hidden  ${isScrolled ? "text-black" : "text-white"
-                } px-5 py-2 rounded-lg  font-semibold shadow`}
+              className={`bg-primary-400 md:block hidden ${isScrolled ? "text-black" : "text-white"
+                } px-5 py-2 rounded-lg font-semibold shadow`}
             >
               Get Started
             </motion.button>
           </div>
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            whileHover={{ scale: 1.1 }}
+            onClick={() => setSidebarOpen(true)}
+            className="md:hidden p-2 md:p-0 text-black"
+          >
+            <Menu
+              className={` ${isScrolled ? "text-black" : "text-white"}`}
+              size={28}
+            />
+          </motion.button>
         </div>
       </header>
 
       <AnimatePresence>
         {sidebarOpen && (
-          <motion.aside
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            variants={sidebarVariants}
-            transition={{ duration: 0.4 }}
-            className="fixed top-0 right-0 w-72 h-full bg-primary-500 text-black p-6 shadow-2xl z-50"
-          >
-            <button
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
               onClick={() => setSidebarOpen(false)}
-              className="text-right w-full text-purple-200 hover:text-black"
-            >
-              Close ✕
-            </button>
-            <ul className="mt-8 space-y-4">
-              {["Home", "Features", "About", "Contact", "login"].map(
-                (item, i) => (
-                  <Link to={item}>
-                    <motion.li
-                      key={i}
-                      whileHover={{ scale: 1.05 }}
-                      className="cursor-pointer text-white hover:text-primary-300"
-                    >
-                      {item}
-                    </motion.li>
-                  </Link>
-                )
-              )}
+            />
 
-            </ul>
-          </motion.aside>
+            <motion.aside
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              variants={sidebarVariants}
+              transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
+              className="fixed top-0 right-0 w-80 sm:w-96 h-full bg-gradient-to-br from-primary-500/95 via-primary-500 to-primary-600 backdrop-blur-xl border-l border-white/10 shadow-2xl z-50 max-w-[85vw] sm:max-w-none"
+            >
+              <div className="relative h-full overflow-hidden">
+                {/* Glass morphism overlay */}
+                <div className="absolute inset-0 bg-gradient-to-b from-white/5 via-transparent to-black/5 pointer-events-none" />
+
+                <div className="relative flex flex-col h-full px-8 sm:px-10 py-10 sm:py-12">
+                  {/* Header */}
+                  <div className="flex items-center justify-between mb-16">
+                    <div className="flex items-center space-x-3">
+                      {/* <div className="w-2 h-8 bg-gradient-to-b from-white/80 to-white/40 rounded-full" /> */}
+                      <span className="text-white/90 font-semibold text-lg tracking-wide">Menu</span>
+                    </div>
+
+                    <motion.button
+                      whileHover={{ scale: 1.1, rotate: 90 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => setSidebarOpen(false)}
+                      className="relative group rounded-2xl hover:bg-white/20 border border-white/20 hover:border-white/30 duration-300"
+                    >
+                      <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      <svg className="w-5 h-5 text-white relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </motion.button>
+                  </div>
+
+                  {/* Navigation */}
+                  <nav className="flex-1 space-y-3 ">
+                    {["Home", "Features", "About", "Contact", "Login"].map((item, i) => (
+                      <Link to={"/login"} key={i}>
+                        <motion.div
+                          initial={{ opacity: 0, x: 20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: i * 0.1, duration: 0.4 }}
+                          whileHover={{
+                            scale: 1.02,
+                            x: 8,
+                            transition: { duration: 0.2, ease: "easeOut" }
+                          }}
+                          whileTap={{ scale: 0.98 }}
+                          className="group relative cursor-pointer"
+                        >
+                          <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-white/5 to-white/10 opacity-0 group-hover:opacity-100 transition-all duration-300 blur-sm" />
+                          <div className="relative flex items-center py-5 px-6 rounded-2xl border border-transparent group-hover:border-white/20 group-hover:bg-white/10 transition-all duration-300">
+                            <div className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-white/60 to-primary-300 mr-4 group-hover:scale-125 transition-transform duration-300" />
+                            <span className="text-white group-hover:text-primary-300 font-medium text-lg tracking-wide transition-colors duration-300">
+                              {item}
+                            </span>
+                            <motion.div
+                              className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                              whileHover={{ x: 4 }}
+                            >
+                              <svg className="w-4 h-4 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                              </svg>
+                            </motion.div>
+                          </div>
+                        </motion.div>
+                      </Link>
+                    ))}
+                  </nav>
+
+                  {/* Footer */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.6, duration: 0.4 }}
+                    className="relative mt-8 pt-8"
+                  >
+                    <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-white/20 to-white/5 border border-white/20 flex items-center justify-center">
+                          <div className="w-3 h-3 rounded-full bg-gradient-to-br from-primary-300 to-white/80" />
+                        </div>
+                        <div>
+                          <div className="text-white/90 text-sm font-medium">Navigation</div>
+                          <div className="text-white/50 text-xs">Premium Menu</div>
+                        </div>
+                      </div>
+                      <div className="flex space-x-1">
+                        {[...Array(3)].map((_, i) => (
+                          <div key={i} className="w-1.5 h-1.5 rounded-full bg-white/30" />
+                        ))}
+                      </div>
+                    </div>
+                  </motion.div>
+                </div>
+              </div>
+            </motion.aside>
+          </>
         )}
       </AnimatePresence>
-
       <div className="text-center px-6 py-16 md:py-15">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
@@ -550,7 +565,7 @@ export default function LandingPage() {
 
           <motion.button
             whileHover={{ scale: 1.05 }}
-            className="bg-white text-primary-700 px-6 py-3 rounded-lg font-semibold shadow  border-primary-500"
+            className="bg-white text-primary-700 px-6 py-3 rounded-lg font-semibold shadow border-primary-500"
           >
             {t("contactSales")}
           </motion.button>
@@ -577,7 +592,7 @@ export default function LandingPage() {
         </h2>
         <div className="text-sm text-center">{t("landingSubDesc")}</div>
 
-        <div className="w-full my-7 max-w-7xl mx-auto  px-4">
+        <div className="w-full my-7 max-w-7xl mx-auto px-4">
           <div className="grid md:grid-cols-4 gap-7 py-10">
             <div className="flex md:flex-col md:gap-9 gap-2 ">
               {tabs.map((tab) => (
@@ -589,7 +604,7 @@ export default function LandingPage() {
                     : `bg-gray-100 text-gray-700 hover:bg-primary-500 hover:text-white`
                     }`}
                 >
-                  <div className="flex flex-row  justify-center items-center md:gap-3">
+                  <div className="flex flex-row justify-center items-center md:gap-3">
                     <div className="text-[22px]">{tab.icon}</div>
                     <div>{tab.label}</div>
                   </div>
@@ -608,13 +623,13 @@ export default function LandingPage() {
                 >
                   <div className="grid grid-cols-[70px_1fr] gap-2 items-center justify-center mb-2">
                     <div
-                      className={`text-[50px] text-${activeContent.color}-500 bg-white shadow-${activeContent.color}-500/50  flex justify-center items-center shadow-lg  rounded-full p-2`}
+                      className={`text-[50px] text-${activeContent.color}-500 bg-white shadow-${activeContent.color}-500/50 flex justify-center items-center shadow-lg rounded-full p-2`}
                     >
                       {activeContent.icon}
                     </div>
                     <div>
                       <h3
-                        className={`text-2xl  mb-4 text-${activeContent.color}-500 font-extrabold`}
+                        className={`text-2xl mb-4 text-${activeContent.color}-500 font-extrabold`}
                       >
                         {activeContent.title}
                       </h3>
@@ -635,7 +650,7 @@ export default function LandingPage() {
         <div></div>
         <div></div>
 
-        <div className="w-full my-15 max-w-7xl mx-auto  px-4">
+        <div className="w-full my-15 max-w-7xl mx-auto px-4">
           <div className="grid md:grid-cols-3 gap-5 justify-center items-center">
             <div className="md:col-span-2 space-y-7 ">
               <div className="text-3xl font-extrabold ">
@@ -659,10 +674,10 @@ export default function LandingPage() {
           </div>
         </div>
       </div>
-      <div className="w-full my-15 max-w-7xl mx-auto  px-4">
+      <div className="w-full my-15 max-w-7xl mx-auto px-4">
         <div className="text-red-500 mt-5 text-xl text-center">Apps</div>
 
-        <div className="relative hidden md:flex  w-full relative h-[500px] relative border border-primary-500 rounded-lg overflow-hidden flex justify-center items-center">
+        <div className="relative hidden md:flex w-full relative h-[500px] relative border border-primary-500 rounded-lg overflow-hidden flex justify-center items-center">
           <div className="absolute top-0 left-0 flex items-center justify-center absolute ">
             <motion.div
               initial={{
@@ -922,11 +937,11 @@ export default function LandingPage() {
                 <FaWhatsapp className="text-green-500" />
               </div>
               <div className="text-green-500 font-bold text-xl">BulkReply</div>
-              <div className="w-[20px] h-[20px] bg-white/40 rounded-full absolute  top-1 left-1 blur-sm" />
+              <div className="w-[20px] h-[20px] bg-white/40 rounded-full absolute top-1 left-1 blur-sm" />
             </motion.div>
           </div>
-          <div className="w-[400px] h-[400px]  rounded-full bg-white flex  justify-center  items-center">
-            <div className="text-lg font-extrabold text-center text-black  ">
+          <div className="w-[400px] h-[400px] rounded-full bg-white flex justify-center items-center">
+            <div className="text-lg font-extrabold text-center text-black ">
               <div className="space-y-4 flex flex-col">
                 <div>
                   Our <span className="text-primary-500">Apps</span> that made
@@ -943,7 +958,7 @@ export default function LandingPage() {
         </div>
         {/* for mobile */}
 
-        <div className="relative  block md:hidden w-full relative h-[500px] relative border border-purple-800 rounded-lg overflow-hidden flex justify-center items-center">
+        <div className="relative block md:hidden w-full relative h-[500px] relative border border-purple-800 rounded-lg overflow-hidden flex justify-center items-center">
           <div className="absolute top-0 left-0 flex items-center justify-center absolute ">
             <motion.div
               initial={{
@@ -1207,8 +1222,8 @@ export default function LandingPage() {
               <div className="w-[20px] h-[20px] bg-white/40 rounded-full absolute top-1 left-1 blur-sm" />
             </motion.div>
           </div>
-          <div className="w-[300px] h-[300px]   rounded-full bg-white flex justify-center  items-center">
-            <div className="text-lg font-extrabold text-center text-black  ">
+          <div className="w-[300px] h-[300px] rounded-full bg-white flex justify-center items-center">
+            <div className="text-lg font-extrabold text-center text-black ">
               <div className="space-y-4 flex flex-col ">
                 <div className="text-sm">
                   Our <span className="text-purple-800">Apps</span> that made
@@ -1224,8 +1239,8 @@ export default function LandingPage() {
           </div>
         </div>
       </div>
-      <div className="max-w-7xl  mx-auto md:mt-10">
-        <div className=" md:py-16   ">
+      <div className="max-w-7xl mx-auto md:mt-10">
+        <div className=" md:py-16 ">
           <div ref={sectionRef} className="md:py-16 px-4 sm:px-6 ">
             <div className="grid md:grid-cols-3 gap-6 max-w-7xl mx-auto">
               {stats.map((stat, index) => (
@@ -1340,7 +1355,7 @@ export default function LandingPage() {
           <div className="backdrop-blur-md bg-white/10 border-white/20 shadow-xl rounded-lg p-6 ">
             <div>
               <TbReportSearch
-                className=" block mx-auto bg-white shadow  shadow-pink-500 rounded-full p-1 text-pink-500"
+                className=" block mx-auto bg-white shadow shadow-pink-500 rounded-full p-1 text-pink-500"
                 size={56}
               />
             </div>
@@ -1359,7 +1374,7 @@ export default function LandingPage() {
       {/* subscription section */}
       <section
         id="pricing"
-        className="subscriptionSection md:py-10 px-3 transition duration-500  text-black max-w-7xl mx-auto md:mt-10"
+        className="subscriptionSection md:py-10 px-3 transition duration-500 text-black max-w-7xl mx-auto md:mt-10"
       >
         <div className="text-primary-800 text-center text-2xl md:text-4xl font-bold">
           Pricing
@@ -1368,20 +1383,20 @@ export default function LandingPage() {
           Choose Your <span className="text-primary-800">Plan</span>
         </div>
         {/* <div className="flex gap-3 justify-center items-center mt-10">
-          <span className="text-2xl">Monthly</span>
-          <div><ToggleButton subscription={subscription} setsubscription={setsubscription} /></div>
+<span className="text-2xl">Monthly</span>
+<div><ToggleButton subscription={subscription} setsubscription={setsubscription} /></div>
 
-          <span className="text-2xl">Yearly</span>
-        </div> */}
+<span className="text-2xl">Yearly</span>
+</div> */}
         {!subscription && (
           <div>
-            <div className="grid grid-cols-1  md:grid-cols-2  lg:grid-cols-3 text-black  gap-7 mt-5 md:mt-20">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 text-black gap-7 mt-5 md:mt-20">
               <div
                 ref={divRef}
-                className="shadow-md group cursor-pointer h-[600px] px-10 py-10 bg-white rounded-lg 
-       transition-all duration-200 hover:bg-primary-500 hover:text-white"
+                className="shadow-md group cursor-pointer h-[600px] px-10 py-10 bg-white rounded-lg
+transition-all duration-200 hover:bg-primary-500 hover:text-white"
               >
-                <h3 className="text-2xl font-extrabold  hover:text-white text-center border-b border-dashed pb-3">
+                <h3 className="text-2xl font-extrabold hover:text-white text-center border-b border-dashed pb-3">
                   Free
                 </h3>
 
@@ -1424,8 +1439,8 @@ export default function LandingPage() {
                   <span className="font-bold">0</span> Contact Custom Fields
                 </h4>
 
-                <h4 className="text-black  group-hover:text-white text-center text-[18px] mt-1">
-                  <span className="font-bold  hover:text-black">0</span> Team
+                <h4 className="text-black group-hover:text-white text-center text-[18px] mt-1">
+                  <span className="font-bold hover:text-black">0</span> Team
                   Members/Agents
                 </h4>
 
@@ -1445,10 +1460,10 @@ export default function LandingPage() {
               </div>
               <div
                 ref={divRef}
-                className="shadow-md group cursor-pointer h-[600px] px-10 py-10 bg-white rounded-lg 
-       transition-all duration-200 hover:bg-primary-500 hover:text-black"
+                className="shadow-md group cursor-pointer h-[600px] px-10 py-10 bg-white rounded-lg
+transition-all duration-200 hover:bg-primary-500 hover:text-black"
               >
-                <h3 className="text-2xl font-extrabold  group-hover:text-white text-center border-b border-dashed pb-3">
+                <h3 className="text-2xl font-extrabold group-hover:text-white text-center border-b border-dashed pb-3">
                   <div className="flex justify-center items-center gap-2">
                     <MdRocketLaunch className="text-purple-500" />
                     <div>Starter Blast</div>
@@ -1473,7 +1488,7 @@ export default function LandingPage() {
                     + WhatsApp Cloud Messaging Charges
                   </div>
 
-                  <h4 className="text-black  group-hover:text-white text-center text-[18px] mt-6">
+                  <h4 className="text-black group-hover:text-white text-center text-[18px] mt-6">
                     <span className="font-bold group-hover:text-white">
                       100
                     </span>{" "}
@@ -1485,16 +1500,16 @@ export default function LandingPage() {
                   </h4>
 
                   <h4 className="text-black group-hover:text-white text-center text-[18px] mt-1">
-                    <span className="font-bold  hover:text-black">2</span> Bot
+                    <span className="font-bold hover:text-black">2</span> Bot
                     Replies
                   </h4>
 
                   <h4 className="text-black group-hover:text-white text-center text-[18px] mt-1">
-                    <span className="font-bold  ">1</span> Bot Flows
+                    <span className="font-bold ">1</span> Bot Flows
                   </h4>
 
                   <h4 className="text-black group-hover:text-white text-center text-[18px] mt-1">
-                    <span className="font-bold  hover:text-black">5</span>{" "}
+                    <span className="font-bold hover:text-black">5</span>{" "}
                     Contact Custom Fields
                   </h4>
 
@@ -1502,7 +1517,7 @@ export default function LandingPage() {
                     <span className="font-bold">5</span> Team Members/Agents
                   </h4>
 
-                  <h4 className="text-black  group-hover:text-white inline-block flex items-center justify-center text-center text-[18px] mt-1">
+                  <h4 className="text-black group-hover:text-white inline-block flex items-center justify-center text-center text-[18px] mt-1">
                     <span className="font-bold text-green-500">
                       <TiTick />
                     </span>{" "}
@@ -1519,10 +1534,10 @@ export default function LandingPage() {
               </div>
               <div
                 ref={divRef}
-                className="shadow-md cursor-pointer h-[600px] px-10 py-10 bg-white rounded-lg 
-       transition-all duration-200 group hover:bg-primary-500 hover:text-white"
+                className="shadow-md cursor-pointer h-[600px] px-10 py-10 bg-white rounded-lg
+transition-all duration-200 group hover:bg-primary-500 hover:text-white"
               >
-                <h3 className="text-2xl font-extrabold  hover:text-black text-center border-b border-dashed pb-3">
+                <h3 className="text-2xl font-extrabold hover:text-black text-center border-b border-dashed pb-3">
                   <div className="flex justify-center items-center gap-2">
                     <GiDiamondTrophy className="text-blue-500 text-2xl" />
                     <div>Enterprise Max</div>
@@ -1561,7 +1576,7 @@ export default function LandingPage() {
                 </h4>
 
                 <h4 className="text-black group-hover:text-white text-center text-[18px] mt-1">
-                  <span className="font-bold  hover:text-black">Unlimited</span>{" "}
+                  <span className="font-bold hover:text-black">Unlimited</span>{" "}
                   Bot Flows
                 </h4>
 
@@ -1580,7 +1595,7 @@ export default function LandingPage() {
                   AI Chat Bot
                 </h4>
 
-                <h4 className="text-black  group-hover:text-white inline-block flex items-center justify-center text-center text-[18px] mt-1">
+                <h4 className="text-black group-hover:text-white inline-block flex items-center justify-center text-center text-[18px] mt-1">
                   <span className="font-bold text-green-500">
                     <TiTick />
                   </span>{" "}
@@ -1635,7 +1650,7 @@ export default function LandingPage() {
           </div>
           <div>
             <div className="max-w-7xl">
-              {/* <div className="text-2xl font-bold text-center mt-10">Grow with <span className="text-purple-800 text-3xl  font-bold">SabNode</span></div> */}
+              {/* <div className="text-2xl font-bold text-center mt-10">Grow with <span className="text-purple-800 text-3xl font-bold">SabNode</span></div> */}
             </div>
           </div>
         </div>
@@ -1678,7 +1693,7 @@ export default function LandingPage() {
               </h2>
               <ul className=" text-sm flex gap-3 md:block md:space-y-2 items-center justify-center gap-2 text-center">
                 <li className="hover:underline cursor-pointer">Wachat</li>
-                <li className="hover:underline cursor-pointer md:block  gap-1 flex items-center">
+                <li className="hover:underline cursor-pointer md:block gap-1 flex items-center">
                   <span className="md:hidden block">|</span> Botpion
                 </li>
                 <li className="hover:underline cursor-pointer md:block gap-1 flex items-center">
@@ -1695,10 +1710,10 @@ export default function LandingPage() {
 
             {/* Resources */}
             <div>
-              <h2 className="text-xl font-semibold underline  text-center mb-4">
+              <h2 className="text-xl font-semibold underline text-center mb-4">
                 Resources
               </h2>
-              <ul className="   text-sm text-center">
+              <ul className=" text-sm text-center">
                 <div className="flex items-center md:space-y-2 justify-center gap-2 md:block">
                   <li className="hover:underline cursor-pointer">Blogs</li>
                   <li className="hover:underline cursor-pointer md:block gap-1 flex items-center">
@@ -1719,7 +1734,7 @@ export default function LandingPage() {
                   <li className="hover:underline cursor-pointer md:block gap-1 flex items-center">
                     <span className="md:hidden block">|</span> Contact Us
                   </li>
-                  <li className="hover:underline cursor-pointer md:block  gap-1 flex items-center">
+                  <li className="hover:underline cursor-pointer md:block gap-1 flex items-center">
                     <span className="md:hidden block">|</span> Sign In
                   </li>
                   <li className="hover:underline cursor-pointer md:block gap-1 flex items-center">
@@ -1734,8 +1749,8 @@ export default function LandingPage() {
               <h2 className="text-xl font-semibold underline text-center mb-4">
                 Legal
               </h2>
-              <ul className=" text-sm  text-center">
-                <div className="flex justify-center items-center  md:block md:space-y-2 gap-1">
+              <ul className=" text-sm text-center">
+                <div className="flex justify-center items-center md:block md:space-y-2 gap-1">
                   <li className="hover:underline cursor-pointer">
                     Terms and Conditions
                   </li>

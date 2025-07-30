@@ -57,7 +57,7 @@ const StaticsSidebar = ({ isOpen, onToggle }) => {
   };
 
   return (
-    <aside className={`bg-white h-screen shadow-lg fixed top-0 left-0 flex flex-col border-r border-gray-200 z-30 transition-all duration-300 ${isOpen ? 'md:w-64 ' : 'md:w-20 w-0 md:z-30 z-0'
+    <aside className={`bg-white dark:bg-dark-bg-primary dark:border-dark-border h-screen shadow-lg fixed top-0 left-0 flex flex-col border-r border-gray-200 z-30 transition-all duration-300 ${isOpen ? 'md:w-64 ' : 'md:w-20 w-0 md:z-30 z-0'
       }`}>
       <div className="p-4 flex items-center justify-between  ">
         {isOpen ? (
@@ -118,9 +118,9 @@ const StaticsSidebar = ({ isOpen, onToggle }) => {
           <Link
             key={item.path}
             to={item.path}
-            className={`flex items-center space-x-3 px-3 py-3 rounded-lg transition-all duration-200 mb-1 ${isActive(item.path)
-              ? 'md:bg-primary-50 md:text-primary-700 font-semibold'
-              : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+            className={`flex items-center  dark:text-dark-text-primary space-x-3 px-3 py-3 rounded-lg transition-all duration-200 mb-1 ${isActive(item.path)
+              ? 'md:bg-primary-50 dark:bg-dark-surface md:text-primary-700 font-semibold'
+              : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-dark-surface dark:hover:text-dark-text-primary hover:text-gray-900'
               }`}
           >
             <div className="flex-shrink-0">
@@ -131,12 +131,12 @@ const StaticsSidebar = ({ isOpen, onToggle }) => {
         ))}
       </nav>
 
-      <div className="p-4 border-t border-gray-200">
+      <div className="p-4 border-t dark:border-dark-border border-gray-200">
         <Link
           to="/projects"
-          className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-200 ${location.pathname.startsWith('/settings')
+          className={`flex items-center space-x-3 px-3 py-2 dark:text-dark-text-primary rounded-lg transition-all duration-200 ${location.pathname.startsWith('/settings')
             ? 'bg-primary-50 text-primary-700 font-semibold'
-            : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+            : 'text-gray-700 dark:hover:bg-dark-surface dark:hover:text-dark-text-primary hover:bg-gray-100 hover:text-gray-900'
             }`}
         >
 

@@ -87,24 +87,24 @@ const UserSidebar = ({ isOpen, onToggle, isOff }) => {
     }`}>
       <div className="p-4 flex items-center justify-between  ">
         {isOpen ? (
-          <Link to="/" className="flex items-center">
-            {/* <span className="text-xl font-bold font-heading text-primary-700 hover:text-primary-600 transition-colors"> */}
-            {logoUrl ? (
-              <img
-                src={logoUrl}
-                alt="Company Logo"
-                className="w-auto h-12"
-              />
-            ) : (
-              "SabNode"
-            )}
-            {/* </span> */}
-          </Link>
-          // <h2 className="text-xl font-bold font-heading  text-primary-700 truncate">
-          //   {siteConfig?.websiteName || 'User Panel'}
-          // </h2>
+          // <Link to="/" className="flex items-center">
+          //   {/* <span className="text-xl font-bold font-heading text-primary-700 hover:text-primary-600 transition-colors"> */}
+          //   {logoUrl ? (
+          //     <img
+          //       src={logoUrl}
+          //       alt="Company Logo"
+          //       className="w-auto h-12"
+          //     />
+          //   ) : (
+          //     "SabNode"
+          //   )}
+          //   {/* </span> */}
+          // </Link>
+          <h2 className="text-xl font-bold font-heading  text-primary-700 truncate">
+            {siteConfig?.websiteName || 'User Panel'}
+          </h2>
         ) : (
-          <div className="w-8 h-8 bg-primary-100 hidden md:block rounded-full flex items-center justify-center">
+          <div className="w-8 h-8 bg-primary-100  md:block rounded-full flex items-center justify-center">
             <Link to="/" className="flex items-center">
               {/* <span className="text-xl font-bold font-heading text-primary-700 hover:text-primary-600 transition-colors"> */}
               {logoUrl ? (
@@ -125,7 +125,7 @@ const UserSidebar = ({ isOpen, onToggle, isOff }) => {
         )}
         <button
           onClick={onToggle}
-          className="p-1 rounded-md hidden md:block hover:bg-gray-100 text-gray-500 dark:text-dark-text-primary hover:text-gray-700 transition-colors"
+          className="p-1 rounded-md  md:block hover:bg-gray-100 text-gray-500 dark:text-dark-text-primary hover:text-gray-700 transition-colors"
           aria-label={isOpen ? 'Collapse sidebar' : 'Expand sidebar'}
         >
           {isOpen ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
@@ -150,9 +150,9 @@ const UserSidebar = ({ isOpen, onToggle, isOff }) => {
             }
             key={item.path}
             to={item.path}
-            className={`flex items-center space-x-3 px-3 py-3 hidden md:flex rounded-lg transition-all duration-200 mb-1 ${
+            className={`flex items-center space-x-3 px-3 py-3  md:flex rounded-lg transition-all duration-200 mb-1 ${
               isActive(item.path)
-                ? 'md:bg-primary-50 dark:bg-dark-surface md:text-primary-700 font-semibold '
+                ? 'md:bg-primary-50  dark:bg-dark-surface md:text-primary-700 font-semibold '
                 : 'text-gray-700 dark:text-dark-text-primary dark:hover:bg-dark-surface dark:hover:text-dark-text-primary  hover:bg-gray-100  hover:text-gray-900'
             }`}
           >

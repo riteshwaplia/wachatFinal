@@ -37,7 +37,7 @@ const navItems = [
   };
  
   return (
-    <aside className={`bg-white h-screen shadow-lg fixed top-0 left-0 flex flex-col border-r border-gray-200 z-30 transition-all duration-300 ${
+    <aside className={`bg-white h-screen dark:bg-dark-surface shadow-lg fixed top-0 left-0 flex flex-col border-r border-gray-200 z-30 transition-all duration-300 ${
       isOpen ? 'md:w-64 ' : 'md:w-20 w-0 md:z-30 z-0'
     }`}>
       <div className="p-4 flex items-center justify-between  ">
@@ -75,7 +75,7 @@ const navItems = [
             to={item.path}
             className={`flex items-center space-x-3 px-3 py-3 rounded-lg transition-all duration-200 mb-1 ${
               isActive(item.path)
-                ? 'md:bg-primary-50 md:text-primary-700 font-semibold'
+                ? 'md:bg-primary-50 md:dark:bg-dark-surface md:text-primary-700 font-semibold'
                 : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
             }`}
           >

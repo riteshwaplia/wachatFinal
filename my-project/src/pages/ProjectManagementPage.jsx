@@ -117,7 +117,7 @@ const ProjectCard = ({ project, onEdit, onDelete, onClick }) => {
 
 
 const ProjectManagementPage = () => {
-  const { user, token } = useAuth();
+  const { user, authLoading } = useAuth();
   const navigate = useNavigate();
   const [projects, setProjects] = useState([]);
   const [businessProfiles, setBusinessProfiles] = useState([]);
@@ -134,22 +134,18 @@ const ProjectManagementPage = () => {
   });
   const [editingProject, setEditingProject] = useState(null);
   const [message, setMessage] = useState({ text: "", type: "" });
-  const [isLoading, setIsLoading] = useState(true);
+  const [isDataLoading, setIsDataLoading] = useState(true); // Renamed from isLoading
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { t } = useTranslation();
 
-  const config = {
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-  };
+  const isLoading = authLoading || isDataLoading;
+
 
   const fetchProjects = async () => {
-    setIsLoading(true);
+    setIsDataLoading(true);
     setMessage({ text: "", type: "" });
     try {
-      const res = await api.get("/project", config);
+      const res = await api.get("/project", );
       setProjects(res.data.data);
       if (res.data.data.length === 0) {
         setMessage({
@@ -160,36 +156,52 @@ const ProjectManagementPage = () => {
     } catch (error) {
       console.error("Error fetching projects:", error);
       setMessage({
-        text: `Error fetching projects: ${error.response?.data?.message || t('failedToFetchProjects')
-          }`,
+        text: `Error fetching projects: ${error.response?.data?.message || t('failedToFetchProjects')}`,
         type: "error",
       });
     } finally {
-      setIsLoading(false);
+      setIsDataLoading(false);
     }
   };
 
   const fetchBusinessProfiles = async () => {
     try {
-      const res = await api.get("/users/business-profiles", config);
+      const res = await api.get("/users/business-profiles");
       setBusinessProfiles(res.data.data || []);
     } catch (error) {
       console.error("Error fetching business profiles:", error);
       setMessage({
-        text: `Error fetching business profiles: ${error.response?.data?.message || t('failedToFetchBusinessProfiles')
-          }`,
+        text: `Error fetching business profiles: ${error.response?.data?.message || t('failedToFetchBusinessProfiles')}`,
         type: "error",
       });
     }
   };
 
   useEffect(() => {
-    if (user && token) {
+    if (!authLoading && user) {
+      // Only fetch data when auth is verified and user exists
       fetchProjects();
       fetchBusinessProfiles();
     }
-  }, [user, token]);
+  }, [user, authLoading]);
+if (isLoading) {
+    return (
+      <div className="flex min-h-screen bg-gray-50 items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600">{t('loadingProjects')}</p>
+        </div>
+      </div>
+    );
+  }
 
+  if (!user && !authLoading) {
+    return (
+      <div className="text-center py-10 text-error">
+        {t('pleaseLogInToManageProjects')}
+      </div>
+    );
+  }
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
@@ -209,7 +221,7 @@ const ProjectManagementPage = () => {
 
       const method = editingProject ? "put" : "post";
 
-      const res = await api[method](endpoint, formData, config);
+      const res = await api[method](endpoint, formData);
 
       setMessage({
         text:
@@ -263,7 +275,7 @@ const ProjectManagementPage = () => {
   const handleDeleteProject = async (projectId) => {
     if (window.confirm(t('confirmDeleteProject'))) {
       try {
-        const res = await api.delete(`/project/${projectId}`, config);
+        const res = await api.delete(`/project/${projectId}`);
         setMessage({
           text: res.data.message || t('projectDeletedSuccessfully'),
           type: "success",
