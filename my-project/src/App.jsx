@@ -43,6 +43,7 @@ import AddTeamMembers from './components/AddTeamMembers';
 import UserProfileLayout from './layout/userProfileLayout';
 import CreateCarouselTemplate from './components/template/CreateCarouselTemplate';
 import SendCarosualTemplate from './components/broadcasting/SendCarosualTemplate';
+
  
 const AdminRoute = ({ children }) => (
   <ProtectedRoute roles={["super_admin", "tenant_admin"]}>
@@ -118,35 +119,35 @@ function AppContent() {
 
   return (
     <>
-    
-    
-    <Routes>
-      <Route path="/register" element={<RegisterPage />} />
-      <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
-      <Route
-        path="/admin/dashboard"
-        element={
-          <AdminRoute>
-            <HomePage />
-          </AdminRoute>
-        }
-      />
-       <Route
-            path="/admin/admin-dashboard"
-            element={
-              <AdminRoute>
-                <AdminDashboardPage />
-              </AdminRoute>
-            }
-          />
-           <Route
-            path="/admin/add-tenant-admin"
-            element={
-              <SuperAdminRoute>
-                <SuperAdminDashboard />
-              </SuperAdminRoute>
-            }
-          />
+
+
+      <Routes>
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route
+          path="/admin/dashboard"
+          element={
+            <AdminRoute>
+              <HomePage />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/admin-dashboard"
+          element={
+            <AdminRoute>
+              <AdminDashboardPage />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/add-tenant-admin"
+          element={
+            <SuperAdminRoute>
+              <SuperAdminDashboard />
+            </SuperAdminRoute>
+          }
+        />
 
         <Route
           path="/admin/users"

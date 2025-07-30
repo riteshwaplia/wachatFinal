@@ -3,10 +3,12 @@ import PropTypes from 'prop-types';
 import Button from './Button';
 import { Link as LinkIcon } from 'lucide-react';
 import LoadingSpinner from './Loader';
-import { FiEdit } from 'react-icons/fi';
+import { FiEdit } from "react-icons/fi";
 import Modal from './Modal';
 import InputField from './InputField';
+import axios from 'axios';
 import api from '../utils/api';
+
 
 const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick, fetchBusinessProfiles }) => {
   const [loading, setLoading] = useState(false);
@@ -60,65 +62,85 @@ const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick, fetchBu
     }
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
-      return;
+      return
     }
     setLoading(true)
     try {
-      const res = await updateBusinessProfile(profile._id, businessData);
 
-      if (res.data?.success === true) {
-        fetchBusinessProfiles?.();
-      } else {
-        console.log('Unable to update business profile');
+      const res = await updateBusinessProfile(profile._id, businessdata);
+      console.log("resss", res);
+      if (res.data.success === true) {
+        console.log("success");
+        fetchBusinessProfiles()
       }
+      else {
+        console.log("unable to update business profile");
+      }
+      setModelOpen(false);
 
-      setModalOpen(false);
     } catch (error) {
       console.error(error);
     } finally {
       setLoading(false);
     }
-  };
+
+  }
 
   return (
     <div
-      className={`p-4 rounded-lg border transition-all ${
-        isSelected ? 'bg-primary-50 border-primary-300 shadow-md' : 'border-gray-200 hover:bg-gray-50'
-      }`}
+      className={`p-4 rounded-lg border transition-all  ${isSelected
+        ? 'bg-primary-50 border-primary-300 shadow-md'
+        : 'border-gray-200 hover:bg-gray-50'
+        }`}
+    // onClick={onClick}
     >
-      {modalOpen && (
-        <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Edit Business Profile">
+      {
+        modalOpen && <Modal
+          isOpen={modalOpen}
+          onClose={() => setModelOpen(false)}
+          title="Edit Business Profile"
+        >
           <div className="text-gray-700">
+            {/* Your modal content here */}
             <form onSubmit={submitHandler} className="space-y-4">
               <InputField
                 label="Business Name"
                 name="name"
-                value={businessData.name}
-                onChange={e => handleChange('name', e.target.value)}
+                value={businessdata.name}
+                onChange={(e) => handleChange("name", e.target.value)}
                 placeholder="e.g., My Main Business"
-                error={errors.name}
-                helperText={errors.name}
-              />
+                error={errros.name}
+                helperText={errros.name}
+                maxlength={50}
 
+
+              />
               <InputField
                 disabled
                 label="WhatsApp Business Account ID"
                 name="wabaId"
-                value={businessData.wabaId}
-                onChange={e => handleChange('wabaId', e.target.value)}
+                value={businessdata.wabaId}
+                onChange={(e) => handleChange("wabaId", e.target.value)}
                 placeholder="e.g., 123456789012345"
-                error={errors.wabaId}
-                helperText={errors.wabaId}
+                maxlength={50}
+
+                error={errros.wabaId}
+                helperText={errros.wabaId}
+
               />
 
               <InputField
-                label="WhatsApp metaAppId"
+
+                label="WhatsApp metaAppId ID"
                 name="metaAppId"
-                value={businessData.metaAppId}
-                onChange={e => handleChange('metaAppId', e.target.value)}
+                value={businessdata.metaAppId}
+                onChange={(e) => handleChange("metaAppId", e.target.value)}
                 placeholder="e.g., 123456789012345"
-                error={errors.metaAppId}
-                helperText={errors.metaAppId}
+                maxlength={50}
+
+                error={errros.metaAppId}
+                helperText={errros.metaAppId}
+
               />
 
               <InputField
@@ -136,28 +158,18 @@ const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick, fetchBu
             </form>
           </div>
         </Modal>
-      )}
-
-      <div className="flex items-center justify-between">
-        <h4 className="text-lg font-semibold text-primary-700 mb-2">{profile.name}</h4>
-        <FiEdit
-          className="cursor-pointer"
-          onClick={e => {
-            e.stopPropagation();
-            setModalOpen(true);
-          }}
-        />
+      }
+      <div className='flex items-center justify-between'>
+        <h4 className="text-lg font-semibold text-primary-700 mb-2">{profile.name?.length > 30 ? profile.name.slice(0, 30) + '…' : profile.name}
+        </h4>
+        <FiEdit className='cursor-pointer' onClick={(e) => { e.stopPropagation(), setModelOpen(true) }} />
       </div>
-
       <p className="text-gray-600 text-sm mb-3">WABA ID: {profile.metaBusinessId}</p>
-
       <Button
-        onClick={e => {
-          e.stopPropagation();
-          onClick();
-        }}
+        onClick={(e) => { e.stopPropagation(); onClick(); }}
         variant={isSelected ? 'primary' : 'outline'}
         size="sm"
+
         disabled={isFetching}
         className="flex justify-center gap-2 items-center mx-auto w-full"
       >
@@ -176,8 +188,7 @@ BusinessProfileCard.propTypes = {
   profile: PropTypes.object.isRequired,
   isSelected: PropTypes.bool,
   isFetching: PropTypes.bool,
-  onClick: PropTypes.func.isRequired,
-  fetchBusinessProfiles: PropTypes.func,
+  onClick: PropTypes.func.isRequired
 };
 
 export default BusinessProfileCard;
