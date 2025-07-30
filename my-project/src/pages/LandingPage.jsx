@@ -460,7 +460,7 @@ w-[90vw] max-w-[800px] h-auto rounded-xl"
                   {/* Navigation */}
                   <nav className="flex-1 space-y-3 ">
                     {["Home", "Features", "About", "Contact", "Login"].map((item, i) => (
-                      <Link to={""} key={i}>
+                      <Link to={"/login"} key={i}>
                         <motion.div
                           initial={{ opacity: 0, x: 20 }}
                           animate={{ opacity: 1, x: 0 }}

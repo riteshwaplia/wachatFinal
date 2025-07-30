@@ -216,12 +216,12 @@ const response = await api.put(
               {previewImage ? (
                 <img src={previewImage} alt="Profile" className="w-40 h-40 rounded-full border-4 border-primary-500 object-cover" />
               ) : (
-                <div className="w-40 h-40 rounded-full bg-accent-500 text-white text-5xl font-bold flex items-center justify-center">
-                  {getInitials(user.name)}
+                <div className="w-40 h-40 rounded-full bg-primary-500 text-white text-5xl font-bold flex items-center justify-center">
+                  {getInitials(user.firstName)}
                 </div>
               )}
               <div>
-                <h2 className="text-2xl font-heading text-primary-600">{user.name}</h2>
+                <h2 className="text-2xl font-heading text-primary-600">{user.firstName}</h2>
                 <p className="text-gray-500">User Profile</p>
               </div>
               {isEditable && (
