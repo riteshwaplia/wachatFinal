@@ -19,7 +19,10 @@ const getInitials = (name) => {
   const parts = name.trim().split(' ');
   return parts[0]?.[0]?.toUpperCase() + (parts[1]?.[0]?.toUpperCase() || '');
 };
+const token = localStorage.getItem("authToken");
 export default function ProfilePage() {
+  const userID = localStorage.getItem('userId');
+
   const [profileImage, setProfileImage] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
   const [errors, setErrors] = useState({});
@@ -27,19 +30,19 @@ export default function ProfilePage() {
   const [data, setData] = useState({});
   console.log("data", data);
   const [user, setUser] = useState({
-    name: "",
+    firstName: "",
+    lastName: "",
     email: "",
+    userName: "",
     mobile: '',
-    password: '12345',
-    company: 'waplia',
-    country: 'India',
-    state: 'rajasthan',
-    companySize: 'large',
-    industry: 'it',
-    currency: '$9000',
-    timezone: 'day',
-    firstName: '',
-    lastName: '',
+    // country: 'India',
+    // state: 'rajasthan',
+    // companySize: 'large',
+    // industry: 'it',
+    // currency: '$9000',
+    // timezone: 'day',
+    // firstName: '',
+    // lastName: '',
     gender: '',
     dob: '',
     profilePicture: ''
@@ -50,29 +53,32 @@ export default function ProfilePage() {
   const [tab, setTab] = useState("perDetails");
   const [userId, setUserId] = useState('')
 
+
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const res = await api.get("/users/profile");
-        console.log("res", res.data._id)
+        console.log("res=>>>>>>>", res.data._id)
         setUserId(res?.data?._id)
         setUser({
-          name: res.data.username || '',
+          firstName: res.data.firstName,
+          lastName: res.data.lastName,
+          userName: res.data.username || '',
           email: res.data.email || '',
-          mobile: res.data.mobile || '',
-          password: '12345',
-          company: res.data.company || '',
-          country: res.data.country || 'India',
-          state: res.data.state || '',
-          companySize: res.data.companySize || '',
-          industry: res.data.industry || '',
-          currency: res.data.currency || '',
-          timezone: res.data.timezone || '',
-          firstName: res.data.firstName || '',
-          lastName: res.data.lastName || '',
-          gender: res.data.gender || '',
-          dob: res.data.dob || '',
-          profilePicture: res.data.profilePicture || ''
+          mobile: res.data.mobileNumber || '',
+          // password: '',
+          // company: res.data.company || '',
+          // country: res.data.country || 'India',
+          // state: res.data.state || '',
+          // companySize: res.data.companySize || '',
+          // industry: res.data.industry || '',
+          // currency: res.data.currency || '',
+          // timezone: res.data.timezone || '',
+          // firstName: res.data.firstName || '',
+          // lastName: res.data.lastName || '',
+          // gender: res.data.gender || '',
+          // dob: res.data.dob || '',
+          // profilePicture: res.data.profilePicture || ''
         });
 
         console.log("res", res);
@@ -105,15 +111,16 @@ export default function ProfilePage() {
 
 
     const newErrors = {};
-    if (!user.name) newErrors.name = 'Name is required';
+    if (!user.firstName) newErrors.firstName = 'Firstname is required';
+    if (!user.lastName) newErrors.lastName = "Lastname is required"
     if (!user.mobile) newErrors.phonenumber = 'Mobile is required';
-    if (!user.password) newErrors.password = 'Password is required';
+
     // if (!user.companySize) newErrors.companySize = 'Company size is required';
-    if (!user.email) {
-      newErrors.email = 'Email is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(user.email)) {
-      newErrors.email = 'Enter a valid email address';
-    }
+    // if (!user.email) {
+    //   newErrors.email = 'Email is required';
+    // } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(user.email)) {
+    //   newErrors.email = 'Enter a valid email address';
+    // }
     console.log("erros", newErrors)
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -124,24 +131,39 @@ export default function ProfilePage() {
 
     try {
       const payload = {
-        name: user.name,
+        firstName: user.firstName,
+        lastName: user.lastName,
         email: user.email,
-        phone: user.phone,
-        companySize: user.companySize,
-        timezone: user.timezone,
-        state: user.state,
-        country: user.country,
-        industry: user.industry,
-        currency: user.currency,
-        firstName: user.firstName || '',
-        lastName: user.lastName || '',
-        gender: user.gender || '',
-        dob: user.dob || '',
-        profilePicture: user.profilePicture || '', // You can replace this with uploaded image URL
+        userName: user.userName,
+        mobile: user.mobile,
+        // gender: user.gender,
+        // dob: user.dob,
+        profilePicture: user.profilePicture || ""
+        // email: user.email,
+        // phone: user.phone,
+        // companySize:user.companySize,
+        // timezone:user.timezone,
+        // state: user.state,
+        // country: user.country,
+        // industry: user.industry,
+        // currency: user.currency,
+        // firstName: user.firstName || '',
+        // lastName: user.lastName || '',
+        // gender: user.gender || '',
+        // dob: user.dob || '',
+        // profilePicture: user.profilePicture || '', // You can replace this with uploaded image URL
       };
 
       console.log("useridddd", userId)
-      const response = await api.post(`/user/update-self/${userId}`, payload);
+      const response = await api.put(
+        `/users/update-self/${userId}`,
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
 
       if (response?.data?.success) {
         console.log('User updated successfully:', response.data);
@@ -210,8 +232,48 @@ export default function ProfilePage() {
             </div>
 
             <form onSubmit={handleSubmit} className="grid grid-cols-1 text-black md:grid-cols-2 gap-3 md:gap-6">
-              <InputField label="Name" error={errors.name} value={user.name} onChange={(e) => handleChange('name', e.target.value)} type="text" placeholder="Name" disabled={!isEditable} />
-              <InputField disable={true} label="Email" error={errors.email} value={user.email} onChange={(e) => handleChange('email', e.target.value)} type="email" placeholder="Email" />
+              <InputField label="First Name" error={errors.firstName} value={user.firstName} onChange={(e) => handleChange('firstName', e.target.value)} type="text" placeholder="Enter first name here..." disabled={!isEditable} />
+              <InputField label="Last Name" error={errors.lastName} value={user.lastName} onChange={(e) => handleChange('lastName', e.target.value)} type="text" placeholder="Enter last name here..." disabled={!isEditable} />
+              <InputField disable={true} label="Email" value={user.email} onChange={(e) => handleChange('email', e.target.value)} type="email" placeholder="Enter your email here..." />
+              <InputField label="Username" error={errors.username} value={user.userName} onChange={(e) => handleChange('userName', e.target.value)} type="text" placeholder="Enter your username here..." disabled={!isEditable} />
+              {/* <div className="mb-4">
+ 
+ 
+  <label className="block text-sm font-medium text-[var(--color-txtsecondary)] mb-1">
+    Gender
+  </label>
+  <select
+    value={user.gender}
+    onChange={(e) => handleChange('gender', e.target.value)}
+    disabled={!isEditable}
+    className={`w-full px-3 py-2 rounded-md text-[var(--color-text)] bg-[var(--colorbg-input)] border border-[var(--color-border)] shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] transition ${
+      !isEditable ? 'bg-opacity-60 cursor-not-allowed' : ''
+    }`}
+  >
+    <option value="">Select Gender</option>
+    <option value="male">Male</option>
+    <option value="female">Female</option>
+    <option value="other">Other</option>
+  </select>
+</div> */}
+
+
+              {/*              
+              <div className="mb-4">
+  <label className="block text-sm font-medium text-gray-700 mb-1">
+    Date of Birth
+  </label>
+  <input
+    type="date"
+    value={user.dob}
+    onChange={(e) => handleChange('dob', e.target.value)}
+    disabled={!isEditable}
+    className={`w-full px-3 py-2 border rounded-lg text-gray-800 shadow-sm focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-blue-500 ${
+      !isEditable ? 'bg-gray-100 cursor-not-allowed' : ''
+    }`}
+  />
+</div> */}
+
               {/* <MobileNumber error={errors.phonenumber} label="Mobile Number" value={user.mobile ||  } onChange={handlePhoneChange} country="in" placeholder="Mobile Number" /> */}
               <MobileNumber
                 disabled={!isEditable}
@@ -224,43 +286,75 @@ export default function ProfilePage() {
               />
 
 
-              <InputField label="Password" error={errors.password} value={user.password} onChange={(e) => handleChange('password', e.target.value)} type="password" placeholder="Password" disabled={!isEditable} />
+              {/* <InputField label="Password" error={errors.password} value={user.password} onChange={(e) => handleChange('password', e.target.value)} type="password" placeholder="Password" disabled={!isEditable} />
+              <InputField label="First Name" error={errors.firstName} value={user.firstName} onChange={(e) => handleChange('firstName', e.target.value)} type="text" placeholder="firstname" disabled={!isEditable} />
+              <InputField label="Last Name" error={errors.lastName} value={user.lastName} onChange={(e) => handleChange('lastName', e.target.value)} type="text" placeholder="Lastname" disabled={!isEditable} /> */}
+              {/* {
+  isEditable ?(
+              <InputField label="First Name" error={errors.name} value={user.firstName} onChange={(e) => handleChange('firstName', e.target.value)} type="text" placeholder="Enter first name here..." disabled={!isEditable} />
+ 
+  ):(
+              <InputField disabled label="First Name" error={errors.name} value={user.firstName} onChange={(e) => handleChange('firstName', e.target.value)} type="text" placeholder="Enter first name here..." />
+ 
+  )
+}
+{
+  isEditable ?(
+                      <InputField label="Last Name" error={errors.lastName} value={user.lastName} onChange={(e) => handleChange('lastName', e.target.value)} type="text" placeholder="Enter last name here..." />
+ 
+  ):(
+                           <InputField disabled label="Last Name" error={errors.lastName} value={user.lastName} onChange={(e) => handleChange('lastName', e.target.value)} type="text" placeholder="Enter last name here..." />
+ 
+  )
+}
+{
+  isEditable ?(
+                                 <InputField  label="Email" error={errors.email} value={user.email} onChange={(e) => handleChange('email', e.target.value)} type="email" placeholder="Enter your email here..." />
+ 
+  ):(
+                                     <InputField disable={true} label="Email" error={errors.email} value={user.email} onChange={(e) => handleChange('email', e.target.value)} type="email" placeholder="Enter your email here..." />
+ 
+ 
+  ) */}
+              {/* } */}
 
-              {isEditable ? (
+
+              {/* {isEditable ? (
                 <CustomSelect label="Company Size" options={compnayoptions} value={compnayoptions.find((o) => o.value === user.companySize)} onChange={(opt) => handleChange('companySize', opt?.value)} placeholder="-- Company Size --" />
               ) : (
                 <InputField label="Company Size" value={user.companySize} disabled />
               )}
-
+ 
               {isEditable ? (
                 <CustomSelect label="Country" options={countryOptions} value={countryOptions.find((o) => o.value === user.country)} onChange={(opt) => handleChange('country', opt?.value)} placeholder="-- Country --" />
               ) : (
                 <InputField label="Country" value={user.country} disabled />
               )}
-
+ 
               {isEditable && user.country.toLowerCase() === 'india' ? (
                 <CustomSelect label="State" options={indianStateOptions} value={indianStateOptions.find((o) => o.value === user.state)} onChange={(opt) => handleChange('state', opt?.value)} placeholder="-- State --" />
               ) : (
                 <InputField label="State" value={user.state} disabled />
               )}
-
+ 
               {isEditable ? (
                 <CustomSelect label="Industry" options={industryOptions} value={industryOptions.find((o) => o.value === user.industry)} onChange={(opt) => handleChange('industry', opt?.value)} placeholder="-- Industry --" />
               ) : (
                 <InputField label="Industry" value={user.industry} disabled />
               )}
-
+ 
               {isEditable ? (
                 <CustomSelect label="Currency" options={currencyOptions} value={currencyOptions.find((o) => o.value === user.currency)} onChange={(opt) => handleChange('currency', opt?.value)} placeholder="-- Currency --" />
               ) : (
                 <InputField label="Currency" value={user.currency} disabled />
               )}
-
+ 
+ 
               {isEditable ? (
                 <CustomSelect label="Time Zone" options={timeZoneOptions} value={timeZoneOptions.find((o) => o.value === user.timezone)} onChange={(opt) => handleChange('timezone', opt?.value)} placeholder="-- Timezone --" />
               ) : (
                 <InputField label="Time Zone" value={user.timezone} disabled />
-              )}
+              )} */}
 
               <div className="col-span-full flex justify-end gap-4">
                 <Button variant="outline" onClick={() => setIsEditable(!isEditable)}>{isEditable ? 'Cancel' : 'Edit'}</Button>

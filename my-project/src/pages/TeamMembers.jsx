@@ -3,6 +3,7 @@ import axios from 'axios';
 import { ErrorToast, SuccessToast } from '../utils/Toast';
 import { useParams } from 'react-router-dom';
 import api from '../utils/api';
+import Button from '../components/Button';
 
 const AddCustomFieldModal = ({ isOpen, onClose, onSuccess, fields }) => {
   const [label, setLabel] = useState('');
@@ -121,19 +122,20 @@ const AddCustomFieldModal = ({ isOpen, onClose, onSuccess, fields }) => {
           </div>
 
           <div className="flex justify-end space-x-2">
-            <button
+            <Button
               onClick={onClose}
               className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
+              loading={loading}
               onClick={handleSave}
               disabled={loading || !label || !type}
               className={`px-4 py-2 rounded-md text-white ${loading ? 'bg-primary-300' : 'bg-primary-600 hover:bg-primary-700'}`}
             >
               {loading ? 'Saving...' : 'Save'}
-            </button>
+            </Button>
           </div>
         </div>}
     </div>
