@@ -71,6 +71,18 @@ const ContactForm = ({ initialData, onSubmit, onCancel, groups, isLoading, field
             setErrors(prev => ({ ...prev, [name]: '' }));
         }
 
+        if (type === "text" || type === "textarea" || type === "email") {
+            const isValid = /^[a-zA-Z0-9@_. ]*$/.test(value); // allow space, @, _, .
+            if (!isValid) {
+                setErrors((prev) => ({
+                    ...prev,
+                    [name]: "Special characters are not allowed",
+                }));
+                return; // Stop invalid update
+            }
+        }
+
+
         if (type === 'select-multiple') {
             const selectedValues = Array.from(options)
                 .filter(option => option.selected)
@@ -174,7 +186,7 @@ const ContactForm = ({ initialData, onSubmit, onCancel, groups, isLoading, field
     }));
 
     return (
-        <div className="max-h-[700px] overflow-y-auto p-4 border rounded-md">
+        <div className="max-h-[700px] overflow-y-auto p-4 border dark:border-dark-border rounded-md">
             <form onSubmit={handleSubmit} className="space-y-4">
                 <InputField
                     id="contactName"
@@ -185,6 +197,7 @@ const ContactForm = ({ initialData, onSubmit, onCancel, groups, isLoading, field
                     value={(formData.name).replace(/[^a-zA-Z0-9]/g, '')}
                     onChange={handleInputChange}
                     error={errors.name}
+                    helperText={errors.name}
                 />
 
                 <InputField
@@ -196,6 +209,7 @@ const ContactForm = ({ initialData, onSubmit, onCancel, groups, isLoading, field
                     value={formData.email}
                     onChange={handleInputChange}
                     error={errors.email}
+                    helperText={errors.email}
                 />
 
                 <div>
@@ -218,6 +232,7 @@ const ContactForm = ({ initialData, onSubmit, onCancel, groups, isLoading, field
                     onChange={handleGroupChange}
                     isMulti={true}
                     error={errors.groupIds}
+                    helperText={errors.groupIds}
                 />
 
                 {/* Dynamic Custom Fields */}
@@ -232,6 +247,7 @@ const ContactForm = ({ initialData, onSubmit, onCancel, groups, isLoading, field
                         value={formData[field.label] || ''}
                         onChange={handleInputChange}
                         error={errors[field.label]}
+                        helperText={errors[field.label]}
                     />
                 ))}
 

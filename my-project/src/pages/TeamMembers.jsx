@@ -3,6 +3,7 @@ import axios from 'axios';
 import { ErrorToast, SuccessToast } from '../utils/Toast';
 import { useParams } from 'react-router-dom';
 import api from '../utils/api';
+import Button from '../components/Button';
 
 const AddCustomFieldModal = ({ isOpen, onClose, onSuccess, fields }) => {
   const [label, setLabel] = useState('');
@@ -17,25 +18,37 @@ const AddCustomFieldModal = ({ isOpen, onClose, onSuccess, fields }) => {
 
     setLoading(true);
     try {
+      setLoading(true);
       const newField = { key: label, type: type };
 
-      const res = await api.put(`/projects/${id}/contacts/contact-add-customField`, newField); // Update the URL if needed
+      const res = await api.put(
+        `/projects/${id}/contacts/contact-add-customField`,
+        newField
+      );
 
       if (res?.data?.success) {
         onSuccess(newField);
-        SuccessToast(res.data.message || 'Custom field added successfully');
-        setLabel('');
-        setType('');
+        SuccessToast(res.data.message || "Custom field added successfully");
+        setLabel("");
+        setType("");
         onClose(); // Close modal
       } else {
-        ErrorToast(res.data.message || 'Something went wrong');
+        ErrorToast(res.data.message || "Something went wrong");
       }
     } catch (error) {
-      console.error('Failed to save custom field', error);
-      ErrorToast('Failed to save custom field');
+      console.error("Failed to save custom field", error);
+
+      // Extract server error message if available
+      const serverMessage =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        "Failed to save custom field";
+
+      ErrorToast(serverMessage);
     } finally {
       setLoading(false);
     }
+
   };
 
   if (!isOpen) return null;
@@ -45,8 +58,8 @@ const AddCustomFieldModal = ({ isOpen, onClose, onSuccess, fields }) => {
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
       {fields ? (<>
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md max-h-[80vh] overflow-y-auto">
-            <h2 className="text-xl font-semibold mb-4 text-center">Custom Fields</h2>
+          <div className="bg-white dark:bg-dark-surface rounded-xl shadow-lg p-6 w-full max-w-md max-h-[80vh] overflow-y-auto">
+            <h2 className="text-xl dark:text-dark-text-primary font-semibold mb-4 dark:text-dark-text-primary text-center">Custom Fields</h2>
 
             <form className="space-y-4">
               {fields.map((field, index) => (
@@ -58,7 +71,7 @@ const AddCustomFieldModal = ({ isOpen, onClose, onSuccess, fields }) => {
                     disabled={true}
                     type={field.type}
                     placeholder={field.label}
-                    className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    className="border border-gray-300 dark:bg-dark-surface rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
                   />
                 </div>
 
@@ -78,8 +91,8 @@ const AddCustomFieldModal = ({ isOpen, onClose, onSuccess, fields }) => {
             </div>
           </div>
         </div></>) :
-        <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
-          <h2 className="text-xl font-semibold mb-4">Add Custom Field</h2>
+        <div className="bg-white rounded-lg shadow-lg w-full dark:bg-dark-surface max-w-md p-6">
+          <h2 className="text-xl dark:text-dark-text-primary font-semibold mb-4 dark:text-dark-text-primary">Add Custom Field</h2>
 
           <div className="mb-4">
             <label htmlFor="label" className="block text-sm font-medium text-gray-700 mb-1">
@@ -98,7 +111,7 @@ const AddCustomFieldModal = ({ isOpen, onClose, onSuccess, fields }) => {
                 }
               }}
               placeholder="e.g. Company Name"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-primary-200"
+              className="w-full px-3 dark:text-dark-text-primary py-2 border border-gray-300 dark:bg-dark-surface rounded-md focus:outline-none focus:ring focus:ring-primary-200"
             />
           </div>
 
@@ -110,7 +123,7 @@ const AddCustomFieldModal = ({ isOpen, onClose, onSuccess, fields }) => {
               id="type"
               value={type}
               onChange={(e) => setType(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-primary-200"
+              className="w-full px-3 py-2 border border-gray-300 dark:bg-dark-surface dark:text-dark-text-primary rounded-md focus:outline-none focus:ring focus:ring-primary-200"
             >
               <option value="" disabled>Select type</option>
               <option value="text">Text</option>
@@ -121,19 +134,20 @@ const AddCustomFieldModal = ({ isOpen, onClose, onSuccess, fields }) => {
           </div>
 
           <div className="flex justify-end space-x-2">
-            <button
+            <Button
               onClick={onClose}
-              className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100"
+              className="px-4 py-2 border dark:text-dark-text-primary border-gray-300 rounded-md dark:hover:bg-dark-surface hover:bg-gray-100"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
+              loading={loading}
               onClick={handleSave}
               disabled={loading || !label || !type}
               className={`px-4 py-2 rounded-md text-white ${loading ? 'bg-primary-300' : 'bg-primary-600 hover:bg-primary-700'}`}
             >
               {loading ? 'Saving...' : 'Save'}
-            </button>
+            </Button>
           </div>
         </div>}
     </div>

@@ -23,7 +23,7 @@ const WhatsappNumberRegistrationPage = () => {
     const navigate = useNavigate();
     const { t } = useTranslation();
     const [errors, setErrors] = useState({});
-
+    const [loading, setLoading] = useState(false);
     // State management
     const [state, setState] = useState({
         businessProfiles: [],
@@ -145,7 +145,7 @@ const WhatsappNumberRegistrationPage = () => {
             return;
         }
         updateState({ isLoading: true });
-
+        setLoading(true)
         try {
             const res = await api.post('/users/business-profiles', {
                 name: formData.name,
@@ -176,6 +176,8 @@ const WhatsappNumberRegistrationPage = () => {
                 message: `Error creating business profile: ${error.response?.data?.message || 'Failed to create profile.'}`,
                 messageType: 'error'
             });
+        } finally {
+            setLoading(false)
         }
     };
 
@@ -201,7 +203,7 @@ const WhatsappNumberRegistrationPage = () => {
                 metaPhoneNumberID: numberData.id,
                 whatsappNumber: numberData.display_phone_number,
                 activePlan: 'Standard',
-                planDuration: 365
+                planDuration: "365"
             });
 
             if (projectRes.data.success) {
@@ -231,15 +233,28 @@ const WhatsappNumberRegistrationPage = () => {
     // Handle form changes
     const handleFormChange = (e) => {
         const { name, value } = e.target;
-        // Allow only alphanumeric characters, spaces, @ and _
-        const isValid = /^[a-zA-Z0-9@_]*$/.test(value);
-        if (!isValid) {
-            return;
-        }
-        setFormData(prev => ({ ...prev, [name]: value }));
-        setErrors({ ...errors, [e.target.name]: "" }); // clear error when typing
 
+        // ✅ Allow letters, numbers, spaces, @, and _
+        const isValid = /^[a-zA-Z0-9@_ ]*$/.test(value);
+
+        if (!isValid) {
+            // ❌ Set error for that field
+            setErrors((prev) => ({
+                ...prev,
+                [name]: "Special characters are not allowed",
+            }));
+            return; // Prevent invalid character from updating state
+        }
+
+        // ✅ Update form data
+        setFormData((prev) => ({ ...prev, [name]: value }));
+
+        // ✅ Clear error if input is now valid
+        if (errors[name]) {
+            setErrors((prev) => ({ ...prev, [name]: "" }));
+        }
     };
+
 
 
     // Loading state
@@ -252,7 +267,7 @@ const WhatsappNumberRegistrationPage = () => {
             {/* Header Section */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
                 <div>
-                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+                    <h1 className="text-2xl dark:text-dark-text-primary sm:text-3xl font-bold text-gray-900">
                         {t('whatsappBusinessIntegration')}
                     </h1>
                     <p className="mt-1 text-gray-600">
@@ -430,7 +445,9 @@ const WhatsappNumberRegistrationPage = () => {
                             >
                             Cancel
                         </Button>
+
                         <Button
+                            loading={loading}
                             type="submit"
                             variant="primary"
                             disabled={state.isLoading}

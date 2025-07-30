@@ -24,6 +24,7 @@ import LoadingSpinner from "../components/Loader";
 import InputField from "../components/InputField";
 // import { ErrorToast } from "../utils/Toast";
 import { useTranslation } from 'react-i18next';
+import { ErrorToast, SuccessToast } from "../utils/Toast";
 
 const GroupPage = () => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -90,17 +91,27 @@ const GroupPage = () => {
   const validateGroupData = () => {
     const errors = {};
 
-    if (!formData.title.trim()) {
+    // Trim to remove spaces at start/end
+    const title = formData.title.trim();
+
+    // 1️⃣ Required check
+    if (!title) {
       errors.title = "Group name is required";
     }
+    // 2️⃣ Special character check (allow only letters, numbers, and spaces)
+    else if (!/^[a-zA-Z0-9 ]+$/.test(title)) {
+      errors.title = "Special characters are not allowed";
+    }
 
-    // Show toast for each error
+    // Show errors if any
     if (Object.keys(errors).length > 0) {
-      setErrors(errors)
+      setErrors(errors);           // For UI error display
+      // Optionally show a toast
+      // ErrorToast(Object.values(errors)[0]);  
       return false;
     }
 
-    return true;
+    return true; // ✅ Validation passed
   };
 
 
@@ -153,20 +164,7 @@ const GroupPage = () => {
 
       }
 
-      // if (res.data.success) {
-      //   setGroups(res.data.data);
-      //   console.log("res.>>>>>>>>>", res.data?.pagination?.total)
-      //   setPagination({
-      //     currentPage: res.data.pagination.currentPage || 1,
-      //     total: res.data.pagination.total || 0,
-      //     totalPages: res.data?.pagination.totalPages || 0,
-      //     limit: pagination?.limit || 10
-      //   });
-      //   setLoding(false)
-      //   setMessage({ text: res.data.message, type: "success" });
-      // } else {
-      //   setMessage({ text: res.data.message, type: "error" });
-      // }
+
       setSelectedGroups([]);
     } catch (error) {
       console.error("Error fetching groups:", error);
@@ -207,48 +205,76 @@ const GroupPage = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-
-    if (erorrs[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
+    if (name === 'title') {
+      const isValid = /^[a-zA-Z0-9]*$/.test(value);
+      setErrors((prev) => ({
+        ...prev,
+        title: isValid ? '' : 'Specal characters are not allowed',
+      }));
+      if (erorrs[name]) {
+        setErrors(prev => ({ ...prev, [name]: '' }));
+      }
     }
-
-
-  };
+  }
 
   // Handle form submission
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    const isValid = validateGroupData();
-    if (!isValid) {
-      return
+  const isValid = validateGroupData();
+  if (!isValid) return;
+
+  setLoding(true);
+
+  try {
+    const endpoint = editingGroup
+      ? `/projects/${projectId}/groups/${editingGroup._id}`
+      : `/projects/${projectId}/groups`;
+    const method = editingGroup ? "put" : "post";
+
+    const res = await api[method](endpoint, formData, config);
+
+    // ✅ Show success toast
+    SuccessToast(res.data.message || "Group saved successfully");
+
+    // ✅ Reset form and close modal
+    setFormData({ title: "", description: "" });
+    setEditingGroup(null);
+    setIsModalOpen(false);
+    fetchGroups();
+  } catch (error) {
+    console.error("Save group failed:", error);
+
+    let errorMessage = "Failed to save group";
+
+    if (error.response) {
+      const data = error.response.data;
+
+      if (data.message) {
+        errorMessage = data.message;
+      } else if (Array.isArray(data.errors)) {
+        errorMessage = data.errors.join(", ");
+      } else if (typeof data === "string") {
+        errorMessage = data;
+      }
+    } else if (error.request) {
+      errorMessage = "No response from server. Please try again.";
+    } else {
+      errorMessage = error.message || errorMessage;
     }
-    try {
-      const endpoint = editingGroup
-        ? `/projects/${projectId}/groups/${editingGroup._id}`
-        : `/projects/${projectId}/groups`;
-      const method = editingGroup ? "put" : "post";
 
+    // ✅ Show error toast
+    ErrorToast(errorMessage);
+  } finally {
+    setLoding(false);
+  }
+};
 
-
-      const res = await api[method](endpoint, formData, config);
-
-      setMessage({ text: res.data.message, type: "success" });
-      setFormData({ title: "", description: "" });
-      setEditingGroup(null);
-      setIsModalOpen(false);
-      fetchGroups();
-    } catch (error) {
-      setMessage({
-        text: error.response?.data?.message || "Failed to save group",
-        type: "error"
-      });
-    }
-  };
 
   // Toggle group status (active/archive)
   const toggleGroupStatus = async (groupId, isCurrentlyActive) => {
     try {
+      setLoding(true)
       const endpoint = isCurrentlyActive
         ? `/projects/${projectId}/groups/archive/${groupId}`
         : `/projects/${projectId}/groups/removeArchive/${groupId}`;
@@ -261,6 +287,8 @@ const GroupPage = () => {
         text: error.response?.data?.message || "Failed to toggle group status",
         type: "error"
       });
+    } finally {
+      setIsLoading(false)
     }
   };
 
@@ -272,6 +300,7 @@ const GroupPage = () => {
 
   const handleDelete = async () => {
     try {
+      setLoding(true)
       const res = await api.delete(
         `/projects/${projectId}/groups/${groupId}`,
         config
@@ -286,6 +315,7 @@ const GroupPage = () => {
     } finally {
       setShowConfirmModal(false);
       setGroupId(null);
+      setIsLoading(false)
     }
   };
 
@@ -299,6 +329,7 @@ const GroupPage = () => {
     try {
       let endpoint = "";
       let method = "";
+      setLoding(true)
 
       switch (action) {
         case "archive":
@@ -325,6 +356,8 @@ const GroupPage = () => {
         text: error.response?.data?.message || "Failed to perform bulk action",
         type: "error"
       });
+    } finally {
+      setIsLoading(false)
     }
   };
 
@@ -415,7 +448,7 @@ const GroupPage = () => {
             <Button variant="outline" onClick={() => setShowConfirmModal(false)}>
               {t('cancel')}
             </Button>
-            <Button variant="primary" onClick={handleDelete}>
+            <Button loading={loading} variant="primary" onClick={handleDelete}>
               {t('confirm')}
             </Button>
           </div>
@@ -426,8 +459,8 @@ const GroupPage = () => {
       <div className="mb-8">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">
-              {t('groupManagement')}
+            <h1 className="text-3xl font-bold dark:text-dark-text-primary text-gray-900">
+              Group Management
             </h1>
             <p className="mt-2 text-gray-600">
               {t('organizeContacts')}
@@ -463,8 +496,8 @@ const GroupPage = () => {
           </div>
           <input
             type="text"
-            className="focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 pr-12 py-2 border border-gray-300 rounded-md"
-            placeholder={t('searchGroups')}
+            className="focus:ring-primary-500 dark:bg-dark-surface dark:text-dark-text-primary focus:border-primary-500 block w-full pl-10 pr-12 py-2 border border-gray-300 rounded-md"
+            placeholder="Search groups..."
             value={searchTerm}
             onChange={(e) => {
               const raw = e.target.value;
@@ -502,14 +535,14 @@ const GroupPage = () => {
                 />
               </Button>
               {isBulkActionsOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark-surface rounded-md shadow-lg py-1 z-10">
                   {activeTab === "active" ? (
                     <button
                       onClick={() => {
                         handleBulkAction("archive");
                         setIsBulkActionsOpen(false);
                       }}
-                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                      className="flex items-center px-4 py-2 dark:text-dark-text-primary  dark:hover:bg-dark-surface  text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
                     >
                       <FiArchive className="mr-2" /> {t('archive')}
                     </button>
@@ -519,7 +552,7 @@ const GroupPage = () => {
                         handleBulkAction("restore");
                         setIsBulkActionsOpen(false);
                       }}
-                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                      className="flex items-center px-4 py-2 dark:text-dark-text-primary dark:hover:bg-dark-surface text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
                     >
                       <FiRotateCcw className="mr-2" /> {t('restore')}
                     </button>
@@ -538,7 +571,7 @@ const GroupPage = () => {
                       setShowBulkConfirmModal(true);
                       setIsBulkActionsOpen(false);
                     }}
-                    className="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 w-full text-left"
+                    className="flex items-center px-4 py-2  dark:hover:bg-dark-surface  text-sm text-red-600 hover:bg-red-50 w-full text-left"
                   >
                     <FiTrash2 className="mr-2" /> {t('delete')}
                   </button>
@@ -589,17 +622,17 @@ const GroupPage = () => {
       </div>
 
       {/* Groups Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white dark:bg-dark-surface overflow-scroll rounded-xl shadow-sm dark:border-dark-border border border-gray-200 overflow-hidden">
         {groups.length === 0 ? (
           <div className="p-12 text-center">
             <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-gray-100 mb-4">
               {activeTab === "active" ? (
-                <FiPlus className="h-6 w-6 text-gray-400" />
+                <FiPlus className="h-6 w-6 text-gray-400" dark:text-dark-text-primary />
               ) : (
-                <FiArchive className="h-6 w-6 text-gray-400" />
+                <FiArchive className="h-6 w-6 text-gray-400" dark:text-dark-text-primary />
               )}
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-1">
+            <h3 className="text-lg font-medium dark:text-dark-text-primary text-gray-900 mb-1 dark:text-dark-text-primary">
               {searchTerm
                 ? `${t('noMatchingGroupsFound')}`
                 : activeTab === "active"
@@ -633,8 +666,8 @@ const GroupPage = () => {
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
           </div> : (
             <>
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+              <table className="min-w-full divide-y divide-gray-200 dark:divide-dark-surface">
+                <thead className="bg-gray-50 dark:bg-dark-surface">
                   <tr>
                     <th
                       scope="col"
@@ -676,9 +709,9 @@ const GroupPage = () => {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-white divide-y divide-gray-200 dark:bg-dark-surface dark:divide-y dark:divide-dark-border dark:bg-dark-surface">
                   {groups.map((group) => (
-                    <tr key={group._id} className="hover:bg-gray-50">
+                    <tr key={group._id} className="hover:bg-gray-50 dark:hover:bg-dark-surface">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <input
                           type="checkbox"
@@ -695,7 +728,7 @@ const GroupPage = () => {
                             </span>
                           </div>
                           <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">
+                            <div className="text-sm font-medium dark:text-dark-text-secondary text-gray-900">
                               {group.title}
                             </div>
                           </div>
@@ -767,7 +800,7 @@ const GroupPage = () => {
 
 
               {/* Pagination */}
-              <div className="px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between">
+              <div className="px-6 py-4 border-t dark:border-dark-border border-gray-200 flex flex-col sm:flex-row items-center justify-between">
                 <div className="flex items-center space-x-2 mb-4 sm:mb-0">
                   <span className="text-sm text-gray-700">
                     {t('showing')} <span className="font-medium">{(pagination.currentPage - 1) * pagination.limit + 1}</span> {t('to')} <span className="font-medium">
@@ -775,15 +808,16 @@ const GroupPage = () => {
                     </span> {t('of')} <span className="font-medium">{pagination.total}</span> {t('results')}
                   </span>
                   <select
-                    value={pagination.limit}
-                    onChange={handleLimitChange}
-                    className="border border-gray-300 rounded-md px-2 py-1 text-sm"
-                  >
-                    <option value="5">{t('perPage')}</option>
-                    <option value="10">{t('perPage')}</option>
-                    <option value="20">{t('perPage')}</option>
-                    <option value="50">{t('perPage')}</option>
-                  </select>
+                            value={pagination.limit}
+                            onChange={handleLimitChange}
+                            className="border border-gray-300 dark:bg-dark-surface dark:text-dark-text-primary rounded-md px-2 py-1 text-sm"
+                        >
+                            {[5, 10, 20, 50].map((num) => (
+                                <option key={num} value={num}>
+                                    {num} {t('perPage')}
+                                </option>
+                            ))}
+                        </select>
                 </div>
                 <div className="flex space-x-2">
                   <Button
@@ -849,9 +883,9 @@ const GroupPage = () => {
           <div>
             {/* <label
               htmlFor="title"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm  font-medium text-gray-700 mb-1"
             >
-              Group Name *
+               *
             </label> */}
 
             <InputField
@@ -863,11 +897,12 @@ const GroupPage = () => {
               onChange={handleInputChange}
               placeholder={t('enterGroupName')}
             />
+            {/* {erorrs.name && <p>you can't use special characters</p>} */}
           </div>
           <div>
             <label
               htmlFor="description"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm dark:text-dark-text-primary  font-medium text-gray-700 mb-1"
             >
               {t('description')}
             </label>
@@ -875,7 +910,7 @@ const GroupPage = () => {
               id="description"
               name="description"
               rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              className="w-full dark:bg-dark-surface dark:text-dark-text-primary px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               value={formData.description}
               onChange={handleInputChange}
             />
@@ -892,7 +927,7 @@ const GroupPage = () => {
             >
               {t('cancel')}
             </Button>
-            <Button type="submit" variant="primary">
+            <Button loading={loading} type="submit" variant="primary">
               {editingGroup ? t('updateGroup') : t('createGroup')}
             </Button>
           </div>

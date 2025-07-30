@@ -423,7 +423,7 @@ const RichTextEditor = ({ onChange, value, loading ,carosual=true}) => {
   };
 
   return (
-    <div className="border border-none rounded text-text bg-bg p-2" dir="ltr"> {/* Ensure consistent direction */}
+    <div className="border border-none dark:text-dark-text-primary dark:bg-dark-surface rounded text-text bg-bg p-2" dir="ltr"> {/* Ensure consistent direction */}
       <div className="rounded">
         {/* Quill Editor */}
         <div>
@@ -498,6 +498,7 @@ const RichTextEditor = ({ onChange, value, loading ,carosual=true}) => {
           {extractVariables(quill?.getText() || '').map((varId) => (
             <div key={`rte-var-${varId}`} className="mb-2">
               <InputField
+              className="dark:bg-dark-surface dark:text-dark-text-primary"
                 label={`Example for {{${varId}}}`}
                 value={_variableExamples[varId] || ''}
                 onChange={(e) => handleVariableExampleChange(varId, e.target.value)}

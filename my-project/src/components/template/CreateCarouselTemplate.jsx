@@ -558,7 +558,7 @@ const CreateCarouselTemplate = () => {
           )}
 
           {cards.map((card, index) => (
-            <div key={card.id} className="border p-4 rounded-lg shadow-sm bg-gray-50 mb-4">
+            <div key={card.id} className="border dark:bg-dark-surface dark:border-dark-border dark:text-dark-text-primary p-4 rounded-lg shadow-sm bg-gray-50 mb-4">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-bold">Card {index + 1}</h3>
                 {cards.length > 2 && (
@@ -694,14 +694,14 @@ const CreateCarouselTemplate = () => {
 
         {/* Preview Section - Placeholder for now, full carousel preview is complex */}
         <div className="p-2 md:w-2/5 mt-4">
-          <h2 className="text-xl font-semibold mb-4">Carousel Preview (Conceptual)</h2>
-          <div className="bg-white rounded-lg shadow-md p-4 border border-gray-200">
+          <h2 className="text-xl font-semibold dark:text-dark-text-primary mb-4">Carousel Preview (Conceptual)</h2>
+          <div className="bg-white dark:bg-dark-surface dark:border-dark-border dark:text-dark-text-primary rounded-lg shadow-md p-4 border border-gray-200">
             <p className="text-gray-600 text-sm mb-2">
               A full interactive preview of carousel templates is complex and often requires Meta's own tools.
               This section provides a conceptual layout.
             </p>
             {templateData.mainBodyText && (
-              <div className="mb-4 p-2 border-b">
+              <div className="mb-4 p-2 dark:border-dark-border border-b">
                 <h3 className="font-semibold">Main Body Text:</h3>
                 <div dangerouslySetInnerHTML={{ __html: templateData.mainBodyText }} />
                 {templateData.mainBodyVariables && templateData.mainBodyVariables.length > 0 && (
@@ -713,13 +713,13 @@ const CreateCarouselTemplate = () => {
             )}
             <div className="space-y-4">
               {cards.map((card, index) => (
-                <div key={card.id} className="border rounded-md p-3 bg-white shadow-sm">
+                <div key={card.id} className="border dark:border-dark-border rounded-md p-3 bg-white dark:bg-dark-surface shadow-sm">
                   <h4 className="font-bold text-sm mb-2">Card {index + 1}</h4>
                   {card.headerImageUrl && (
                     <img src={card.headerImageUrl} alt={`Card ${index + 1} Header`} className="w-full h-24 object-cover rounded-md mb-2" />
                   )}
                   {!card.headerImageUrl && (
-                    <div className="w-full h-24 bg-gray-200 rounded-md flex items-center justify-center text-gray-400 mb-2">
+                    <div className="w-full h-24 dark:bg-dark-surface bg-gray-200 rounded-md flex items-center justify-center text-gray-400 mb-2">
                       <FaImage size={32} />
                     </div>
                   )}

@@ -86,7 +86,7 @@ const ProjectDashboard = () => {
     <div className="space-y-6">
       {/* <CreateFlowButton/> */}
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-800">Project Dashboard</h1>
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-dark-text-primary">Project Dashboard</h1>
         <div className="flex items-center space-x-2 text-sm text-gray-500">
           <span>Last updated: {lastUpdated}</span>
           <button 
@@ -101,13 +101,14 @@ const ProjectDashboard = () => {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <StatCard 
+      
           title="Contacts" 
           value={stats.contacts.total} 
           change={stats.contacts.changeVsLastWeek} 
           icon={<Phone size={20} className="text-primary-500" />}
           link={`/project/${projectId}/contacts`}
         >
-          <div className="text-sm text-gray-500 mt-1">
+          <div className="text-sm text-gray-500 mt-1 dark:text-dark-text-primary ">
             <span className="text-green-500">+{stats.contacts.newThisWeek}</span> this week
           </div>
         </StatCard>
@@ -119,11 +120,11 @@ const ProjectDashboard = () => {
           link={`/project/${projectId}/group`}
         >
           <div className="flex space-x-4 text-sm mt-1">
-            <span className="text-gray-500">
-              <span className="text-green-500">{stats.groups.active}</span> active
+            <span className="text-gray-500 dark:text-dark-text-primary">
+              <span className="text-green-500 dark:text-dark-text-primary">{stats.groups.active}</span> active
             </span>
-            <span className="text-gray-500">
-              <span className="text-gray-400">{stats.groups.inactive}</span> inactive
+            <span className="text-gray-500 dark:text-dark-text-primary">
+              <span className="text-gray-400 dark:text-dark-text-primary">{stats.groups.inactive}</span> inactive
             </span>
           </div>
         </StatCard>
@@ -154,8 +155,8 @@ const ProjectDashboard = () => {
             <span className="text-gray-500">
               <span className="text-green-500">{stats.broadcasting.success}</span> success
             </span>
-            <span className="text-gray-500">
-              <span className="text-red-500">{stats.broadcasting.failed}</span> failed
+            <span className="text-gray-500 dark:text-dark-text-primary">
+              <span className="text-red-500 dark:text-dark-text-primary">{stats.broadcasting.failed}</span> failed
             </span>
             {/* <span className="text-gray-500">
               <span className="text-blue-500">{stats.broadcasting.scheduled}</span> scheduled
@@ -191,34 +192,35 @@ const ProjectDashboard = () => {
               <span className="text-blue-500">{stats.liveChat.unread}</span> messages
             </span>
             <span className="text-gray-500">
-              <span className="text-green-500">{stats.liveChat.responseRate}%</span> response rate
+              <span className="text-green-500 dark:text-dark-text-primary">{stats.liveChat.responseRate}%</span> response rate
             </span>
           </div>
         </StatCard>
       </div>
 
       {/* Quick Links */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1  md:grid-cols-2 lg:grid-cols-3 gap-4">
         <QuickActionCard
           title="Create Broadcast"
           description="Send a message to your contacts"
           icon={<Mail size={20} />}
           link={`/project/${projectId}/broadcasting/send-bulk`}
-          color="bg-purple-50 text-purple-600"
+          color="bg-purple-50 dark:bg-dark-surface  text-purple-600 dark:text-dark-text-primary"
+          
         />
         <QuickActionCard
           title="Add Contacts"
           description="Import or add new contacts"
           icon={<Phone size={20} />}
           link={`/project/${projectId}/contacts`}
-          color="bg-blue-50 text-blue-600"
+          color="bg-blue-50 dark:bg-dark-surface dark:text-dark-text-primary text-blue-600"
         />
         <QuickActionCard
           title="Create Template"
           description="Design a new message template"
           icon={<MessageSquare size={20} />}
           link={`/project/${projectId}/templates/create`}
-          color="bg-green-50 text-green-600"
+          color="bg-green-50 dark:bg-dark-surface text-green-600"
         />
       </div>
 
@@ -244,11 +246,11 @@ const ProjectDashboard = () => {
 export const StatCard = ({ title, value, change, icon, link, children }) => {
   return (
     <Card>
-      <Link to={link} className="block hover:bg-gray-50 rounded-lg -m-4 p-4">
+      <Link to={link} className="block dark:hover:bg-dark-surface hover:bg-gray-50 rounded-lg -m-4 p-4">
         <div className="flex justify-between">
           <div>
             <p className="text-sm font-medium text-gray-500">{title}</p>
-            <p className="text-2xl font-semibold text-gray-800 mt-1">{value}</p>
+            <p className="text-2xl font-semibold dark:text-dark-text-primary text-gray-800 mt-1">{value}</p>
           </div>
           <div className="h-10 w-10 rounded-full bg-opacity-20 flex items-center justify-center">
             {icon}
@@ -277,14 +279,14 @@ export const StatCard = ({ title, value, change, icon, link, children }) => {
 // Quick Action Card Component (unchanged)
 const QuickActionCard = ({ title, description, icon, link, color }) => {
   return (
-    <Link to={link} className={`group block rounded-lg p-4 border hover:shadow-md transition-all ${color.split(' ')[0]} ${color.split(' ')[1]}`}>
+    <Link to={link} className={`group block rounded-lg p-4  border dark:border-dark-border hover:shadow-md transition-all ${color.split(' ')[0]} ${color.split(' ')[1]}`}>
       <div className="flex items-start">
-        <div className={`p-2 rounded-lg ${color.split(' ')[0]} bg-opacity-30 mr-3`}>
+        <div className={`p-2 rounded-lg ${color.split(' ')[0]}  bg-opacity-30 mr-3`}>
           {icon}
         </div>
         <div>
-          <h3 className="font-medium group-hover:underline">{title}</h3>
-          <p className="text-sm opacity-80 mt-1">{description}</p>
+          <h3 className="font-medium dark:text-dark-text-primary group-hover:underline">{title}</h3>
+          <p className="text-sm dark:text-dark-text-primary opacity-80 mt-1">{description}</p>
         </div>
       </div>
     </Link>

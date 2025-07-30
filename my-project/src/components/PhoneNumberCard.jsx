@@ -6,7 +6,7 @@ import LoadingSpinner from './Loader';
 
 const PhoneNumberCard = ({ number, onConnect, isLoading }) => {
   return (
-    <div className="p-4 border border-gray-200 rounded-lg hover:shadow-lg transition-shadow">
+    <div className="p-4 border border-gray-200  rounded-lg hover:shadow-lg transition-shadow">
       <div className="mb-4">
         <h4 className="text-xl font-semibold text-gray-800 mb-2">{number.display_phone_number}</h4>
         <p className="text-gray-700 text-sm mb-1">

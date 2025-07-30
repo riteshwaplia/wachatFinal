@@ -46,7 +46,7 @@ const project = localStorage.getItem("currentProject")
   
 
   return (
-   <div className="flex flex-col border border-gray-200 rounded-lg h-full overflow-hidden hover:shadow-md transition-shadow duration-200 bg-[#f0f2f5]">
+   <div className="flex flex-col border dark:border-dark-border dark:bg-dark-surface border-gray-200 rounded-lg h-full overflow-hidden hover:shadow-md transition-shadow duration-200 bg-[#f0f2f5]">
   {/* WhatsApp Preview Area */}
   <div className="p-3 bg-[#e5ddd5] bg-opacity-30 flex-1 flex flex-col">
     <div className="bg-white rounded-lg shadow-sm w-full max-w-xs mx-auto overflow-hidden">
@@ -65,7 +65,7 @@ const project = localStorage.getItem("currentProject")
       </div>
 
       {/* Message content */}
-      <div className="p-3 text-[#111b21]">
+      <div className="p-3 dark:bg-dark-surface dark:text-dark-text-primary text-[#111b21]">
         {template.components?.map((component, index) => {
           switch(component.type) {
             case 'HEADER':
@@ -84,7 +84,7 @@ const project = localStorage.getItem("currentProject")
                       </div>
                     </div>
                   ) : (
-                    <div className="font-semibold text-sm text-[#111b21]">
+                    <div className="font-semibold dark:text-dark-text-primary text-sm text-[#111b21]">
                       {component.text || 'Header Text'}
                     </div>
                   )}
@@ -111,7 +111,7 @@ const project = localStorage.getItem("currentProject")
                   {component.buttons?.map((btn, btnIndex) => (
                     <button
                       key={btnIndex}
-                      className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center 
+                      className={`w-full text-left dark:bg-dark-surface px-3 py-2 rounded-lg text-sm flex items-center 
                         ${btn.type === 'URL' 
                           ? 'bg-[#008069] text-white' 
                           : 'bg-[#f0f2f5] text-[#008069] border border-[#008069]'
@@ -138,9 +138,9 @@ const project = localStorage.getItem("currentProject")
   </div>
 
   {/* Template Metadata */}
-  <div className="bg-white p-3 border-t border-gray-200">
+  <div className="bg-white dark:bg-dark-surface dark:text-dark-text-primary  p-3 border-t border-gray-200">
     <div className="flex justify-between items-start mb-1">
-      <h3 className="font-medium text-sm text-gray-800 truncate">
+      <h3 className="font-medium dark:text-dark-text-primary text-sm text-gray-800 truncate">
         {template.name}
       </h3>
       <span className={`text-xxs px-2 py-1 rounded-full ${

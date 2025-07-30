@@ -565,21 +565,21 @@ const LiveChatPage = () => {
   return (
     <div className="md:flex md:h-[calc(100vh-120px)] bg-white rounded-lg shadow-md mt-8 overflow-hidden">
       {/* Left Panel: Conversation List */}
-      <div className="md:w-1/3 w-full border-r border-gray-200 bg-gray-50 flex flex-col">
-        <div className="flex-grow overflow-y-auto">
+      <div className="md:w-1/3 w-full dark:border-dark-border   dark:bg-bg-dark-primary border-r border-gray-200 bg-gray-50 flex flex-col">
+        <div className="flex-grow overflow-y-auto dark:bg-dark-surface">
           {isLoading.conversations ? (
             <div className="flex justify-center items-center h-full">
               <Loader size="lg" />
             </div>
           ) : conversations.length === 0 ? (
-            <p className="p-4 text-gray-500 text-sm">
+            <p className="p-4 text-gray-500 dark:bg-dark-surface dark:text-dark-text-primary text-sm">
               No conversations yet. Messages from WhatsApp users will appear here.
             </p>
           ) : (
             conversations.map((conv) => (
               <div
                 key={conv._id}
-                className={`flex p-3 cursor-pointer border-b border-gray-200 hover:bg-gray-100 transition duration-150 ${
+                className={`flex p-3 dark:text-dark-text-primary dark:border-dark-border dark:bg-dark-surface cursor-pointer border-b border-gray-200 hover:bg-gray-100 transition duration-150 ${
                   selectedConversation?._id === conv._id
                     ? "bg-gray-100 border-l-4 border-blue-500"
                     : ""
@@ -597,7 +597,7 @@ const LiveChatPage = () => {
                     </div>
                     <div className="flex flex-1 justify-between">
                       <div>
-                        <h4 className="font-semibold text-gray-800">
+                        <h4 className="font-semibold dark:text-dark-text-primary dark:bg-dark-surface text-gray-800">
                           {conv.contactId?.profileName ||
                             conv.contactId?.name ||
                             conv.contactId?.mobileNumber ||
@@ -632,14 +632,14 @@ const LiveChatPage = () => {
       </div>
 
       {/* Right Panel: Chat Window */}
-      <div className="md:w-2/3 w-full flex flex-col bg-white">
+      <div className="md:w-2/3 w-full fixed top-0 z-[50] left-0 md:static   md:flex flex-col bg-white dark:bg-dark-surface">
         {selectedConversation ? (
           <>
             {/* Chat Header */}
-            <div className="p-4 flex gap-4 items-center border-b border-gray-200 bg-gray-50">
+            <div className="p-4 flex gap-4 items-center dark:border-dark-border dark:bg-dark-surface border-b border-gray-200 bg-gray-50">
               <button
                 onClick={() => setSelectedConversation(null)}
-                className="md:hidden mr-2 p-1 rounded-full hover:bg-gray-200 transition"
+                className="md:hidden mr-2 p-1 rounded-full dark:text-dark-text-primary hover:bg-gray-200 transition"
                 aria-label="Go back"
               >
                 <ChevronLeft size={20} />
@@ -650,12 +650,12 @@ const LiveChatPage = () => {
                 size="md"
               />
               <div>
-                <h3 className="text-lg font-semibold text-gray-800">
+                <h3 className="text-lg font-semibold dark:text-dark-text-primary  text-gray-800">
                   {selectedConversation.contactId?.profileName ||
                     selectedConversation.contactId?.name ||
                     selectedConversation.contactId?.mobileNumber}
                 </h3>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 dark:text-dark-text-primary">
                   {selectedConversation.contactId?.countryCode}
                   {selectedConversation.contactId?.mobileNumber}
                 </p>
@@ -663,7 +663,7 @@ const LiveChatPage = () => {
             </div>
 
             {/* Messages Area */}
-            <div className="flex-grow p-4 overflow-y-auto space-y-4 bg-[url('https://i.pinimg.com/736x/0b/f2/80/0bf280388937448d38392b76c15bd441.jpg')] bg-opacity-50">
+            <div className="flex-grow h-[79vh] p-4 overflow-y-auto space-y-4 bg-[url('https://i.pinimg.com/736x/0b/f2/80/0bf280388937448d38392b76c15bd441.jpg')] dark:bg-[url('https://i.pinimg.com/736x/54/3d/e8/543de8a1f2887da54f7b7de6772f6aa2.jpg')]  bg-opacity-50">
               {isLoading.messages ? (
                 <div className="flex justify-center items-center h-full">
                   <Loader size="lg" />
@@ -681,7 +681,7 @@ const LiveChatPage = () => {
                     }`}
                   >
                     <div
-                      className={`max-w-xs p-3 rounded-lg shadow-sm ${
+                      className={`max-w-xs p-3 rounded-lg dark:bg-dark-surface dark:text-dark-text-primary dark:border-dark-surface shadow-sm ${
                         msg.direction === "outbound"
                           ? "bg-blue-500 text-white"
                           : "bg-white text-gray-800 border border-gray-200"
@@ -715,7 +715,7 @@ const LiveChatPage = () => {
             {/* Message Input */}
             <form
               onSubmit={handleSendMessage}
-              className="p-4 border-t border-gray-200 bg-gray-50"
+              className="p-4 border-t fixed md:static bottom-0 border-gray-200 dark:border-dark-border dark-border-dark-border dark:bg-dark-surface bg-gray-50"
             >
               {/* Message Type Selector */}
               <div className="flex flex-wrap gap-2 mb-3">
@@ -723,7 +723,7 @@ const LiveChatPage = () => {
                   <button
                     key={type}
                     type="button"
-                    className={`px-3 py-1 text-sm rounded transition ${
+                    className={`px-3 py-1 dark:bg-dark-bg-primary dark:text-dark-text-primary text-sm rounded transition ${
                       messageType === type
                         ? "bg-blue-500 text-white"
                         : "bg-gray-200 hover:bg-gray-300"
@@ -762,7 +762,7 @@ const LiveChatPage = () => {
               {messageType === "template" && (
                 <div className="mb-3">
                   <select
-                    className="w-full p-2 border rounded bg-white"
+                    className="w-full p-2 dark:bg-dark-surface dark:text-dark-text-primary dark:border-dark-border border rounded bg-white"
                     value={templateName}
                     onChange={(e) => setTemplateName(e.target.value)}
                     disabled={isLoading.templates}
@@ -784,7 +784,7 @@ const LiveChatPage = () => {
               <div className="flex items-center gap-3">
                 <input
                   type="text"
-                  className="flex-grow border border-gray-300 rounded-lg shadow-sm p-3 focus:ring-blue-500 focus:border-blue-500"
+                  className="flex-grow border border-gray-300 dark:text-dark-text-primary dark:border-dark-border dark:bg-dark-surface rounded-lg shadow-sm p-3 focus:ring-blue-500 focus:border-blue-500"
                   placeholder={
                     messageType === "text"
                       ? "Type a message..."
@@ -811,7 +811,7 @@ const LiveChatPage = () => {
             </form>
           </>
         ) : (
-          <div className="flex-grow flex items-center justify-center text-gray-500">
+          <div className="flex-grow hidden md:flex items-center justify-center text-gray-500">
             {isLoading.conversations ? (
               <Loader size="lg" />
             ) : (

@@ -1,6 +1,9 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import api from '../utils/api';
 import PropTypes from 'prop-types';
+import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
+import { ErrorToast } from '../utils/Toast';
 
 const AuthContext = createContext(null);
 
@@ -13,6 +16,7 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
+    const navigate =useNavigate();
     const [user, setUser] = useState(null);
     const [token, setToken] = useState(localStorage.getItem('authToken'));
     const [loading, setLoading] = useState(true);
@@ -33,6 +37,21 @@ export const AuthProvider = ({ children }) => {
         setUser(userData);
         setToken(authToken);
     }, []);
+useEffect(() => {
+    const intervalId = setInterval(() => {
+        const storedToken = localStorage.getItem('authToken');
+
+        if (!storedToken) {
+            console.warn("Token missing in localStorage — redirecting to login.");
+            clearInterval(intervalId); // ✅ stop the interval immediately
+            setAuthData(null, null);
+           authState.logout();
+        }
+    }, 1000); // check every second
+    return () => clearInterval(intervalId); // cleanup on unmount
+}, [navigate, setAuthData]);
+
+
 
     // Verify auth on initial load
     useEffect(() => {
@@ -49,6 +68,7 @@ export const AuthProvider = ({ children }) => {
             } catch (err) {
                 console.error('Auth verification failed:', err);
                 setAuthData(null, null);
+                navigate("/login");
                 setError('Session expired. Please login again.');
             } finally {
                 setLoading(false);
@@ -109,6 +129,8 @@ export const AuthProvider = ({ children }) => {
                 console.warn('Backend logout failed (possibly already expired):', err.response?.data?.message || err.message);
             } finally {
                 setAuthData(null, null);
+                // ErrorToast("Logged out successfully");
+                navigate("/login");
             }
         },
         register: async (username, email, password) => {

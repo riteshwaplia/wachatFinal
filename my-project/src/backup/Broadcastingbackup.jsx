@@ -399,7 +399,7 @@ const project = localStorage.getItem("currentProject")
 
 
   return (
-    <div className="max-w-6xl mx-auto p-6 bg-white rounded-lg shadow-md mt-8">
+    <div className="max-w-6xl mx-auto dark:bg-dark-surface p-6 bg-white rounded-lg shadow-md mt-8">
     
 
       {message && (
@@ -827,7 +827,7 @@ const project = localStorage.getItem("currentProject")
             }}
             className="block w-full border border-gray-300 rounded-md p-2 bg-white"
           />
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-sm text-gray-500 mt-1 dark:text-dark-text-primary">
             Upload the image to be used in the HEADER of your template. It will be auto-attached.
           </p>
         </div>

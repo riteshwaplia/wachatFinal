@@ -142,8 +142,9 @@ const StaticsSidebar = ({ isOpen, onToggle }) => {
 
           <Briefcase size={18} />
           {isOpen && <span>Projects</span>}
-
-        </Link>  <Link
+          
+        </Link>  
+        {/* <Link
           to="/user/setting"
           className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-200 ${location.pathname.startsWith('/settings')
             ? 'bg-primary-50 text-primary-700 font-semibold'
@@ -153,9 +154,9 @@ const StaticsSidebar = ({ isOpen, onToggle }) => {
 
           <IoSettingsOutline size={18} />
           {isOpen && <span>Settings</span>}
-
-        </Link>
-
+          
+        </Link> */}
+ 
       </div>
     </aside>
   );

@@ -49,7 +49,7 @@ export default function TemplatePreview({ template, image }) {
 
   return (
 <div
-    className="flex flex-col justify-center items-start gap-3 py-2 border border-gray-700 rounded-md shadow-md bg-cover bg-center"
+    className="flex flex-col justify-center  items-start gap-3 py-2 border border-gray-700 rounded-md shadow-md bg-cover bg-center"
     style={{ backgroundImage: `url(${whatsappbg})` }}
   >      <div className="p-2">
         {template.components[0].format == "TEXT" ? (

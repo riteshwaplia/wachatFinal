@@ -94,12 +94,12 @@ const ProjectDetail = () => {
         {/* <Link to="/projects" className="text-gray-600 hover:text-gray-800">
           <FiArrowLeft size={24} />
         </Link> */}
-        <h1 className="text-3xl font-bold text-gray-800">Project Details</h1>
+        <h1 className="text-3xl font-bold text-gray-800 dark:text-dark-text-primary">Project Details</h1>
       </div>
 
 
       {/* Project Header */}
-        <div className="bg-indigo-600 px-6 py-4 text-white rounded-t-lg shadow-md"> {/* Changed color to indigo for consistency */}
+        <div className="bg-indigo-600 dark:bg-dark-surface px-6 py-4 text-white rounded-t-lg shadow-md"> {/* Changed color to indigo for consistency */}
           <div className="flex justify-between items-center">
             <h1 className="text-2xl font-bold font-heading">{projectData.name}</h1>
             <div className="flex space-x-2">
@@ -119,7 +119,7 @@ const ProjectDetail = () => {
                 WhatsApp Verified
               </span>
             )}
-            <span className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded-full">
+            <span className="bg-gray-100 text-gray-800 dark:text-dark-text-primary text-xs px-2 py-1 rounded-full">
               {projectData.businessProfileId?.name || 'No Business Profile'} {/* Display Business Profile Name */}
             </span>
             <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full"> {/* Changed colors */}
@@ -159,21 +159,21 @@ const ProjectDetail = () => {
               <div className="space-y-4">
                 <div>
                   <p className="text-sm font-medium text-gray-500">Assistant Name</p>
-                  <p className="text-gray-800">{projectData.assistantName || 'Not specified'}</p>
+                  <p className="text-gray-800 dark:text-dark-text-secondary">{projectData.assistantName || 'Not specified'}</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-500">WhatsApp Number</p>
-                  <p className="text-gray-800">{projectData.whatsappNumber || 'Not specified'}</p>
+                  <p className="text-gray-800 dark:text-dark-text-secondary">{projectData.whatsappNumber || 'Not specified'}</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-500">Meta Phone Number ID</p>
-                  <p className="text-gray-800">{projectData.metaPhoneNumberID || 'Not specified'}</p>
+                  <p className="text-gray-800 dark:text-dark-text-secondary">{projectData.metaPhoneNumberID || 'Not specified'}</p>
                 </div>
               </div>
               <div className="space-y-4">
                 <div>
                   <p className="text-sm font-medium text-gray-500">Created At</p>
-                  <p className="text-gray-800">
+                  <p className="text-gray-800 dark:text-dark-text-secondary">
                     {new Date(projectData.createdAt).toLocaleDateString('en-US', {
                       year: 'numeric',
                       month: 'long',
@@ -183,7 +183,7 @@ const ProjectDetail = () => {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-500">Last Updated</p>
-                  <p className="text-gray-800">
+                  <p className="text-gray-800 dark:text-dark-text-secondary">
                     {new Date(projectData.updatedAt).toLocaleDateString('en-US', {
                       year: 'numeric',
                       month: 'long',
@@ -202,15 +202,15 @@ const ProjectDetail = () => {
             <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
                 <div>
                   <p className="text-sm font-medium text-gray-500">Active Plan</p>
-                  <p className="text-gray-800">{projectData.activePlan || 'No active plan'}</p>
+                  <p className="text-gray-800 dark:text-dark-text-secondary">{projectData.activePlan || 'No active plan'}</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-500">Plan Duration</p>
-                  <p className="text-gray-800">{projectData.planDuration || 0} days</p>
+                  <p className="text-gray-800 dark:text-dark-text-secondary">{projectData.planDuration || 0} days</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-500">Business Profile Name</p>
-                  <p className="text-gray-800">{projectData.businessProfileId?.name || 'Not linked'}</p>
+                  <p className="text-gray-800 dark:text-dark-text-secondary">{projectData.businessProfileId?.name || 'Not linked'}</p>
                 </div>
             </div>
           </Card>

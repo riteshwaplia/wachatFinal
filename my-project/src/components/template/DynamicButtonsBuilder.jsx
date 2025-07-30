@@ -91,16 +91,25 @@ const DynamicButtonsBuilder = ({ onChange }) => {
   };
 
   return (
-    <div className="p-4 border rounded space-y-4">
+    <div className="p-4 border rounded space-y-4 border-dark-border">
       <h2 className="text-lg font-bold">Button Builder</h2>
 
       <select
         id="buttonType"
-        className="bg-white p-3 ..."
-        value={selectedType}
-        onChange={(e) => {
-          setSelectedType(e.target.value);
-          handleAddButton(e.target.value);
+        className="bg-white p-3 dark:text-dark-text-primary
+ dark:bg-dark-surface pr-8 rounded-lg border-2 border-gray-100 text-gray-800 font-medium 
+            shadow-sm hover:border-primary-400 focus:border-primary-500 focus:ring-2 
+            focus:ring-primary-200 transition-all duration-200 cursor-pointer
+            w-full max-w-xs appearance-none"
+        onChange={(e) => handleAddButton(e.target.value)}
+        value=""
+        defaultValue=""
+        style={{
+          backgroundImage:
+            "url(\"data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23333436'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e\")",
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "right 0.75rem center",
+          backgroundSize: "1em",
         }}
       >
         <option value="" disabled hidden>✨ Add Button ✨</option>

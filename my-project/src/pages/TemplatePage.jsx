@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import api from "../utils/api";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { useTranslation } from 'react-i18next';
 
 import {
   FiPlus,
@@ -232,11 +231,10 @@ const TemplatePage = () => {
     alert("Failed to delete template.");
   }
 };
-  const { t } = useTranslation();
   if (!user)
     return (
       <div className="flex justify-center items-center h-screen">
-        {t('redirectingToLogin')}
+        Redirecting to login...
       </div>
     );
 
@@ -245,11 +243,11 @@ const TemplatePage = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">
-            {t('whatsappTemplates')}
+          <h1 className="text-3xl dark:text-dark-text-primary font-bold text-gray-900">
+            WhatsApp Templates
           </h1>
           <p className="text-gray-600 mt-2">
-            {t('createAndManageTemplates')}
+            Create and manage message templates for WhatsApp
           </p>
         </div>
         <div className="flex items-center space-x-3">
@@ -259,7 +257,7 @@ const TemplatePage = () => {
             loading={isSyncing}
             icon={<FiRefreshCw className="mr-2" />}
           >
-            {t('syncTemplates')}
+            Sync Templates
           </Button>
           <Button
             variant="primary"
@@ -267,7 +265,7 @@ const TemplatePage = () => {
             // icon={<FiPlus className="mr-2" />}
             onClick={() => navigate(`/project/${projectId}/templates/create`)}
           >
-            {t('regularTemplate')}
+          regular Template
           </Button>
           <Button
             variant="primary"
@@ -275,7 +273,7 @@ const TemplatePage = () => {
             // icon={<FiPlus className="mr-2" />}
             onClick={() => navigate(`/project/${projectId}/templates/create/carousel-templates`)}
           >
-            {t('carouselTemplate')}
+          carousel Template
           </Button>
         </div>
       </div>
@@ -283,7 +281,7 @@ const TemplatePage = () => {
       {/* Message Alert */}
       {message.text && (
         <Alert variant={message.type} className="mb-6">
-          {t(message.text)}
+          {message.text}
         </Alert>
       )}
 
@@ -297,8 +295,8 @@ const TemplatePage = () => {
           ))}
         </div>
       ) : templates.length === 0 ? (
-        <div className="text-center py-12 bg-gray-50 rounded-lg">
-          <p className="text-gray-500 mb-4">{t('noTemplatesFound')}</p>
+        <div className="text-center dark:bg-dark-surface py-12 bg-gray-50 rounded-lg">
+          <p className="text-gray-500 mb-4">No templates found</p>
           {/* <Button
             variant="primary"
             onClick={() => setIsModalOpen(true)}
@@ -320,17 +318,20 @@ const TemplatePage = () => {
   handleSyncTemplates={() => handleSyncTemplates()}
 />
           ))}
-          {totalPages > 1 && (
+        
+        </div>
+      )}
+  {totalPages > 1 && (
             <div className="mt-6 flex justify-center space-x-2">
               <Button
                 variant="secondary"
                 disabled={page === 1}
                 onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
               >
-                {t('previous')}
+                Previous
               </Button>
               <span className="text-sm text-gray-600 mt-2">
-                {t('page')} {page} {t('of')} {totalPages}
+                Page {page} of {totalPages}
               </span>
               <Button
                 variant="secondary"
@@ -343,9 +344,6 @@ const TemplatePage = () => {
               </Button>
             </div>
           )}
-        </div>
-      )}
-
       {/* Delete Confirmation Modal */}
       <Modal
         isOpen={!!templateToDelete}
