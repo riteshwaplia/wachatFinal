@@ -68,8 +68,8 @@ try {
 
   }
   return (
-    <div className='h-screen w-full border p-6' >
-      <div className='text-2xl font-bold '>
+    <div className='h-screen w-full dark:border-dark-border border p-6' >
+      <div className='text-2xl font-bold  dark:text-dark-text-primary'>
         Reset Password
       </div>
       <InputField placeholder="Enter old password here..." type='password' error={errors.oldpassword} value={oldpassword} onChange={(e) => {

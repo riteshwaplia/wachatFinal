@@ -279,7 +279,7 @@ export default function LandingPage() {
           }`}
       >
         <div
-          className={`max-w-7xl  mx-auto px-6 flex justify-between items-center ${isScrolled ? " bg-white text-black rounded-full " : ""
+          className={`max-w-7xl  mx-auto px-6 flex md:justify-between justify-between items-center ${isScrolled ? " bg-white text-black rounded-full " : ""
             } `}
         >
           <motion.div
@@ -449,7 +449,7 @@ export default function LandingPage() {
             ))}
           </nav>
 
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center hidden md:flex space-x-4">
             <div className="flex items-center ml-4">
               <select
                 value={i18n.language || "en"}
