@@ -153,7 +153,7 @@ const handleChange = (key, value) => {
         lastName: user.lastName,
         email: user.email,
         username: user.userName,
-        mobile: user.mobile,
+        mobileNumber: user.mobile,
         // gender: user.gender,
         // dob: user.dob,
         profilePicture: user.profilePicture || ""
