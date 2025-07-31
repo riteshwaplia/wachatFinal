@@ -250,7 +250,7 @@ const TemplatePage = () => {
             Create and manage message templates for WhatsApp
           </p>
         </div>
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-1 md:space-x-3">
           <Button
             variant="secondary"
             onClick={handleSyncTemplates}

@@ -632,11 +632,11 @@ const LiveChatPage = () => {
       </div>
 
       {/* Right Panel: Chat Window */}
-      <div className="md:w-2/3 w-full fixed top-0  left-0 md:static   md:flex flex-col bg-white dark:bg-dark-surface">
+      <div className="md:w-2/3 w-full fixed top-0 z-1  left-0 md:static   md:flex flex-col bg-white dark:bg-dark-surface">
         {selectedConversation ? (
           <>
             {/* Chat Header */}
-            <div className="p-4 flex gap-4 items-center dark:border-dark-border dark:bg-dark-surface border-b border-gray-200 bg-gray-50">
+            <div className="p-4 flex gap-4 items-center   dark:border-dark-border dark:bg-dark-surface border-b border-gray-200 bg-gray-50">
               <button
                 onClick={() => setSelectedConversation(null)}
                 className="md:hidden mr-2 p-1 rounded-full dark:text-dark-text-primary hover:bg-gray-200 transition"
