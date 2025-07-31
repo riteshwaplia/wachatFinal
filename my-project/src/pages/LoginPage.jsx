@@ -1,5 +1,5 @@
 // src/pages/LoginPage.jsx
-import React, { useState } from 'react';
+import React, { use, useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Card from '../components/Card';
 import InputField from '../components/InputField';
@@ -19,13 +19,74 @@ const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState({});
-  const { login, authLoading } = useAuth(); // Get authLoading from context
+  const { login, authLoading, user } = useAuth(); // Get authLoading from context
   const navigate = useNavigate();
   const [formLoading, setFormLoading] = useState(false); // Renamed for clarity
   const [forgotUi, setForgotUi] = useState(false)
   const { t } = useTranslation();
 
- if (authLoading) {
+
+  console.log("user", user);
+  useEffect(() => {
+    if (!authLoading && user) {
+      if (user.role === "user") {
+        navigate("/projects");
+      } else if (user.role === "super_admin" || user.role === "tanent_admin") {
+        navigate("/admin/dashboard");
+      }
+    }
+  }, [user, authLoading, navigate]);
+
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setErrorMessage({});
+    setFormLoading(true); // start loading
+    const data = { email, password };
+    const validationErrors = loginValidation(data);
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrorMessage(validationErrors);
+      setFormLoading(false); // stop loading if validation fails
+      return;
+    }
+
+    if (password.length < 6) {
+      ErrorToast("password length must be at least 6");
+      setFormLoading(false); // stop loading if password is invalid
+      return;
+    }
+
+    try {
+      const response = await login(email, password);
+
+      if (response?.success) {
+        const user = response.user;
+        SuccessToast("Logged in Successfully");
+
+        if (user?.role === "super_admin" || user?.role === "tanent_admin") {
+          navigate("/admin/dashboard");
+        } else if (user?.role === "user") {
+          navigate("/projects");
+        } else if (user?.role === "super_admin" || user?.role === "tanent_admin") {
+          navigate('/admin/add-tenant-admin');
+        }
+      } else {
+        ErrorToast("Please provide valid credentials.");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      const errMsg =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Something went wrong. Please try again later.";
+      ErrorToast(errMsg);
+    } finally {
+      setFormLoading(false)
+    }
+  };
+
+  if (authLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -35,55 +96,6 @@ const LoginPage = () => {
       </div>
     );
   }
-  console.log("LoginPage rendered",authLoading);
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setErrorMessage({});
-setFormLoading(true); // start loading
-  const data = { email, password };
-  const validationErrors = loginValidation(data);
-
-  if (Object.keys(validationErrors).length > 0) {
-    setErrorMessage(validationErrors);
-    setFormLoading(false); // stop loading if validation fails
-    return;
-  }
-
-  if (password.length < 6) {
-    ErrorToast("password length must be at least 6");
-    setFormLoading(false); // stop loading if password is invalid
-    return;
-  }
-
-  try {
-    const response = await login(email, password);
-
-    if (response?.success) {
-      const user = response.user;
-      SuccessToast("Logged in Successfully");
-
-      if (user?.role === "super_admin" || user?.role === "tanent_admin") {
-        navigate("/admin/dashboard");
-      } else if (user?.role === "user") {
-        navigate("/projects");
-      } else if (user?.role === "super_admin" || user?.role === "tanent_admin") {
-        navigate('/admin/add-tenant-admin');
-      }
-    } else {
-      ErrorToast("Please provide valid credentials.");
-    }
-  } catch (error) {
-    console.error("Login error:", error);
-    const errMsg =
-      error?.response?.data?.message ||
-      error?.message ||
-      "Something went wrong. Please try again later.";
-    ErrorToast(errMsg);
-  } finally {
-setFormLoading(false) }
-};
-
-
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center md:p-4">
       <div className='grid grid-cols-1 md:grid-cols-3 w-[95vw] md:w-[80vw] border rounded h-[80vh]'>
@@ -107,7 +119,7 @@ setFormLoading(false) }
         </div>
 
         <Card title={forgotUi ? t('forgotPassword') : t('loginToYourAccount')} className="w-full py-12 max-w-md">
-          <div className='px-4 flex my-12 justify-center'>
+          <div className='px-4 flex  justify-center'>
             <div className='w-12 h-12 bg-primary-100 flex justify-center items-center rounded-full'>
               <KeyRound size={20} />
 

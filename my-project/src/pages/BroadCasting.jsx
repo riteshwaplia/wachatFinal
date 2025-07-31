@@ -82,7 +82,7 @@ const BulkMessagingDashboard = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header with stats and new broadcast button */}
-      <div className="flex justify-between items-center mb-8">
+      <div className="lg:flex justify-between items-center mb-8 space-y-4">
         <div>
           <h1 className="text-2xl font-bold dark:text-dark-text-primary text-gray-800">{t('broadcastCenter')}</h1>
           <p className="mt-1 text-sm text-gray-500">
