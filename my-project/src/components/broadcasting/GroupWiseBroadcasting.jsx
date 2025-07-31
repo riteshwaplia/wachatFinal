@@ -8,18 +8,15 @@ import Button from "../Button";
 import toast from "react-hot-toast";
 
  
-const project = localStorage.getItem("currentProject")
-    ? JSON.parse(localStorage.getItem("currentProject"))
-    : null;
- 
-const businessProfileId = project?.businessProfileId?._id || null;
+
  
 export default function GroupWiseBroadcasting() {
     const { user, token } = useAuth();
     const { id: projectId } = useParams();
     const [headerExamples, setHeaderExamples] = useState([]);
     const [bodyExamples, setBodyExamples] = useState([]);
- 
+ const [project, setProject] = useState(null);
+  const [businessProfileId, setBusinessProfileId] = useState(null);
     const [groups, setGroups] = useState([]);
     const [selectedGroups, setSelectedGroups] = useState(null);
     console.log("selectedgroups", selectedGroups);
@@ -52,7 +49,14 @@ const [imageId, setImageId] = useState("");
     console.log("contacts--------->>>>>>>", contacts);
     const selectedTemplate = templates.find(tpl => tpl.name === singleMessageTemplateName);
     console.log("selctedtemplate--------->>>>>>>>", selectedTemplate);
- 
+ useEffect(() => {
+  const storedProject = localStorage.getItem("currentProject");
+  if (storedProject) {
+    const parsedProject = JSON.parse(storedProject);
+    setProject(parsedProject);
+    setBusinessProfileId(parsedProject?.businessProfileId?._id || null);
+  }
+}, []);
  
  
     // useEffect(() => {
