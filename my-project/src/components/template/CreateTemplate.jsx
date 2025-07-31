@@ -502,7 +502,7 @@ const navigate = useNavigate(); // Assuming you have react-router's useNavigate 
       {" "}
       <BackButton text="back" />
       <div className="md:flex  w-full gap-4">
-        <form onSubmit={handleSubmit} className="p-2 w-3/5 flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="p-2 w-full md:w-3/5 flex flex-col gap-4">
           <Input
             placeholder="Template Name"
             label="Template Name "

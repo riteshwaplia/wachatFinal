@@ -246,7 +246,15 @@ import EmojiPicker from "emoji-picker-react";
 import { FiBold, FiItalic } from "react-icons/fi";
 import { FaCode, FaStrikethrough } from "react-icons/fa";
 import InputField from "../components/InputField"; // Changed from Input to InputField for consistency
+import Quill from 'quill';
 
+// Then override global require if needed
+if (typeof window !== 'undefined') {
+  window.require = (name) => {
+    if (name === 'quill') return { default: Quill };
+    throw new Error(`Cannot require module: ${name}`);
+  };
+}
 const RichTextEditor = ({ onChange, value, loading ,carosual=true}) => {
   const { quill, quillRef } = useQuill({
     theme: "snow",
