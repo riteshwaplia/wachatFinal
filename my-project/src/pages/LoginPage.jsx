@@ -1,5 +1,5 @@
 // src/pages/LoginPage.jsx
-import React, { useState } from 'react';
+import React, { use, useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Card from '../components/Card';
 import InputField from '../components/InputField';
@@ -19,23 +19,25 @@ const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState({});
-  const { login, authLoading } = useAuth(); // Get authLoading from context
+  const { login, authLoading, user } = useAuth(); // Get authLoading from context
   const navigate = useNavigate();
   const [formLoading, setFormLoading] = useState(false); // Renamed for clarity
   const [forgotUi, setForgotUi] = useState(false)
   const { t } = useTranslation();
 
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">{t('verifyingSession')}</p>
-        </div>
-      </div>
-    );
-  }
-  console.log("LoginPage rendered", authLoading);
+
+  console.log("user", user);
+  useEffect(() => {
+    if (!authLoading && user) {
+      if (user.role === "user") {
+        navigate("/projects");
+      } else if (user.role === "super_admin" || user.role === "tanent_admin") {
+        navigate("/admin/dashboard");
+      }
+    }
+  }, [user, authLoading, navigate]);
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage({});
@@ -84,7 +86,16 @@ const LoginPage = () => {
     }
   };
 
-
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600">{t('verifyingSession')}</p>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center md:p-4">
       <div className='grid grid-cols-1 md:grid-cols-3 w-[95vw] md:w-[80vw] border rounded h-[80vh]'>

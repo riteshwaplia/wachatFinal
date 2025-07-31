@@ -171,7 +171,7 @@ export default function GroupWiseBroadcasting() {
     useEffect(() => {
         const fetchTemplatesAndContacts = async () => {
             try {
-                const templatesRes = await api.get("/templates", {
+                const templatesRes = await api.get("templates/allapprovedtemplates", {
                     ...config,
                     params: {
                         businessProfileId: businessProfileId,
@@ -188,7 +188,7 @@ export default function GroupWiseBroadcasting() {
         if (businessProfileId) {
             fetchTemplatesAndContacts();
         }
-    }, [businessProfileId, token]);
+    }, [businessProfileId, token, projectId,]);
  
  
     const groupOptions = groups.map(group => ({

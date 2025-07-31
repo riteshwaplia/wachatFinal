@@ -119,15 +119,16 @@ const DynamicButtonsBuilder = ({ onChange }) => {
           label="Quick Replies"
           className="text-sm text-gray-500 font-medium border-t border-gray-100"
         >
-          <option
+          {/* <option
             value={validButtonTypes.QUICK_REPLY}
             className="py-2 px-3 hover:bg-primary-50 hover:text-primary-700 transition-colors"
           >
-            <span className="flex items-center gap-2">
-              <span className="text-lg">📝</span>
-              <span>Quick Reply</span>
-            </span>
-          </option>
+          
+            Quick Reply
+          </option> */}
+          <option value={validButtonTypes.QUICK_REPLY}>
+  📝 Quick Reply
+</option>
         </optgroup>
 
         <optgroup
@@ -138,19 +139,15 @@ const DynamicButtonsBuilder = ({ onChange }) => {
             value={validButtonTypes.URL}
             className="py-2 px-3 hover:bg-primary-50 hover:text-primary-700 transition-colors"
           >
-            <span className="flex items-center gap-2">
-              <span className="text-lg">🌐</span>
-              <span>Visit Website</span>
-            </span>
+            🌐 Visit Website
+            
           </option>
           <option
             value={validButtonTypes.PHONE_NUMBER}
             className="py-2 px-3 hover:bg-primary-50 hover:text-primary-700 transition-colors"
           >
-            <span className="flex items-center gap-2">
-              <span className="text-lg">📞</span>
-              <span>Call Phone</span>
-            </span>
+           📞 Call Phone
+            
           </option>
         </optgroup>
       </select>
