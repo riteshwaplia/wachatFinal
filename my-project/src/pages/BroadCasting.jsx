@@ -92,12 +92,14 @@ const BulkMessagingDashboard = () => {
         <div className='flex items-center space-x-4'>
           <Button
           onClick={createNewBroadcast}
+          className='text-[10px]'
           // className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
         >
           + {t('newBroadcast')}
         </Button>
         <Button
           onClick={createNewCarosualBroadcast}
+          className='text-[10px]'
           // className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
         >
           + {t('newCarouselBroadcast')}

@@ -80,7 +80,7 @@ const Header = ({ onToggleSidebar }) => {
   };
 
   return (
-    <header className="bg-white dark:bg-dark-surface shadow-sm py-6 px-4 md:px-6 flex items-center justify-between sticky top-0 right-4 z-20 w-full">
+    <header className="bg-white dark:bg-dark-surface shadow-sm py-6 px-4 md:px-6 flex items-center justify-between sticky top-0 right-4 lg:z-20 z-0 w-full">
       {/* Mobile menu button and brand */}
   
       <div className="flex  items-center space-x-4">
@@ -159,7 +159,7 @@ const Header = ({ onToggleSidebar }) => {
             </button>
 
             {isDropdownOpen && (
-              <div  ref={dropdownRef} className="absolute right-0 mt-2 top-8 w-56 bg-white  dark:bg-dark-surface dark:border-dark-border rounded-lg shadow-lg py-1 z-50 border border-gray-200">
+              <div  ref={dropdownRef} className="absolute right-0 mt-2 top-8 w-56 bg-white  dark:bg-dark-surface dark:border-dark-border rounded-lg shadow-lg py-1 z-[100] border border-gray-200">
                 <div className="px-4 py-3 border-b dark:border-dark-border border-gray-200">
                   <p className="text-sm font-semibold dark:text-dark-text-primary text-gray-900">{user?.username}</p>
                   <p className="text-xs text-gray-500 truncate">{user?.email}</p>
