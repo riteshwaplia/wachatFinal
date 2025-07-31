@@ -14,6 +14,7 @@ import { ErrorToast, SuccessToast } from '../utils/Toast'; // ✅ optional toast
 import ForgotPassword from '../components/login/ForgotPassword';
 import { useTranslation } from 'react-i18next';
 import { KeyRound } from 'lucide-react';
+import { useTenant } from '../context/TenantContext';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -24,9 +25,10 @@ const LoginPage = () => {
   const [formLoading, setFormLoading] = useState(false); // Renamed for clarity
   const [forgotUi, setForgotUi] = useState(false)
   const { t } = useTranslation();
+  const { siteConfig } = useTenant();
 
 
-  console.log("user", user);
+  const { logoUrl } = siteConfig;
   useEffect(() => {
     if (!authLoading && user) {
       if (user.role === "user") {
@@ -99,7 +101,7 @@ const LoginPage = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center md:p-4">
       <div className='grid grid-cols-1 md:grid-cols-3 w-[95vw] md:w-[80vw] border rounded h-[80vh]'>
-        <div className='col-span-2  md:flex hidden bg-primary-500 flex flex-col  p-10 gap-y-3'>
+        <div className='col-span-2  md:flex hidden bg-primary-500 lg:flex flex-col  p-10 gap-y-3'>
           <h2 className='text-white font-semibold text-4xl'>{t('welcomeBack')}</h2>
           <h3 className='text-white'>{t('signInToDashboard')}</h3>
           <div className='flex items-center flex-grow justify-center'>
@@ -120,10 +122,14 @@ const LoginPage = () => {
 
         <Card title={forgotUi ? t('forgotPassword') : t('loginToYourAccount')} className="w-full py-12 max-w-md">
           <div className='px-4 flex  justify-center'>
-            <div className='w-12 h-12 bg-primary-100 flex justify-center items-center rounded-full'>
-              <KeyRound size={20} />
-
+            <div className='w-12 h-12  flex justify-center items-center rounded-full'>
+              {logoUrl ? (
+                <img src={logoUrl} alt="Logo" className="w-18 h-auto" />
+              ) : (
+                <KeyRound size={20} />
+              )}
             </div>
+
           </div>
 
           {!forgotUi ? (

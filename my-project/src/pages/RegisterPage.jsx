@@ -11,6 +11,7 @@ import { validateRegistrationForm } from '../utils/validation';
 import { ErrorToast, SuccessToast } from '../utils/Toast';
 import api from '../utils/api';
 import { useTranslation } from 'react-i18next';
+import { useTenant } from '../context/TenantContext';
 
 const RegisterPage = () => {
   const [form, setForm] = useState({
@@ -24,6 +25,10 @@ const RegisterPage = () => {
   const [errors, setErrors] = useState({});
   const [otpSent, setOtpSent] = useState(false);
   const [loading, setLoading] = useState(false);
+  const { siteConfig } = useTenant();
+
+
+  const { logoUrl } = siteConfig;
 
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -161,6 +166,16 @@ const RegisterPage = () => {
 
         {/* Right Side (Form) */}
         <Card title={t('registerAccount')} className="w-full max-w-md py-6">
+          <div className='px-4 flex  justify-center'>
+            <div className='w-12 h-12  flex justify-center items-center rounded-full'>
+              {logoUrl ? (
+                <img src={logoUrl} alt="Logo" className="w-18 h-auto" />
+              ) : (
+                <KeyRound size={20} />
+              )}
+            </div>
+
+          </div>
           {!otpSent ? (
             <form onSubmit={handleSubmit}>
               <InputField

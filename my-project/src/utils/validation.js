@@ -81,3 +81,75 @@ export const loginValidation = (logindata) => {
 
     return errors
 }
+
+
+// businessProfileValidation.js
+export const validateWhatsAppBusinessProfile = (formData) => {
+    const errors = {};
+
+    // Regex rules
+    const aboutRegex = /^[A-Za-z0-9_\s]+$/;        // letters, numbers, underscore, spaces
+    const descriptionRegex = /^[A-Za-z0-9\s]+$/;   // letters, numbers, spaces only
+    const addressRegex = /^[A-Za-z0-9\s,]+$/;      // letters, numbers, spaces, commas
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const urlRegex = /^https?:\/\/[^\s$.?#].[^\s]*$/;
+
+    // About (optional)
+    if (formData.about?.trim()) {
+        if (!aboutRegex.test(formData.about)) {
+            errors.about = "About can only contain letters, numbers, spaces, and underscores (_).";
+        } else if (formData.about.length > 139) {
+            errors.about = "About cannot exceed 139 characters.";
+        }
+    }
+
+    // Description (optional)
+    if (formData.description?.trim()) {
+        if (!descriptionRegex.test(formData.description)) {
+            errors.description = "Description can only contain letters, numbers, and spaces.";
+        } else if (formData.description.length > 500) {
+            errors.description = "Description cannot exceed 500 characters.";
+        }
+    }
+
+    // Address (optional)
+    if (formData.address?.trim()) {
+        if (!addressRegex.test(formData.address)) {
+            errors.address = "Address can only contain letters, numbers, spaces, and commas.";
+        } else if (formData.address.length > 200) {
+            errors.address = "Address cannot exceed 200 characters.";
+        }
+    }
+
+    // Email (optional)
+    if (formData.email?.trim()) {
+        if (!emailRegex.test(formData.email)) {
+            errors.email = "Invalid email address.";
+        }
+    }
+
+    // Websites (optional)
+    if (formData.websites && formData.websites.length > 0) {
+        const invalidUrls = formData.websites.filter((url) => !urlRegex.test(url));
+        if (invalidUrls.length > 0) {
+            errors.websites = `Invalid website URL(s): ${invalidUrls.join(", ")}`;
+        } else if (formData.websites.length > 5) {
+            errors.websites = "You can add a maximum of 5 websites.";
+        }
+    }
+
+    // Vertical (optional)
+    if (formData.vertical?.trim()) {
+        const validIndustries = [
+            "OTHER", "AUTO", "BEAUTY", "APPAREL", "EDU", "ENTERTAIN", "EVENT_PLAN",
+            "FINANCE", "GROCERY", "GOVT", "HOTEL", "HEALTH", "NONPROFIT", "PROF_SERVICES",
+            "RETAIL", "TRAVEL", "RESTAURANT", "ALCOHOL", "ONLINE_GAMBLING",
+            "PHYSICAL_GAMBLING", "OTC_DRUGS"
+        ];
+        if (!validIndustries.includes(formData.vertical)) {
+            errors.vertical = "Invalid industry selected.";
+        }
+    }
+
+    return errors;
+};

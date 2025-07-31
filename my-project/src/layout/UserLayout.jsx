@@ -3,13 +3,14 @@ import Header from '../components/Header';
 import UserSidebar from '../components/UserSidebar';
 
 const UserLayout = ({ children, sidebar = true }) => {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     // Run once on mount to detect device width
     const isMobile = window.innerWidth < 768; // Tailwind's md breakpoint
-    setSidebarOpen(!isMobile); // true for desktop, false for mobile
+    // setSidebarOpen(!isMobile); // true for desktop, false for mobile
   }, []);
+
 
   return (
     <div className="flex min-h-screen dark:bg-dark-bg-primary bg-gray-50 w-full">

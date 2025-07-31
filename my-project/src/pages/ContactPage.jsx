@@ -529,7 +529,7 @@ const ContactPage = () => {
         setMessage('');
         setMessageType('info');
 
-        
+
 
         try {
             if (!formData.name || !formData.mobileNumber) {
@@ -723,7 +723,7 @@ const ContactPage = () => {
     // }
 
     return (
-        <div className="md:max-w-7xl  p-3 w-full  mx-auto  md:px-6 lg:px-8 py-8">
+        <div className="space-y-6 p-6"> {/* Added padding for better layout */}
 
             {showDeleteConfirmModal && (
                 <Modal
@@ -1050,7 +1050,7 @@ const ContactPage = () => {
 
                                     {isLoading ? (<div className="flex justify-center items-center h-64">
                                         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
-                                    </div>) : ( 
+                                    </div>) : (
                                         <table onClick={() => setIsbulkOption(false)} className="min-w-full dark:divide-dark-border  divide-gray-200">
 
                                             <thead className="bg-gray-50 dark:bg-dark-surface   overflow-auto">
