@@ -44,7 +44,16 @@ const WhatsappNumberRegistrationPage = () => {
     });
 
     const [isAddBusinessModalOpen, setIsAddBusinessModalOpen] = useState(false);
-
+const handlecloasemodel=()=>{
+    setIsAddBusinessModalOpen(false);
+    setFormData({
+        name: '',
+        wabaId: '',
+        accessToken: '',
+        metaAppId: ''
+    });
+    setErrors({});
+}
     // Helper function to update state
     const updateState = (updates) => {
         setState(prev => ({ ...prev, ...updates }));
@@ -384,7 +393,7 @@ const WhatsappNumberRegistrationPage = () => {
             {/* Add Business Profile Modal */}
             <Modal
                 isOpen={isAddBusinessModalOpen}
-                onClose={() => setIsAddBusinessModalOpen(false)}
+                onClose={() => handlecloasemodel()}
                 title={t('addBusinessProfile')}
                 size="md"
             >
@@ -403,6 +412,7 @@ const WhatsappNumberRegistrationPage = () => {
                     <InputField
                         label={t('whatsappBusinessAccountId')}
                         name="wabaId"
+                        type='number'
                         value={formData.wabaId}
                         onChange={handleFormChange}
                         placeholder={t('whatsappBusinessAccountIdPlaceholder')}
@@ -415,6 +425,7 @@ const WhatsappNumberRegistrationPage = () => {
                         label={t('whatsappBusinessAppId')}
                         name="metaAppId"
                         value={formData.metaAppId}
+                         type='number'
                         onChange={handleFormChange}
                         placeholder={t('whatsappBusinessAppIdPlaceholder')}
                         maxlength={60}
@@ -438,7 +449,7 @@ const WhatsappNumberRegistrationPage = () => {
                         <Button
                             type="button"
                             variant="outline"
-                            onClick={() => setIsAddBusinessModalOpen(false)}
+                            onClick={() => handlecloasemodel()}
                         >
                             {t('cancel')}
                         </Button>
