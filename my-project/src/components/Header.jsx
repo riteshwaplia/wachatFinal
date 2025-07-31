@@ -6,6 +6,8 @@ import { Menu, X, ChevronDown, ChevronUp } from 'lucide-react';
 import Avatar from './Avatar';
 import { useRef } from 'react';
 import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+
 
  
 import { useTranslation } from 'react-i18next';
@@ -19,6 +21,7 @@ const languages = [
 
 const Header = ({ onToggleSidebar }) => {
   const { user, isLoggedIn, logout } = useAuth();
+  const location = useLocation();
     const { id } = useParams();
     console.log("iddddd",id);
   const { siteConfig } = useTenant();
@@ -81,13 +84,16 @@ const Header = ({ onToggleSidebar }) => {
       {/* Mobile menu button and brand */}
   
       <div className="flex  items-center space-x-4">
-        <button
+        {(location.pathname !== '/projects' && location.pathname !== '/add-whatsapp-number') && (
+ <button
           onClick={onToggleSidebar}
           className="p-1 rounded-md z-40 cursor-pointer text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors lg:hidden"
           aria-label="Toggle sidebar"
         >
           {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
+)}
+       
 
         <Link to="/" className="flex items-center">
           {/* <span className="text-xl font-bold font-heading text-primary-700 hover:text-primary-600 transition-colors"> */}
@@ -153,7 +159,7 @@ const Header = ({ onToggleSidebar }) => {
             </button>
 
             {isDropdownOpen && (
-              <div  ref={dropdownRef} className="absolute right-0 mt-2 top-8 w-56 bg-white z-50 dark:bg-dark-surface dark:border-dark-border rounded-lg shadow-lg py-1 z-50 border border-gray-200">
+              <div  ref={dropdownRef} className="absolute right-0 mt-2 top-8 w-56 bg-white  dark:bg-dark-surface dark:border-dark-border rounded-lg shadow-lg py-1 z-50 border border-gray-200">
                 <div className="px-4 py-3 border-b dark:border-dark-border border-gray-200">
                   <p className="text-sm font-semibold dark:text-dark-text-primary text-gray-900">{user?.username}</p>
                   <p className="text-xs text-gray-500 truncate">{user?.email}</p>

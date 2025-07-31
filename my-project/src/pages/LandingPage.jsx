@@ -49,6 +49,7 @@ import { AiOutlineLogin } from "react-icons/ai";
 import { useTenant } from "../context/TenantContext";
 import { useTranslation } from "react-i18next";
 
+
 gsap.registerPlugin(ScrollTrigger);
 
 function AnimatedCounter({ target, currency, duration, trigger }) {

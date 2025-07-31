@@ -632,7 +632,7 @@ const LiveChatPage = () => {
       </div>
 
       {/* Right Panel: Chat Window */}
-      <div className="md:w-2/3 w-full fixed top-0 z-[50] left-0 md:static   md:flex flex-col bg-white dark:bg-dark-surface">
+      <div className="md:w-2/3 w-full fixed top-0  left-0 md:static   md:flex flex-col bg-white dark:bg-dark-surface">
         {selectedConversation ? (
           <>
             {/* Chat Header */}

@@ -36,16 +36,17 @@ const UserSidebar = ({ isOpen, onToggle, isOff }) => {
         path: `/project/${id}/project-details`,
         icon: <Briefcase size={18} />
       },
+          {
+        label: 'Groups',
+        path: `/project/${id}/group`,
+        icon: <Users size={18} />
+      },
       {
         label: 'Contacts',
         path: `/project/${id}/contacts`,
         icon: <Phone size={18} />
       },
-      {
-        label: 'Groups',
-        path: `/project/${id}/group`,
-        icon: <Users size={18} />
-      },
+  
       {
         label: 'Templates',
         path: `/project/${id}/templates`,

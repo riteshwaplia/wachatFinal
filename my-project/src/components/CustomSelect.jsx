@@ -45,6 +45,7 @@ const CustomSelect = ({
 
         classNamePrefix={`custom-select`}
       />
+      {error && <p className="text-red-500 text-sm">{error}</p>}
     </div>
   );
 };

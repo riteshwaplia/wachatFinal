@@ -29,6 +29,7 @@ export default function ProfilePage() {
   const [errors, setErrors] = useState({});
   const [isEditable, setIsEditable] = useState(false);
   const [data, setData] = useState({});
+  const [loading,setloading] = useState(false);
   console.log("data", data);
   const [user, setUser] = useState({
     firstName: "",
@@ -100,11 +101,15 @@ export default function ProfilePage() {
 
   console.log("userId", userId)
 
-  const handleChange = (key, value) => {
-    console.log("use>>>r", key, value)
-    setUser((prev) => ({ ...prev, [key]: value }));
-    if (errors[key]) setErrors((prev) => ({ ...prev, [key]: '' }));
-  };
+const handleChange = (key, value) => {
+  if ((key === 'firstName' || key === 'lastName') && /[^A-Za-z]/.test(value)) {
+    return; // Disallow non-alphabetic input
+  }
+
+  setUser((prev) => ({ ...prev, [key]: value }));
+  if (errors[key]) setErrors((prev) => ({ ...prev, [key]: '' }));
+};
+
 
 
   const handleSubmit = async (e) => {
@@ -112,8 +117,19 @@ export default function ProfilePage() {
 
 
     const newErrors = {};
-    if (!user.firstName) newErrors.firstName = 'Firstname is required';
-    if (!user.lastName) newErrors.lastName = "Lastname is required"
+    const nameRegex = /^[A-Za-z]+$/;
+
+  if (!user.firstName) {
+    newErrors.firstName = 'Firstname is required';
+  } else if (!nameRegex.test(user.firstName)) {
+    newErrors.firstName = 'Only alphabets are allowed in first name';
+  }
+
+  if (!user.lastName) {
+    newErrors.lastName = 'Lastname is required';
+  } else if (!nameRegex.test(user.lastName)) {
+    newErrors.lastName = 'Only alphabets are allowed in last name';
+  }
     if (!user.mobile) newErrors.phonenumber = 'Mobile is required';
 
     // if (!user.companySize) newErrors.companySize = 'Company size is required';
@@ -131,11 +147,12 @@ export default function ProfilePage() {
 
 
     try {
+      setloading(true);
       const payload = {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
-        userName: user.userName,
+        username: user.userName,
         mobile: user.mobile,
         // gender: user.gender,
         // dob: user.dob,
@@ -177,7 +194,11 @@ const response = await api.put(
       console.error('API error:', error);
       // Optionally show error toast
     }
+    finally{
+      setloading(false);
+    }
   };
+  
 
 
   const industryOptions = INDUSTRY_TYPES.map((i) => ({ value: i, label: i }));
@@ -359,7 +380,7 @@ const response = await api.put(
 
               <div className="col-span-full flex justify-end gap-4">
                 <Button variant="outline" onClick={() => setIsEditable(!isEditable)}>{isEditable ? 'Cancel' : 'Edit'}</Button>
-                {isEditable && <Button type="submit">Save</Button>}
+                {isEditable && <Button loading={loading} type="submit">Save</Button>}
               </div>
             </form>
           </div>

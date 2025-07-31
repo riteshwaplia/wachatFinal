@@ -529,6 +529,8 @@ const ContactPage = () => {
         setMessage('');
         setMessageType('info');
 
+        
+
         try {
             if (!formData.name || !formData.mobileNumber) {
                 setMessage('Name and Mobile Number are required.');
@@ -796,7 +798,7 @@ const ContactPage = () => {
             <div className="mb-8">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900 dark:text-dark-text-primary">{t('contactManagement')}</h1>
+                        <h1 className="text-3xl font-bold text-gray-900 dark:text-dark-text-primary">{t('ContactManagement')}</h1>
                         <p className="mt-2 text-gray-600">
                             {t('manageProjectContacts')}
                         </p>
