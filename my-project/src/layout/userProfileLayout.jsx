@@ -56,7 +56,7 @@ const UserProfileLayout = ({ children, sidebar = true }) => {
            if (window.innerWidth < 768) {
       setSidebarOpen(false);
     }}
-        } className="flex-grow md:p-4 p-2 dark:bg-dark-bg-primary  overflow-hidden md:p-6 lg:p-8 transition-all duration-300 w-[100vw] md:w-auto  ">
+        } className="flex-grow md:p-4 p-2 dark:bg-dark-bg-primary lg:overflow-y-auto  lg:p-8 transition-all duration-300 w-[100vw] md:w-auto  ">
           {children}
         </main>
       </div>

@@ -26,7 +26,7 @@ export default function ForgotPassword({ onBack }) {
     const validateInputs = () => {
         const newErrors = {};
 
-       
+
 
         if (password.length < 6) {
             newErrors.password = 'Password must be at least 8 characters';
@@ -98,7 +98,7 @@ export default function ForgotPassword({ onBack }) {
     };
 
     return (
-        <div className="w-full py-12 max-w-md space-y-6">
+        <div className="w-full py-8 max-w-md space-y-6">
             {step === 1 && (
                 <>
                     <InputField
