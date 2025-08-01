@@ -13,8 +13,9 @@ import { loginValidation } from '../utils/validation'; // ✅ import validation
 import { ErrorToast, SuccessToast } from '../utils/Toast'; // ✅ optional toast for better UX
 import ForgotPassword from '../components/login/ForgotPassword';
 import { useTranslation } from 'react-i18next';
-import { KeyRound } from 'lucide-react';
+import { Fingerprint, KeyRound } from 'lucide-react';
 import { useTenant } from '../context/TenantContext';
+import AutoSlider from '../components/features/Slider';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -100,33 +101,55 @@ const LoginPage = () => {
   }
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center md:p-4">
-      <div className='grid grid-cols-1 md:grid-cols-3 w-[95vw] md:w-[80vw] border rounded h-[80vh]'>
-        <div className='col-span-2  md:flex hidden bg-primary-500 lg:flex flex-col  p-10 gap-y-3'>
-          <h2 className='text-white font-semibold text-4xl'>{t('welcomeBack')}</h2>
-          <h3 className='text-white'>{t('signInToDashboard')}</h3>
-          <div className='flex items-center flex-grow justify-center'>
-            <div className='text-white text-5xl'>SabNode</div>
+      <div className='grid grid-cols-1 md:grid-cols-3 w-[95vw] md:w-[80vw] rounded border  h-[80vh]'>
+        <div className="col-span-2 hidden md:flex flex-col p-12 gap-y-6 
+                bg-gradient-to-br from-primary-600 via-primary-500 to-primary-400 
+                shadow-xl rounded-l relative overflow-hidden">
+
+          {/* Animated Background Elements for Modern Look */}
+          <div className="absolute inset-0">
+            <div className="absolute w-40 h-40 bg-white/10 rounded-full blur-3xl top-10 left-10 animate-pulse"></div>
+            <div className="absolute w-56 h-56 bg-white/10 rounded-full blur-3xl bottom-10 right-10 animate-pulse delay-200"></div>
           </div>
-          <div className='mt-auto'>
-            <div className='grid grid-cols-6 w-[17vw] gap-6'>
-              <div className='col-span-1 w-10 h-10 flex justify-center bg-white/30 items-center backdrop-blur rounded-full'>
-                <RiMessage3Line size={20} className='text-white' />
-              </div>
-              <div className='col-span-5 '>
-                <h3 className='text-white'>{t('whatsappMarketing')}</h3>
-                <h3 className='text-sm text-white/40'>{t('engageTenants')}</h3>
-              </div>
-            </div>
+
+          {/* Top Welcome Text */}
+          <div className="relative z-10">
+            <h2 className="text-white font-extrabold text-5xl leading-tight drop-shadow-lg">
+              {t('welcomeBack')}
+            </h2>
+            <h3 className="text-white text-lg mt-2 opacity-90">
+              {t('signInToDashboard')}
+            </h3>
+          </div>
+
+          {/* Center Brand Logo / Fallback Text */}
+          <div className="flex flex-grow items-center justify-center relative z-10">
+            {logoUrl ? (
+              <img
+                src={logoUrl}
+                alt="Logo"
+                className="max-h-28 w-auto object-contain"  // ensures proper scaling
+              />
+            ) : (
+              <div className="text-white text-5xl font-bold"></div>
+            )}
+          </div>
+
+          {/* AutoSlider at the Bottom */}
+          <div className="mt-auto relative z-10">
+            <AutoSlider />
           </div>
         </div>
 
-        <Card title={forgotUi ? t('forgotPassword') : t('loginToYourAccount')} className="w-full py-12 max-w-md">
+
+
+        <Card title={forgotUi ? t('forgotPassword') : t('loginToYourAccount')} className="w-full lg:rounded-none rounded-xl lg:rounded-r py-12 max-w-md">
           <div className='px-4 flex  justify-center'>
             <div className='w-12 h-12  flex justify-center items-center rounded-full'>
               {logoUrl ? (
                 <img src={logoUrl} alt="Logo" className="w-18 h-auto" />
               ) : (
-                <KeyRound size={20} />
+                <Fingerprint size={20} />
               )}
             </div>
 

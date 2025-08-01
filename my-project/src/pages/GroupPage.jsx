@@ -45,7 +45,7 @@ const GroupPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
   const [loading, setLoding] = useState(false);
-  const [erorrs, setErrors] = useState({ title: '' });
+  const [erorrs, setErrors] = useState({ title: '', description:'' });
   const [showBulkConfirmModal, setShowBulkConfirmModal] = useState(false);
   const [bulkActionType, setBulkActionType] = useState(null); // 'archive' | 'restore' | 'delete'
 
@@ -93,7 +93,7 @@ const GroupPage = () => {
 
     // Trim to remove spaces at start/end
     const title = formData.title.trim();
-
+    const dsc = formData.description.trim();
     // 1️⃣ Required check
     if (!title) {
       errors.title = "Group name is required";
@@ -102,6 +102,18 @@ const GroupPage = () => {
     else if (!/^[a-zA-Z0-9 ]+$/.test(title)) {
       errors.title = "Special characters are not allowed";
     }
+   if (dsc) {
+  // Limit length example
+  if (dsc.length > 200) {
+    errors.description = "Description cannot exceed 200 characters";
+  } 
+  // Optional: Allow basic punctuation but block symbols like @#$%^
+  else if (!/^[a-zA-Z0-9.,!? ]+$/.test(dsc)) {
+    errors.description = "Description contains invalid characters";
+  }
+}
+
+
 
     // Show errors if any
     if (Object.keys(errors).length > 0) {
@@ -913,6 +925,9 @@ const handleSubmit = async (e) => {
               className="w-full dark:bg-dark-surface dark:text-dark-text-primary px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               value={formData.description}
               onChange={handleInputChange}
+              error={erorrs.description}
+
+                        helperText={erorrs.description}
             />
           </div>
           <div className="flex justify-end space-x-3 pt-4">

@@ -429,20 +429,25 @@ body {
 .btn {
   position: relative;
   width: 100%;
-  max-width: 280px; /* Optional max-width for better layout on big screens */
+  max-width: 100%;
+  /* Optional max-width for better layout on big screens */
   height: 45px;
-  background: #ffffff; /* Use white as base */
-  border: 2px solid #2980B9; /* Primary blue */
+  background: #ffffff;
+  /* Use white as base */
+  border: 2px solid #2980B9;
+  /* Primary blue */
   outline: none;
   border-radius: 40px;
   cursor: pointer;
   font-size: 16px;
-  color: #2980B9; /* Primary blue for text */
+  color: #2980B9;
+  /* Primary blue for text */
   font-weight: 600;
   z-index: 1;
   overflow: hidden;
   transition: all 0.4s ease;
-  box-shadow: 0 4px 15px rgba(41, 128, 185, 0.15); /* Soft blue glow */
+  box-shadow: 0 4px 15px rgba(41, 128, 185, 0.15);
+  /* Soft blue glow */
   display: inline-flex;
   justify-content: center;
   align-items: center;
@@ -467,11 +472,13 @@ body {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(41, 128, 185, 0.3);
   color: #fff;
-  background: #f0f8ff; /* Subtle light blue on hover */
+  background: #f0f8ff;
+  /* Subtle light blue on hover */
 }
 
 .btn:hover::before {
-  left: 100%; /* Shiny swipe animation */
+  left: 100%;
+  /* Shiny swipe animation */
 }
 
 /* ========================= */
@@ -501,15 +508,23 @@ body {
   .btn {
     height: 50px;
     font-size: 16px;
-    max-width: 280px;
+    max-width: 100%;
   }
 }
 
 
 @keyframes fade-in {
-  0% { opacity: 0; transform: translateY(-5px); }
-  100% { opacity: 1; transform: translateY(0); }
+  0% {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
+
 .animate-fade-in {
   animation: fade-in 0.2s ease-out;
 }
