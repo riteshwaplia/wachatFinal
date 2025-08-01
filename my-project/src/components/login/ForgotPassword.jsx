@@ -118,7 +118,7 @@ export default function ForgotPassword({ onBack }) {
                         loading={loading}
                         type="button"
                         onClick={handleSendOtp}
-                        className="w-full bg-primary-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-primary-700 transition-colors"
+                        className="w-full btn bg-primary-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-primary-700 transition-colors"
                     >
                         {loading ? 'sending...' : 'Send Otp'}
 
@@ -181,7 +181,7 @@ export default function ForgotPassword({ onBack }) {
                     <Button
                         type="button"
                         onClick={handleResetPassword}
-                        className="w-full bg-primary-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-primary-700 transition-colors"
+                        className="w-full btn bg-primary-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-primary-700 transition-colors"
                         loading={loading}
                     >
                         {loading ? 'saving...' : 'change Password'}

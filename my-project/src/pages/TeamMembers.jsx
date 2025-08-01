@@ -91,8 +91,8 @@ const AddCustomFieldModal = ({ isOpen, onClose, onSuccess, fields }) => {
             </div>
           </div>
         </div></>) :
-        <div className="bg-white rounded-lg shadow-lg w-full dark:bg-dark-surface max-w-md p-6">
-          <h2 className="text-xl dark:text-dark-text-primary font-semibold mb-4 dark:text-dark-text-primary">Add Custom Field</h2>
+        <div className="bg-white rounded-lg shadow-lg w-full dark:bg-dark-surface max-w-md p-4 m-2">
+          <h2 className="text-xl dark:text-dark-text-primary font-semibold mb-4 ">Add Custom Field</h2>
 
           <div className="mb-4">
             <label htmlFor="label" className="block text-sm font-medium text-gray-700 mb-1">

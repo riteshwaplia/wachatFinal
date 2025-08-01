@@ -807,11 +807,11 @@ const handleSearchChange = (e) => {
                             {t('manageProjectContacts')}
                         </p>
                     </div>
-                    <div className="flex items-center space-x-1 md:space-x-3">
+                    <div className="flex items-center space-x-1 md:space-x-3 gap-6">
                         <Button
                             onClick={() => { setEditingContact(null); setIsModalOpen(true); }}
                             variant="primary"
-                            className="flex items-center space-x-2 shadow-sm"
+                            className="flex  items-center space-x-2 shadow-sm"
                         >
                             <PlusCircle size={20} />
                             <span>{t('newContact')}</span>
@@ -875,8 +875,8 @@ const handleSearchChange = (e) => {
             </div>
 
             {/* Search Bar */}
-            <div className="mb-6 flex justify-between items-center">
-                <div className="relative rounded-md shadow-sm max-w-md">
+            <div className="mb-6 lg:flex space-y-4 justify-between items-center">
+                <div className="relative   rounded-md shadow-sm max-w-md">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <Search className="h-4 w-4 text-gray-400" />
                     </div>
@@ -904,9 +904,9 @@ const handleSearchChange = (e) => {
                     )}
 
                 </div>
-                <div className="flex flex-row gap-3">
-                    <Button onClick={handleOpenAddModal}>{t('addNewField')}</Button>
-                    <Button onClick={handleOpenShowModal}>{t('showField')}</Button>
+                <div className="flex relative flex-row lg:gap-3 gap-6">
+                    <Button className='' onClick={handleOpenAddModal}>{t('addNewField')}</Button>
+                    <Button className='' onClick={handleOpenShowModal}>{t('showField')}</Button>
 
                     {activeModal === 'add' && (
                         <AddCustomFieldModal

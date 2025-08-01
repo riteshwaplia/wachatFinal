@@ -164,7 +164,7 @@ const LoginPage = () => {
 
                 <Button
                   type="submit"
-                  className="w-full flex items-center justify-center gap-1 mt-6"
+                  className="w-full btn flex items-center justify-center gap-1 mt-6"
                   loading={formLoading}
                 >
                   <div>{formLoading ? t('loggingIn') : t('login')}</div>

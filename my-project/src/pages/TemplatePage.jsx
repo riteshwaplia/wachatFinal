@@ -242,41 +242,46 @@ const TemplatePage = () => {
     <div className="space-y-6 p-6"> {/* Added padding for better layout */}
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+        {/* Left section */}
         <div>
-          <h1 className="text-3xl dark:text-dark-text-primary font-bold text-gray-900">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-dark-text-primary">
             WhatsApp Templates
           </h1>
-          <p className="text-gray-600 mt-2">
+          <p className="text-gray-600 mt-1 sm:mt-2 text-sm sm:text-base">
             Create and manage message templates for WhatsApp
           </p>
         </div>
-        <div className="flex items-center space-x-1 md:space-x-3">
+
+        {/* Right section - Buttons */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full md:w-auto">
           <Button
             variant="secondary"
             onClick={handleSyncTemplates}
             loading={isSyncing}
             icon={<FiRefreshCw className="mr-2" />}
+            className="w-full  sm:w-auto"
           >
             Sync Templates
           </Button>
+
           <Button
             variant="primary"
-            // onClick={() => setIsModalOpen(true)}
-            // icon={<FiPlus className="mr-2" />}
             onClick={() => navigate(`/project/${projectId}/templates/create`)}
+            className="w-full sm:w-auto"
           >
-            regular Template
+            Regular Template
           </Button>
+
           <Button
             variant="primary"
-            // onClick={() => setIsModalOpen(true)}
-            // icon={<FiPlus className="mr-2" />}
             onClick={() => navigate(`/project/${projectId}/templates/create/carousel-templates`)}
+            className="w-full sm:w-auto"
           >
-            carousel Template
+            Carousel Template
           </Button>
         </div>
       </div>
+
 
       {/* Message Alert */}
       {message.text && (

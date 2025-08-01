@@ -12,6 +12,7 @@ import { ErrorToast, SuccessToast } from '../utils/Toast';
 import api from '../utils/api';
 import { useTranslation } from 'react-i18next';
 import { useTenant } from '../context/TenantContext';
+import { KeyRound } from 'lucide-react';
 
 const RegisterPage = () => {
   const [form, setForm] = useState({
@@ -223,8 +224,8 @@ const RegisterPage = () => {
                 error={errors.confirmPassword}
                 helperText={errors.confirmPassword}
               />
-              <Button type='submit' loading={loading} className="w-full mt-6" >
-                <div className="flex justify-center items-center gap-2">
+              <Button type='submit' loading={loading} className="w-full btn mt-6" >
+                <div className="flex  justify-center items-center gap-2">
                   {t('register')}
                   <MdArrowForward />
                 </div>
@@ -248,8 +249,8 @@ const RegisterPage = () => {
                 />
               </div>
 
-              <Button type='submit' loading={loading} className="w-full mt-6" >
-                <div className="flex justify-center items-center gap-2">
+              <Button type='submit' loading={loading} className="w-full btn mt-6" >
+                <div className="flex  justify-center items-center gap-2">
                   {t('verify')}
                   <MdArrowForward />
                 </div>
