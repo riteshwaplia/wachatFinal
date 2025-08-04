@@ -193,5 +193,25 @@
   "time": "समय",
   "broadcastDetails": "प्रसारण विवरण",
   "createdAt": "निर्मित",
-  "close": "बंद करें"
+  "close": "बंद करें",
+   "Project Details":"परियोजना विवरण",
+   "WhatsApp Business Profile":"व्हाट्सएप बिजनेस प्रोफ़ाइल",
+   "Project Information":"परियोजना जानकारी",
+   "Assistant Name":"सहायक का नाम",
+   "Created At":" निर्माण तिथि",
+   "WhatsApp Number":"व्हाट्सएप नंबर",
+   "Last Updated":"अंतिम अपडेट",
+   "Meta Phone Number ID":"मेटा फोन नंबर आईडी",
+   "Subscription Details":"सदस्यता विवरण",
+   "Active Plan":"सक्रिय योजना",
+   "Plan Duration":"योजना की अवधि",
+   "Business Profile Name":"व्यवसाय प्रोफ़ाइल नाम",
+   "About":"के बारे में",
+   "Industry":"उद्योग",
+   "Description":"विवरण",
+   "Address":"पता",
+   "Email":"ईमेल",
+   "Websites":"वेबसाइटें"
+
+
 } 

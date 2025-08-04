@@ -91,7 +91,7 @@ const ProjectDashboard = () => {
           <span>Last updated: {lastUpdated}</span>
           <button 
             className="p-1 rounded hover:bg-gray-100"
-            onClick={sendgroupbroadcast}
+            onClick={fetchDashboardData}
           >
             <RefreshCw size={16} />
           </button>
@@ -230,12 +230,12 @@ const ProjectDashboard = () => {
           Recent activity would be displayed here
         </div>
         <div className="mt-4 text-right">
-          <Link 
+          {/* <Link 
             to={`/project/${projectId}/activity`} 
             className="inline-flex items-center text-sm text-primary-600 hover:text-primary-800"
           >
             View all activity <ChevronRight size={16} className="ml-1" />
-          </Link>
+          </Link> */}
         </div>
       </Card>
     </div>

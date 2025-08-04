@@ -9,6 +9,8 @@ import ErrorMessage from '../ErrorMessage'; // Assuming correct path
 import { useProject } from '../../context/ProjectProvider'; // If you still use this context
 import Card from '../Card'; // Assuming correct path
 import WhatsAppBusinessProfileCard from './WhatsAppBusinessProfileCard'; // NEW: Import the new component
+import { useTranslation } from 'react-i18next';
+
 
 const ProjectDetail = () => {
   const { id } = useParams(); // This is projectId
@@ -22,7 +24,8 @@ const ProjectDetail = () => {
   const [loadingUpdateProfile, setLoadingUpdateProfile] = useState(false);
   const [errorUpdateProfile, setErrorUpdateProfile] = useState(null);
   const [successUpdateProfile, setSuccessUpdateProfile] = useState(null);
-
+  
+  const { t } = useTranslation();
 
   const fetchProjectDetails = async () => {
     try {
@@ -37,7 +40,7 @@ const ProjectDetail = () => {
       if (response.data.success) {
         setProjectData(response.data.data);
       } else {
-        setError(response.data.message || 'Failed to fetch project details.');
+        setError(response.data.message || t('Failed to fetch project details.'));
       }
     } catch (err) {
       console.error('Failed to fetch project:', err.response?.data || err.message);
@@ -94,7 +97,7 @@ const ProjectDetail = () => {
         {/* <Link to="/projects" className="text-gray-600 hover:text-gray-800">
           <FiArrowLeft size={24} />
         </Link> */}
-        <h1 className="text-3xl font-bold text-gray-800 dark:text-dark-text-primary">Project Details</h1>
+        <h1 className="text-3xl font-bold text-gray-800 dark:text-dark-text-primary">{t("Project Details")}</h1>
       </div>
 
 
@@ -154,25 +157,25 @@ const ProjectDetail = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Project Information */}
         <div className="lg:col-span-2 space-y-6">
-          <Card title="Project Information">
+          <Card title={t("Project Information")}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-4">
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Assistant Name</p>
+                  <p className="text-sm font-medium text-gray-500">{t('Assistant Name')}</p>
                   <p className="text-gray-800 dark:text-dark-text-secondary">{projectData.assistantName || 'Not specified'}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-500">WhatsApp Number</p>
+                  <p className="text-sm font-medium text-gray-500">{t('WhatsApp Number')}</p>
                   <p className="text-gray-800 dark:text-dark-text-secondary">{projectData.whatsappNumber || 'Not specified'}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Meta Phone Number ID</p>
+                  <p className="text-sm font-medium text-gray-500">{t('Meta Phone Number ID')}</p>
                   <p className="text-gray-800 dark:text-dark-text-secondary">{projectData.metaPhoneNumberID || 'Not specified'}</p>
                 </div>
               </div>
               <div className="space-y-4">
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Created At</p>
+                  <p className="text-sm font-medium text-gray-500">{t('Created At')}</p>
                   <p className="text-gray-800 dark:text-dark-text-secondary">
                     {new Date(projectData.createdAt).toLocaleDateString('en-US', {
                       year: 'numeric',
@@ -182,7 +185,7 @@ const ProjectDetail = () => {
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Last Updated</p>
+                  <p className="text-sm font-medium text-gray-500">{t('Last Updated')}</p>
                   <p className="text-gray-800 dark:text-dark-text-secondary">
                     {new Date(projectData.updatedAt).toLocaleDateString('en-US', {
                       year: 'numeric',
@@ -198,18 +201,18 @@ const ProjectDetail = () => {
 
         {/* Quick Actions */}
         <div className="space-y-4">
-          <Card title="Subscription Details">
+          <Card title={t("Subscription Details")}>
             <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Active Plan</p>
+                  <p className="text-sm font-medium text-gray-500">{t('Active Plan')}</p>
                   <p className="text-gray-800 dark:text-dark-text-secondary">{projectData.activePlan || 'No active plan'}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Plan Duration</p>
+                  <p className="text-sm font-medium text-gray-500">{t('Plan Duration')}</p>
                   <p className="text-gray-800 dark:text-dark-text-secondary">{projectData.planDuration || 0} days</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Business Profile Name</p>
+                  <p className="text-sm font-medium text-gray-500">{t('Business Profile Name')}</p>
                   <p className="text-gray-800 dark:text-dark-text-secondary">{projectData.businessProfileId?.name || 'Not linked'}</p>
                 </div>
             </div>

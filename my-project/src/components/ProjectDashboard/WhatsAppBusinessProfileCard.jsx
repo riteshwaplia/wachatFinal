@@ -360,8 +360,10 @@ import { FaWhatsapp } from 'react-icons/fa';
 import InputField from '../InputField'; // Assuming this is a reusable input component
 import Avatar from '../Avatar'; // Assuming this is a reusable Avatar component
 import { uploadMedaiData } from '../../apis/TemplateApi'; // For media upload
+import { useTranslation } from 'react-i18next';
 
 const WhatsAppBusinessProfileCard = ({ project, onUpdateProfile, loadingUpdate, errorUpdate }) => {
+  const  { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const [form, setForm] = useState({});
   const [mediaUploadLoading, setMediaUploadLoading] = useState(false);
@@ -466,7 +468,7 @@ const WhatsAppBusinessProfileCard = ({ project, onUpdateProfile, loadingUpdate, 
   return (
     <div className="bg-white rounded-2xl shadow-md p-6 border dark:bg-dark-surface dark:border-dark-border border-gray-200">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-semibold dark:text-dark-text-primary text-[#111b21]">WhatsApp Business Profile</h2>
+        <h2 className="text-xl font-semibold dark:text-dark-text-primary text-[#111b21]">{t("WhatsApp Business Profile")}</h2>
         {isEditing ? (
           <div className="flex space-x-2">
             <button
@@ -597,23 +599,23 @@ const WhatsAppBusinessProfileCard = ({ project, onUpdateProfile, loadingUpdate, 
           ) : (
             <>
               <div>
-                <p className="font-medium text-[#54656f] dark:text-dark-text-primary">About</p>
+                <p className="font-medium text-[#54656f] dark:text-dark-text-primary">{t('About')}</p>
                 <p>{project?.about || 'No about information'}</p>
               </div>
               <div>
-                <p className="font-medium text-[#54656f] dark:text-dark-text-primary">Industry</p>
+                <p className="font-medium text-[#54656f] dark:text-dark-text-primary">{t('Industry')}</p>
                 <p>{project?.vertical || 'Not specified'}</p>
               </div>
               <div>
-                <p className="font-medium text-[#54656f] dark:text-dark-text-primary">Description</p>
+                <p className="font-medium text-[#54656f] dark:text-dark-text-primary">{t('Description')}</p>
                 <p>{project?.description || 'No description provided'}</p>
               </div>
               <div>
-                <p className="font-medium text-[#54656f] dark:text-dark-text-primary">Address</p>
+                <p className="font-medium text-[#54656f] dark:text-dark-text-primary">{t('Address')}</p>
                 <p>{project?.address || 'No address provided'}</p>
               </div>
               <div>
-                <p className="font-medium text-[#54656f] dark:text-dark-text-primary">Email</p>
+                <p className="font-medium text-[#54656f] dark:text-dark-text-primary">{t('Email')}</p>
                 {project?.email ? (
                   <a href={`mailto:${project.email}`} className="text-[#25D366] hover:underline">
                     {project.email}
@@ -623,7 +625,7 @@ const WhatsAppBusinessProfileCard = ({ project, onUpdateProfile, loadingUpdate, 
                 )}
               </div>
               <div>
-                <p className="font-medium text-[#54656f] dark:text-dark-text-primary">Websites</p>
+                <p className="font-medium text-[#54656f] dark:text-dark-text-primary">{t('Websites')}</p>
                 {project?.websites?.length > 0 ? (
                   project.websites.map((url, i) => (
                     <a
