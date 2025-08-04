@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const UserProfileLayout = ({ children, sidebar = true }) => {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user, token } = useAuth();
 
   const navigate = useNavigate()
@@ -20,7 +20,7 @@ const UserProfileLayout = ({ children, sidebar = true }) => {
   useEffect(() => {
     // Run once on mount to detect device width
     const isMobile = window.innerWidth < 768; // Tailwind's md breakpoint
-    setSidebarOpen(!isMobile); // true for desktop, false for mobile
+    // setSidebarOpen(!isMobile); // true for desktop, false for mobile
   }, []);
 
   return (
@@ -41,21 +41,23 @@ const UserProfileLayout = ({ children, sidebar = true }) => {
         <StaticsSidebar
           isOpen={sidebarOpen}
           onToggle={() => setSidebarOpen(!sidebarOpen)}
+          isOff={() => (setSidebarOpen(false))}
+
         />
       )}
 
       {/* Main Content Area */}
-      <div className={`flex flex-col flex-1 transition-all duration-300 ${
-        sidebar && sidebarOpen ? 'md:ml-64' : 'ml-0 md:ml-20'
-      }`}>
-        <Header  
-        
-        onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-        
-        <main onClick={()=>{
-           if (window.innerWidth < 768) {
-      setSidebarOpen(false);
-    }}
+      <div className={`flex flex-col flex-1 transition-all duration-300 ${sidebar && sidebarOpen ? 'md:ml-64' : 'ml-0 md:ml-20'
+        }`}>
+        <Header
+
+          onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+
+        <main onClick={() => {
+          if (window.innerWidth < 768) {
+            setSidebarOpen(false);
+          }
+        }
         } className="flex-grow md:p-4 p-2 dark:bg-dark-bg-primary lg:overflow-y-auto  lg:p-8 transition-all duration-300 w-[100vw] md:w-auto  ">
           {children}
         </main>

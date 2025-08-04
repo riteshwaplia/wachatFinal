@@ -11,6 +11,7 @@ import Card from '../Card'; // Assuming correct path
 import WhatsAppBusinessProfileCard from './WhatsAppBusinessProfileCard'; // NEW: Import the new component
 import { useTranslation } from 'react-i18next';
 
+import { ErrorToast, SuccessToast } from '../../utils/Toast';
 
 const ProjectDetail = () => {
   const { id } = useParams(); // This is projectId
@@ -53,31 +54,47 @@ const ProjectDetail = () => {
   // Function to handle updating WhatsApp Business Profile
   const handleUpdateWhatsappProfile = async (profileData) => {
     setLoadingUpdateProfile(true);
-    setErrorUpdateProfile(null);
-    setSuccessUpdateProfile(null);
+
     try {
-      const response = await api.put(`/project/${id}/whatsapp-business-profile`, profileData, {
-        headers: {
-          Authorization: `Bearer ${token}`
+      const response = await api.put(
+        `/project/${id}/whatsapp-business-profile`,
+        profileData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
         }
-      });
-      if (response.data.success) {
-        setSuccessUpdateProfile(response.data.message || 'WhatsApp Business Profile updated successfully!');
-        // Re-fetch project details to get the latest data from the database
+      );
+
+      const { success, message } = response.data;
+
+      if (success) {
+        SuccessToast(message || 'WhatsApp Business Profile updated successfully!', { autoClose: 3000 });
+
+        // ✅ Re-fetch project details to get the latest data
         await fetchProjectDetails();
       } else {
-        setErrorUpdateProfile(response.data.message || 'Failed to update WhatsApp Business Profile.');
+        // ✅ Show proper error toast
+        ErrorToast(
+          message?.includes('Session has expired')
+            ? 'Your session has expired. Please reconnect your WhatsApp account.'
+            : message || 'Failed to update WhatsApp Business Profile.',
+          { autoClose: 3000 }
+        );
       }
+
     } catch (err) {
       console.error('Error updating WhatsApp Business Profile:', err.response?.data || err.message);
-      setErrorUpdateProfile(err.response?.data?.message || 'Failed to update WhatsApp Business Profile.');
+
+      const errMsg = err.response?.data?.message || 'Failed to update WhatsApp Business Profile.';
+      ErrorToast(
+        errMsg.includes('Session has expired')
+          ? 'Your session has expired. Please reconnect your WhatsApp account.'
+          : errMsg,
+        { autoClose: 3000 }
+      );
     } finally {
       setLoadingUpdateProfile(false);
-      // Clear success/error messages after a few seconds
-      setTimeout(() => {
-        setSuccessUpdateProfile(null);
-        setErrorUpdateProfile(null);
-      }, 5000);
     }
   };
 
@@ -102,56 +119,56 @@ const ProjectDetail = () => {
 
 
       {/* Project Header */}
-        <div className="bg-indigo-600 dark:bg-dark-surface px-6 py-4 text-white rounded-t-lg shadow-md"> {/* Changed color to indigo for consistency */}
-          <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold font-heading">{projectData.name}</h1>
-            <div className="flex space-x-2">
-              {/* <button
+      <div className="bg-indigo-600 dark:bg-dark-surface px-6 py-4 text-white rounded-t-lg shadow-md"> {/* Changed color to indigo for consistency */}
+        <div className="flex justify-between items-center">
+          <h1 className="text-2xl font-bold font-heading">{projectData.name}</h1>
+          <div className="flex space-x-2">
+            {/* <button
                 onClick={() => navigate(`/projects/${id}/edit`)} 
                 className="p-2 rounded-full hover:bg-indigo-700 transition-colors"
                 aria-label="Edit project"
               >
                 <FiEdit size={18} />
               </button> */}
-              {/* Add delete button if desired */}
-            </div>
-          </div>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {projectData.isWhatsappVerified && (
-              <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full"> {/* Changed colors */}
-                WhatsApp Verified
-              </span>
-            )}
-            <span className="bg-gray-100 text-gray-800 dark:text-dark-text-primary text-xs px-2 py-1 rounded-full">
-              {projectData.businessProfileId?.name || 'No Business Profile'} {/* Display Business Profile Name */}
-            </span>
-            <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full"> {/* Changed colors */}
-              {projectData.activePlan || 'No plan'}
-            </span>
+            {/* Add delete button if desired */}
           </div>
         </div>
+        <div className="mt-2 flex flex-wrap gap-2">
+          {projectData.isWhatsappVerified && (
+            <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full"> {/* Changed colors */}
+              WhatsApp Verified
+            </span>
+          )}
+          <span className="bg-gray-100 text-gray-800 dark:text-dark-text-primary text-xs px-2 py-1 rounded-full">
+            {projectData.businessProfileId?.name || 'No Business Profile'} {/* Display Business Profile Name */}
+          </span>
+          <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full"> {/* Changed colors */}
+            {projectData.activePlan || 'No plan'}
+          </span>
+        </div>
+      </div>
 
-        {/* WhatsApp Business Profile Card */}
-        {projectData && (
-          <WhatsAppBusinessProfileCard
-            project={projectData}
-            onUpdateProfile={handleUpdateWhatsappProfile}
-            loadingUpdate={loadingUpdateProfile}
-            errorUpdate={errorUpdateProfile}
-          />
-        )}
-        {successUpdateProfile && (
-          <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
-            <strong className="font-bold">Success!</strong>
-            <span className="block sm:inline"> {successUpdateProfile}</span>
-          </div>
-        )}
-        {errorUpdateProfile && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-            <strong className="font-bold">Error!</strong>
-            <span className="block sm:inline"> {errorUpdateProfile}</span>
-          </div>
-        )}
+      {/* WhatsApp Business Profile Card */}
+      {projectData && (
+        <WhatsAppBusinessProfileCard
+          project={projectData}
+          onUpdateProfile={handleUpdateWhatsappProfile}
+          loadingUpdate={loadingUpdateProfile}
+          errorUpdate={errorUpdateProfile}
+        />
+      )}
+      {successUpdateProfile && (
+        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+          <strong className="font-bold">Success!</strong>
+          <span className="block sm:inline"> {successUpdateProfile}</span>
+        </div>
+      )}
+      {errorUpdateProfile && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+          <strong className="font-bold">Error!</strong>
+          <span className="block sm:inline"> {errorUpdateProfile}</span>
+        </div>
+      )}
 
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

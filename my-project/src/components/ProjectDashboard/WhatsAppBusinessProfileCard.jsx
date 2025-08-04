@@ -354,6 +354,7 @@
 
 // export default WhatsAppBusinessProfileCard;
 // client/src/components/ProjectDetail/WhatsAppBusinessProfileCard.js
+
 import React, { useState, useEffect } from 'react';
 import { FiEdit2, FiExternalLink, FiCheck, FiX, FiUploadCloud } from 'react-icons/fi';
 import { FaWhatsapp } from 'react-icons/fa';
@@ -361,6 +362,7 @@ import InputField from '../InputField'; // Assuming this is a reusable input com
 import Avatar from '../Avatar'; // Assuming this is a reusable Avatar component
 import { uploadMedaiData } from '../../apis/TemplateApi'; // For media upload
 import { useTranslation } from 'react-i18next';
+import { validateWhatsAppBusinessProfile } from '../../utils/validation';
 
 const WhatsAppBusinessProfileCard = ({ project, onUpdateProfile, loadingUpdate, errorUpdate }) => {
   const  { t } = useTranslation();
@@ -368,7 +370,7 @@ const WhatsAppBusinessProfileCard = ({ project, onUpdateProfile, loadingUpdate, 
   const [form, setForm] = useState({});
   const [mediaUploadLoading, setMediaUploadLoading] = useState(false);
   const [mediaUploadError, setMediaUploadError] = useState(null);
-
+  const [errors, setError] = useState({})
   // Initialize form state when project prop changes or on first load
   useEffect(() => {
     if (project) {
@@ -435,6 +437,14 @@ const WhatsAppBusinessProfileCard = ({ project, onUpdateProfile, loadingUpdate, 
   const handleSave = () => {
     // Call the parent's update function with the form data
     // Only send fields that are part of Meta's API payload
+
+    const validationErrors = validateWhatsAppBusinessProfile(form);
+    console.log("validationErrors", validationErrors)
+    if (Object.keys(validationErrors).length > 0) {
+      setError(validationErrors); // Show errors in form
+      return;
+    }
+
     const payload = {
       about: form.about,
       address: form.address,
@@ -534,6 +544,8 @@ const WhatsAppBusinessProfileCard = ({ project, onUpdateProfile, loadingUpdate, 
                 value={form.about}
                 onChange={(e) => handleChange('about', e.target.value)}
                 maxLength={139} // Meta's limit
+                error={errors.about}
+                helperText={errors.about}
               />
               <div>
                 <label className="block text-sm font-medium text-[#54656f] mb-1">
@@ -578,22 +590,30 @@ const WhatsAppBusinessProfileCard = ({ project, onUpdateProfile, loadingUpdate, 
                 label="Description"
                 value={form.description}
                 onChange={(e) => handleChange('description', e.target.value)}
+                error={errors.description}
+                helperText={errors.description}
               />
               <InputField
                 label="Address"
                 value={form.address}
                 onChange={(e) => handleChange('address', e.target.value)}
+                  error={errors.address}
+                helperText={errors.address}
               />
               <InputField
                 label="Email"
                 value={form.email}
                 onChange={(e) => handleChange('email', e.target.value)}
                 type="email"
+                 error={errors.email}
+                helperText={errors.email}
               />
               <InputField
                 label="Websites (comma-separated)"
                 value={form.websites?.join(', ')}
                 onChange={handleWebsitesChange}
+                 error={errors.websites}
+                helperText={errors.websites}
               />
             </>
           ) : (
@@ -647,8 +667,14 @@ const WhatsAppBusinessProfileCard = ({ project, onUpdateProfile, loadingUpdate, 
         </div>
       </div>
 
-      {/* WhatsApp Badge */}
-      {/* <div className="mt-6 pt-4 border-t border-[#e9edef] flex flex-col md:flex-row justify-between items-center gap-4">
+
+    </div>
+  );
+};
+
+export default WhatsAppBusinessProfileCard;
+{/* WhatsApp Badge */ }
+{/* <div className="mt-6 pt-4 border-t border-[#e9edef] flex flex-col md:flex-row justify-between items-center gap-4">
         <div className="flex items-center gap-2">
           <div className="bg-[#25D366] w-7 h-7 rounded-full flex items-center justify-center">
             <FaWhatsapp className="text-white text-lg" />
@@ -662,8 +688,3 @@ const WhatsAppBusinessProfileCard = ({ project, onUpdateProfile, loadingUpdate, 
           Contact Business
         </button>
       </div> */}
-    </div>
-  );
-};
-
-export default WhatsAppBusinessProfileCard;

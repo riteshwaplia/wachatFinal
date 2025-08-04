@@ -24,6 +24,10 @@ const UserSidebar = ({ isOpen, onToggle, isOff }) => {
   const { logoUrl } = siteConfig;
 
 
+
+
+
+
   const navItems = [
     ...(id ? [{
       label: 'Project Dashboard',
@@ -37,7 +41,7 @@ const UserSidebar = ({ isOpen, onToggle, isOff }) => {
         path: `/project/${id}/project-details`,
         icon: <Briefcase size={18} />
       },
-          {
+      {
         label: 'Groups',
         path: `/project/${id}/group`,
         icon: <Users size={18} />
@@ -47,7 +51,7 @@ const UserSidebar = ({ isOpen, onToggle, isOff }) => {
         path: `/project/${id}/contacts`,
         icon: <Phone size={18} />
       },
-  
+
       {
         label: 'Templates',
         path: `/project/${id}/templates`,
@@ -76,6 +80,7 @@ const UserSidebar = ({ isOpen, onToggle, isOff }) => {
     ] : []),
   ];
 
+
   const isActive = (path) => {
     if (path === '/projects') {
       return location.pathname === '/projects';
@@ -84,7 +89,7 @@ const UserSidebar = ({ isOpen, onToggle, isOff }) => {
   };
 
   return (
-    <aside className={`bg-white dark:bg-dark-bg-primary dark:text-dark-text-primary h-screen dark:border-dark-border shadow-lg fixed top-0 left-0 flex flex-col border-r border-gray-200 z-30 transition-all duration-300 ${isOpen ? 'md:w-64 ' : 'md:w-20 w-0 md:z-[100] z-0'
+    <aside onMouseEnter={() => onToggle()} onMouseLeave={() => isOff()} className={`bg-white dark:bg-dark-bg-primary dark:text-dark-text-primary h-screen dark:border-dark-border shadow-lg fixed top-0 left-0 flex flex-col border-r border-gray-200 z-30 transition-all duration-300 ${isOpen ? 'md:w-64 ' : 'md:w-20 w-0 md:z-[100] z-0'
       }`}>
       <div className="p-4 flex items-center justify-between ">
         {isOpen ? (
@@ -112,7 +117,7 @@ const UserSidebar = ({ isOpen, onToggle, isOff }) => {
                 <img
                   src={logoUrl}
                   alt="Company Logo"
-                  // className="w-auto h-12"
+                // className="w-auto h-12"
                 />
               ) : (
                 "SabNode".slice(0, 1)
@@ -126,7 +131,7 @@ const UserSidebar = ({ isOpen, onToggle, isOff }) => {
         )}
         <button
           onClick={onToggle}
-          className="p-1 rounded-md hidden lg:flex hover:bg-gray-100 text-gray-500 dark:text-dark-text-primary hover:text-gray-700 transition-colors"
+          className="p-1 rounded-md hidden  hover:bg-gray-100 text-gray-500 dark:text-dark-text-primary hover:text-gray-700 transition-colors"
           aria-label={isOpen ? 'Collapse sidebar' : 'Expand sidebar'}
         >
           {isOpen ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}

@@ -370,7 +370,7 @@ const SendMessagePage = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6 dark:bg-dark-surface bg-white rounded-lg shadow-md mt-8">
+    <div className="space-y-6 p-6"> {/* Added padding for better layout */}
       <div className="flex border-b mb-6">
         <button
           className={`py-2 px-4 font-medium ${

@@ -144,8 +144,8 @@ const LiveChatPage = () => {
     if (!file) return;
 
     const validTypes = [
-      "image/jpeg", "image/png", "application/pdf", 
-      "audio/mpeg", "audio/mp3", "audio/wav", 
+      "image/jpeg", "image/png", "application/pdf",
+      "audio/mpeg", "audio/mp3", "audio/wav",
       "video/mp4", "video/webm", "video/quicktime"
     ];
 
@@ -216,7 +216,7 @@ const LiveChatPage = () => {
 
     try {
       setIsLoading(prev => ({ ...prev, sending: true }));
-      
+
       const endpoint = `/projects/${projectId}/conversations/${selectedConversation._id}/messages`;
       let payload = { messageType };
 
@@ -299,14 +299,14 @@ const LiveChatPage = () => {
           .map(conv =>
             conv._id === selectedConversation._id
               ? {
-                  ...conv,
-                  latestMessage: messageType === "text" 
-                    ? newMessageText.trim() 
-                    : `[${messageType} message]`,
-                  latestMessageType: messageType,
-                  lastActivityAt: new Date(),
-                  unreadCount: 0,
-                }
+                ...conv,
+                latestMessage: messageType === "text"
+                  ? newMessageText.trim()
+                  : `[${messageType} message]`,
+                latestMessageType: messageType,
+                lastActivityAt: new Date(),
+                unreadCount: 0,
+              }
               : conv
           )
           .sort((a, b) => new Date(b.lastActivityAt) - new Date(a.lastActivityAt))
@@ -386,7 +386,7 @@ const LiveChatPage = () => {
         const existingConvIndex = prev.findIndex(
           conv => conv._id === data.conversation._id
         );
-        
+
         if (existingConvIndex > -1) {
           const updated = [...prev];
           updated[existingConvIndex] = {
@@ -545,7 +545,7 @@ const LiveChatPage = () => {
               </a>
             )}
             {msg.message.id && (
-              <button 
+              <button
                 onClick={() => handleDownloadMedia(msg.message.id)}
                 className="text-blue-500 underline text-sm"
               >
@@ -579,11 +579,10 @@ const LiveChatPage = () => {
             conversations.map((conv) => (
               <div
                 key={conv._id}
-                className={`flex p-3 dark:text-dark-text-primary dark:border-dark-border dark:bg-dark-surface cursor-pointer border-b border-gray-200 hover:bg-gray-100 transition duration-150 ${
-                  selectedConversation?._id === conv._id
+                className={`flex p-3 dark:text-dark-text-primary dark:border-dark-border dark:bg-dark-surface cursor-pointer border-b border-gray-200 hover:bg-gray-100 transition duration-150 ${selectedConversation?._id === conv._id
                     ? "bg-gray-100 border-l-4 border-blue-500"
                     : ""
-                }`}
+                  }`}
                 onClick={() => handleConversationSelect(conv)}
               >
                 <div className="flex-grow">
@@ -676,24 +675,21 @@ const LiveChatPage = () => {
                 messages.map((msg) => (
                   <div
                     key={msg._id}
-                    className={`flex ${
-                      msg.direction === "outbound" ? "justify-end" : "justify-start"
-                    }`}
+                    className={`flex ${msg.direction === "outbound" ? "justify-end" : "justify-start"
+                      }`}
                   >
                     <div
-                      className={`max-w-xs p-3 rounded-lg dark:bg-dark-surface dark:text-dark-text-primary dark:border-dark-surface shadow-sm ${
-                        msg.direction === "outbound"
+                      className={`max-w-xs p-3 rounded-lg dark:bg-dark-surface dark:text-dark-text-primary dark:border-dark-surface shadow-sm ${msg.direction === "outbound"
                           ? "bg-blue-500 text-white"
                           : "bg-white text-gray-800 border border-gray-200"
-                      }`}
+                        }`}
                     >
                       {renderMessageContent(msg)}
                       <p
-                        className={`text-xs mt-1 flex items-center ${
-                          msg.direction === "outbound"
+                        className={`text-xs mt-1 flex items-center ${msg.direction === "outbound"
                             ? "text-blue-100"
                             : "text-gray-500"
-                        }`}
+                          }`}
                       >
                         {new Date(msg.sentAt).toLocaleTimeString([], {
                           hour: '2-digit',
@@ -723,11 +719,10 @@ const LiveChatPage = () => {
                   <button
                     key={type}
                     type="button"
-                    className={`px-3 py-1 dark:bg-dark-bg-primary dark:text-dark-text-primary text-sm rounded transition ${
-                      messageType === type
+                    className={`px-3 py-1 dark:bg-dark-bg-primary dark:text-dark-text-primary text-sm rounded transition ${messageType === type
                         ? "bg-blue-500 text-white"
                         : "bg-gray-200 hover:bg-gray-300"
-                    }`}
+                      }`}
                     onClick={() => {
                       setMessageType(type);
                       if (["image", "video", "audio"].includes(type)) {
@@ -749,10 +744,10 @@ const LiveChatPage = () => {
                     messageType === "image"
                       ? "image/*"
                       : messageType === "video"
-                      ? "video/*"
-                      : messageType === "audio"
-                      ? "audio/*"
-                      : "*"
+                        ? "video/*"
+                        : messageType === "audio"
+                          ? "audio/*"
+                          : "*"
                   }
                   className="hidden"
                 />
@@ -789,8 +784,8 @@ const LiveChatPage = () => {
                     messageType === "text"
                       ? "Type a message..."
                       : messageType === "template"
-                      ? "Add template parameters..."
-                      : "Add a caption (optional)..."
+                        ? "Add template parameters..."
+                        : "Add a caption (optional)..."
                   }
                   value={newMessageText}
                   onChange={(e) => setNewMessageText(e.target.value)}
