@@ -209,6 +209,7 @@ const SendMessagePage = () => {
       setBulkContactsFile(null);
       setBulkTemplateName("");
       document.getElementById("bulkContactsFile").value = "";
+      navigate(-1)
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to send bulk messages");
       console.error("Bulk send error:", error);
@@ -461,7 +462,7 @@ const SendMessagePage = () => {
 
             {renderHeaderImageUpload()}
 
-            <div>
+            {/* <div>
               <label className="block dark:text-dark-text-primary font-medium mb-1">Template Components</label>
               <textarea
                 className="w-full border dark:text-dark-text-primary dark:bg-dark-surface dark:border-dark-border rounded-md p-2 font-mono text-sm h-32"
@@ -470,7 +471,7 @@ const SendMessagePage = () => {
                 placeholder="JSON components will auto-populate when template is selected"
                 readOnly={!!bulkTemplateName}
               />
-            </div>
+            </div> */}
 
             {renderTemplatePreview()}
 
