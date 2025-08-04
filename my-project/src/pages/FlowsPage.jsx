@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import { getFlowsApi } from '../apis/FlowApi';
+import { motion } from "framer-motion";
 
 
 
@@ -77,40 +78,61 @@ const FlowsPage = () => {
   );
 };
 
-const FlowCard = ({ flow, onOpen }) => (
-  <div className="bg-white rounded-xl shadow hover:shadow-md transition-shadow p-5 flex flex-col justify-between gap-3 border border-gray-100">
-    <div className="space-y-1">
-      <h2 className="text-xl font-semibold text-black">{flow.name}</h2>
-      <p className="text-sm text-gray-600">{flow.description}</p>
 
-      <div className="mt-2 flex flex-col sm:flex-row sm:items-center sm:justify-between text-sm text-gray-700">
-        <div>
-          <span className="font-medium text-black">entry point:</span>{" "}
-          {flow.triggerKeyword || "N/A"}
+const FlowCard = ({ flow, onOpen }) => (
+  <motion.div
+    className="max-w-sm w-full bg-white rounded-2xl shadow-md border border-primary-100 
+               hover:shadow-xl transition-shadow duration-300 mx-auto"
+    whileHover={{ scale: 1.03 }}
+    whileTap={{ scale: 0.98 }}
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.3 }}
+  >
+    <div className="p-5 space-y-4">
+
+      {/* Header with Name & Entry */}
+      <div className="flex items-start justify-between">
+        <div className="flex-1">
+          <h2 className="text-lg font-bold text-primary-800 truncate">{flow.name}</h2>
+          <p className="text-xs text-gray-500 mt-0.5 truncate">
+            Entry Keyword:
+            <span className="ml-1 font-semibold text-secondary-500">
+              {flow.triggerKeyword || "N/A"}
+            </span>
+          </p>
         </div>
-        <div className="mt-1 sm:mt-0">
-          <span
-            className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${flow.status === true
-              ? "bg-green-100 text-green-800"
-              : flow.status === false
-                ? "bg-yellow-100 text-yellow-800"
-                : "bg-gray-200 text-gray-700"
-              }`}
-          >
-            {flow.status === true ? "Active" : "inActive"}
-          </span>
-        </div>
+
+        {/* Status badge */}
+        <span
+          className={`px-2 py-0.5 rounded-full text-[10px] font-semibold mt-1 shrink-0 ${flow.status
+              ? "bg-secondary-100 text-secondary-700"
+              : "bg-primary-100 text-primary-700"
+            }`}
+        >
+          {flow.status ? "Active" : "Inactive"}
+        </span>
+      </div>
+
+      {/* Description */}
+      <p className="text-xs text-gray-600 line-clamp-2">{flow.description}</p>
+
+      {/* Footer Button */}
+      <div className="pt-2 flex justify-end">
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => onOpen(flow._id)}
+          className="px-4 py-1.5 rounded-lg bg-primary-500 hover:bg-primary-600 
+                     text-white text-xs font-medium shadow transition"
+        >
+          Open Flow
+        </motion.button>
       </div>
     </div>
-
-    <button
-      className="mt-4 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-sm font-medium text-black rounded-md"
-      onClick={() => onOpen(flow._id)}
-    >
-      Open Flow
-    </button>
-  </div>
+  </motion.div>
 );
+
 
 
 export default FlowsPage;

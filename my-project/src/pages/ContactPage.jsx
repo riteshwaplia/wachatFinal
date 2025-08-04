@@ -51,7 +51,7 @@ import {
     FileText
 } from 'lucide-react';
 import { object } from 'prop-types';
-import AddCustomFieldModal from './TeamMembers';
+import AddCustomFieldModal from './AddCustomFields';
 import { useTranslation } from 'react-i18next';
 import { ErrorToast } from '../utils/Toast';
 
@@ -529,7 +529,7 @@ const ContactPage = () => {
         setMessage('');
         setMessageType('info');
 
-        
+
 
         try {
             if (!formData.name || !formData.mobileNumber) {
@@ -539,14 +539,13 @@ const ContactPage = () => {
             }
 
             const payload = {
-                ...formData, // includes all custom fields dynamically added
+                ...formData,
                 name: formData.name,
                 email: formData.email,
-                mobileNumber: formData.mobileNumber, // explicitly set from MobileNumber component
+                mobileNumber: formData.mobileNumber,
                 groupIds: formData.groupIds || [],
                 isBlocked: formData.isBlocked ?? false,
             };
-
 
             const endpoint = editingContact
                 ? `/projects/${projectId}/contacts/updateContact/${editingContact._id}`
@@ -556,19 +555,28 @@ const ContactPage = () => {
 
             const res = await api[method](endpoint, payload);
 
-            setMessage(res.data.message || `Contact ${editingContact ? 'updated' : 'created'} successfully!`);
-            setMessageType('success');
-            setIsModalOpen(false);
-            setEditingContact(null);
-            fetchData();
+            // ✅ Check if the API returned success
+            if (res.data.success) {
+                setMessage(res.data.message || `Contact ${editingContact ? 'updated' : 'created'} successfully!`);
+                setMessageType('success');
+                setIsModalOpen(false);
+                setEditingContact(null);
+                fetchData();
+            } else {
+                // API returned success:false
+                setMessage(res.data.message || 'Failed to save contact.');
+                setMessageType('error');
+            }
         } catch (error) {
-            console.error('Error saving contact:', error);
-            ErrorToast(error || "something went wrong")
-            setMessage(`Error: ${error.response?.data?.message || 'Failed to save contact.'}`);
-            setMessageType('error');
+            const msg = error?.response?.data.message
+            console.error('Error saving contact:', msg);
+            ErrorToast(msg || "something went wrong");
+            // setMessage(`Error: ${error.response?.data?.message || 'Failed to save contact.'}`);
+            // setMessageType('error');
         } finally {
             setIsSubmitting(false);
         }
+
     };
     //groupoptions
     const groupOptions = groups.map(group => ({
@@ -721,13 +729,13 @@ const ContactPage = () => {
     // if (isLoading && !message) {
     //     return <LoadingSpinner fullPage message="Loading contact data..." />;
     // }
-const handleSearchChange = (e) => {
-  const raw = e.target.value;
-  const sanitized = raw.replace(/[^a-zA-Z0-9@ ]/g, ''); // allows a-z, A-Z, 0-9, space, @
-  setSearchTerm(sanitized);
-};
+    const handleSearchChange = (e) => {
+        const raw = e.target.value;
+        const sanitized = raw.replace(/[^a-zA-Z0-9@ ]/g, ''); // allows a-z, A-Z, 0-9, space, @
+        setSearchTerm(sanitized);
+    };
     return (
-        <div className="md:max-w-7xl  p-3 w-full  mx-auto  md:px-6 lg:px-8 py-8">
+        <div className="space-y-6 p-6"> {/* Added padding for better layout */}
 
             {showDeleteConfirmModal && (
                 <Modal
@@ -807,11 +815,11 @@ const handleSearchChange = (e) => {
                             {t('manageProjectContacts')}
                         </p>
                     </div>
-                    <div className="flex items-center space-x-1 md:space-x-3">
+                    <div className="flex items-center space-x-1 md:space-x-3 gap-6">
                         <Button
                             onClick={() => { setEditingContact(null); setIsModalOpen(true); }}
                             variant="primary"
-                            className="flex items-center space-x-2 shadow-sm"
+                            className="flex  items-center space-x-2 shadow-sm"
                         >
                             <PlusCircle size={20} />
                             <span>{t('newContact')}</span>
@@ -875,8 +883,8 @@ const handleSearchChange = (e) => {
             </div>
 
             {/* Search Bar */}
-            <div className="mb-6 flex justify-between items-center">
-                <div className="relative rounded-md shadow-sm max-w-md">
+            <div className="mb-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                <div className="relative w-full lg:max-w-md">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <Search className="h-4 w-4 text-gray-400" />
                     </div>
@@ -904,9 +912,11 @@ const handleSearchChange = (e) => {
                     )}
 
                 </div>
-                <div className="flex flex-row gap-3">
-                    <Button onClick={handleOpenAddModal}>{t('addNewField')}</Button>
-                    <Button onClick={handleOpenShowModal}>{t('showField')}</Button>
+
+                <div className="flex flex-wrap items-center justify-end gap-3 w-full lg:w-auto">
+
+                    <Button className='' onClick={handleOpenAddModal}>{t('addNewField')}</Button>
+                    <Button className='' onClick={handleOpenShowModal}>{t('showField')}</Button>
 
                     {activeModal === 'add' && (
                         <AddCustomFieldModal
@@ -924,26 +934,23 @@ const handleSearchChange = (e) => {
                             fields={fields}
                         />
                     )}
-                </div>
-
-
-                {(selectedrows.length > 0 || blcakListSelectedrows.length > 0) && (
-                    <div className="relative">
-                        <Button
-                            variant="secondary"
-                            onClick={() => setIsbulkOption(!isbulkOption)}
-                            className="flex items-center space-x-2"
-                        >
-                            <span>{t('bulkActions')}</span>
-                            <FiChevronDown
-                                className={`transition-transform ${isbulkOption ? "transform rotate-180" : ""
-                                    }`}
-                            />
-                        </Button>
+                    {(selectedrows.length > 0 || blcakListSelectedrows.length > 0) && (
+                        <div className="relative">
+                            <Button
+                                variant="secondary"
+                                onClick={() => setIsbulkOption(!isbulkOption)}
+                                className="flex items-center space-x-2"
+                            >
+                                <span>{t('bulkActions')}</span>
+                                <FiChevronDown
+                                    className={`transition-transform ${isbulkOption ? "transform rotate-180" : ""
+                                        }`}
+                                />
+                            </Button>
 
 
 
-                        {/* 
+                            {/* 
                                <button
                                     onClick={() => {
                                       if (
@@ -959,23 +966,23 @@ const handleSearchChange = (e) => {
                                   >
                                     <FiTrash2 className="mr-2" /> Delete
                                   </button> */}
-                        {isbulkOption
+                            {isbulkOption
 
-                            && (
-                                <div className="absolute right-0 dark:bg-dark-surface mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
-                                    <button
-                                        disabled={isLoading}
-                                        onClick={() => {
-                                            handleBlockContact();
-                                            // setIsBulkActionsOpen(false); // This variable is not defined
-                                        }}
-                                        className="flex items-center px-4 py-2 dark:text-dark-text-primary text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
-                                    >
-                                        {activeTab === 'contactList' ? <><FiArchive className="mr-2" /> {t('blockContacts')} </> : <><FiUnlock className="mr-2" /> {t('unBlockContacts')}</>}
-                                    </button>
+                                && (
+                                    <div className="absolute right-0 dark:bg-dark-surface mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+                                        <button
+                                            disabled={isLoading}
+                                            onClick={() => {
+                                                handleBlockContact();
+                                                // setIsBulkActionsOpen(false); // This variable is not defined
+                                            }}
+                                            className="flex items-center px-4 py-2 dark:text-dark-text-primary text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                                        >
+                                            {activeTab === 'contactList' ? <><FiArchive className="mr-2" /> {t('blockContacts')} </> : <><FiUnlock className="mr-2" /> {t('unBlockContacts')}</>}
+                                        </button>
 
 
-                                    {/* <button
+                                        {/* <button
                                         onClick={() => {
                                             // bulkDeleteContact()
                                               if (
@@ -992,22 +999,26 @@ const handleSearchChange = (e) => {
                                         <FiTrash2 className="mr-2" /> {t('delete')}
                                         <FiTrash2 className="mr-2" /> Delete
                                     </button> */}
-                                    <button
-                                        variant="ghost"
-                                        onClick={() => {
-                                            setShowDeleteConfirmModal(true);
-                                            setIsBulkActionsOpen(false);
-                                        }}
-                                        className="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 w-full text-left"
+                                        <button
+                                            variant="ghost"
+                                            onClick={() => {
+                                                setShowDeleteConfirmModal(true);
+                                                setIsBulkActionsOpen(false);
+                                            }}
+                                            className="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 w-full text-left"
 
-                                    >
-                                        <FiTrash2 className="mr-2" /> Delete
-                                    </button>
+                                        >
+                                            <FiTrash2 className="mr-2" /> Delete
+                                        </button>
 
-                                </div>
-                            )}
-                    </div>
-                )}
+                                    </div>
+                                )}
+                        </div>
+                    )}
+                </div>
+
+
+
             </div>
 
             {/* Tab Content */}
@@ -1054,7 +1065,7 @@ const handleSearchChange = (e) => {
 
                                     {isLoading ? (<div className="flex justify-center items-center h-64">
                                         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
-                                    </div>) : ( 
+                                    </div>) : (
                                         <table onClick={() => setIsbulkOption(false)} className="min-w-full dark:divide-dark-border  divide-gray-200">
 
                                             <thead className="bg-gray-50 dark:bg-dark-surface   overflow-auto">

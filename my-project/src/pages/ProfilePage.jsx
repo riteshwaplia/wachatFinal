@@ -29,7 +29,7 @@ export default function ProfilePage() {
   const [errors, setErrors] = useState({});
   const [isEditable, setIsEditable] = useState(false);
   const [data, setData] = useState({});
-  const [loading,setloading] = useState(false);
+  const [loading, setloading] = useState(false);
   console.log("data", data);
   const [user, setUser] = useState({
     firstName: "",
@@ -63,8 +63,8 @@ export default function ProfilePage() {
         console.log("res=>>>>>>>", res.data._id)
         setUserId(res?.data?._id)
         setUser({
-          firstName:res.data.firstName,
-          lastName:res.data.lastName,
+          firstName: res.data.firstName,
+          lastName: res.data.lastName,
           userName: res.data.username || '',
           email: res.data.email || '',
           mobile: res.data.mobileNumber || '',
@@ -101,14 +101,14 @@ export default function ProfilePage() {
 
   console.log("userId", userId)
 
-const handleChange = (key, value) => {
-  if ((key === 'firstName' || key === 'lastName') && /[^A-Za-z]/.test(value)) {
-    return; // Disallow non-alphabetic input
-  }
+  const handleChange = (key, value) => {
+    if ((key === 'firstName' || key === 'lastName') && /[^A-Za-z]/.test(value)) {
+      return; // Disallow non-alphabetic input
+    }
 
-  setUser((prev) => ({ ...prev, [key]: value }));
-  if (errors[key]) setErrors((prev) => ({ ...prev, [key]: '' }));
-};
+    setUser((prev) => ({ ...prev, [key]: value }));
+    if (errors[key]) setErrors((prev) => ({ ...prev, [key]: '' }));
+  };
 
 
 
@@ -119,17 +119,17 @@ const handleChange = (key, value) => {
     const newErrors = {};
     const nameRegex = /^[A-Za-z]+$/;
 
-  if (!user.firstName) {
-    newErrors.firstName = 'Firstname is required';
-  } else if (!nameRegex.test(user.firstName)) {
-    newErrors.firstName = 'Only alphabets are allowed in first name';
-  }
+    if (!user.firstName) {
+      newErrors.firstName = 'Firstname is required';
+    } else if (!nameRegex.test(user.firstName)) {
+      newErrors.firstName = 'Only alphabets are allowed in first name';
+    }
 
-  if (!user.lastName) {
-    newErrors.lastName = 'Lastname is required';
-  } else if (!nameRegex.test(user.lastName)) {
-    newErrors.lastName = 'Only alphabets are allowed in last name';
-  }
+    if (!user.lastName) {
+      newErrors.lastName = 'Lastname is required';
+    } else if (!nameRegex.test(user.lastName)) {
+      newErrors.lastName = 'Only alphabets are allowed in last name';
+    }
     if (!user.mobile) newErrors.phonenumber = 'Mobile is required';
 
     // if (!user.companySize) newErrors.companySize = 'Company size is required';
@@ -173,19 +173,20 @@ const handleChange = (key, value) => {
       };
 
       console.log("useridddd", userId)
-const response = await api.put(
-  `/users/update-self/${userId}`,
-  payload,
-  {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  }
-);
+      const response = await api.put(
+        `/users/update-self/${userId}`,
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
 
       if (response?.data?.success) {
         toast.success('User profile updated successfully:', response.data);
         // Optionally show success toast or redirect
+        setIsEditable(false)
       } else {
         toast.error('Update failed:', response.data?.message);
         // Optionally show error toast
@@ -194,11 +195,11 @@ const response = await api.put(
       console.error('API error:', error);
       // Optionally show error toast
     }
-    finally{
+    finally {
       setloading(false);
     }
   };
-  
+
 
 
   const industryOptions = INDUSTRY_TYPES.map((i) => ({ value: i, label: i }));
@@ -258,7 +259,7 @@ const response = await api.put(
               <InputField label="Last Name" error={errors.lastName} value={user.lastName} onChange={(e) => handleChange('lastName', e.target.value)} type="text" placeholder="Enter last name here..." disabled={!isEditable} />
               <InputField disable={true} label="Email" value={user.email} onChange={(e) => handleChange('email', e.target.value)} type="email" placeholder="Enter your email here..." />
               <InputField label="Username" error={errors.username} value={user.userName} onChange={(e) => handleChange('userName', e.target.value)} type="text" placeholder="Enter your username here..." disabled={!isEditable} />
-             {/* <div className="mb-4">
+              {/* <div className="mb-4">
 
 
   <label className="block text-sm font-medium text-[var(--color-txtsecondary)] mb-1">
@@ -280,7 +281,7 @@ const response = await api.put(
 </div> */}
 
 
-{/*              
+              {/*              
               <div className="mb-4">
   <label className="block text-sm font-medium text-gray-700 mb-1">
     Date of Birth

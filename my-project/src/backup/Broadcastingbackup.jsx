@@ -40,14 +40,14 @@ const cleanTemplateComponents = (components) => {
 
 const SendMessagePage = () => {
   const { user, token } = useAuth();
-  const { id:projectId } = useParams(); // FIX: Changed from 'id' to 'projectId'
+  const { id: projectId } = useParams(); // FIX: Changed from 'id' to 'projectId'
   const navigate = useNavigate();
   const customer_name = user?.username || user?.email || "User"; // Use username or email
 
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("group"); // 'single' or 'bulk'
-  
+
   // Single message state
   const [singleRecipient, setSingleRecipient] = useState("");
   const [singleMessageType, setSingleMessageType] = useState("text");
@@ -66,17 +66,17 @@ const SendMessagePage = () => {
   const [bulkTemplateLanguage, setBulkTemplateLanguage] = useState("en_US");
   const [bulkTemplateComponents, setBulkTemplateComponents] = useState(""); // Will be JSON string
   const [bulkContactsFile, setBulkContactsFile] = useState(null);
-const [excelHeaders, setExcelHeaders] = useState([]);
-const [expectedColumns, setExpectedColumns] = useState([]);
-const [mismatchedHeaders, setMismatchedHeaders] = useState([]);
+  const [excelHeaders, setExcelHeaders] = useState([]);
+  const [expectedColumns, setExpectedColumns] = useState([]);
+  const [mismatchedHeaders, setMismatchedHeaders] = useState([]);
 
   const [templates, setTemplates] = useState([]);
   const [contacts, setContacts] = useState([]); // This state is not directly used in the current UI logic
-const [imageId,setImageId]=useState("")
+  const [imageId, setImageId] = useState("")
   // Real-time message status
   const [latestMessageStatus, setLatestMessageStatus] = useState(null);
   const [recentMessageUpdates, setRecentMessageUpdates] = useState([]);
-const project = localStorage.getItem("currentProject")
+  const project = localStorage.getItem("currentProject")
     ? JSON.parse(localStorage.getItem("currentProject"))
     : null;
   const businessProfileId = project?.businessProfileId._id || null;
@@ -94,7 +94,7 @@ const project = localStorage.getItem("currentProject")
     try {
       // Use projectDetails.businessProfileId._id for fetching templates
       // Ensure projectDetails is loaded before this call
-     
+
       const templatesRes = await api.get("/templates/allapprovedtemplates", { // Use api directly with /api/
         ...config,
         params: {
@@ -112,8 +112,7 @@ const project = localStorage.getItem("currentProject")
         error.response?.data?.message || error.message
       );
       setMessage(
-        `Error fetching resources: ${
-          error.response?.data?.message || "Failed to fetch templates/contacts."
+        `Error fetching resources: ${error.response?.data?.message || "Failed to fetch templates/contacts."
         }`
       );
     } finally {
@@ -126,33 +125,33 @@ const project = localStorage.getItem("currentProject")
       navigate("/login", { replace: true });
       return;
     }
-  }, [ navigate, projectId]); // Depend on projectId as well
+  }, [navigate, projectId]); // Depend on projectId as well
 
   useEffect(() => {
     // Fetch templates and contacts ONLY after projectDetails is available
     if (businessProfileId) {
-        fetchTemplatesAndContacts();
+      fetchTemplatesAndContacts();
 
-        socket.emit("joinRoom", user._id);
-        socket.emit("joinRoom", `project-${projectId}`);
+      socket.emit("joinRoom", user._id);
+      socket.emit("joinRoom", `project-${projectId}`);
 
-        socket.on("messageStatusUpdate", (data) => {
-            console.log("Received message status update:", data);
-            setLatestMessageStatus(data);
-            setRecentMessageUpdates((prevUpdates) => {
-                const newUpdates = [
-                    { ...data, receivedAt: new Date().toLocaleTimeString() },
-                    ...prevUpdates,
-                ];
-                return newUpdates.slice(0, 5);
-            });
+      socket.on("messageStatusUpdate", (data) => {
+        console.log("Received message status update:", data);
+        setLatestMessageStatus(data);
+        setRecentMessageUpdates((prevUpdates) => {
+          const newUpdates = [
+            { ...data, receivedAt: new Date().toLocaleTimeString() },
+            ...prevUpdates,
+          ];
+          return newUpdates.slice(0, 5);
         });
+      });
 
-        return () => {
-            socket.off("messageStatusUpdate");
-            socket.emit("leaveRoom", user._id);
-            socket.emit("leaveRoom", `project-${projectId}`);
-        };
+      return () => {
+        socket.off("messageStatusUpdate");
+        socket.emit("leaveRoom", user._id);
+        socket.emit("leaveRoom", `project-${projectId}`);
+      };
     }
   }, [token, projectId, navigate]); // Rerun when projectDetails is set
 
@@ -241,7 +240,7 @@ const project = localStorage.getItem("currentProject")
       );
       setMessage(
         res.data.message ||
-          "Message sent successfully! Awaiting status updates..."
+        "Message sent successfully! Awaiting status updates..."
       );
       setLatestMessageStatus({
         to: singleRecipient,
@@ -292,11 +291,11 @@ const project = localStorage.getItem("currentProject")
 
     let cleanedBulkComponents = [];
     try {
-        cleanedBulkComponents = cleanTemplateComponents(bulkTemplateComponents);
+      cleanedBulkComponents = cleanTemplateComponents(bulkTemplateComponents);
     } catch (err) {
-        setMessage("Error parsing or cleaning bulk template components JSON. Please check JSON format.");
-        setIsLoading(false);
-        return;
+      setMessage("Error parsing or cleaning bulk template components JSON. Please check JSON format.");
+      setIsLoading(false);
+      return;
     }
 
 
@@ -325,7 +324,7 @@ const project = localStorage.getItem("currentProject")
       );
       setMessage(
         res.data.message ||
-          "Bulk messages initiated. Awaiting status updates..."
+        "Bulk messages initiated. Awaiting status updates..."
       );
       setBulkContactsFile(null);
       document.getElementById("bulkContactsFile").value = "";
@@ -337,78 +336,76 @@ const project = localStorage.getItem("currentProject")
         error.response?.data?.message || error.message
       );
       setMessage(
-        `Error: ${
-          error.response?.data?.message || "Failed to send bulk messages."
+        `Error: ${error.response?.data?.message || "Failed to send bulk messages."
         }`
       );
     } finally {
       setIsLoading(false);
     }
   };
-  console.log("imageId",imageId)
+  console.log("imageId", imageId)
 
- const handleBulkFileChange = (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
+  const handleBulkFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
 
-  setBulkContactsFile(file);
+    setBulkContactsFile(file);
 
-  const reader = new FileReader();
-  reader.onload = (evt) => {
-    const data = new Uint8Array(evt.target.result);
-    const workbook = XLSX.read(data, { type: "array" });
-    const sheet = workbook.Sheets[workbook.SheetNames[0]];
-    const json = XLSX.utils.sheet_to_json(sheet, { header: 1 }); // get rows as arrays
-    const headers = json[0] || [];
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const data = new Uint8Array(evt.target.result);
+      const workbook = XLSX.read(data, { type: "array" });
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      const json = XLSX.utils.sheet_to_json(sheet, { header: 1 }); // get rows as arrays
+      const headers = json[0] || [];
 
-    setExcelHeaders(headers.map((h) => h.toLowerCase().trim()));
+      setExcelHeaders(headers.map((h) => h.toLowerCase().trim()));
 
-    // Recompute expected headers
-    try {
-      const parsed = JSON.parse(bulkTemplateComponents);
-      let expected = ["mobilenumber"];
-      for (const comp of parsed) {
-        if (comp.type === "HEADER" && comp.example?.header_text) {
-          comp.example.header_text.forEach((v) =>
-            expected.push(`header_${v.toLowerCase()}`)
-          );
+      // Recompute expected headers
+      try {
+        const parsed = JSON.parse(bulkTemplateComponents);
+        let expected = ["mobilenumber"];
+        for (const comp of parsed) {
+          if (comp.type === "HEADER" && comp.example?.header_text) {
+            comp.example.header_text.forEach((v) =>
+              expected.push(`header_${v.toLowerCase()}`)
+            );
+          }
+          if (comp.type === "BODY" && comp.example?.body_text) {
+            comp.example.body_text[0]?.forEach((v) =>
+              expected.push(`body_${v.toLowerCase()}`)
+            );
+          }
         }
-        if (comp.type === "BODY" && comp.example?.body_text) {
-          comp.example.body_text[0]?.forEach((v) =>
-            expected.push(`body_${v.toLowerCase()}`)
-          );
-        }
+
+        setExpectedColumns(expected);
+
+        // Compare
+        const missing = expected.filter(
+          (col) => !headers.map((h) => h.toLowerCase().trim()).includes(col)
+        );
+        setMismatchedHeaders(missing);
+      } catch (err) {
+        console.error("Error parsing template components:", err);
+        setExpectedColumns([]);
+        setMismatchedHeaders([]);
       }
+    };
 
-      setExpectedColumns(expected);
-
-      // Compare
-      const missing = expected.filter(
-        (col) => !headers.map((h) => h.toLowerCase().trim()).includes(col)
-      );
-      setMismatchedHeaders(missing);
-    } catch (err) {
-      console.error("Error parsing template components:", err);
-      setExpectedColumns([]);
-      setMismatchedHeaders([]);
-    }
+    reader.readAsArrayBuffer(file);
   };
-
-  reader.readAsArrayBuffer(file);
-};
 
 
   return (
-    <div className="max-w-6xl mx-auto dark:bg-dark-surface p-6 bg-white rounded-lg shadow-md mt-8">
-    
+    <div className="space-y-6 p-6"> {/* Added padding for better layout */}
+
 
       {message && (
         <div
-          className={`p-3 mb-4 rounded-md ${
-            message.startsWith("Error")
+          className={`p-3 mb-4 rounded-md ${message.startsWith("Error")
               ? "bg-red-100 text-red-700"
               : "bg-green-100 text-green-700"
-          }`}
+            }`}
         >
           {message}
         </div>
@@ -417,21 +414,19 @@ const project = localStorage.getItem("currentProject")
       {/* Tab Navigation */}
       <div className="flex border-b border-gray-200 mb-6">
         <button
-          className={`py-2 px-4 font-medium ${
-            activeTab === "group"
+          className={`py-2 px-4 font-medium ${activeTab === "group"
               ? "text-blue-600 border-b-2 border-blue-600"
               : "text-gray-500 hover:text-gray-700"
-          }`}
+            }`}
           onClick={() => setActiveTab("group")}
         >
-          Send message to group 
+          Send message to group
         </button>
         <button
-          className={`py-2 px-4 font-medium ${
-            activeTab === "bulk"
+          className={`py-2 px-4 font-medium ${activeTab === "bulk"
               ? "text-blue-600 border-b-2 border-blue-600"
               : "text-gray-500 hover:text-gray-700"
-          }`}
+            }`}
           onClick={() => setActiveTab("bulk")}
         >
           Send Bulk Messages
@@ -452,15 +447,14 @@ const project = localStorage.getItem("currentProject")
             <p>
               Status:{" "}
               <span
-                className={`font-semibold ${
-                  latestMessageStatus.newStatus === "delivered"
+                className={`font-semibold ${latestMessageStatus.newStatus === "delivered"
                     ? "text-green-600"
                     : latestMessageStatus.newStatus === "read"
-                    ? "text-blue-600"
-                    : latestMessageStatus.newStatus === "failed"
-                    ? "text-red-600"
-                    : "text-yellow-600"
-                }`}
+                      ? "text-blue-600"
+                      : latestMessageStatus.newStatus === "failed"
+                        ? "text-red-600"
+                        : "text-yellow-600"
+                  }`}
               >
                 {latestMessageStatus.newStatus.toUpperCase()}
               </span>
@@ -495,15 +489,14 @@ const project = localStorage.getItem("currentProject")
                   To: <span className="font-mono text-xs">{update.to}</span> |
                   Status:{" "}
                   <span
-                    className={`font-semibold ${
-                      update.newStatus === "delivered"
+                    className={`font-semibold ${update.newStatus === "delivered"
                         ? "text-green-600"
                         : update.newStatus === "read"
-                        ? "text-blue-600"
-                        : update.newStatus === "failed"
-                        ? "text-red-600"
-                        : "text-yellow-600"
-                    }`}
+                          ? "text-blue-600"
+                          : update.newStatus === "failed"
+                            ? "text-red-600"
+                            : "text-yellow-600"
+                      }`}
                   >
                     {update.newStatus.toUpperCase()}
                   </span>{" "}
@@ -626,7 +619,7 @@ const project = localStorage.getItem("currentProject")
                   <p className="text-xs text-gray-500 mt-1">
                     Define `parameters` array for HEADER, BODY, or BUTTON
                     components. For template with placeholders like , these variables will be replaced by fields from your contacts (e.g., 'Name', 'OrderId').
-                    The JSON here should match the structure Meta expects, but use `{{variable_name}}` for dynamic content.
+                    The JSON here should match the structure Meta expects, but use `{{ variable_name }}` for dynamic content.
                   </p>
                 </div>
               </div>
@@ -634,62 +627,62 @@ const project = localStorage.getItem("currentProject")
 
             {(singleMessageType === "image" ||
               singleMessageType === "document") && (
-              <div className="space-y-3">
-                <div>
-                  <label className="block text-gray-700">
-                    {singleMessageType} Link (URL):
-                  </label>
-                  <input
-                    type="url"
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                    value={singleMessageMediaLink}
-                    onChange={(e) => setSingleMessageMediaLink(e.target.value)}
-                    placeholder="https://example.com/media.jpg OR media ID"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Provide either a direct URL or a media ID.
-                  </p>
-                </div>
-                <div>
-                  <label className="block text-gray-700">
-                    {singleMessageType} ID (Meta API Media ID):
-                  </label>
-                  <input
-                    type="text"
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                    value={singleMessageMediaId}
-                    onChange={(e) => setSingleMessageMediaId(e.target.value)}
-                    placeholder="e.g., 1234567890123456"
-                  />
-                </div>
-                <div>
-                  <label className="block text-gray-700">Caption (Optional):</label>
-                  <input
-                    type="text"
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                    value={singleMessageMediaCaption}
-                    onChange={(e) => setSingleMessageMediaCaption(e.target.value)}
-                    placeholder="Enter caption for your media"
-                  />
-                </div>
-                {singleMessageType === "document" && (
+                <div className="space-y-3">
                   <div>
                     <label className="block text-gray-700">
-                      Filename (for Document):
+                      {singleMessageType} Link (URL):
+                    </label>
+                    <input
+                      type="url"
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                      value={singleMessageMediaLink}
+                      onChange={(e) => setSingleMessageMediaLink(e.target.value)}
+                      placeholder="https://example.com/media.jpg OR media ID"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Provide either a direct URL or a media ID.
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-gray-700">
+                      {singleMessageType} ID (Meta API Media ID):
                     </label>
                     <input
                       type="text"
                       className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                      value={singleMessageMediaFilename}
-                      onChange={(e) =>
-                        setSingleMessageMediaFilename(e.target.value)
-                      }
-                      placeholder="MyDocument.pdf"
+                      value={singleMessageMediaId}
+                      onChange={(e) => setSingleMessageMediaId(e.target.value)}
+                      placeholder="e.g., 1234567890123456"
                     />
                   </div>
-                )}
-              </div>
-            )}
+                  <div>
+                    <label className="block text-gray-700">Caption (Optional):</label>
+                    <input
+                      type="text"
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                      value={singleMessageMediaCaption}
+                      onChange={(e) => setSingleMessageMediaCaption(e.target.value)}
+                      placeholder="Enter caption for your media"
+                    />
+                  </div>
+                  {singleMessageType === "document" && (
+                    <div>
+                      <label className="block text-gray-700">
+                        Filename (for Document):
+                      </label>
+                      <input
+                        type="text"
+                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                        value={singleMessageMediaFilename}
+                        onChange={(e) =>
+                          setSingleMessageMediaFilename(e.target.value)
+                        }
+                        placeholder="MyDocument.pdf"
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
 
             <button
               type="submit"
@@ -753,180 +746,180 @@ const project = localStorage.getItem("currentProject")
                 rows="5"
                 value={bulkTemplateComponents}
                 onChange={(e) => setBulkTemplateComponents(e.target.value)}
-              
+
               ></textarea>
               {(() => {
-  try {
-    const parsedComponents = JSON.parse(bulkTemplateComponents);
-    const header = parsedComponents.find(
-      (c) => c.type === "HEADER" && c.format === "IMAGE"
-    );
+                try {
+                  const parsedComponents = JSON.parse(bulkTemplateComponents);
+                  const header = parsedComponents.find(
+                    (c) => c.type === "HEADER" && c.format === "IMAGE"
+                  );
 
-    if (header) {
-      return (
-        <div className="mt-4">
-          <label className="block text-gray-700 font-semibold mb-1">
-            Upload Header Image:
-          </label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={async (e) => {
-              const file = e.target.files[0];
-              if (!file) return;
+                  if (header) {
+                    return (
+                      <div className="mt-4">
+                        <label className="block text-gray-700 font-semibold mb-1">
+                          Upload Header Image:
+                        </label>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={async (e) => {
+                            const file = e.target.files[0];
+                            if (!file) return;
 
-              const formData = new FormData();
-              formData.append("file", file);
-              formData.append("type", "image");
+                            const formData = new FormData();
+                            formData.append("file", file);
+                            formData.append("type", "image");
 
-              try {
-                const res = await api.post(
-        `/projects/${projectId}/messages/upload-media`,
-                  formData,
-                  {
-                    headers: {
-                      "Content-Type": "multipart/form-data",
-                      Authorization: `Bearer ${token}`,
-                    },
+                            try {
+                              const res = await api.post(
+                                `/projects/${projectId}/messages/upload-media`,
+                                formData,
+                                {
+                                  headers: {
+                                    "Content-Type": "multipart/form-data",
+                                    Authorization: `Bearer ${token}`,
+                                  },
+                                }
+                              );
+                              console.log("Image upload response:", res);
+                              setImageId(res.data?.id || res.data?.data.id || "");
+                              // {
+                              //     "success": true,
+                              //     "data": {
+                              //         "id": "786010917420570",
+                              //         "mimeType": "image/jpeg",
+                              //         "fileSize": 38565
+                              //     }
+                              // }
+                              const mediaHandle = res.data?.id || res.data?.data.id;
+                              if (!mediaHandle) {
+                                alert("Upload succeeded but media handle missing");
+                                return;
+                              }
+
+                              // Update the HEADER example with new handle
+                              const updatedComponents = parsedComponents.map((comp) => {
+                                if (comp.type === "HEADER" && comp.format === "IMAGE") {
+                                  return {
+                                    ...comp,
+                                    example: {
+                                      header_handle: [mediaHandle],
+                                    },
+                                  };
+                                }
+                                return comp;
+                              });
+
+                              setBulkTemplateComponents(JSON.stringify(updatedComponents, null, 2));
+                            } catch (error) {
+                              console.error("Error uploading header image:", error);
+                              alert("Image upload failed");
+                            }
+                          }}
+                          className="block w-full border border-gray-300 rounded-md p-2 bg-white"
+                        />
+                        <p className="text-sm text-gray-500 mt-1 dark:text-dark-text-primary">
+                          Upload the image to be used in the HEADER of your template. It will be auto-attached.
+                        </p>
+                      </div>
+                    );
                   }
-                );
-                console.log("Image upload response:", res);
-                  setImageId(res.data?.id || res.data?.data.id || "");
-// {
-//     "success": true,
-//     "data": {
-//         "id": "786010917420570",
-//         "mimeType": "image/jpeg",
-//         "fileSize": 38565
-//     }
-// }
-                const mediaHandle = res.data?.id || res.data?.data.id;
-                if (!mediaHandle) {
-                  alert("Upload succeeded but media handle missing");
-                  return;
+                } catch (e) {
+                  return null;
                 }
+              })()}
+              {/* Show preview if header/body has variables */}
+              {(() => {
+                try {
+                  const parsed = JSON.parse(bulkTemplateComponents);
+                  let headerVars = [];
+                  let bodyVars = [];
 
-                // Update the HEADER example with new handle
-                const updatedComponents = parsedComponents.map((comp) => {
-                  if (comp.type === "HEADER" && comp.format === "IMAGE") {
-                    return {
-                      ...comp,
-                      example: {
-                        header_handle: [mediaHandle],
-                      },
-                    };
+                  for (const comp of parsed) {
+                    if (comp.type === "HEADER" && comp.example?.header_text) {
+                      headerVars = comp.example.header_text;
+                    }
+                    if (comp.type === "BODY" && comp.example?.body_text) {
+                      bodyVars = comp.example.body_text[0] || [];
+                    }
                   }
-                  return comp;
-                });
 
-                setBulkTemplateComponents(JSON.stringify(updatedComponents, null, 2));
-              } catch (error) {
-                console.error("Error uploading header image:", error);
-                alert("Image upload failed");
-              }
-            }}
-            className="block w-full border border-gray-300 rounded-md p-2 bg-white"
-          />
-          <p className="text-sm text-gray-500 mt-1 dark:text-dark-text-primary">
-            Upload the image to be used in the HEADER of your template. It will be auto-attached.
-          </p>
-        </div>
-      );
-    }
-  } catch (e) {
-    return null; 
-  }
-})()}
-{/* Show preview if header/body has variables */}
-{(() => {
-  try {
-    const parsed = JSON.parse(bulkTemplateComponents);
-    let headerVars = [];
-    let bodyVars = [];
+                  if (headerVars.length === 0 && bodyVars.length === 0) return null;
 
-    for (const comp of parsed) {
-      if (comp.type === "HEADER" && comp.example?.header_text) {
-        headerVars = comp.example.header_text;
-      }
-      if (comp.type === "BODY" && comp.example?.body_text) {
-        bodyVars = comp.example.body_text[0] || [];
-      }
-    }
+                  const columns = ["mobilenumber"];
+                  columns.push(...headerVars.map(v => `header_${v}`));
+                  columns.push(...bodyVars.map(v => `body_${v}`));
 
-    if (headerVars.length === 0 && bodyVars.length === 0) return null;
+                  const sampleRow = {
+                    mobilenumber: "919999999999",
+                  };
+                  headerVars.forEach((v, i) => (sampleRow[`header_${v}`] = `SampleHeader${i + 1}`));
+                  bodyVars.forEach((v, i) => (sampleRow[`body_${v}`] = `SampleBody${i + 1}`));
 
-    const columns = ["mobilenumber"];
-    columns.push(...headerVars.map(v => `header_${v}`));
-    columns.push(...bodyVars.map(v => `body_${v}`));
+                  return (
+                    <div className="mt-6">
+                      <h4 className="text-lg font-semibold text-gray-700 mb-2">
+                        Excel Column Format Preview
+                      </h4>
+                      <div className="overflow-auto border rounded-md bg-white">
+                        <table className="min-w-full table-auto border-collapse">
+                          <thead className="bg-gray-100">
+                            <tr>
+                              {columns.map((col) => (
+                                <th key={col} className="border px-3 py-2 text-sm font-medium text-gray-700">
+                                  {col}
+                                </th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              {columns.map((col) => (
+                                <td key={col} className="border px-3 py-2 text-sm text-gray-800">
+                                  {sampleRow[col] || ""}
+                                </td>
+                              ))}
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <button
+                        className="mt-3 px-4 py-1 rounded bg-green-600 text-white text-sm hover:bg-green-700"
+                        onClick={() => {
+                          const csv = [
+                            columns.join(","),
+                            columns.map((c) => sampleRow[c] || "").join(",")
+                          ].join("\n");
 
-    const sampleRow = {
-      mobilenumber: "919999999999",
-    };
-    headerVars.forEach((v, i) => (sampleRow[`header_${v}`] = `SampleHeader${i+1}`));
-    bodyVars.forEach((v, i) => (sampleRow[`body_${v}`] = `SampleBody${i+1}`));
+                          const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+                          const link = document.createElement("a");
+                          link.href = URL.createObjectURL(blob);
+                          link.setAttribute("download", "sample_template.csv");
+                          document.body.appendChild(link);
+                          link.click();
+                          document.body.removeChild(link);
+                        }}
+                      >
+                        Download Sample CSV
+                      </button>
 
-    return (
-      <div className="mt-6">
-        <h4 className="text-lg font-semibold text-gray-700 mb-2">
-          Excel Column Format Preview
-        </h4>
-        <div className="overflow-auto border rounded-md bg-white">
-          <table className="min-w-full table-auto border-collapse">
-            <thead className="bg-gray-100">
-              <tr>
-                {columns.map((col) => (
-                  <th key={col} className="border px-3 py-2 text-sm font-medium text-gray-700">
-                    {col}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                {columns.map((col) => (
-                  <td key={col} className="border px-3 py-2 text-sm text-gray-800">
-                    {sampleRow[col] || ""}
-                  </td>
-                ))}
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <button
-  className="mt-3 px-4 py-1 rounded bg-green-600 text-white text-sm hover:bg-green-700"
-  onClick={() => {
-    const csv = [
-      columns.join(","),
-      columns.map((c) => sampleRow[c] || "").join(",")
-    ].join("\n");
+                      <p className="text-sm text-gray-500 mt-2">
+                        Make sure your Excel/CSV file includes these columns to match the template variables.
+                      </p>
+                    </div>
+                  );
+                } catch (e) {
+                  return null; // Don't crash if JSON is broken
+                }
+              })()}
 
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.setAttribute("download", "sample_template.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }}
->
-  Download Sample CSV
-</button>
-
-        <p className="text-sm text-gray-500 mt-2">
-          Make sure your Excel/CSV file includes these columns to match the template variables.
-        </p>
-      </div>
-    );
-  } catch (e) {
-    return null; // Don't crash if JSON is broken
-  }
-})()}
-
-               <p className="text-xs text-gray-500 mt-1">
-                    Define `parameters` array with `text` fields using double curly braces 
-                    These will be replaced by column headers from your Excel/CSV file (e.g., 'Name', 'OrderId').
-                    If this field is left empty, the service will attempt to fetch components from the locally stored template for the given name.
-                </p>
+              <p className="text-xs text-gray-500 mt-1">
+                Define `parameters` array with `text` fields using double curly braces
+                These will be replaced by column headers from your Excel/CSV file (e.g., 'Name', 'OrderId').
+                If this field is left empty, the service will attempt to fetch components from the locally stored template for the given name.
+              </p>
             </div>
             <div>
               <label className="block text-gray-700">
@@ -941,36 +934,36 @@ const project = localStorage.getItem("currentProject")
                 required
               />
               {excelHeaders.length > 0 && (
-  <div className="mt-4">
-    <h4 className="text-lg font-semibold text-gray-700 mb-2">
-      Uploaded Excel Column Preview
-    </h4>
-    <div className="overflow-auto border rounded-md bg-white mb-2">
-      <table className="min-w-full table-auto border-collapse">
-        <thead>
-          <tr className="bg-gray-100">
-            {excelHeaders.map((header) => (
-              <th
-                key={header}
-                className="border px-3 py-2 text-sm font-medium text-gray-700"
-              >
-                {header}
-              </th>
-            ))}
-          </tr>
-        </thead>
-      </table>
-    </div>
-    {mismatchedHeaders.length > 0 ? (
-      <div className="text-sm text-red-600">
-        ❌ Missing required columns:{" "}
-        <strong>{mismatchedHeaders.join(", ")}</strong>
-      </div>
-    ) : (
-      <div className="text-sm text-green-600">✅ All required columns matched.</div>
-    )}
-  </div>
-)}
+                <div className="mt-4">
+                  <h4 className="text-lg font-semibold text-gray-700 mb-2">
+                    Uploaded Excel Column Preview
+                  </h4>
+                  <div className="overflow-auto border rounded-md bg-white mb-2">
+                    <table className="min-w-full table-auto border-collapse">
+                      <thead>
+                        <tr className="bg-gray-100">
+                          {excelHeaders.map((header) => (
+                            <th
+                              key={header}
+                              className="border px-3 py-2 text-sm font-medium text-gray-700"
+                            >
+                              {header}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                    </table>
+                  </div>
+                  {mismatchedHeaders.length > 0 ? (
+                    <div className="text-sm text-red-600">
+                      ❌ Missing required columns:{" "}
+                      <strong>{mismatchedHeaders.join(", ")}</strong>
+                    </div>
+                  ) : (
+                    <div className="text-sm text-green-600">✅ All required columns matched.</div>
+                  )}
+                </div>
+              )}
               <p className="text-xs text-gray-500 mt-1">
                 File must contain 'countrycode' and 'mobilenumber' columns.
                 Other columns (e.g., 'name', 'order_id') will be used to fill

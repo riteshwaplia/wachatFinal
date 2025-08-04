@@ -37,14 +37,15 @@ import FlowsPage from './pages/FlowsPage';
 import ProfilePage from './pages/ProfilePage';
 import UserSetting from './pages/UserSetting';
 import UpdatePassword from './components/UpdatePassword';
-import TeamMembers from './pages/TeamMembers';
+import TeamMembers from './pages/TeamMember';
 import LandingPage from './pages/LandingPage';
 import AddTeamMembers from './components/AddTeamMembers';
 import UserProfileLayout from './layout/userProfileLayout';
 import CreateCarouselTemplate from './components/template/CreateCarouselTemplate';
 import SendCarosualTemplate from './components/broadcasting/SendCarosualTemplate';
+import NotFoundPage from './pages/NotFoundPage';
 
- 
+
 const AdminRoute = ({ children }) => (
   <ProtectedRoute roles={["super_admin", "tenant_admin"]}>
     <AdminLayout>{children}</AdminLayout>
@@ -250,35 +251,35 @@ function AppContent() {
 
         {/* <Route path="/projects/:projectId/flow-builder" element={<FlowBuilder />} />
             <Route path="/projects/:projectId/flow-builder/:flowId" element={<FlowBuilder />} /> For editing existing flow */}
-     
-     
-     {/* //user profile and settings */}
-     <Route
-        path="/user/profile"
-        element={
-          <UserProfileLayout>
-            <ProfilePage />
-          </UserProfileLayout>
-        }
-      />
-    <Route
-        path="/user/update-password"
-        element={
-          <UserProfileLayout>
-      <UpdatePassword/>
-          </UserProfileLayout>
-        }
-      />
- 
-      <Route
-        path="/project/:id/setting"
-        element={
-          <UserLayout>
-            <UserSetting />
-          </UserLayout>
-        }
-      />
-      {/* <Route
+
+
+        {/* //user profile and settings */}
+        <Route
+          path="/user/profile"
+          element={
+            <UserProfileLayout>
+              <ProfilePage />
+            </UserProfileLayout>
+          }
+        />
+        <Route
+          path="/user/update-password"
+          element={
+            <UserProfileLayout>
+              <UpdatePassword />
+            </UserProfileLayout>
+          }
+        />
+
+        <Route
+          path="/project/:id/setting"
+          element={
+            <UserLayout>
+              <UserSetting />
+            </UserLayout>
+          }
+        />
+        {/* <Route
 
 
         {/* //user profile and settings */}
@@ -351,13 +352,7 @@ function AppContent() {
         <Route
           path="*"
           element={
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center text-center">
-              <div className="p-8 bg-white rounded-xl shadow-lg">
-                <h2 className="text-2xl font-bold text-gray-800 mb-4">404 - Page Not Found</h2>
-                <p className="text-gray-700">The page you're looking for doesn't exist.</p>
-                <a href="/" className="text-primary-500 hover:underline mt-4 inline-block">Go to Home</a>
-              </div>
-            </div>
+            <NotFoundPage />
           }
         />
       </Routes>
@@ -385,7 +380,7 @@ function App() {
         </AuthProvider>
       </TenantProvider>
     </Router>
-     
+
   );
 }
 
