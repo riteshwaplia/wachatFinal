@@ -25,10 +25,15 @@ export default function UpdatePassword() {
 
     if (!newPassword) {
       newErrors.newPassword = "New password is required";
-    } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/.test(newPassword)) {
-      newErrors.newPassword =
-        "Password must contain at least 8 characters, including 1 uppercase,lowercase,number, and special character";
     }
+    else if (newPassword.length < 6) {
+      newErrors.newPassword = "Password must be at least 6 characters";
+    }
+    else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{6,}$/.test(newPassword)) {
+      newErrors.newPassword =
+        "Password must include uppercase, lowercase, number, and special character";
+    }
+
 
 
     if (!confirmPassword) {

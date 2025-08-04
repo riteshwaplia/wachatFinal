@@ -368,7 +368,7 @@ const CreateTemplate = () => {
     setLoading(true); // Set loading state while creating template
     try {
       console.log("Template Create Payload:", JSON.stringify(payload, null, 2));
-      const res = await api.pp("/templates", payload); // Assuming api.post is configured for /api/templates
+      const res = await api.post("/templates", payload); // Assuming api.post is configured for /api/templates
       console.log("Template created successfully:", res.data);
       setLoading(false); // Reset loading state after creation
       alert(res.data.message || "Template created successfully!");
