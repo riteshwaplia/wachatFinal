@@ -100,7 +100,7 @@ const GroupPage = () => {
     errors.title = "Group name is required";
   } 
   if(title.length < 3){
-    errors.title = "Group name must contain 3 characters";
+    errors.title = "Group name must contain 3";
 
   }
   // 2️⃣ Length check for title (optional, e.g., max 50 chars)
@@ -213,30 +213,31 @@ console.log("err", erorrs)
   // Handle form input changes
 const handleInputChange = (e) => {
   const { name, value } = e.target;
-  
-  // Update form data
-  setFormData((prev) => ({ ...prev, [name]: value }));
 
-  // Validation per field
-  if (name === 'title') {
-    // ✅ Allow letters, numbers, spaces, and underscores
-   const isValid = /^[a-zA-Z0-9_]*$/.test(value);
-setErrors((prev) => ({
-  ...prev,
-  title: isValid ? '' : 'Only letters, numbers, and underscores are allowed',
-}));
+  let sanitizedValue = value;
 
-  }
+  // Only for title and description
+  if (name === 'title' || name === 'description') {
+    // ✅ Remove invalid characters (anything except letters, numbers, and spaces)
+    const hasInvalidChars = /[^a-zA-Z0-9 ]/.test(value);
+    sanitizedValue = value.replace(/[^a-zA-Z0-9 ]/g, '');
 
-  if (name === 'description') {
-    // ✅ Allow letters, numbers, spaces, and underscores
-    const isValid = /^[a-zA-Z0-9 _]*$/.test(value);
+    // Update form data with sanitized value
+    setFormData((prev) => ({ ...prev, [name]: sanitizedValue }));
+
+    // Show error only if the user tried to type a special character
     setErrors((prev) => ({
       ...prev,
-      description: isValid ? '' : 'Only letters, numbers, spaces, and underscores are allowed',
+      [name]: hasInvalidChars ? 'Special characters are not allowed' : '',
     }));
+  } else {
+    // For other fields, just update normally
+    setFormData((prev) => ({ ...prev, [name]: value }));
   }
 };
+
+
+
 
 
   // Handle form submission
