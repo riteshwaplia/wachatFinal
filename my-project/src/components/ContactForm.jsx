@@ -52,7 +52,7 @@ const ContactForm = ({ initialData, onSubmit, onCancel, groups, isLoading, field
             setPhone('');
         }
 
-        const excludedLabels = ["Full Name", "Email Address", "Phone Number"];
+        const excludedLabels = ["Full Name", "Email Address", "Phone Number", "Country Code"];
 
         const filteredFields = fields.filter(
             (field) => !excludedLabels.includes(field.label)
@@ -70,6 +70,8 @@ const ContactForm = ({ initialData, onSubmit, onCancel, groups, isLoading, field
         if (errors[name]) {
             setErrors(prev => ({ ...prev, [name]: '' }));
         }
+
+
 
         if (type === "text" || type === "textarea" || type === "email") {
             const isValid = /^[a-zA-Z0-9@_. ]*$/.test(value); // allow space, @, _, .
@@ -130,6 +132,10 @@ const ContactForm = ({ initialData, onSubmit, onCancel, groups, isLoading, field
             newErrors.name = 'Name is required';
         }
 
+        if (formData.name.trim().length < 3) {
+            newErrors.name = "Name must be at least 3 characters long";
+        }
+
         if (!formData.email) {
             newErrors.email = 'Email is required';
         } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
@@ -162,7 +168,6 @@ const ContactForm = ({ initialData, onSubmit, onCancel, groups, isLoading, field
 
         if (!validateForm()) return;
 
-        console.log("formdata", formData)
         onSubmit({ ...formData, mobileNumber: phone });
     };
 
@@ -194,10 +199,11 @@ const ContactForm = ({ initialData, onSubmit, onCancel, groups, isLoading, field
                     type="text"
                     name="name"
                     placeholder="John Doe"
-                    value={(formData.name).replace(/[^a-zA-Z0-9]/g, '')}
+                    value={(formData.name)}
                     onChange={handleInputChange}
                     error={errors.name}
                     helperText={errors.name}
+
                 />
 
                 <InputField
@@ -218,6 +224,7 @@ const ContactForm = ({ initialData, onSubmit, onCancel, groups, isLoading, field
                         onChange={handlePhoneChange}
                         country="in"
                         autoattribute={true}
+                        isDarkMode={localStorage.getItem('theme')}
                     />
                     {errors.phone && (
                         <p className="mt-1 text-sm text-red-600">{errors.phone}</p>

@@ -490,7 +490,7 @@ body {
   .btn {
     height: 40px;
     font-size: 14px;
-    max-width: 200px;
+    max-width: 100%;
   }
 }
 
@@ -499,7 +499,8 @@ body {
   .btn {
     height: 45px;
     font-size: 15px;
-    max-width: 240px;
+    max-width: 100%;
+
   }
 }
 
@@ -527,4 +528,100 @@ body {
 
 .animate-fade-in {
   animation: fade-in 0.2s ease-out;
+}
+
+
+
+
+
+
+/* ✅ Base input styling */
+/* Force dark mode on the dropdown itself */
+.dark .react-tel-input .country-list {
+  background-color: #1B212C !important;
+  color: #fff !important;
+  border-color: #444 !important;
+}
+
+/* Dropdown item hover and highlight */
+.dark .react-tel-input .country-list .country:hover,
+.dark .react-tel-input .country-list .highlight {
+  background-color: #1B212C !important;
+  color: #fff !important;
+}
+
+/* Also fix the flag dropdown area */
+.dark .react-tel-input .flag-dropdown {
+  background-color: #1B212C !important;
+  border-color: #444 !important;
+}
+
+/* Fix the white flash when open */
+.dark .react-tel-input .flag-dropdown.open {
+  background-color: #1B212C !important;
+}
+
+
+/* Flag button */
+.react-tel-input .flag-dropdown {
+  background-color: #fff !important;
+  border: 1px solid #ccc !important;
+  border-right: none !important;
+  border-radius: 8px 0 0 8px !important;
+}
+
+/* Dropdown list */
+.react-tel-input .country-list {
+  background-color: #fff !important;
+  color: #000 !important;
+  border: 1px solid #ccc !important;
+  border-radius: 8px !important;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+/* Hover for light mode */
+.react-tel-input .country-list .country:hover,
+.react-tel-input .country-list .highlight {
+  background-color: #f0f0f0 !important;
+  color: #000 !important;
+}
+
+/* ======================
+   🔹 DARK MODE OVERRIDES
+   ====================== */
+.dark .react-tel-input .form-control {
+  background-color: #1B212C !important;
+  color: #fff !important;
+  border-color: #444 !important;
+}
+
+.dark .react-tel-input .flag-dropdown {
+  background-color: #1B212C !important;
+  border-color: #444 !important;
+}
+
+.dark .react-tel-input .flag-dropdown .selected-flag {
+  background-color: #1B212C !important;
+  border-color: #444 !important;
+}
+
+.dark .react-tel-input .country-list {
+  background-color: #1B212C !important;
+  color: #fff !important;
+  border-color: #444 !important;
+}
+
+/* Hover in dark mode */
+.dark .react-tel-input .country-list .country:hover,
+.dark .react-tel-input .country-list .highlight {
+  background-color: #222 !important;
+  color: #fff !important;
+}
+
+/* Search bar inside dropdown */
+.dark .react-tel-input .country-list .search {
+  background-color: #1B212C !important;
+  color: #fff !important;
+  border-color: #444 !important;
 }

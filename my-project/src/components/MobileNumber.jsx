@@ -41,31 +41,31 @@ export const MobileNumber = ({
             fontSize: "16px",
             backgroundColor: "var(--colorbg-input)",
             color: "var(--color-text)",
-            borderColor: error ? "var(--color-error)" : "var(--color-border)",
+            // borderColor: error ? "var(--color-error)" : "var(--color-border)",
             borderRadius: "8px",
             transition: "border-color 0.2s",
           }}
-          buttonStyle={{
-            backgroundColor: "var(--colorbg-input)",
-            borderColor: error ? "var(--color-error)" : "var(--color-border)",
-            borderRight: "none",
-            borderTopLeftRadius: "8px",
-            borderBottomLeftRadius: "8px",
-          }}
-          dropdownStyle={{
-            backgroundColor: "var(--colorbg-input)",
-            color: "var(--color-text)",
-            borderColor: "var(--colorbg-input)",
-          }}
-          enableSearch
-          searchStyle={{
-            backgroundColor: "var(--colorbg-input)",
-            color: "var(--color-text)",
-            borderColor: "var(--color-border)",
-          }}
-          containerStyle={{
-            fontFamily: "inherit",
-          }}
+          // buttonStyle={{
+          //   backgroundColor: "var(--colorbg-input)",
+          //   borderColor: error ? "var(--color-error)" : "var(--color-border)",
+          //   borderRight: "none",
+          //   borderTopLeftRadius: "8px",
+          //   borderBottomLeftRadius: "8px",
+          // }}
+          // dropdownStyle={{
+          //   backgroundColor: "var(--colorbg-input)",
+          //   color: "var(--color-text)",
+          //   borderColor: "var(--colorbg-input)",
+          // }}
+          // enableSearch
+          // searchStyle={{
+          //   backgroundColor: "var(--colorbg-input)",
+          //   color: "var(--color-text)",
+          //   borderColor: "var(--color-border)",
+          // }}
+          // containerStyle={{
+          //   fontFamily: "inherit",
+          // }}
         />
 
         {error && <p className="mt-1 text-sm text-error">{error}</p>}

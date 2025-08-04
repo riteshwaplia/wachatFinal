@@ -195,7 +195,7 @@ const ProjectDashboard = () => {
         >
           <div className="flex space-x-4 text-sm mt-1">
             <span className="text-gray-500">
-              <span className="text-blue-500">{stats.liveChat.unread}</span> messages
+              <span className="text-blue-500">{stats.liveChat.unread}</span> unread messages
             </span>
             <span className="text-gray-500">
               <span className="text-green-500 dark:text-dark-text-primary">{stats.liveChat.responseRate}%</span> response rate

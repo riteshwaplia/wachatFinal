@@ -27,6 +27,7 @@ const RegisterPage = () => {
   const [errors, setErrors] = useState({});
   const [otpSent, setOtpSent] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false)
   const { siteConfig } = useTenant();
 
 
@@ -60,7 +61,6 @@ const RegisterPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     console.log("OTP status before submit:", otpSent);
 
     // Validate form fields
@@ -76,29 +76,40 @@ const RegisterPage = () => {
       const { username, email, password } = form;
 
       const response = await api.post('/users/register', { username, email, password });
+      const resData = response.data;
 
-      // If response is structured like: { success: true, message: "...", data: {...} }
-      if (response.data?.success) {
-        setOtpSent(true);  // Set state to show OTP input
-        SuccessToast('OTP sent to your email. Please verify.');
-        console.log("User registered:", response.data.data); // Optional
+      if (resData?.success) {
+        // ✅ Set OTP state
+        setOtpSent(true);
+
+        // ✅ Show server message
+        SuccessToast(resData.message || 'OTP sent to your email. Please verify.');
+
+        // ✅ Optionally store token in localStorage if needed for next step
+        if (resData.data?.token) {
+          localStorage.setItem('authToken', resData.data.token);
+        }
+
+        // ✅ Log or store user data
+        console.log("User registered:", resData.data);
+
       } else {
-        console.log("respnseonse", response.data?.message)
-        ErrorToast(response.data?.message || 'Registration failed.');
+        // ❌ API returned success=false
+        ErrorToast(resData?.message || 'Registration failed. Please try again.');
       }
     } catch (error) {
       const errorData = error.response?.data;
       let message = 'Something went wrong';
 
       if (Array.isArray(errorData?.errors) && errorData.errors.length > 0) {
-        message = errorData.errors[0]; // or join all: errorData.errors.join(', ')
+        message = errorData.errors[0];
       } else if (errorData?.message) {
         message = errorData.message;
       } else {
         message = error.message;
       }
 
-      console.log("errr", message);
+      console.error("Registration error:", message);
       ErrorToast(message);
     } finally {
       setLoading(false);
@@ -136,6 +147,50 @@ const RegisterPage = () => {
       ErrorToast(msg);
     } finally {
       setLoading(false);
+    }
+  };
+
+
+  const handleReSendOtp = async () => {
+    const email = form.email?.trim();
+
+    // ✅ Validate email before calling API
+    if (!email) {
+      setErrors((prev) => ({ ...prev, email: "Email is required" }));
+      return;
+    }
+
+    try {
+      setResendLoading(true);
+
+      // ✅ Call API
+      const response = await api.post(`/users/resend-otp`, { email, type: 'register' });
+      const resData = response.data;
+
+      if (resData?.success) {
+        // ✅ Show success toast with backend message
+        SuccessToast(resData.message || 'OTP resent successfully to your email');
+
+        // ✅ Clear form errors
+        setErrors({});
+
+        // ✅ Move to OTP step (if using stepper flow)
+        // setStep(2);
+      } else {
+        // ❌ Backend responded with success=false
+        ErrorToast(resData?.message || 'Failed to resend OTP. Please try again.');
+      }
+
+    } catch (error) {
+      // ✅ Handle network or unexpected errors
+      const message =
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        error.message ||
+        'Something went wrong while resending OTP.';
+      ErrorToast(message);
+    } finally {
+      setResendLoading(false);
     }
   };
 
@@ -270,6 +325,16 @@ const RegisterPage = () => {
                   maxLength={6}
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                 />
+                <div className='flex justify-end items-start mb-2'>
+                  <button
+                    disabled={resendLoading}
+                    // type="button"
+                    onClick={handleReSendOtp}
+                    className="w-auto text-primary-600 mt-3 dark:text-primary-400 text-xs hover:underline font-medium hover:cursor-pointer disabled:text-gray-400 transition-colors"
+                  >
+                    Resend OTP
+                  </button>
+                </div>
               </div>
 
               <Button type='submit' loading={loading} className="w-full btn mt-6" >

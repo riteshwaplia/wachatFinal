@@ -10,10 +10,17 @@ const AddCustomFieldModal = ({ isOpen, onClose, onSuccess, fields }) => {
   const [type, setType] = useState('');
   const [loading, setLoading] = useState(false);
   const { id } = useParams()
+  const [error, setError] = useState("");
+
   const handleSave = async () => {
     if (!label || !type) {
       ErrorToast('Please fill all fields');
       return;
+    }
+
+    if (label?.length < 3) {
+      setError("Label must be at least 3 characters long");
+      return
     }
 
     setLoading(true);
@@ -51,6 +58,28 @@ const AddCustomFieldModal = ({ isOpen, onClose, onSuccess, fields }) => {
 
   };
 
+
+  const handleLabelChange = (e) => {
+    const newValue = e.target.value;
+
+    // ✅ Allow letters, digits, space, underscore only
+    const isValid = /^[a-zA-Z0-9_\s]*$/.test(newValue);
+
+    if (!isValid) {
+      setError("Only letters, numbers, spaces, and underscore (_) are allowed.");
+      return; // Stop updating label for invalid input
+    }
+
+    // ✅ Clear previous error when input is valid
+    setError("");
+
+    // ✅ Update state
+    setLabel(newValue);
+
+
+  };
+
+
   if (!isOpen) return null;
 
 
@@ -59,7 +88,7 @@ const AddCustomFieldModal = ({ isOpen, onClose, onSuccess, fields }) => {
       {fields ? (<>
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-dark-surface rounded-xl shadow-lg p-6 w-full max-w-md max-h-[80vh] overflow-y-auto">
-            <h2 className="text-xl dark:text-dark-text-primary font-semibold mb-4 dark:text-dark-text-primary text-center">Custom Fields</h2>
+            <h2 className="text-xl dark:text-dark-text-primary font-semibold mb-4  text-center">Custom Fields</h2>
 
             <form className="space-y-4">
               {fields.map((field, index) => (
@@ -99,20 +128,16 @@ const AddCustomFieldModal = ({ isOpen, onClose, onSuccess, fields }) => {
               Label
             </label>
             <input
-              id="label"
               type="text"
-              maxLength={30}
               value={label}
-              onChange={(e) => {
-                const newValue = e.target.value;
-                const isValid = /^[a-zA-Z0-9@_\s]*$/.test(newValue); // allows letters, digits, space, @, _
-                if (isValid) {
-                  setLabel(newValue);
-                }
-              }}
-              placeholder="e.g. Company Name"
-              className="w-full px-3 dark:text-dark-text-primary py-2 border border-gray-300 dark:bg-dark-surface rounded-md focus:outline-none focus:ring focus:ring-primary-200"
+              onChange={handleLabelChange}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2
+          ${error
+                  ? "border-red-500 focus:ring-red-500 focus:border-red-500"
+                  : "border-gray-300 focus:ring-primary-500 focus:border-primary-500"
+                }`}
             />
+            {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
           </div>
 
           <div className="mb-4">

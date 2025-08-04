@@ -14,7 +14,8 @@ export default function ForgotPassword({ onBack }) {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
-
+    const [toastActive, setToastActive] = useState(false);
+    const [resendLoading, setResendLoading] = useState(false)
     const navigate = useNavigate()
     const validateEmail = () => {
         if (!email.trim()) return 'Email is required';
@@ -26,18 +27,62 @@ export default function ForgotPassword({ onBack }) {
     const validateInputs = () => {
         const newErrors = {};
 
+        // 1️⃣ Empty password
 
-
-        if (password.length < 6) {
-            newErrors.password = 'Password must be at least 8 characters';
+        // 2️⃣ Password length
+        if (password.length < 8) {
+            newErrors.password = "Password must be at least 8 characters";
+            return
+        }
+        // 3️⃣ Password pattern validation
+        if (!password) {
+            newErrors.password = "New password is required";
+        } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/.test(password)) {
+            if (!toastActive) {
+                ErrorToast(
+                    "Password must be at least 8 characters and include uppercase, lowercase, number, and special character"
+                );
+                setToastActive(true);
+                setTimeout(() => setToastActive(false), 3000);
+            }
+            newErrors.password = "Invalid password format";
         }
 
-        if (password !== confirmPassword) {
-            newErrors.confirmPassword = 'Passwords do not match';
+
+        // 4️⃣ Confirm password checks (always runs separately)
+        if (!confirmPassword) {
+            newErrors.confirmPassword = "Confirm password is required";
+        } else if (password !== confirmPassword) {
+            newErrors.confirmPassword = "Passwords do not match";
         }
 
         return newErrors;
     };
+
+
+    const handleReSendOtp = async () => {
+        // 
+        const emailErr = validateEmail();
+        if (emailErr) {
+            setErrors({ email: emailErr });
+            return;
+        }
+
+        try {
+            setResendLoading(true)
+            // /api/users/resend-otp
+            await api.post(`/users/resend-otp`, { email, type: 'forgot_password' });
+            SuccessToast('OTP Resent successfully to your email');
+            setErrors({});
+            setStep(2); // Move directly to password reset + OTP entry
+        } catch (error) {
+            ErrorToast(error?.response?.data?.message || 'Something went wrong');
+        } finally {
+            setResendLoading(false)
+
+        }
+    };
+
 
     const handleSendOtp = async () => {
         // 
@@ -63,6 +108,7 @@ export default function ForgotPassword({ onBack }) {
 
     const handleResetPassword = async () => {
         const validationErrors = validateInputs();
+
         if (Object.keys(validationErrors).length > 0) {
             setErrors(validationErrors);
             return;
@@ -128,20 +174,35 @@ export default function ForgotPassword({ onBack }) {
 
             {step === 2 && (
                 <>
-                    <InputField
-                        id="otp"
-                        label="Enter OTP"
-                        type="text"
-                        placeholder="6-digit OTP"
-                        value={otp}
-                        maxLength={6}
-                        onChange={(e) => {
-                            setOtp(e.target.value);
-                            setErrors((prev) => ({ ...prev, otp: '' }));
-                        }}
-                        error={errors.otp}
-                        helperText={errors.otp}
-                    />
+                    <div className='felx flex-col'>
+                        <InputField
+                            id="otp"
+                            label="Enter OTP"
+                            type="text"
+                            placeholder="6-digit OTP"
+                            value={otp}
+                            maxLength={6}
+                            onChange={(e) => {
+                                setOtp(e.target.value);
+                                setErrors((prev) => ({ ...prev, otp: '' }));
+                            }}
+                            className='mb-2'
+                            error={errors.otp}
+                            helperText={errors.otp}
+                        />
+
+                        <div className='flex justify-end items-start '>
+                            <button
+                                disabled={resendLoading}
+
+                                type="button"
+                                onClick={handleReSendOtp}
+                                className="w-auto text-primary-600 hover:underline dark:text-primary-400 mt-1 text-xs font-medium hover:cursor-pointer disabled:text-gray-400 transition-colors"
+                            >
+                                Resend OTP
+                            </button>
+                        </div>
+                    </div>
 
                     <InputField
                         id="password"
@@ -177,6 +238,25 @@ export default function ForgotPassword({ onBack }) {
                         error={errors.confirmPassword}
                         helperText={errors.confirmPassword}
                     />
+                    {/* <p className="text-sm font-medium text-blue-600 dark:text-blue-400 mb-2">
+                        💡 Tip: Use a strong password (include special characters, numbers, and letters)
+                    </p> */}
+
+                    {/* <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1 pl-1">
+                            <li className="flex items-center gap-2">
+                                <span className="text-green-500">✔</span> At least 8 characters
+                            </li>
+                            <li className="flex items-center gap-2">
+                                <span className="text-blue-500">✔</span> Uppercase & lowercase letters
+                            </li>
+                            <li className="flex items-center gap-2">
+                                <span className="text-yellow-500">✔</span> Numbers
+                            </li>
+                            <li className="flex items-center gap-2">
+                                <span className="text-red-500">✔</span> Special characters
+                                <span className="font-mono text-gray-500 dark:text-gray-300">!@#$%^&*</span>
+                            </li>
+                        </ul> */}
 
                     <Button
                         type="button"

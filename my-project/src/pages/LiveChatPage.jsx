@@ -9,7 +9,6 @@ import Avatar from "../components/Avatar";
 import { IoMdSend } from "react-icons/io";
 import Loader from "../components/Loader";
 import { toast } from "react-hot-toast";
-import { FiCheck, FiClipboard } from "react-icons/fi";
 
 const VITE_SOCKET_IO_URL =
   import.meta.env.VITE_SOCKET_IO_URL || "http://localhost:5000";
@@ -19,8 +18,6 @@ const LiveChatPage = () => {
   const { user, token } = useAuth();
   const { id: projectId } = useParams();
   const navigate = useNavigate();
-  const [copied, setCopied] = useState(false);
-
 
   // State variables
   const [conversations, setConversations] = useState([]);
@@ -50,18 +47,6 @@ const LiveChatPage = () => {
     ? JSON.parse(localStorage.getItem("currentProject"))
     : null;
   const businessProfileId = project?.businessProfileId._id || null;
-  const handleCopy = async (msg) => {
-    try {
-      const textToCopy = msg?.message?.body || "";
-      if (!textToCopy) return;
-
-      await navigator.clipboard.writeText(textToCopy);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
-    } catch (err) {
-      console.error("Copy failed:", err);
-    }
-  };
 
   const config = {
     headers: {
@@ -595,8 +580,8 @@ const LiveChatPage = () => {
               <div
                 key={conv._id}
                 className={`flex p-3 dark:text-dark-text-primary dark:border-dark-border dark:bg-dark-surface cursor-pointer border-b border-gray-200 hover:bg-gray-100 transition duration-150 ${selectedConversation?._id === conv._id
-                  ? "bg-gray-100 border-l-4 border-blue-500"
-                  : ""
+                    ? "bg-gray-100 border-l-4 border-blue-500"
+                    : ""
                   }`}
                 onClick={() => handleConversationSelect(conv)}
               >
@@ -689,52 +674,35 @@ const LiveChatPage = () => {
               ) : (
                 messages.map((msg) => (
                   <div
-                    className={`relative  group max-w-xs p-3 rounded-lg shadow-sm break-words overflow-hidden
-        dark:bg-dark-surface dark:text-dark-text-primary dark:border-dark-surface
-        ${msg.direction === "outbound"
-                        ? "bg-blue-500 text-white"
-                        : "bg-white text-gray-800 border border-gray-200"
+                    key={msg._id}
+                    className={`flex ${msg.direction === "outbound" ? "justify-end" : "justify-start"
                       }`}
                   >
-                    {/* Message content */}
-                    <div className="break-words overflow-hidden mt-2">{renderMessageContent(msg)}</div>
-
-                    {/* Timestamp + status */}
-                    <p
-                      className={`text-xs mt-1 flex items-center ${msg.direction === "outbound" ? "text-blue-100" : "text-gray-500"
+                    <div
+                      className={`max-w-xs p-3 rounded-lg dark:bg-dark-surface dark:text-dark-text-primary dark:border-dark-surface shadow-sm ${msg.direction === "outbound"
+                          ? "bg-blue-500 text-white"
+                          : "bg-white text-gray-800 border border-gray-200"
                         }`}
                     >
-                      {new Date(msg.sentAt).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                      {msg.direction === "outbound" && (
-                        <span className="ml-2">{renderStatusIcon(msg.status)}</span>
-                      )}
-                    </p>
-
-                    {/* Copy button - Only for text messages */}
-                    {msg.type === "text" && (
-                      <button
-                        onClick={() => handleCopy(msg)}
-                        className={`absolute top-1 right-1 opacity-0 group-hover:opacity-100
-                  transition-all duration-300 transform hover:scale-110
-                  ${copied ? "bg-green-500" : "bg-gray-800/70 hover:bg-gray-900"}
-                  text-white p-1.5 rounded-full shadow-lg`}
+                      {renderMessageContent(msg)}
+                      <p
+                        className={`text-xs mt-1 flex items-center ${msg.direction === "outbound"
+                            ? "text-blue-100"
+                            : "text-gray-500"
+                          }`}
                       >
-                        {copied ? <FiCheck size={16} /> : <FiClipboard size={16} />}
-                      </button>
-                    )}
-
-                    {/* Animated Tooltip */}
-                    {copied && (
-                      <div className="absolute -top-8 right-2 bg-green-500 text-white text-xs py-1 px-3 rounded-full shadow-md
-                    animate-fade-in">
-                        Copied!
-                      </div>
-                    )}
+                        {new Date(msg.sentAt).toLocaleTimeString([], {
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                        {msg.direction === "outbound" && (
+                          <span className="ml-2">
+                            {renderStatusIcon(msg.status)}
+                          </span>
+                        )}
+                      </p>
+                    </div>
                   </div>
-
                 ))
               )}
               <div ref={messagesEndRef} />
@@ -752,8 +720,8 @@ const LiveChatPage = () => {
                     key={type}
                     type="button"
                     className={`px-3 py-1 dark:bg-dark-bg-primary dark:text-dark-text-primary text-sm rounded transition ${messageType === type
-                      ? "bg-blue-500 text-white"
-                      : "bg-gray-200 hover:bg-gray-300"
+                        ? "bg-blue-500 text-white"
+                        : "bg-gray-200 hover:bg-gray-300"
                       }`}
                     onClick={() => {
                       setMessageType(type);

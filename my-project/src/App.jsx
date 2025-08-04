@@ -37,7 +37,7 @@ import FlowsPage from './pages/FlowsPage';
 import ProfilePage from './pages/ProfilePage';
 import UserSetting from './pages/UserSetting';
 import UpdatePassword from './components/UpdatePassword';
-import TeamMembers from './pages/TeamMembers';
+import TeamMembers from './pages/TeamMember';
 import LandingPage from './pages/LandingPage';
 import AddTeamMembers from './components/AddTeamMembers';
 import UserProfileLayout from './layout/userProfileLayout';

@@ -998,8 +998,9 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import io from "socket.io-client";
 import * as XLSX from 'xlsx';
-import GroupWiseBroadcasting from "./GroupWiseBroadcasting";
 import { toast } from "react-hot-toast";
+import SendCarrouselGroupWise, { CarouselCard } from "./SendCarrouselGroupWise";
+import { CircleGauge } from "lucide-react";
 
 const VITE_SOCKET_IO_URL = import.meta.env.VITE_SOCKET_IO_URL || 'http://localhost:5001';
 const socket = io(VITE_SOCKET_IO_URL, { transports: ["websocket", "polling"] });
@@ -1041,13 +1042,16 @@ const SendCarosualTemplate = () => {
   const [expectedColumns, setExpectedColumns] = useState([]);
   const [mismatchedHeaders, setMismatchedHeaders] = useState([]);
   const [imageId, setImageId] = useState("");
-
+  const [carouselImages, setCarouselImages] = useState({});
+  const [carouselPreviews, setCarouselPreviews] = useState({});
   const [templates, setTemplates] = useState([]);
   const [messageStatus, setMessageStatus] = useState({
     latest: null,
     recent: []
   });
 
+
+  console.log("carouselImages", carouselImages)
   const project = JSON.parse(localStorage.getItem("currentProject")) || "";
   const businessProfileId = project?.businessProfileId?._id || null;
 
@@ -1176,10 +1180,14 @@ const SendCarosualTemplate = () => {
     }
 
     setIsLoading(prev => ({ ...prev, sending: true }));
-
+    console.log("carouselImages", carouselImages)
     const formData = new FormData();
     formData.append("file", bulkContactsFile);
-    formData.append("imageId", imageId);
+    // formData.append("imageId", JSON.stringify(
+    //   carouselImages
+    // ))
+    formData.append("imageId", JSON.stringify(carouselImages));
+
     formData.append("templateName", bulkTemplateName);
     formData.append("message", JSON.stringify({
       language: { code: bulkTemplateLanguage },
@@ -1210,85 +1218,210 @@ const SendCarosualTemplate = () => {
     }
   };
 
+  // const renderHeaderImageUpload = () => {
+  //   try {
+  //     const parsed = JSON.parse(bulkTemplateComponents);
+  //     const header = parsed.find(c => c.type === "HEADER" && c.format === "IMAGE");
+
+  //     if (!header) return null;
+
+  //     return (
+  //       <div className="mt-4">
+  //         <label className="block font-medium text-gray-700 mb-1">
+  //           Upload Header Image
+  //         </label>
+  //         <input
+  //           type="file"
+  //           accept="image/*"
+  //           onChange={async (e) => {
+  //             const file = e.target.files[0];
+  //             if (!file) return;
+
+  //             setIsLoading(prev => ({ ...prev, uploading: true }));
+
+  //             const formData = new FormData();
+  //             formData.append("file", file);
+  //             formData.append("type", "image");
+
+  //             try {
+  //               const res = await api.post(
+  //                 `/projects/${projectId}/messages/upload-media`,
+  //                 formData,
+  //                 {
+  //                   headers: {
+  //                     "Content-Type": "multipart/form-data",
+  //                     Authorization: `Bearer ${token}`,
+  //                   },
+  //                 }
+  //               );
+
+  //               setImageId(res.data?.id || res.data?.data.id || "");
+  //               const mediaHandle = res.data?.id || res.data?.data.id;
+  //               if (!mediaHandle) {
+  //                 alert("Upload succeeded but media handle missing");
+  //                 return;
+  //               }
+
+  //               // Update the HEADER example with new handle
+  //               const updatedComponents = parsed.map((comp) => {
+  //                 if (comp.type === "HEADER" && comp.format === "IMAGE") {
+  //                   return {
+  //                     ...comp,
+  //                     example: {
+  //                       header_handle: [mediaHandle],
+  //                     },
+  //                   };
+  //                 }
+  //                 return comp;
+  //               });
+
+  //               setBulkTemplateComponents(JSON.stringify(updatedComponents, null, 2));
+  //               toast.success("Image uploaded successfully");
+  //             } catch (error) {
+  //               toast.error("Image upload failed");
+  //               console.error("Upload error:", error);
+  //             } finally {
+  //               setIsLoading(prev => ({ ...prev, uploading: false }));
+  //             }
+  //           }}
+  //           className="block w-full border rounded-md p-2 bg-white"
+  //           disabled={isLoading.uploading}
+  //         />
+  //         <p className="text-sm text-gray-500 mt-1">
+  //           Required for templates with image headers
+  //         </p>
+  //       </div>
+  //     );
+  //   } catch (e) {
+  //     return null;
+  //   }
+  // };
+
   const renderHeaderImageUpload = () => {
     try {
       const parsed = JSON.parse(bulkTemplateComponents);
-      const header = parsed.find(c => c.type === "HEADER" && c.format === "IMAGE");
-
-      if (!header) return null;
+      const carousel = parsed.find((c) => c.type === "CAROUSEL");
+      if (!carousel || !carousel.cards) return null;
 
       return (
-        <div className="mt-4">
-          <label className="block font-medium text-gray-700 mb-1">
-            Upload Header Image
+        <div className="mt-6">
+          <label className="block font-semibold text-gray-800 mb-4 text-lg">
+            Carousel Image Upload
           </label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={async (e) => {
-              const file = e.target.files[0];
-              if (!file) return;
 
-              setIsLoading(prev => ({ ...prev, uploading: true }));
+          {/* Horizontal Scroll */}
+          <div className="flex overflow-x-auto space-x-4 pb-2">
+            {carousel.cards.map((card, cardIndex) => {
+              const header = card.components.find(
+                (c) => c.type === "HEADER" && c.format === "IMAGE"
+              );
+              const bodyText = card.components.find((c) => c.type === "BODY")?.text || "";
 
-              const formData = new FormData();
-              formData.append("file", file);
-              formData.append("type", "image");
+              const previewUrl =
+                carouselPreviews[cardIndex] ||
+                header.example.header_handle?.[0] ||
+                "";
 
-              try {
-                const res = await api.post(
-                  `/projects/${projectId}/messages/upload-media`,
-                  formData,
-                  {
-                    headers: {
-                      "Content-Type": "multipart/form-data",
-                      Authorization: `Bearer ${token}`,
-                    },
-                  }
-                );
+              return (
+                <CarouselCard
+                  key={cardIndex}
+                  cardIndex={cardIndex}
+                  headerImage={previewUrl}  // Show preview URL
+                  bodyText={bodyText}
+                  isLoading={isLoading[cardIndex]}
+                  onFileSelect={async (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
 
-                setImageId(res.data?.id || res.data?.data.id || "");
-                const mediaHandle = res.data?.id || res.data?.data.id;
-                if (!mediaHandle) {
-                  alert("Upload succeeded but media handle missing");
-                  return;
-                }
+                    // ✅ Create local preview
+                    const previewUrl = URL.createObjectURL(file);
+                    setCarouselPreviews((prev) => ({
+                      ...prev,
+                      [cardIndex]: previewUrl,
+                    }));
 
-                // Update the HEADER example with new handle
-                const updatedComponents = parsed.map((comp) => {
-                  if (comp.type === "HEADER" && comp.format === "IMAGE") {
-                    return {
-                      ...comp,
-                      example: {
-                        header_handle: [mediaHandle],
-                      },
-                    };
-                  }
-                  return comp;
-                });
+                    // ✅ Show loading
+                    setIsLoading((prev) => ({ ...prev, [cardIndex]: true }));
 
-                setBulkTemplateComponents(JSON.stringify(updatedComponents, null, 2));
-                toast.success("Image uploaded successfully");
-              } catch (error) {
-                toast.error("Image upload failed");
-                console.error("Upload error:", error);
-              } finally {
-                setIsLoading(prev => ({ ...prev, uploading: false }));
-              }
-            }}
-            className="block w-full border rounded-md p-2 bg-white"
-            disabled={isLoading.uploading}
-          />
-          <p className="text-sm text-gray-500 mt-1">
-            Required for templates with image headers
-          </p>
+                    const formData = new FormData();
+                    formData.append("file", file);
+                    formData.append("type", "image");
+
+                    try {
+                      // Upload to backend
+                      const res = await api.post(
+                        `/projects/${projectId}/messages/upload-media`,
+                        formData,
+                        {
+                          headers: {
+                            "Content-Type": "multipart/form-data",
+                            Authorization: `Bearer ${token}`,
+                          },
+                        }
+                      );
+
+                      const mediaHandle = res.data?.id || res.data?.data?.id;
+                      if (!mediaHandle) {
+                        alert("Upload succeeded but media handle missing");
+                        return;
+                      }
+
+                      // ✅ Store only media handle in backend state
+                      setCarouselImages((prev) => ({
+                        ...prev,
+                        [cardIndex]: mediaHandle,
+                      }));
+
+                      // ✅ Update JSON
+                      const updatedComponents = parsed.map((comp) => {
+                        if (comp.type === "CAROUSEL") {
+                          return {
+                            ...comp,
+                            cards: comp.cards.map((c, idx) => {
+                              if (idx === cardIndex) {
+                                return {
+                                  ...c,
+                                  components: c.components.map((innerComp) => {
+                                    if (
+                                      innerComp.type === "HEADER" &&
+                                      innerComp.format === "IMAGE"
+                                    ) {
+                                      return {
+                                        ...innerComp,
+                                        example: { header_handle: [mediaHandle] },
+                                      };
+                                    }
+                                    return innerComp;
+                                  }),
+                                };
+                              }
+                              return c;
+                            }),
+                          };
+                        }
+                        return comp;
+                      });
+
+                      setBulkTemplateComponents(JSON.stringify(updatedComponents, null, 2));
+                      toast.success(`Image uploaded for card ${cardIndex + 1}`);
+                    } catch (error) {
+                      toast.error("Image upload failed");
+                      console.error("Upload error:", error);
+                    } finally {
+                      setIsLoading((prev) => ({ ...prev, [cardIndex]: false }));
+                    }
+                  }}
+                />
+              );
+            })}
+          </div>
         </div>
       );
     } catch (e) {
+      console.error("Error parsing bulkTemplateComponents:", e);
       return null;
     }
   };
-
   const renderTemplatePreview = () => {
     try {
       const parsed = JSON.parse(bulkTemplateComponents);
@@ -1391,8 +1524,8 @@ const SendCarosualTemplate = () => {
             <p>
               <span className="font-medium">Status:</span>{" "}
               <span className={`font-semibold ${messageStatus.latest.newStatus === "delivered" ? "text-green-600" :
-                  messageStatus.latest.newStatus === "read" ? "text-blue-600" :
-                    messageStatus.latest.newStatus === "failed" ? "text-red-600" : "text-yellow-600"
+                messageStatus.latest.newStatus === "read" ? "text-blue-600" :
+                  messageStatus.latest.newStatus === "failed" ? "text-red-600" : "text-yellow-600"
                 }`}>
                 {messageStatus.latest.newStatus.toUpperCase()}
               </span>
@@ -1420,7 +1553,7 @@ const SendCarosualTemplate = () => {
       </div>
 
       {activeTab === "group" ? (
-        <GroupWiseBroadcasting />
+        <SendCarrouselGroupWise />
       ) : (
         <div className="p-4 border border-gray-200 rounded-lg">
           <h3 className="text-xl font-semibold mb-4">Bulk Template Messages</h3>

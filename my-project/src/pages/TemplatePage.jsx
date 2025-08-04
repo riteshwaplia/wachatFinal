@@ -31,6 +31,7 @@ const TemplatePage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [templateToDelete, setTemplateToDelete] = useState(null);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [templateType, setTemplateType] = useState('')
   const project = localStorage.getItem("currentProject")
     ? JSON.parse(localStorage.getItem("currentProject"))
     : null;
@@ -47,7 +48,7 @@ const TemplatePage = () => {
     },
   };
 
-  const fetchTemplates = async () => {
+  const fetchTemplates = async (type) => {
     setIsLoading(true);
     try {
       const res = await api.get("/templates", {
@@ -55,7 +56,8 @@ const TemplatePage = () => {
         params: {
           businessProfileId,
           page,
-          limit: 6, // adjust per row/column size
+          limit: 6,
+          type: type // adjust per row/column size
         },
       });
 
@@ -82,11 +84,11 @@ const TemplatePage = () => {
 
   useEffect(() => {
     if (user && token && projectId) {
-      fetchTemplates();
+      fetchTemplates(templateType);
     } else if (!user) {
       navigate("/login");
     }
-  }, [user, token, projectId, page]);
+  }, [user, token, projectId, page, templateType]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -281,6 +283,23 @@ const TemplatePage = () => {
           </Button>
         </div>
       </div>
+      <div className="w-full flex justify-end items-end sm:w-auto">
+
+        <select
+          id="template"
+          value={templateType}
+          onChange={(e) => setTemplateType(e.target.value)}
+          className="w-full sm:w-auto px-4 py-2 border border-gray-300 dark:border-gray-600 
+               rounded-lg bg-white dark:bg-dark-surface text-gray-700 dark:text-gray-200
+               focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none
+               transition-colors"
+        >
+          <option value="">Filter Template</option>
+          <option value="regular">Regular Template</option>
+          <option value="carousel">Carousel Template</option>
+        </select>
+      </div>
+
 
 
       {/* Message Alert */}

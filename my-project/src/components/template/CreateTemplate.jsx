@@ -15,6 +15,7 @@ import { BackButton } from "../BackButton";
 import Badge from "../Badge";
 import Modal from "../Modal";
 import Button from "../Button";
+import { ErrorToast } from "../../utils/Toast";
 
 const TEMPLATE_CATEGORIES = [
   { label: "Marketing", value: "MARKETING" },
@@ -43,7 +44,7 @@ const CreateTemplate = () => {
   const [loading, setLoading] = useState(false); // For loading state
   const variableCounter = useRef(1); // For unique variable numbering
   const [variableExamples, setVariableExamples] = useState({}); // For text header variable examples
-const navigate = useNavigate(); // Assuming you have react-router's useNavigate for navigation  
+  const navigate = useNavigate(); // Assuming you have react-router's useNavigate for navigation  
   // Logic to get businessProfileId from local storage (or context)
   const [businessProfileId, setBusinessProfileId] = useState(null);
   useEffect(() => {
@@ -296,6 +297,11 @@ const navigate = useNavigate(); // Assuming you have react-router's useNavigate 
 
       // Extract all variables like {{1}}, {{user_name}}, etc.
       const variablesInText = extractVariables(plainText);
+      
+      if (variablesInText?.length > 10) {
+        ErrorToast("variables limit exceeds(10)")
+        return
+      }
 
       if (variablesInText.length > 0) {
         // Create example values only for each variable
@@ -362,7 +368,7 @@ const navigate = useNavigate(); // Assuming you have react-router's useNavigate 
     setLoading(true); // Set loading state while creating template
     try {
       console.log("Template Create Payload:", JSON.stringify(payload, null, 2));
-      const res = await api.post("/templates", payload); // Assuming api.post is configured for /api/templates
+      const res = await api.pp("/templates", payload); // Assuming api.post is configured for /api/templates
       console.log("Template created successfully:", res.data);
       setLoading(false); // Reset loading state after creation
       alert(res.data.message || "Template created successfully!");
@@ -374,8 +380,7 @@ const navigate = useNavigate(); // Assuming you have react-router's useNavigate 
         error.response?.data || error.message
       );
       alert(
-        `Error creating template: ${
-          error.response?.data?.message || error.message
+        `Error creating template: ${error.response?.data?.message || error.message
         }`
       );
     }
@@ -410,6 +415,8 @@ const navigate = useNavigate(); // Assuming you have react-router's useNavigate 
     if (!template.language) errors.language = "Language is required.";
 
     // Body validation
+
+
     if (
       !bodyComponent?.text ||
       bodyComponent.text.replace(/<[^>]*>/g, "").trim() === ""
@@ -572,11 +579,10 @@ const navigate = useNavigate(); // Assuming you have react-router's useNavigate 
                       ? insertVariable
                       : undefined
                   }
-                  className={`px-2 py-1 rounded text-sm mt-2 ${
-                    extractVariables(headerComponentInState.text).length === 0
-                      ? "bg-blue-600 text-white hover:bg-blue-700"
-                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  }`}
+                  className={`px-2 py-1 rounded text-sm mt-2 ${extractVariables(headerComponentInState.text).length === 0
+                    ? "bg-blue-600 text-white hover:bg-blue-700"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    }`}
                   type="button"
                   disabled={
                     loading ||
@@ -618,33 +624,33 @@ const navigate = useNavigate(); // Assuming you have react-router's useNavigate 
             {["DOCUMENT", "IMAGE", "VIDEO"].includes(
               headerComponentInState?.format || ""
             ) && (
-              <div className="space-y-2">
-                <input
-                  type="file"
-                  accept={
-                    headerComponentInState?.format === "IMAGE"
-                      ? "image/*"
-                      : headerComponentInState?.format === "VIDEO"
-                      ? "video/*"
-                      : ".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt"
-                  }
-                  onChange={handleHeaderContentChange}
-                  className="w-full border p-2 rounded"
-                  disabled={loading || headerComponentInState?.mediaHandle}
-                />
-                {headerComponentInState?.mediaHandle && (
-                  <div className="text-sm text-green-600">
-                    ✓ Media uploaded successfully
-                    {/* {headerComponentInState.mediaHandle}) */}
-                  </div>
-                )}
-                {errors.headerMedia && (
-                  <div className="text-sm text-red-500 mt-1">
-                    {errors.headerMedia}
-                  </div>
-                )}
-              </div>
-            )}
+                <div className="space-y-2">
+                  <input
+                    type="file"
+                    accept={
+                      headerComponentInState?.format === "IMAGE"
+                        ? "image/*"
+                        : headerComponentInState?.format === "VIDEO"
+                          ? "video/*"
+                          : ".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt"
+                    }
+                    onChange={handleHeaderContentChange}
+                    className="w-full border p-2 rounded"
+                    disabled={loading || headerComponentInState?.mediaHandle}
+                  />
+                  {headerComponentInState?.mediaHandle && (
+                    <div className="text-sm text-green-600">
+                      ✓ Media uploaded successfully
+                      {/* {headerComponentInState.mediaHandle}) */}
+                    </div>
+                  )}
+                  {errors.headerMedia && (
+                    <div className="text-sm text-red-500 mt-1">
+                      {errors.headerMedia}
+                    </div>
+                  )}
+                </div>
+              )}
           </div>
 
           {/* Body Section */}
@@ -663,9 +669,8 @@ const navigate = useNavigate(); // Assuming you have react-router's useNavigate 
               loading={loading}
             />
             <div
-              className={`text-sm mt-1 ${
-                characterCount > 1024 ? "text-red-500" : "text-gray-500"
-              }`}
+              className={`text-sm mt-1 ${characterCount > 1024 ? "text-red-500" : "text-gray-500"
+                }`}
             >
               Characters: {characterCount}/1024
               {characterCount > 1024 && " - Exceeds WhatsApp limit"}
@@ -702,7 +707,7 @@ const navigate = useNavigate(); // Assuming you have react-router's useNavigate 
               isValid && businessProfileId
                 ? "bg-green-600 hover:bg-green-700"
                 : "bg-gray-400 cursor-not-allowed"
-            }`}
+              }`}
           >
             Create Template
           </Button>

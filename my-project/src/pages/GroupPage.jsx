@@ -88,43 +88,40 @@ const GroupPage = () => {
   };
 
 
-  const validateGroupData = () => {
-    const errors = {};
+ const validateGroupData = () => {
+  const errors = {};
 
-    // Trim to remove spaces at start/end
-    const title = formData.title.trim();
-    const dsc = formData.description.trim();
-    // 1️⃣ Required check
-    if (!title) {
-      errors.title = "Group name is required";
-    }
-    // 2️⃣ Special character check (allow only letters, numbers, and spaces)
-    else if (!/^[a-zA-Z0-9 ]+$/.test(title)) {
-      errors.title = "Special characters are not allowed";
-    }
-   if (dsc) {
-  // Limit length example
-  if (dsc.length > 200) {
-    errors.description = "Description cannot exceed 200 characters";
+  // Trim to remove spaces at start/end
+  const title = formData.title.trim();
+  const dsc = formData.description.trim();
+
+  // 1️⃣ Required check for title
+  if (!title) {
+    errors.title = "Group name is required";
   } 
-  // Optional: Allow basic punctuation but block symbols like @#$%^
-  else if (!/^[a-zA-Z0-9.,!? ]+$/.test(dsc)) {
-    errors.description = "Description contains invalid characters";
+  if(title.length < 3){
+    errors.title = "Group name must contain 3 characters";
+
   }
-}
+  // 2️⃣ Length check for title (optional, e.g., max 50 chars)
+  else if (title.length > 50) {
+    errors.title = "Group name cannot exceed 50 characters";
+  }
 
-
-
-    // Show errors if any
-    if (Object.keys(errors).length > 0) {
-      setErrors(errors);           // For UI error display
-      // Optionally show a toast
-      // ErrorToast(Object.values(errors)[0]);  
-      return false;
+  // 3️⃣ Description checks
+  if (dsc) {
+    if (dsc.length > 200) {
+      errors.description = "Description cannot exceed 200 characters";
+    } else if (!/^[a-zA-Z0-9 _]*$/.test(dsc)) {
+      errors.description = "Description can only contain letters, numbers, spaces, and underscores";
     }
+  }
 
-    return true; // ✅ Validation passed
-  };
+  setErrors(errors);
+  return Object.keys(errors).length === 0; // ✅ returns true if no errors
+};
+
+console.log("err", erorrs)
 
 
 
@@ -214,20 +211,33 @@ const GroupPage = () => {
 
 
   // Handle form input changes
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    if (name === 'title') {
-      const isValid = /^[a-zA-Z0-9]*$/.test(value);
-      setErrors((prev) => ({
-        ...prev,
-        title: isValid ? '' : 'Specal characters are not allowed',
-      }));
-      if (erorrs[name]) {
-        setErrors(prev => ({ ...prev, [name]: '' }));
-      }
-    }
+const handleInputChange = (e) => {
+  const { name, value } = e.target;
+  
+  // Update form data
+  setFormData((prev) => ({ ...prev, [name]: value }));
+
+  // Validation per field
+  if (name === 'title') {
+    // ✅ Allow letters, numbers, spaces, and underscores
+   const isValid = /^[a-zA-Z0-9_]*$/.test(value);
+setErrors((prev) => ({
+  ...prev,
+  title: isValid ? '' : 'Only letters, numbers, and underscores are allowed',
+}));
+
   }
+
+  if (name === 'description') {
+    // ✅ Allow letters, numbers, spaces, and underscores
+    const isValid = /^[a-zA-Z0-9 _]*$/.test(value);
+    setErrors((prev) => ({
+      ...prev,
+      description: isValid ? '' : 'Only letters, numbers, spaces, and underscores are allowed',
+    }));
+  }
+};
+
 
   // Handle form submission
 const handleSubmit = async (e) => {
@@ -246,41 +256,43 @@ const handleSubmit = async (e) => {
 
     const res = await api[method](endpoint, formData, config);
 
-    // ✅ Show success toast
-    SuccessToast(res.data.message || "Group saved successfully");
+    const { success, message, errors } = res.data;
 
-    // ✅ Reset form and close modal
-    setFormData({ title: "", description: "" });
-    setEditingGroup(null);
-    setIsModalOpen(false);
-    fetchGroups();
+    if (success) {
+      // ✅ Success toast
+      SuccessToast(message || "Group saved successfully");
+
+      // ✅ Reset form and close modal
+      setFormData({ title: "", description: "" });
+      setEditingGroup(null);
+      setIsModalOpen(false);
+      fetchGroups();
+    } else {
+      // ✅ Handle validation errors
+      if (Array.isArray(errors) && errors.length > 0) {
+        errors.forEach((err) => ErrorToast(err)); // Show each error
+      } else {
+        ErrorToast(message || "Failed to save group");
+      }
+    }
   } catch (error) {
     console.error("Save group failed:", error);
 
-    let errorMessage = "Failed to save group";
-
-    if (error.response) {
-      const data = error.response.data;
-
-      if (data.message) {
-        errorMessage = data.message;
-      } else if (Array.isArray(data.errors)) {
-        errorMessage = data.errors.join(", ");
-      } else if (typeof data === "string") {
-        errorMessage = data;
-      }
+    const data = error.response?.data;
+    if (data?.errors && Array.isArray(data.errors)) {
+      data.errors.forEach((err) => ErrorToast(err));
+    } else if (data?.message) {
+      ErrorToast(data.message);
     } else if (error.request) {
-      errorMessage = "No response from server. Please try again.";
+      ErrorToast("No response from server. Please try again.");
     } else {
-      errorMessage = error.message || errorMessage;
+      ErrorToast(error.message || "Failed to save group");
     }
-
-    // ✅ Show error toast
-    ErrorToast(errorMessage);
   } finally {
     setLoding(false);
   }
 };
+
 
 
   // Toggle group status (active/archive)
@@ -903,7 +915,7 @@ const handleSubmit = async (e) => {
             <InputField
               label={t('groupName')}
               name="title"
-              value={(formData.title).replace(/[^a-zA-Z0-9]/g, '')}
+              value={(formData.title)}
               error={erorrs.title}
               helperText={erorrs.title}
               onChange={handleInputChange}
@@ -918,17 +930,25 @@ const handleSubmit = async (e) => {
             >
               {t('description')}
             </label>
-            <textarea
-              id="description"
-              name="description"
-              rows={3}
-              className="w-full dark:bg-dark-surface dark:text-dark-text-primary px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-              value={formData.description}
-              onChange={handleInputChange}
-              error={erorrs.description}
+       <div className="w-full">
+  <textarea
+    id="description"
+    name="description"
+    rows={3}
+    className={`w-full dark:bg-dark-surface dark:text-dark-text-primary px-3 py-2 border rounded-md focus:outline-none focus:ring-2
+      ${erorrs.description 
+        ? "border-red-500 focus:ring-red-500 focus:border-red-500" 
+        : "border-gray-300 focus:ring-primary-500 focus:border-primary-500"
+      }`}
+    value={formData.description}
+    onChange={handleInputChange}
+  />
 
-                        helperText={erorrs.description}
-            />
+  {erorrs.description && (
+    <p className="mt-1 text-sm text-red-500">{erorrs.description}</p>
+  )}
+</div>
+
           </div>
           <div className="flex justify-end space-x-3 pt-4">
             <Button

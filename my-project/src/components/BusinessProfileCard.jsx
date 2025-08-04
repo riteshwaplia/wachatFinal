@@ -8,6 +8,7 @@ import Modal from './Modal';
 import InputField from './InputField';
 import axios from 'axios';
 import api from '../utils/api';
+import { ErrorToast, SuccessToast } from '../utils/Toast';
 
 
 const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick, fetchBusinessProfiles }) => {
@@ -25,29 +26,34 @@ const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick, fetchBu
   const [modalOpen, setModelOpen] = useState(false);
 
   const handleChange = (key, value) => {
-    // ✅ Allow letters, numbers, @, and underscore only
-    const isValid = /^[a-zA-Z0-9@_]*$/.test(value);
+    // ✅ Allow letters, numbers, underscore, and spaces only
+    const isValid = /^[a-zA-Z0-9_\s]*$/.test(value);
 
     if (!isValid) {
-      // ❌ Show error message for that field
-      setErrors((prev) => ({ ...prev, [key]: "Special characters are not allowed" }));
-      return; // Don't update state with invalid input
+      setErrors((prev) => ({ ...prev, [key]: "Only letters, numbers, spaces, and underscore (_) are allowed" }));
+      return;
+    }
+
+    // ✅ For name field, check minimum 3 characters if not empty
+    if (key === "name" && value.trim().length > 0 && value.trim().length < 3) {
+      setErrors((prev) => ({ ...prev, [key]: "Name must be at least 3 characters long" }));
+    } else {
+      // ✅ Clear error if valid
+      setErrors((prev) => ({ ...prev, [key]: "" }));
     }
 
     // ✅ Update state
     setBusinessData((prev) => ({ ...prev, [key]: value }));
-
-    // ✅ Clear error if exists
-    setErrors((prev) => ({ ...prev, [key]: '' }));
   };
+
 
   const updateBusinessProfile = async (id, data) => {
     return api.put(`/users/business-profiles/${id}`, data);
   };
   const submitHandler = async (e) => {
+    e.preventDefault();
 
     const newErrors = {};
-    e.preventDefault();
     if (!businessdata.name) {
       newErrors.name = "Business name is required";
     }
@@ -58,33 +64,45 @@ const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick, fetchBu
       newErrors.metaAccessToken = "Access Token is required";
     }
     if (!businessdata.metaAppId) {
-      newErrors.metaAppId = "metaAppId "
+      newErrors.metaAppId = "Meta App Id is required";
     }
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
-      return
+      return;
     }
-    setLoading(true)
-    try {
 
+    setLoading(true);
+
+    try {
       const res = await updateBusinessProfile(profile._id, businessdata);
-      console.log("resss", res);
-      if (res.data.success === true) {
-        console.log("success");
-        fetchBusinessProfiles()
+      console.log("Response:", res);
+
+      const { success, message } = res.data || {};
+
+      if (success) {
+        // ✅ Success toast
+        SuccessToast(message || "Business profile updated successfully!");
+
+        // ✅ Refresh data
+        await fetchBusinessProfiles();
+
+        // ✅ Close modal after success
+        setModelOpen(false);
+      } else {
+        // ❌ Error toast for backend failure
+        ErrorToast(message || "Unable to update business profile.");
       }
-      else {
-        console.log("unable to update business profile");
-      }
-      setModelOpen(false);
 
     } catch (error) {
-      console.error(error);
+      console.error("Error updating business profile:", error);
+      // ❌ Error toast for network/exception
+      ErrorToast(error.response?.data?.message || "Something went wrong while updating the profile.");
     } finally {
       setLoading(false);
     }
+  };
 
-  }
 
   return (
     <div
@@ -123,7 +141,7 @@ const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick, fetchBu
                 onChange={(e) => handleChange("wabaId", e.target.value)}
                 placeholder="e.g., 123456789012345"
                 maxlength={50}
-type='number'
+                type='number'
                 error={errros.wabaId}
                 helperText={errros.wabaId}
 
@@ -137,7 +155,7 @@ type='number'
                 onChange={(e) => handleChange("metaAppId", e.target.value)}
                 placeholder="e.g., 123456789012345"
                 maxlength={50}
-type='number'
+                type='number'
                 error={errros.metaAppId}
                 helperText={errros.metaAppId}
 
