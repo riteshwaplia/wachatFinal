@@ -298,3 +298,7 @@ const RichTextEditor = ({ onChange, value, loading ,carosual=true}) => {
 };
 
 export default RichTextEditor;
+
+
+
+//backup richtexteditor

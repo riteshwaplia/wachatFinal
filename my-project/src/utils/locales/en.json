@@ -191,5 +191,26 @@
   "time": "Time",
   "broadcastDetails": "Broadcast Details",
   "createdAt": "Created At",
-  "close": "Close"
+  "close": "Close",
+"Project Details":"Project Details",
+"WhatsApp Business Profile":"WhatsApp Business Profile",
+"Project Information":"Project Information",
+"Assistant Name":"Assistant Name",
+"Created At":"Created At",
+"WhatsApp Number":"WhatsApp Number",
+"Last Updated":"Last Updated",
+"Meta Phone Number ID":"Meta Phone Number ID",
+"Subscription Details":"Subscription Details",
+"Active Plan":"Active Plan",
+"Plan Duration":"Plan Duration",
+"Business Profile Name":"Business Profile Name",
+"about":"About",
+"Industry":"Industry",
+"Description":"Description",
+"Address":"Address",
+"Email":"Email",
+"Websites":"Websites",
+"contacts":"contacts"
+
+
 } 
