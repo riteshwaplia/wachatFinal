@@ -85,24 +85,18 @@ const ProjectDashboard = () => {
   return (
     <div className="space-y-6 p-4">
       {/* <CreateFlowButton/> */}
-    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-0 w-full">
-  {/* Title */}
-  <h1 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-dark-text-primary">
-    Project Dashboard
-  </h1>
-
-  {/* Right section */}
-  <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-500">
-    <span className="whitespace-nowrap">Last updated: {lastUpdated}</span>
-    <button
-      className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition"
-      onClick={sendgroupbroadcast}
-    >
-      <RefreshCw size={16} />
-    </button>
-  </div>
-</div>
-
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-dark-text-primary">Project Dashboard</h1>
+        <div className="flex items-center space-x-2 text-sm text-gray-500">
+          <span>Last updated: {lastUpdated}</span>
+          <button 
+            className="p-1 rounded hover:bg-gray-100"
+            onClick={fetchDashboardData}
+          >
+            <RefreshCw size={16} />
+          </button>
+        </div>
+      </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -236,12 +230,12 @@ const ProjectDashboard = () => {
           Recent activity would be displayed here
         </div>
         <div className="mt-4 text-right">
-          <Link 
+          {/* <Link 
             to={`/project/${projectId}/activity`} 
             className="inline-flex items-center text-sm text-primary-600 hover:text-primary-800"
           >
             View all activity <ChevronRight size={16} className="ml-1" />
-          </Link>
+          </Link> */}
         </div>
       </Card>
     </div>

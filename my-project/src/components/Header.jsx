@@ -124,9 +124,9 @@ const Header = ({ onToggleSidebar }) => {
           {/* Selected Language */}
           <div
             className="flex justify-between items-center w-full bg-white dark:bg-dark-surface 
-                   dark:text-dark-text-primary dark:border-dark-border border border-gray-300 
-                   hover:border-gray-400 px-4 py-2 rounded-md shadow cursor-pointer 
-                   focus:outline-none focus:ring-2 focus:ring-primary-500"
+               dark:text-dark-text-primary dark:border-dark-border border border-gray-300 
+               hover:border-gray-400 px-4 py-2 rounded-md shadow cursor-pointer 
+               focus:outline-none focus:ring-2 focus:ring-primary-500"
           >
             <span>{languages.find((l) => l.code === i18n.language)?.name || "English"}</span>
             <ChevronDown size={16} className="text-gray-700" />
@@ -136,10 +136,8 @@ const Header = ({ onToggleSidebar }) => {
           {open && (
             <ul
               className="absolute left-0 mt-1 w-full bg-white dark:bg-dark-surface 
-                     border border-gray-200 dark:border-dark-border 
-                     rounded-md shadow-lg z-20 overflow-hidden"
-              onMouseEnter={() => setOpen(true)}   // Keep open while hovering options
-              onMouseLeave={() => setOpen(false)}  // Close when leaving the dropdown entirely
+                 border border-gray-200 dark:border-dark-border 
+                 rounded-md shadow-lg z-20 overflow-hidden"
             >
               {languages.map((lang) => (
                 <li
@@ -147,7 +145,7 @@ const Header = ({ onToggleSidebar }) => {
                   className="px-4 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-dark-border"
                   onClick={() => {
                     handleLanguageChange({ target: { value: lang.code } });
-                    setOpen(false); // Close dropdown after selection
+                    setOpen(false); // ✅ Close dropdown after selection
                   }}
                 >
                   {lang.name}
@@ -156,6 +154,7 @@ const Header = ({ onToggleSidebar }) => {
             </ul>
           )}
         </div>
+
 
         {isLoggedIn ? (
           <div className='flex items-center gap-3'>
