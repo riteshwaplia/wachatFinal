@@ -195,8 +195,8 @@ const TemplatePage = () => {
       //   config
       // );
       await api.delete(`/templates/${templateToDelete._id}`, {
-      data: { businessProfileId } 
-    });
+        data: { businessProfileId }
+      });
       setMessage({ text: "Template deleted successfully!", type: "success" });
       setTemplateToDelete(null);
       fetchTemplates();
@@ -216,21 +216,21 @@ const TemplatePage = () => {
     });
   };
   const handleDelete = async (template) => {
-  const confirmed = window.confirm(`Are you sure you want to delete "${template.name}"?`);
-  if (!confirmed) return;
+    const confirmed = window.confirm(`Are you sure you want to delete "${template.name}"?`);
+    if (!confirmed) return;
 
-  try {
-    const res = await api.delete(`/templates/${template._id}`, {
-      data: { businessProfileId } 
-    });
+    try {
+      const res = await api.delete(`/templates/${template._id}`, {
+        data: { businessProfileId }
+      });
 
-    console.log("Template deleted:", res.data);
-    onDelete(template._id); // Notify parent to remove it from UI
-  } catch (error) {
-    console.error('Error deleting template:', error);
-    alert("Failed to delete template.");
-  }
-};
+      console.log("Template deleted:", res.data);
+      onDelete(template._id); // Notify parent to remove it from UI
+    } catch (error) {
+      console.error('Error deleting template:', error);
+      alert("Failed to delete template.");
+    }
+  };
   if (!user)
     return (
       <div className="flex justify-center items-center h-screen">
@@ -239,44 +239,49 @@ const TemplatePage = () => {
     );
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
+    <div className="space-y-6 p-6"> {/* Added padding for better layout */}
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+        {/* Left section */}
         <div>
-          <h1 className="text-3xl dark:text-dark-text-primary font-bold text-gray-900">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-dark-text-primary">
             WhatsApp Templates
           </h1>
-          <p className="text-gray-600 mt-2">
+          <p className="text-gray-600 mt-1 sm:mt-2 text-sm sm:text-base">
             Create and manage message templates for WhatsApp
           </p>
         </div>
-        <div className="flex items-center space-x-3">
+
+        {/* Right section - Buttons */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full md:w-auto">
           <Button
             variant="secondary"
             onClick={handleSyncTemplates}
             loading={isSyncing}
             icon={<FiRefreshCw className="mr-2" />}
+            className="w-full  sm:w-auto"
           >
             Sync Templates
           </Button>
+
           <Button
             variant="primary"
-            // onClick={() => setIsModalOpen(true)}
-            // icon={<FiPlus className="mr-2" />}
             onClick={() => navigate(`/project/${projectId}/templates/create`)}
+            className="w-full sm:w-auto"
           >
-          regular Template
+            Regular Template
           </Button>
+
           <Button
             variant="primary"
-            // onClick={() => setIsModalOpen(true)}
-            // icon={<FiPlus className="mr-2" />}
             onClick={() => navigate(`/project/${projectId}/templates/create/carousel-templates`)}
+            className="w-full sm:w-auto"
           >
-          carousel Template
+            Carousel Template
           </Button>
         </div>
       </div>
+
 
       {/* Message Alert */}
       {message.text && (
@@ -308,42 +313,42 @@ const TemplatePage = () => {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {templates.map((template) => (
-           <TemplateCard
-  key={template._id}
-  template={template}
-  // onEdit={() => handleEditTemplate(template)} // if needed
-  // onUpload={() => handleUploadTemplate(template)} // if needed
-  onDelete={(t) => setTemplateToDelete(t)} // 👈 fix this
-  onViewDetails={() => handleViewDetails(template)}
-  handleSyncTemplates={() => handleSyncTemplates()}
-/>
+            <TemplateCard
+              key={template._id}
+              template={template}
+              // onEdit={() => handleEditTemplate(template)} // if needed
+              // onUpload={() => handleUploadTemplate(template)} // if needed
+              onDelete={(t) => setTemplateToDelete(t)} // 👈 fix this
+              onViewDetails={() => handleViewDetails(template)}
+              handleSyncTemplates={() => handleSyncTemplates()}
+            />
           ))}
-        
+
         </div>
       )}
-  {totalPages > 1 && (
-            <div className="mt-6 flex justify-center space-x-2">
-              <Button
-                variant="secondary"
-                disabled={page === 1}
-                onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-              >
-                Previous
-              </Button>
-              <span className="text-sm text-gray-600 mt-2">
-                Page {page} of {totalPages}
-              </span>
-              <Button
-                variant="secondary"
-                disabled={page === totalPages}
-                onClick={() =>
-                  setPage((prev) => Math.min(prev + 1, totalPages))
-                }
-              >
-                Next
-              </Button>
-            </div>
-          )}
+      {totalPages > 1 && (
+        <div className="mt-6 flex justify-center space-x-2">
+          <Button
+            variant="secondary"
+            disabled={page === 1}
+            onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+          >
+            Previous
+          </Button>
+          <span className="text-sm text-gray-600 mt-2">
+            Page {page} of {totalPages}
+          </span>
+          <Button
+            variant="secondary"
+            disabled={page === totalPages}
+            onClick={() =>
+              setPage((prev) => Math.min(prev + 1, totalPages))
+            }
+          >
+            Next
+          </Button>
+        </div>
+      )}
       {/* Delete Confirmation Modal */}
       <Modal
         isOpen={!!templateToDelete}

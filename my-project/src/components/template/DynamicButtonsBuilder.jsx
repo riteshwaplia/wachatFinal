@@ -112,13 +112,44 @@ const DynamicButtonsBuilder = ({ onChange }) => {
           backgroundSize: "1em",
         }}
       >
-        <option value="" disabled hidden>✨ Add Button ✨</option>
-        <optgroup label="Quick Replies">
-          <option value={validButtonTypes.QUICK_REPLY}>📝 Quick Reply</option>
+        <option value="" disabled hidden className="text-gray-400 italic">
+          ✨ Add Button ✨
+        </option>
+
+        <optgroup
+          label="Quick Replies"
+          className="text-sm text-gray-500 font-medium border-t border-gray-100"
+        >
+          {/* <option
+            value={validButtonTypes.QUICK_REPLY}
+            className="py-2 px-3 hover:bg-primary-50 hover:text-primary-700 transition-colors"
+          >
+          
+            Quick Reply
+          </option> */}
+          <option value={validButtonTypes.QUICK_REPLY}>
+  📝 Quick Reply
+</option>
         </optgroup>
-        <optgroup label="Call-to-action">
-          <option value={validButtonTypes.URL}>🌐 Visit Website</option>
-          <option value={validButtonTypes.PHONE_NUMBER}>📞 Call Phone</option>
+
+        <optgroup
+          label="Call-to-action"
+          className="text-sm text-gray-500 font-medium border-t border-gray-100"
+        >
+          <option
+            value={validButtonTypes.URL}
+            className="py-2 px-3 hover:bg-primary-50 hover:text-primary-700 transition-colors"
+          >
+            🌐 Visit Website
+            
+          </option>
+          <option
+            value={validButtonTypes.PHONE_NUMBER}
+            className="py-2 px-3 hover:bg-primary-50 hover:text-primary-700 transition-colors"
+          >
+           📞 Call Phone
+            
+          </option>
         </optgroup>
       </select>
 

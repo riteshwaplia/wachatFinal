@@ -21,7 +21,7 @@ import { FaUserCog } from "react-icons/fa";
 import { TbLockPassword } from "react-icons/tb";
 import { IoBusiness } from "react-icons/io5";
 
-const StaticsSidebar = ({ isOpen, onToggle }) => {
+const StaticsSidebar = ({ isOpen, onToggle,isOff }) => {
   const location = useLocation();
   const { id } = useParams();
   const { siteConfig } = useTenant();
@@ -57,7 +57,7 @@ const StaticsSidebar = ({ isOpen, onToggle }) => {
   };
 
   return (
-    <aside className={`bg-white dark:bg-dark-bg-primary dark:border-dark-border h-screen shadow-lg fixed top-0 left-0 flex flex-col border-r border-gray-200 z-30 transition-all duration-300 ${isOpen ? 'md:w-64 ' : 'md:w-20 w-0 md:z-30 z-0'
+    <aside onMouseEnter={() => onToggle()} onMouseLeave={() => isOff()} className={`bg-white dark:bg-dark-bg-primary dark:border-dark-border h-screen shadow-lg fixed top-0 left-0 flex flex-col border-r border-gray-200 z-30 transition-all duration-300 ${isOpen ? 'md:w-64 ' : 'md:w-20 w-0 md:z-30 z-0'
       }`}>
       <div className="p-4 flex items-center justify-between  ">
         {isOpen ? (
@@ -78,7 +78,7 @@ const StaticsSidebar = ({ isOpen, onToggle }) => {
           //   {siteConfig?.websiteName || 'User Panel'}
           // </h2>
         ) : (
-          <div className="w-8 h-8 bg-primary-100 hidden md:block rounded-full flex items-center justify-center">
+          <div className="w-8 h-8 bg-primary-100 hidden md:block rounded-full lg:flex items-center justify-center">
             <Link to="/" className="flex items-center">
               {/* <span className="text-xl font-bold font-heading text-primary-700 hover:text-primary-600 transition-colors"> */}
               {logoUrl ? (
@@ -88,7 +88,7 @@ const StaticsSidebar = ({ isOpen, onToggle }) => {
                   className="w-auto h-12"
                 />
               ) : (
-                "SabNode"
+                "SabNode".slice(0, 1)
               )}
               {/* </span> */}
             </Link>
@@ -142,8 +142,8 @@ const StaticsSidebar = ({ isOpen, onToggle }) => {
 
           <Briefcase size={18} />
           {isOpen && <span>Projects</span>}
-          
-        </Link>  
+
+        </Link>
         {/* <Link
           to="/user/setting"
           className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-200 ${location.pathname.startsWith('/settings')
@@ -156,7 +156,7 @@ const StaticsSidebar = ({ isOpen, onToggle }) => {
           {isOpen && <span>Settings</span>}
           
         </Link> */}
- 
+
       </div>
     </aside>
   );

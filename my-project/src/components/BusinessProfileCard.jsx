@@ -123,7 +123,7 @@ const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick, fetchBu
                 onChange={(e) => handleChange("wabaId", e.target.value)}
                 placeholder="e.g., 123456789012345"
                 maxlength={50}
-
+type='number'
                 error={errros.wabaId}
                 helperText={errros.wabaId}
 
@@ -137,7 +137,7 @@ const BusinessProfileCard = ({ profile, isSelected, isFetching, onClick, fetchBu
                 onChange={(e) => handleChange("metaAppId", e.target.value)}
                 placeholder="e.g., 123456789012345"
                 maxlength={50}
-
+type='number'
                 error={errros.metaAppId}
                 helperText={errros.metaAppId}
 

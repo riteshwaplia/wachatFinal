@@ -529,6 +529,8 @@ const ContactPage = () => {
         setMessage('');
         setMessageType('info');
 
+
+
         try {
             if (!formData.name || !formData.mobileNumber) {
                 setMessage('Name and Mobile Number are required.');
@@ -719,9 +721,13 @@ const ContactPage = () => {
     // if (isLoading && !message) {
     //     return <LoadingSpinner fullPage message="Loading contact data..." />;
     // }
-
+const handleSearchChange = (e) => {
+  const raw = e.target.value;
+  const sanitized = raw.replace(/[^a-zA-Z0-9@ ]/g, ''); // allows a-z, A-Z, 0-9, space, @
+  setSearchTerm(sanitized);
+};
     return (
-        <div className="md:max-w-7xl  p-3 w-full  mx-auto  md:px-6 lg:px-8 py-8">
+        <div className="space-y-6 p-6"> {/* Added padding for better layout */}
 
             {showDeleteConfirmModal && (
                 <Modal
@@ -796,16 +802,16 @@ const ContactPage = () => {
             <div className="mb-8">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900 dark:text-dark-text-primary">{t('contactManagement')}</h1>
+                        <h1 className="text-3xl font-bold text-gray-900 dark:text-dark-text-primary">{t('ContactManagement')}</h1>
                         <p className="mt-2 text-gray-600">
                             {t('manageProjectContacts')}
                         </p>
                     </div>
-                    <div className="flex items-center space-x-1 md:space-x-3">
+                    <div className="flex items-center space-x-1 md:space-x-3 gap-6">
                         <Button
                             onClick={() => { setEditingContact(null); setIsModalOpen(true); }}
                             variant="primary"
-                            className="flex items-center space-x-2 shadow-sm"
+                            className="flex  items-center space-x-2 shadow-sm"
                         >
                             <PlusCircle size={20} />
                             <span>{t('newContact')}</span>
@@ -869,8 +875,8 @@ const ContactPage = () => {
             </div>
 
             {/* Search Bar */}
-            <div className="mb-6 flex justify-between items-center">
-                <div className="relative rounded-md shadow-sm max-w-md">
+            <div className="mb-6 lg:flex space-y-4 justify-between items-center">
+                <div className="relative   rounded-md shadow-sm max-w-md">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <Search className="h-4 w-4 text-gray-400" />
                     </div>
@@ -879,7 +885,7 @@ const ContactPage = () => {
                         className="focus:ring-primary-500 dark:bg-dark-surface dark:text-dark-text-primary focus:border-primary-500 block w-full pl-10 pr-12 py-2 border border-gray-300 rounded-md"
                         placeholder={t('searchContacts')}
                         value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onChange={handleSearchChange}
                         onKeyDown={(e) => {
                             if (e.key === ' ') {
                                 e.preventDefault(); // Prevent typing space
@@ -898,9 +904,9 @@ const ContactPage = () => {
                     )}
 
                 </div>
-                <div className="flex flex-row gap-3">
-                    <Button onClick={handleOpenAddModal}>{t('addNewField')}</Button>
-                    <Button onClick={handleOpenShowModal}>{t('showField')}</Button>
+                <div className="flex relative flex-row lg:gap-3 gap-6">
+                    <Button className='' onClick={handleOpenAddModal}>{t('addNewField')}</Button>
+                    <Button className='' onClick={handleOpenShowModal}>{t('showField')}</Button>
 
                     {activeModal === 'add' && (
                         <AddCustomFieldModal
@@ -1048,7 +1054,7 @@ const ContactPage = () => {
 
                                     {isLoading ? (<div className="flex justify-center items-center h-64">
                                         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
-                                    </div>) : ( 
+                                    </div>) : (
                                         <table onClick={() => setIsbulkOption(false)} className="min-w-full dark:divide-dark-border  divide-gray-200">
 
                                             <thead className="bg-gray-50 dark:bg-dark-surface   overflow-auto">

@@ -46,7 +46,7 @@
 //   const [message, setMessage] = useState("");
 //   const [isLoading, setIsLoading] = useState(true);
 //   const [activeTab, setActiveTab] = useState("group"); // 'single' or 'bulk'
-  
+
 //   // Single message state
 //   const [singleRecipient, setSingleRecipient] = useState("");
 //   const [singleMessageType, setSingleMessageType] = useState("text");
@@ -93,7 +93,7 @@
 //     try {
 //       // Use projectDetails.businessProfileId._id for fetching templates
 //       // Ensure projectDetails is loaded before this call
-     
+
 //       const templatesRes = await api.get("/templates/allapprovedcarouseltemplates", { // Use api directly with /api/
 //         ...config,
 //         params: {
@@ -399,7 +399,7 @@
 
 //   return (
 //     <div className="max-w-6xl mx-auto p-6 bg-white rounded-lg shadow-md mt-8">
-    
+
 
 //       {message && (
 //         <div
@@ -752,7 +752,7 @@
 //                 rows="5"
 //                 value={bulkTemplateComponents}
 //                 onChange={(e) => setBulkTemplateComponents(e.target.value)}
-              
+
 //               ></textarea>
 //               {(() => {
 //   try {
@@ -1024,14 +1024,14 @@ const SendCarosualTemplate = () => {
   const { user, token } = useAuth();
   const { id: projectId } = useParams();
   const navigate = useNavigate();
-  
+
   const [isLoading, setIsLoading] = useState({
     templates: true,
     sending: false,
     uploading: false
   });
   const [activeTab, setActiveTab] = useState("group");
-  
+
   // Bulk message state
   const [bulkTemplateName, setBulkTemplateName] = useState("");
   const [bulkTemplateLanguage, setBulkTemplateLanguage] = useState("en_US");
@@ -1134,15 +1134,15 @@ const SendCarosualTemplate = () => {
       try {
         const parsed = JSON.parse(bulkTemplateComponents);
         let expected = ["mobilenumber"];
-        
+
         parsed.forEach(comp => {
           if (comp.type === "HEADER" && comp.example?.header_text) {
-            comp.example.header_text.forEach(v => 
+            comp.example.header_text.forEach(v =>
               expected.push(`header_${v.toLowerCase()}`)
             );
           }
           if (comp.type === "BODY" && comp.example?.body_text) {
-            comp.example.body_text[0]?.forEach(v => 
+            comp.example.body_text[0]?.forEach(v =>
               expected.push(`body_${v.toLowerCase()}`)
             );
           }
@@ -1161,7 +1161,7 @@ const SendCarosualTemplate = () => {
 
   const handleBulkMessageSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!bulkContactsFile) {
       toast.warning("Please select a contacts file");
       return;
@@ -1197,7 +1197,7 @@ const SendCarosualTemplate = () => {
           },
         }
       );
-      
+
       toast.success(res.data.message || "Bulk messages initiated");
       setBulkContactsFile(null);
       setBulkTemplateName("");
@@ -1214,7 +1214,7 @@ const SendCarosualTemplate = () => {
     try {
       const parsed = JSON.parse(bulkTemplateComponents);
       const header = parsed.find(c => c.type === "HEADER" && c.format === "IMAGE");
-      
+
       if (!header) return null;
 
       return (
@@ -1246,7 +1246,7 @@ const SendCarosualTemplate = () => {
                     },
                   }
                 );
-                
+
                 setImageId(res.data?.id || res.data?.data.id || "");
                 const mediaHandle = res.data?.id || res.data?.data.id;
                 if (!mediaHandle) {
@@ -1309,8 +1309,8 @@ const SendCarosualTemplate = () => {
       const columns = ["mobilenumber", ...headerVars.map(v => `header_${v}`), ...bodyVars.map(v => `body_${v}`)];
       const sampleRow = {
         mobilenumber: "919999999999",
-        ...Object.fromEntries(headerVars.map((v, i) => [`header_${v}`, `Header${i+1}`])),
-        ...Object.fromEntries(bodyVars.map((v, i) => [`body_${v}`, `Body${i+1}`]))
+        ...Object.fromEntries(headerVars.map((v, i) => [`header_${v}`, `Header${i + 1}`])),
+        ...Object.fromEntries(bodyVars.map((v, i) => [`body_${v}`, `Body${i + 1}`]))
       };
 
       return (
@@ -1363,20 +1363,18 @@ const SendCarosualTemplate = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6 bg-white rounded-lg shadow-md mt-8">
+    <div className="space-y-6 p-6"> {/* Added padding for better layout */}
       <div className="flex border-b mb-6">
         <button
-          className={`py-2 px-4 font-medium ${
-            activeTab === "group" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-500"
-          }`}
+          className={`py-2 px-4 font-medium ${activeTab === "group" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-500"
+            }`}
           onClick={() => setActiveTab("group")}
         >
           Group Messaging
         </button>
         <button
-          className={`py-2 px-4 font-medium ${
-            activeTab === "bulk" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-500"
-          }`}
+          className={`py-2 px-4 font-medium ${activeTab === "bulk" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-500"
+            }`}
           onClick={() => setActiveTab("bulk")}
         >
           Bulk Messages
@@ -1392,11 +1390,10 @@ const SendCarosualTemplate = () => {
             </p>
             <p>
               <span className="font-medium">Status:</span>{" "}
-              <span className={`font-semibold ${
-                messageStatus.latest.newStatus === "delivered" ? "text-green-600" :
-                messageStatus.latest.newStatus === "read" ? "text-blue-600" :
-                messageStatus.latest.newStatus === "failed" ? "text-red-600" : "text-yellow-600"
-              }`}>
+              <span className={`font-semibold ${messageStatus.latest.newStatus === "delivered" ? "text-green-600" :
+                  messageStatus.latest.newStatus === "read" ? "text-blue-600" :
+                    messageStatus.latest.newStatus === "failed" ? "text-red-600" : "text-yellow-600"
+                }`}>
                 {messageStatus.latest.newStatus.toUpperCase()}
               </span>
             </p>
@@ -1427,7 +1424,7 @@ const SendCarosualTemplate = () => {
       ) : (
         <div className="p-4 border border-gray-200 rounded-lg">
           <h3 className="text-xl font-semibold mb-4">Bulk Template Messages</h3>
-          
+
           <form onSubmit={handleBulkMessageSubmit} className="space-y-4">
             <div>
               <label className="block font-medium mb-1">Template</label>
@@ -1498,7 +1495,7 @@ const SendCarosualTemplate = () => {
 
             <button
               type="submit"
-              className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 disabled:opacity-50"
+              className="w-full bg-primary-600 text-white py-2 rounded-md hover:bg-blue-700 disabled:opacity-50"
               disabled={isLoading.sending || isLoading.uploading || mismatchedHeaders.length > 0}
             >
               {isLoading.sending ? "Sending..." : "Send Bulk Messages"}

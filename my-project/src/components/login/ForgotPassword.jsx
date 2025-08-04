@@ -26,7 +26,7 @@ export default function ForgotPassword({ onBack }) {
     const validateInputs = () => {
         const newErrors = {};
 
-       
+
 
         if (password.length < 6) {
             newErrors.password = 'Password must be at least 8 characters';
@@ -98,7 +98,7 @@ export default function ForgotPassword({ onBack }) {
     };
 
     return (
-        <div className="w-full py-12 max-w-md space-y-6">
+        <div className="w-full py-8 max-w-md space-y-6">
             {step === 1 && (
                 <>
                     <InputField
@@ -118,7 +118,7 @@ export default function ForgotPassword({ onBack }) {
                         loading={loading}
                         type="button"
                         onClick={handleSendOtp}
-                        className="w-full bg-primary-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-primary-700 transition-colors"
+                        className="w-full btn bg-primary-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-primary-700 transition-colors"
                     >
                         {loading ? 'sending...' : 'Send Otp'}
 
@@ -181,7 +181,7 @@ export default function ForgotPassword({ onBack }) {
                     <Button
                         type="button"
                         onClick={handleResetPassword}
-                        className="w-full bg-primary-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-primary-700 transition-colors"
+                        className="w-full btn bg-primary-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-primary-700 transition-colors"
                         loading={loading}
                     >
                         {loading ? 'saving...' : 'change Password'}

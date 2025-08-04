@@ -9,6 +9,7 @@ import Avatar from "../components/Avatar";
 import { IoMdSend } from "react-icons/io";
 import Loader from "../components/Loader";
 import { toast } from "react-hot-toast";
+import { FiCheck, FiClipboard } from "react-icons/fi";
 
 const VITE_SOCKET_IO_URL =
   import.meta.env.VITE_SOCKET_IO_URL || "http://localhost:5000";
@@ -18,6 +19,8 @@ const LiveChatPage = () => {
   const { user, token } = useAuth();
   const { id: projectId } = useParams();
   const navigate = useNavigate();
+  const [copied, setCopied] = useState(false);
+
 
   // State variables
   const [conversations, setConversations] = useState([]);
@@ -47,6 +50,18 @@ const LiveChatPage = () => {
     ? JSON.parse(localStorage.getItem("currentProject"))
     : null;
   const businessProfileId = project?.businessProfileId._id || null;
+  const handleCopy = async (msg) => {
+    try {
+      const textToCopy = msg?.message?.body || "";
+      if (!textToCopy) return;
+
+      await navigator.clipboard.writeText(textToCopy);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch (err) {
+      console.error("Copy failed:", err);
+    }
+  };
 
   const config = {
     headers: {
@@ -144,8 +159,8 @@ const LiveChatPage = () => {
     if (!file) return;
 
     const validTypes = [
-      "image/jpeg", "image/png", "application/pdf", 
-      "audio/mpeg", "audio/mp3", "audio/wav", 
+      "image/jpeg", "image/png", "application/pdf",
+      "audio/mpeg", "audio/mp3", "audio/wav",
       "video/mp4", "video/webm", "video/quicktime"
     ];
 
@@ -216,7 +231,7 @@ const LiveChatPage = () => {
 
     try {
       setIsLoading(prev => ({ ...prev, sending: true }));
-      
+
       const endpoint = `/projects/${projectId}/conversations/${selectedConversation._id}/messages`;
       let payload = { messageType };
 
@@ -299,14 +314,14 @@ const LiveChatPage = () => {
           .map(conv =>
             conv._id === selectedConversation._id
               ? {
-                  ...conv,
-                  latestMessage: messageType === "text" 
-                    ? newMessageText.trim() 
-                    : `[${messageType} message]`,
-                  latestMessageType: messageType,
-                  lastActivityAt: new Date(),
-                  unreadCount: 0,
-                }
+                ...conv,
+                latestMessage: messageType === "text"
+                  ? newMessageText.trim()
+                  : `[${messageType} message]`,
+                latestMessageType: messageType,
+                lastActivityAt: new Date(),
+                unreadCount: 0,
+              }
               : conv
           )
           .sort((a, b) => new Date(b.lastActivityAt) - new Date(a.lastActivityAt))
@@ -386,7 +401,7 @@ const LiveChatPage = () => {
         const existingConvIndex = prev.findIndex(
           conv => conv._id === data.conversation._id
         );
-        
+
         if (existingConvIndex > -1) {
           const updated = [...prev];
           updated[existingConvIndex] = {
@@ -545,7 +560,7 @@ const LiveChatPage = () => {
               </a>
             )}
             {msg.message.id && (
-              <button 
+              <button
                 onClick={() => handleDownloadMedia(msg.message.id)}
                 className="text-blue-500 underline text-sm"
               >
@@ -579,11 +594,10 @@ const LiveChatPage = () => {
             conversations.map((conv) => (
               <div
                 key={conv._id}
-                className={`flex p-3 dark:text-dark-text-primary dark:border-dark-border dark:bg-dark-surface cursor-pointer border-b border-gray-200 hover:bg-gray-100 transition duration-150 ${
-                  selectedConversation?._id === conv._id
-                    ? "bg-gray-100 border-l-4 border-blue-500"
-                    : ""
-                }`}
+                className={`flex p-3 dark:text-dark-text-primary dark:border-dark-border dark:bg-dark-surface cursor-pointer border-b border-gray-200 hover:bg-gray-100 transition duration-150 ${selectedConversation?._id === conv._id
+                  ? "bg-gray-100 border-l-4 border-blue-500"
+                  : ""
+                  }`}
                 onClick={() => handleConversationSelect(conv)}
               >
                 <div className="flex-grow">
@@ -632,11 +646,11 @@ const LiveChatPage = () => {
       </div>
 
       {/* Right Panel: Chat Window */}
-      <div className="md:w-2/3 w-full fixed top-0 z-[50] left-0 md:static   md:flex flex-col bg-white dark:bg-dark-surface">
+      <div className="md:w-2/3 w-full fixed top-0 z-1  left-0 md:static   md:flex flex-col bg-white dark:bg-dark-surface">
         {selectedConversation ? (
           <>
             {/* Chat Header */}
-            <div className="p-4 flex gap-4 items-center dark:border-dark-border dark:bg-dark-surface border-b border-gray-200 bg-gray-50">
+            <div className="p-4 flex gap-4 items-center   dark:border-dark-border dark:bg-dark-surface border-b border-gray-200 bg-gray-50">
               <button
                 onClick={() => setSelectedConversation(null)}
                 className="md:hidden mr-2 p-1 rounded-full dark:text-dark-text-primary hover:bg-gray-200 transition"
@@ -675,38 +689,52 @@ const LiveChatPage = () => {
               ) : (
                 messages.map((msg) => (
                   <div
-                    key={msg._id}
-                    className={`flex ${
-                      msg.direction === "outbound" ? "justify-end" : "justify-start"
-                    }`}
-                  >
-                    <div
-                      className={`max-w-xs p-3 rounded-lg dark:bg-dark-surface dark:text-dark-text-primary dark:border-dark-surface shadow-sm ${
-                        msg.direction === "outbound"
-                          ? "bg-blue-500 text-white"
-                          : "bg-white text-gray-800 border border-gray-200"
+                    className={`relative  group max-w-xs p-3 rounded-lg shadow-sm break-words overflow-hidden
+        dark:bg-dark-surface dark:text-dark-text-primary dark:border-dark-surface
+        ${msg.direction === "outbound"
+                        ? "bg-blue-500 text-white"
+                        : "bg-white text-gray-800 border border-gray-200"
                       }`}
-                    >
-                      {renderMessageContent(msg)}
-                      <p
-                        className={`text-xs mt-1 flex items-center ${
-                          msg.direction === "outbound"
-                            ? "text-blue-100"
-                            : "text-gray-500"
+                  >
+                    {/* Message content */}
+                    <div className="break-words overflow-hidden mt-2">{renderMessageContent(msg)}</div>
+
+                    {/* Timestamp + status */}
+                    <p
+                      className={`text-xs mt-1 flex items-center ${msg.direction === "outbound" ? "text-blue-100" : "text-gray-500"
                         }`}
+                    >
+                      {new Date(msg.sentAt).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                      {msg.direction === "outbound" && (
+                        <span className="ml-2">{renderStatusIcon(msg.status)}</span>
+                      )}
+                    </p>
+
+                    {/* Copy button - Only for text messages */}
+                    {msg.type === "text" && (
+                      <button
+                        onClick={() => handleCopy(msg)}
+                        className={`absolute top-1 right-1 opacity-0 group-hover:opacity-100
+                  transition-all duration-300 transform hover:scale-110
+                  ${copied ? "bg-green-500" : "bg-gray-800/70 hover:bg-gray-900"}
+                  text-white p-1.5 rounded-full shadow-lg`}
                       >
-                        {new Date(msg.sentAt).toLocaleTimeString([], {
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })}
-                        {msg.direction === "outbound" && (
-                          <span className="ml-2">
-                            {renderStatusIcon(msg.status)}
-                          </span>
-                        )}
-                      </p>
-                    </div>
+                        {copied ? <FiCheck size={16} /> : <FiClipboard size={16} />}
+                      </button>
+                    )}
+
+                    {/* Animated Tooltip */}
+                    {copied && (
+                      <div className="absolute -top-8 right-2 bg-green-500 text-white text-xs py-1 px-3 rounded-full shadow-md
+                    animate-fade-in">
+                        Copied!
+                      </div>
+                    )}
                   </div>
+
                 ))
               )}
               <div ref={messagesEndRef} />
@@ -723,11 +751,10 @@ const LiveChatPage = () => {
                   <button
                     key={type}
                     type="button"
-                    className={`px-3 py-1 dark:bg-dark-bg-primary dark:text-dark-text-primary text-sm rounded transition ${
-                      messageType === type
-                        ? "bg-blue-500 text-white"
-                        : "bg-gray-200 hover:bg-gray-300"
-                    }`}
+                    className={`px-3 py-1 dark:bg-dark-bg-primary dark:text-dark-text-primary text-sm rounded transition ${messageType === type
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-200 hover:bg-gray-300"
+                      }`}
                     onClick={() => {
                       setMessageType(type);
                       if (["image", "video", "audio"].includes(type)) {
@@ -749,10 +776,10 @@ const LiveChatPage = () => {
                     messageType === "image"
                       ? "image/*"
                       : messageType === "video"
-                      ? "video/*"
-                      : messageType === "audio"
-                      ? "audio/*"
-                      : "*"
+                        ? "video/*"
+                        : messageType === "audio"
+                          ? "audio/*"
+                          : "*"
                   }
                   className="hidden"
                 />
@@ -789,8 +816,8 @@ const LiveChatPage = () => {
                     messageType === "text"
                       ? "Type a message..."
                       : messageType === "template"
-                      ? "Add template parameters..."
-                      : "Add a caption (optional)..."
+                        ? "Add template parameters..."
+                        : "Add a caption (optional)..."
                   }
                   value={newMessageText}
                   onChange={(e) => setNewMessageText(e.target.value)}

@@ -370,7 +370,7 @@ const SendMessagePage = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6 dark:bg-dark-surface bg-white rounded-lg shadow-md mt-8">
+    <div className="space-y-6 p-6"> {/* Added padding for better layout */}
       <div className="flex border-b mb-6">
         <button
           className={`py-2 px-4 font-medium ${
@@ -505,7 +505,7 @@ const SendMessagePage = () => {
 
             <button
               type="submit"
-              className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 disabled:opacity-50"
+              className="w-full bg-primary-500 text-white py-2 rounded-md hover:bg-blue-700 disabled:opacity-50"
               disabled={isLoading.sending || isLoading.uploading || mismatchedHeaders.length > 0}
             >
               {isLoading.sending ? "Sending..." : "Send Bulk Messages"}

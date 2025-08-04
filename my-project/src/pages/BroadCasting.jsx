@@ -27,7 +27,7 @@ const BulkMessagingDashboard = () => {
       try {
         const response = await api.get(`/projects/${projectId}/messages/bulk-send-jobs`);
         setBroadcasts(response.data.data);
-        
+
         // Calculate stats
         const stats = response.data.data.reduce((acc, job) => {
           acc.total += job.totalContacts || 0;
@@ -36,7 +36,7 @@ const BulkMessagingDashboard = () => {
           acc.failed += job.totalFailed || 0;
           return acc;
         }, { total: 0, delivered: 0, read: 0, failed: 0 });
-        
+
         setStats(stats);
         setLoading(false);
       } catch (error) {
@@ -66,7 +66,7 @@ const BulkMessagingDashboard = () => {
   const createNewCarosualBroadcast = () => {
     router(`/project/${projectId}/broadcasting/send-bulk/carosual-template`);
   };
-// /project/:id/broadcasting/send-/send-bulk/carosual-template
+  // /project/:id/broadcasting/send-/send-bulk/carosual-template
   // Close modal
   const closeModal = () => {
     setIsModalOpen(false);
@@ -80,30 +80,37 @@ const BulkMessagingDashboard = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="space-y-6 p-6"> {/* Added padding for better layout */}
       {/* Header with stats and new broadcast button */}
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-8">
+        {/* Left Section */}
         <div>
-          <h1 className="text-2xl font-bold dark:text-dark-text-primary text-gray-800">{t('broadcastCenter')}</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-dark-text-primary">
+            {t('broadcastCenter')}
+          </h1>
           <p className="mt-1 text-sm text-gray-500">
             {t('manageBulkMessageCampaigns')}
           </p>
         </div>
-        <div className='flex items-center space-x-4'>
+
+        {/* Right Section - Buttons */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4 w-full lg:w-auto">
           <Button
-          onClick={createNewBroadcast}
-          // className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-        >
-          + {t('newBroadcast')}
-        </Button>
-        <Button
-          onClick={createNewCarosualBroadcast}
-          // className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-        >
-          + {t('newCarouselBroadcast')}
-        </Button>
+            onClick={createNewBroadcast}
+            className="w-full sm:w-auto text-xs sm:text-sm px-3 py-2"
+          >
+            + {t('newBroadcast')}
+          </Button>
+
+          <Button
+            onClick={createNewCarosualBroadcast}
+            className="w-full sm:w-auto text-xs sm:text-sm px-3 py-2"
+          >
+            + {t('newCarouselBroadcast')}
+          </Button>
         </div>
       </div>
+
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 mb-8">
@@ -178,8 +185,8 @@ const BulkMessagingDashboard = () => {
             <div className="p-6 text-center text-gray-500">{t('noBroadcastsFound')}</div>
           ) : (
             broadcasts.map((broadcast) => (
-              <div 
-                key={broadcast._id} 
+              <div
+                key={broadcast._id}
                 className="p-6 hover:bg-gray-50 cursor-pointer transition-colors duration-150"
                 onClick={() => fetchBroadcastDetails(broadcast._id)}
               >
@@ -194,11 +201,10 @@ const BulkMessagingDashboard = () => {
                   </div>
                   <div className="flex items-center">
                     <div className="mr-4">
-                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-                        broadcast.status === 'completed' ? 'bg-green-100 text-green-800' :
+                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${broadcast.status === 'completed' ? 'bg-green-100 text-green-800' :
                         broadcast.status === 'failed' ? 'bg-red-100 text-red-800' :
-                        'bg-yellow-100 text-yellow-800'
-                      }`}>
+                          'bg-yellow-100 text-yellow-800'
+                        }`}>
                         {broadcast.status}
                       </span>
                     </div>
@@ -272,11 +278,10 @@ const BulkMessagingDashboard = () => {
                       <div>
                         <p className="text-sm font-medium text-gray-500">{t('status')}</p>
                         <p className="mt-1">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            selectedBroadcast.jobDetails.status === 'completed' ? 'bg-green-100 text-green-800' :
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${selectedBroadcast.jobDetails.status === 'completed' ? 'bg-green-100 text-green-800' :
                             selectedBroadcast.jobDetails.status === 'failed' ? 'bg-red-100 text-red-800' :
-                            'bg-yellow-100 text-yellow-800'
-                          }`}>
+                              'bg-yellow-100 text-yellow-800'
+                            }`}>
                             {selectedBroadcast.jobDetails.status}
                           </span>
                         </p>
@@ -334,11 +339,10 @@ const BulkMessagingDashboard = () => {
                                   {message.to}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                    message.status === 'delivered' ? 'bg-green-100 text-green-800' :
+                                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${message.status === 'delivered' ? 'bg-green-100 text-green-800' :
                                     message.status === 'read' ? 'bg-blue-100 text-blue-800' :
-                                    'bg-red-100 text-red-800'
-                                  }`}>
+                                      'bg-red-100 text-red-800'
+                                    }`}>
                                     {t(message.status)}
                                   </span>
                                 </td>

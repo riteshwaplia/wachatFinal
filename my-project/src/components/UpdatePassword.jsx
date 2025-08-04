@@ -5,15 +5,19 @@ import toast from 'react-hot-toast';
 import api from '../utils/api';
 import { MdOutlineUpdate } from "react-icons/md";
 import { TbLockPassword } from "react-icons/tb";
+import { useAuth } from '../context/AuthContext';
+
 export default function UpdatePassword() {
   const [oldpassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+const {logout} = useAuth();
 
 
   const handleSubmit = async (e) => {
+    
 
     e.preventDefault();
     const newErrors = {};
@@ -51,6 +55,7 @@ try {
     setOldPassword("");
     setNewPassword("");
     setConfirmPassword("");
+    logout();
 
   }
 
