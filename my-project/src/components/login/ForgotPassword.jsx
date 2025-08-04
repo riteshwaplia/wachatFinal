@@ -30,22 +30,23 @@ export default function ForgotPassword({ onBack }) {
         // 1️⃣ Empty password
 
         // 2️⃣ Password length
-        if (password.length < 8) {
-            newErrors.password = "Password must be at least 8 characters";
-            return
-        }
         // 3️⃣ Password pattern validation
         if (!password) {
             newErrors.password = "New password is required";
-        } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/.test(password)) {
+        }
+        else if (password.length < 6) {
+            newErrors.password = "Password must be at least 6 characters";
+        }
+        else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{6,}$/.test(password)) {
+            newErrors.password = "Invalid password format";
+
             if (!toastActive) {
                 ErrorToast(
-                    "Password must be at least 8 characters and include uppercase, lowercase, number, and special character"
+                    "Password must be at least 6 characters and include uppercase, lowercase, number, and special character"
                 );
                 setToastActive(true);
                 setTimeout(() => setToastActive(false), 3000);
             }
-            newErrors.password = "Invalid password format";
         }
 
 
