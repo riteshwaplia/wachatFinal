@@ -29,7 +29,7 @@ const LiveChatPage = () => {
     messages: false,
     sending: false,
     templates: true,
-    media: false
+    media: false,
   });
   const [messageType, setMessageType] = useState("text");
   const [templateName, setTemplateName] = useState("");
@@ -74,27 +74,29 @@ const LiveChatPage = () => {
       console.error("Error fetching templates:", error);
       toast.error("Failed to load templates");
     } finally {
-      setIsLoading(prev => ({ ...prev, templates: false }));
+      setIsLoading((prev) => ({ ...prev, templates: false }));
     }
   };
 
   const fetchConversations = async () => {
     try {
-      setIsLoading(prev => ({ ...prev, conversations: true }));
+      setIsLoading((prev) => ({ ...prev, conversations: true }));
       const res = await api.get(`/projects/${projectId}/conversations`, config);
       setConversations(res.data.data || []);
     } catch (error) {
       console.error("Error fetching conversations:", error);
       toast.error("Failed to load conversations");
-      setError(error.response?.data?.message || "Failed to fetch conversations");
+      setError(
+        error.response?.data?.message || "Failed to fetch conversations"
+      );
     } finally {
-      setIsLoading(prev => ({ ...prev, conversations: false }));
+      setIsLoading((prev) => ({ ...prev, conversations: false }));
     }
   };
 
   const fetchMessages = async (conversationId) => {
     try {
-      setIsLoading(prev => ({ ...prev, messages: true }));
+      setIsLoading((prev) => ({ ...prev, messages: true }));
       const res = await api.get(
         `/projects/${projectId}/conversations/${conversationId}/messages`,
         config
@@ -109,8 +111,8 @@ const LiveChatPage = () => {
       );
 
       // Update unread count
-      setConversations(prev =>
-        prev.map(conv =>
+      setConversations((prev) =>
+        prev.map((conv) =>
           conv._id === conversationId ? { ...conv, unreadCount: 0 } : conv
         )
       );
@@ -119,7 +121,7 @@ const LiveChatPage = () => {
       toast.error("Failed to load messages");
       setError(error.response?.data?.message || "Failed to fetch messages");
     } finally {
-      setIsLoading(prev => ({ ...prev, messages: false }));
+      setIsLoading((prev) => ({ ...prev, messages: false }));
     }
   };
 
@@ -139,52 +141,79 @@ const LiveChatPage = () => {
     }
   };
 
+  console.log("message type",messageType,fileInputRef)
   const handleFileUpload = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const file = e.target.files?.[0];
+  if (!file) return;
 
-    const validTypes = [
-      "image/jpeg", "image/png", "application/pdf",
-      "audio/mpeg", "audio/mp3", "audio/wav",
-      "video/mp4", "video/webm", "video/quicktime"
-    ];
+  const fileType = file.type;
 
-    if (!validTypes.includes(file.type)) {
-      toast.error("Only JPEG, PNG, PDF, audio (MP3/WAV), or video (MP4/WebM) files are allowed");
-      return;
-    }
-
-    if (file.size > 25 * 1024 * 1024) {
-      toast.error("File size exceeds 25MB limit");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("file", file);
-
-    try {
-      setIsLoading(prev => ({ ...prev, media: true }));
-      const res = await api.post(
-        `/projects/${projectId}/messages/upload-media`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-      setMediaFile(file);
-      setUploadedMediaData(res.data.data);
-      toast.success("Media uploaded successfully");
-    } catch (err) {
-      console.error("Upload failed:", err);
-      toast.error("Failed to upload media");
-      throw err;
-    } finally {
-      setIsLoading(prev => ({ ...prev, media: false }));
-    }
+  // File type mapping
+  const typeMapping = {
+    image: ["image/jpeg", "image/png"],
+    document: [
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "application/vnd.ms-excel",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "application/vnd.ms-powerpoint",
+      "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "text/plain",
+    ],
+    audio: ["audio/mpeg", "audio/ogg", "audio/amr", "audio/wav"],
+    video: ["video/mp4", "video/3gpp"],
   };
+
+  // Determine message type from MIME
+  let detectedType = null;
+  for (const [key, types] of Object.entries(typeMapping)) {
+    if (types.includes(fileType)) {
+      detectedType = key;
+      break;
+    }
+  }
+
+  if (!detectedType) {
+    toast.error(
+      "Only JPEG, PNG, PDF, audio (MP3/WAV), or video (MP4/3GPP) files are allowed"
+    );
+    return;
+  }
+
+  if (file.size > 25 * 1024 * 1024) {
+    toast.error("File size exceeds 25MB limit");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    setIsLoading((prev) => ({ ...prev, media: true }));
+    const res = await api.post(
+      `/projects/${projectId}/messages/upload-media`,
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    setMessageType(detectedType); // ✅ Automatically update message type
+    setMediaFile(file);
+    setUploadedMediaData(res.data.data);
+    toast.success("Media uploaded successfully");
+  } catch (err) {
+    console.error("Upload failed:", err);
+    toast.error("Failed to upload media");
+  } finally {
+    setIsLoading((prev) => ({ ...prev, media: false }));
+  }
+};
+
 
   const clearMedia = () => {
     setMediaFile(null);
@@ -209,13 +238,16 @@ const LiveChatPage = () => {
       toast.warning("Please select a template");
       return;
     }
-    if (["image", "document", "audio", "video"].includes(messageType) && !mediaFile) {
+    if (
+      ["image", "document", "audio", "video"].includes(messageType) &&
+      !mediaFile
+    ) {
       toast.warning(`Please select a ${messageType} file`);
       return;
     }
 
     try {
-      setIsLoading(prev => ({ ...prev, sending: true }));
+      setIsLoading((prev) => ({ ...prev, sending: true }));
 
       const endpoint = `/projects/${projectId}/conversations/${selectedConversation._id}/messages`;
       let payload = { messageType };
@@ -225,7 +257,9 @@ const LiveChatPage = () => {
           payload.messageContent = newMessageText.trim();
           break;
         case "template":
-          const selectedTemplate = templates.find(t => t.name === templateName);
+          const selectedTemplate = templates.find(
+            (t) => t.name === templateName
+          );
           if (!selectedTemplate) throw new Error("Template not found");
           payload = {
             ...payload,
@@ -238,11 +272,14 @@ const LiveChatPage = () => {
         case "document":
         case "audio":
         case "video":
-          if (!uploadedMediaData?.id) throw new Error("Media upload incomplete");
+          if (!uploadedMediaData?.id)
+            throw new Error("Media upload incomplete");
           payload = {
             ...payload,
             mediaId: uploadedMediaData.id,
-            ...(newMessageText.trim() && { mediaCaption: newMessageText.trim() }),
+            ...(newMessageText.trim() && {
+              mediaCaption: newMessageText.trim(),
+            }),
           };
           break;
         default:
@@ -293,23 +330,26 @@ const LiveChatPage = () => {
       }
 
       // Update state
-      setMessages(prev => [...prev, formattedMessage]);
-      setConversations(prev =>
+      setMessages((prev) => [...prev, formattedMessage]);
+      setConversations((prev) =>
         prev
-          .map(conv =>
+          .map((conv) =>
             conv._id === selectedConversation._id
               ? {
-                ...conv,
-                latestMessage: messageType === "text"
-                  ? newMessageText.trim()
-                  : `[${messageType} message]`,
-                latestMessageType: messageType,
-                lastActivityAt: new Date(),
-                unreadCount: 0,
-              }
+                  ...conv,
+                  latestMessage:
+                    messageType === "text"
+                      ? newMessageText.trim()
+                      : `[${messageType} message]`,
+                  latestMessageType: messageType,
+                  lastActivityAt: new Date(),
+                  unreadCount: 0,
+                }
               : conv
           )
-          .sort((a, b) => new Date(b.lastActivityAt) - new Date(a.lastActivityAt))
+          .sort(
+            (a, b) => new Date(b.lastActivityAt) - new Date(a.lastActivityAt)
+          )
       );
 
       // Reset form
@@ -322,7 +362,7 @@ const LiveChatPage = () => {
       console.error("Message send error:", error);
       toast.error(error.response?.data?.message || "Failed to send message");
     } finally {
-      setIsLoading(prev => ({ ...prev, sending: false }));
+      setIsLoading((prev) => ({ ...prev, sending: false }));
     }
   };
 
@@ -337,21 +377,21 @@ const LiveChatPage = () => {
 
   const handleDownloadMedia = async (mediaId) => {
     try {
-      setIsLoading(prev => ({ ...prev, media: true }));
+      setIsLoading((prev) => ({ ...prev, media: true }));
       const response = await api.post(
         `/projects/${projectId}/messages/download-media`,
         { imageId: mediaId },
-        { responseType: 'blob' }
+        { responseType: "blob" }
       );
 
-      const contentType = response.headers['content-type'];
-      const extension = contentType.split('/')[1] || 'jpg';
+      const contentType = response.headers["content-type"];
+      const extension = contentType.split("/")[1] || "jpg";
       const blob = new Blob([response.data], { type: contentType });
       const blobUrl = URL.createObjectURL(blob);
 
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = blobUrl;
-      link.setAttribute('download', `media.${extension}`);
+      link.setAttribute("download", `media.${extension}`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -361,7 +401,7 @@ const LiveChatPage = () => {
       console.error("Failed to download media:", error);
       toast.error("Failed to download media");
     } finally {
-      setIsLoading(prev => ({ ...prev, media: false }));
+      setIsLoading((prev) => ({ ...prev, media: false }));
     }
   };
 
@@ -382,23 +422,25 @@ const LiveChatPage = () => {
 
     // Message handlers
     const handleNewInboundMessage = (data) => {
-      setConversations(prev => {
+      setConversations((prev) => {
         const existingConvIndex = prev.findIndex(
-          conv => conv._id === data.conversation._id
+          (conv) => conv._id === data.conversation._id
         );
 
         if (existingConvIndex > -1) {
           const updated = [...prev];
           updated[existingConvIndex] = {
             ...updated[existingConvIndex],
-            latestMessage: data.message.type === "text"
-              ? data.message.message.body
-              : `[${data.message.type}]`,
+            latestMessage:
+              data.message.type === "text"
+                ? data.message.message.body
+                : `[${data.message.type}]`,
             latestMessageType: data.message.type,
             lastActivityAt: data.message.sentAt,
-            unreadCount: selectedConversation?._id === data.conversation._id
-              ? 0
-              : (updated[existingConvIndex].unreadCount || 0) + 1,
+            unreadCount:
+              selectedConversation?._id === data.conversation._id
+                ? 0
+                : (updated[existingConvIndex].unreadCount || 0) + 1,
           };
           return updated.sort(
             (a, b) => new Date(b.lastActivityAt) - new Date(a.lastActivityAt)
@@ -418,34 +460,37 @@ const LiveChatPage = () => {
       });
 
       if (selectedConversation?._id === data.conversation._id) {
-        setMessages(prev => [...prev, data.message]);
+        setMessages((prev) => [...prev, data.message]);
       }
     };
 
     const handleNewChatMessage = (data) => {
       if (selectedConversation?._id === data.conversationId) {
-        setMessages(prev => [...prev, data.message]);
+        setMessages((prev) => [...prev, data.message]);
         if (data.message.direction === "inbound") {
-          api.put(
-            `/projects/${projectId}/conversations/${selectedConversation._id}/read`,
-            {},
-            config
-          ).then(() => {
-            setConversations(prev =>
-              prev.map(conv =>
-                conv._id === selectedConversation._id
-                  ? { ...conv, unreadCount: 0 }
-                  : conv
-              )
-            );
-          }).catch(err => console.error("Error marking as read:", err));
+          api
+            .put(
+              `/projects/${projectId}/conversations/${selectedConversation._id}/read`,
+              {},
+              config
+            )
+            .then(() => {
+              setConversations((prev) =>
+                prev.map((conv) =>
+                  conv._id === selectedConversation._id
+                    ? { ...conv, unreadCount: 0 }
+                    : conv
+                )
+              );
+            })
+            .catch((err) => console.error("Error marking as read:", err));
         }
       }
     };
 
     const handleMessageStatusUpdate = (data) => {
-      setMessages(prev =>
-        prev.map(msg =>
+      setMessages((prev) =>
+        prev.map((msg) =>
           msg.metaMessageId === data.metaMessageId
             ? { ...msg, status: data.newStatus, sentAt: data.sentAt }
             : msg
@@ -511,12 +556,18 @@ const LiveChatPage = () => {
   // Render message status icon
   const renderStatusIcon = (status) => {
     switch (status) {
-      case "sent": return "✓";
-      case "delivered": return "✓✓";
-      case "read": return "✓✓ (Read)";
-      case "failed": return "✗ (Failed)";
-      case "pending": return <FaSpinner className="animate-spin" />;
-      default: return null;
+      case "sent":
+        return "✓";
+      case "delivered":
+        return "✓✓";
+      case "read":
+        return "✓✓ (Read)";
+      case "failed":
+        return "✗ (Failed)";
+      case "pending":
+        return <FaSpinner className="animate-spin" />;
+      default:
+        return null;
     }
   };
 
@@ -558,7 +609,11 @@ const LiveChatPage = () => {
           </div>
         );
       default:
-        return <p className="italic text-sm">[Unsupported Message Type: {msg.type}]</p>;
+        return (
+          <p className="italic text-sm">
+            [Unsupported Message Type: {msg.type}]
+          </p>
+        );
     }
   };
 
@@ -573,16 +628,18 @@ const LiveChatPage = () => {
             </div>
           ) : conversations.length === 0 ? (
             <p className="p-4 text-gray-500 dark:bg-dark-surface dark:text-dark-text-primary text-sm">
-              No conversations yet. Messages from WhatsApp users will appear here.
+              No conversations yet. Messages from WhatsApp users will appear
+              here.
             </p>
           ) : (
             conversations.map((conv) => (
               <div
                 key={conv._id}
-                className={`flex p-3 dark:text-dark-text-primary dark:border-dark-border dark:bg-dark-surface cursor-pointer border-b border-gray-200 hover:bg-gray-100 transition duration-150 ${selectedConversation?._id === conv._id
+                className={`flex p-3 dark:text-dark-text-primary dark:border-dark-border dark:bg-dark-surface cursor-pointer border-b border-gray-200 hover:bg-gray-100 transition duration-150 ${
+                  selectedConversation?._id === conv._id
                     ? "bg-gray-100 border-l-4 border-blue-500"
                     : ""
-                  }`}
+                }`}
                 onClick={() => handleConversationSelect(conv)}
               >
                 <div className="flex-grow">
@@ -610,10 +667,13 @@ const LiveChatPage = () => {
                       </div>
                       <div className="text-right">
                         <p className="text-xs text-gray-500">
-                          {new Date(conv.lastActivityAt).toLocaleTimeString([], {
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}
+                          {new Date(conv.lastActivityAt).toLocaleTimeString(
+                            [],
+                            {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            }
+                          )}
                         </p>
                         {conv.unreadCount > 0 && (
                           <span className="inline-block bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
@@ -675,25 +735,30 @@ const LiveChatPage = () => {
                 messages.map((msg) => (
                   <div
                     key={msg._id}
-                    className={`flex ${msg.direction === "outbound" ? "justify-end" : "justify-start"
-                      }`}
+                    className={`flex ${
+                      msg.direction === "outbound"
+                        ? "justify-end"
+                        : "justify-start"
+                    }`}
                   >
                     <div
-                      className={`max-w-xs p-3 rounded-lg dark:bg-dark-surface dark:text-dark-text-primary dark:border-dark-surface shadow-sm ${msg.direction === "outbound"
+                      className={`max-w-xs p-3 rounded-lg dark:bg-dark-surface dark:text-dark-text-primary dark:border-dark-surface shadow-sm ${
+                        msg.direction === "outbound"
                           ? "bg-blue-500 text-white"
                           : "bg-white text-gray-800 border border-gray-200"
-                        }`}
+                      }`}
                     >
                       {renderMessageContent(msg)}
                       <p
-                        className={`text-xs mt-1 flex items-center ${msg.direction === "outbound"
+                        className={`text-xs mt-1 flex items-center ${
+                          msg.direction === "outbound"
                             ? "text-blue-100"
                             : "text-gray-500"
-                          }`}
+                        }`}
                       >
                         {new Date(msg.sentAt).toLocaleTimeString([], {
-                          hour: '2-digit',
-                          minute: '2-digit'
+                          hour: "2-digit",
+                          minute: "2-digit",
                         })}
                         {msg.direction === "outbound" && (
                           <span className="ml-2">
@@ -715,20 +780,24 @@ const LiveChatPage = () => {
             >
               {/* Message Type Selector */}
               <div className="flex flex-wrap gap-2 mb-3">
-                {["text", "template", "image", "video", "audio"].map((type) => (
+                {["text", "template", "image", "video", "audio","document"].map((type) => (
                   <button
                     key={type}
                     type="button"
-                    className={`px-3 py-1 dark:bg-dark-bg-primary dark:text-dark-text-primary text-sm rounded transition ${messageType === type
+                    className={`px-3 py-1 dark:bg-dark-bg-primary dark:text-dark-text-primary text-sm rounded transition ${
+                      messageType === type
                         ? "bg-blue-500 text-white"
                         : "bg-gray-200 hover:bg-gray-300"
-                      }`}
-                    onClick={() => {
-                      setMessageType(type);
-                      if (["image", "video", "audio"].includes(type)) {
-                        fileInputRef.current?.click();
-                      }
-                    }}
+                    }`}
+                   onClick={() => {
+  setMessageType(type);
+  if (["image", "video", "audio", "document"].includes(type)) {
+    setTimeout(() => {
+      fileInputRef.current?.click();
+    }, 0);
+  }
+}}
+
                     disabled={isLoading.media}
                   >
                     {type.charAt(0).toUpperCase() + type.slice(1)}
@@ -742,12 +811,14 @@ const LiveChatPage = () => {
                   onChange={handleFileUpload}
                   accept={
                     messageType === "image"
-                      ? "image/*"
+                      ? "image/jpeg,image/png"
                       : messageType === "video"
-                        ? "video/*"
-                        : messageType === "audio"
-                          ? "audio/*"
-                          : "*"
+                      ? "video/mp4,video/3gpp"
+                      : messageType === "audio"
+                      ? "audio/mpeg,audio/ogg,audio/amr,audio/wav"
+                      : messageType === "document"
+                      ? "application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,text/plain"
+                      : ""
                   }
                   className="hidden"
                 />
@@ -784,8 +855,8 @@ const LiveChatPage = () => {
                     messageType === "text"
                       ? "Type a message..."
                       : messageType === "template"
-                        ? "Add template parameters..."
-                        : "Add a caption (optional)..."
+                      ? "Add template parameters..."
+                      : "Add a caption (optional)..."
                   }
                   value={newMessageText}
                   onChange={(e) => setNewMessageText(e.target.value)}
