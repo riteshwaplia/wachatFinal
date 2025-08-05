@@ -44,6 +44,7 @@ const CreateTemplate = () => {
   const [loading, setLoading] = useState(false); // For loading state
   const variableCounter = useRef(1); // For unique variable numbering
   const [variableExamples, setVariableExamples] = useState({}); // For text header variable examples
+  const [selectedType,setSelectedType] = useState(null);
   const navigate = useNavigate(); // Assuming you have react-router's useNavigate for navigation  
   // Logic to get businessProfileId from local storage (or context)
   const [businessProfileId, setBusinessProfileId] = useState(null);
@@ -115,11 +116,14 @@ const CreateTemplate = () => {
   };
 
   const handleHeaderContentChange = async (e) => {
+    setLoading(true)
     const file = e.target.files?.[0]; // For file inputs
     const value = e.target.value; // For text inputs
 
     if (file) {
-      setLoading(true); // Set loading state while uploading
+      setLoading(true); 
+      setSelectedType(file.type);
+      // Set loading state while uploading
       setImage(URL.createObjectURL(file)); // Set preview image
       try {
         // Ensure businessProfileId and projectId are available before upload
@@ -127,6 +131,7 @@ const CreateTemplate = () => {
           console.error(
             "Missing businessProfileId or projectId for media upload."
           );
+          setLoading(false);
           // You might want to show a user-facing error here
           return;
         }
@@ -508,7 +513,7 @@ const CreateTemplate = () => {
     <>
       {" "}
       <BackButton text="back" />
-      <div className="md:flex  w-full gap-4">
+      <div className="md:flex relative  w-full gap-4">
         <form onSubmit={handleSubmit} className="p-2 w-full md:w-3/5 flex flex-col gap-4">
           <Input
             placeholder="Template Name"
@@ -638,6 +643,11 @@ const CreateTemplate = () => {
                     className="w-full border p-2 rounded"
                     disabled={loading || headerComponentInState?.mediaHandle}
                   />
+                  {
+                    loading && (<div className=" inset-0 flex items-center justify-center bg-white bg-opacity-80">
+            <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          </div>)
+                  }
                   {headerComponentInState?.mediaHandle && (
                     <div className="text-sm text-green-600">
                       ✓ Media uploaded successfully
@@ -714,11 +724,11 @@ const CreateTemplate = () => {
         </form>
 
         {/* Preview Section */}
-        <div className="p-2 md:w-2/5 mt-4">
-          <h2 className="text-xl font-semibold mb-4">Preview</h2>
+        <div className="p-2  sticky top-[130px]  mx-auto  mt-4 h-full">
           <TemplatePreview
             template={template}
             image={image}
+            filetype={selectedType}
             variableExamples={variableExamples}
           />
         </div>

@@ -272,7 +272,7 @@ export const customSelectStyles = {
     const dark = isDarkMode();
     return {
       ...base,
-      color: dark ? "#8B949E" : "#A6B0BD",
+      color: dark ? "#9ea8b3ff" : "#17191bff",
       fontSize: "0.875rem",
     };
   },
@@ -284,3 +284,5 @@ export const customSelectStyles = {
     };
   },
 };
+
+//TODO: hello
