@@ -1210,11 +1210,17 @@ const SendCarosualTemplate = () => {
       setBulkContactsFile(null);
       setBulkTemplateName("");
       document.getElementById("bulkContactsFile").value = "";
+      navigate(-1)
     } catch (error) {
+      setBulkContactsFile(null);
+      setBulkTemplateName("");
+      document.getElementById("bulkContactsFile").value = "";
       toast.error(error.response?.data?.message || "Failed to send bulk messages");
       console.error("Bulk send error:", error);
     } finally {
       setIsLoading(prev => ({ ...prev, sending: false }));
+      navigate(-1)
+
     }
   };
 

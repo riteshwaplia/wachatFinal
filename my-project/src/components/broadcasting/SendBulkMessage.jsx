@@ -31,14 +31,14 @@ const SendMessagePage = () => {
   const { user, token } = useAuth();
   const { id: projectId } = useParams();
   const navigate = useNavigate();
-  
+
   const [isLoading, setIsLoading] = useState({
     templates: true,
     sending: false,
     uploading: false
   });
   const [activeTab, setActiveTab] = useState("group");
-  
+
   // Bulk message state
   const [bulkTemplateName, setBulkTemplateName] = useState("");
   const [bulkTemplateLanguage, setBulkTemplateLanguage] = useState("en_US");
@@ -141,15 +141,15 @@ const SendMessagePage = () => {
       try {
         const parsed = JSON.parse(bulkTemplateComponents);
         let expected = ["mobilenumber"];
-        
+
         parsed.forEach(comp => {
           if (comp.type === "HEADER" && comp.example?.header_text) {
-            comp.example.header_text.forEach(v => 
+            comp.example.header_text.forEach(v =>
               expected.push(`header_${v.toLowerCase()}`)
             );
           }
           if (comp.type === "BODY" && comp.example?.body_text) {
-            comp.example.body_text[0]?.forEach(v => 
+            comp.example.body_text[0]?.forEach(v =>
               expected.push(`body_${v.toLowerCase()}`)
             );
           }
@@ -168,7 +168,7 @@ const SendMessagePage = () => {
 
   const handleBulkMessageSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!bulkContactsFile) {
       toast.warning("Please select a contacts file");
       return;
@@ -204,17 +204,21 @@ const SendMessagePage = () => {
           },
         }
       );
-      
+
       toast.success(res.data.message || "Bulk messages initiated");
       setBulkContactsFile(null);
       setBulkTemplateName("");
       document.getElementById("bulkContactsFile").value = "";
       navigate(-1)
     } catch (error) {
+      setBulkContactsFile(null);
+      setBulkTemplateName("");
+      document.getElementById("bulkContactsFile").value = "";
       toast.error(error.response?.data?.message || "Failed to send bulk messages");
       console.error("Bulk send error:", error);
     } finally {
       setIsLoading(prev => ({ ...prev, sending: false }));
+      navigate(-1)
     }
   };
 
@@ -222,7 +226,7 @@ const SendMessagePage = () => {
     try {
       const parsed = JSON.parse(bulkTemplateComponents);
       const header = parsed.find(c => c.type === "HEADER" && c.format === "IMAGE");
-      
+
       if (!header) return null;
 
       return (
@@ -254,7 +258,7 @@ const SendMessagePage = () => {
                     },
                   }
                 );
-                
+
                 setImageId(res.data?.id || res.data?.data.id || "");
                 const mediaHandle = res.data?.id || res.data?.data.id;
                 if (!mediaHandle) {
@@ -317,8 +321,8 @@ const SendMessagePage = () => {
       const columns = ["mobilenumber", ...headerVars.map(v => `header_${v}`), ...bodyVars.map(v => `body_${v}`)];
       const sampleRow = {
         mobilenumber: "919999999999",
-        ...Object.fromEntries(headerVars.map((v, i) => [`header_${v}`, `Header${i+1}`])),
-        ...Object.fromEntries(bodyVars.map((v, i) => [`body_${v}`, `Body${i+1}`]))
+        ...Object.fromEntries(headerVars.map((v, i) => [`header_${v}`, `Header${i + 1}`])),
+        ...Object.fromEntries(bodyVars.map((v, i) => [`body_${v}`, `Body${i + 1}`]))
       };
 
       return (
@@ -374,17 +378,15 @@ const SendMessagePage = () => {
     <div className="space-y-6 p-6"> {/* Added padding for better layout */}
       <div className="flex border-b mb-6">
         <button
-          className={`py-2 px-4 font-medium ${
-            activeTab === "group" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-500"
-          }`}
+          className={`py-2 px-4 font-medium ${activeTab === "group" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-500"
+            }`}
           onClick={() => setActiveTab("group")}
         >
           Group Messaging
         </button>
         <button
-          className={`py-2 px-4 font-medium ${
-            activeTab === "bulk" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-500"
-          }`}
+          className={`py-2 px-4 font-medium ${activeTab === "bulk" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-500"
+            }`}
           onClick={() => setActiveTab("bulk")}
         >
           Bulk Messages
@@ -400,11 +402,10 @@ const SendMessagePage = () => {
             </p>
             <p>
               <span className="font-medium">Status:</span>{" "}
-              <span className={`font-semibold ${
-                messageStatus.latest.newStatus === "delivered" ? "text-green-600" :
+              <span className={`font-semibold ${messageStatus.latest.newStatus === "delivered" ? "text-green-600" :
                 messageStatus.latest.newStatus === "read" ? "text-blue-600" :
-                messageStatus.latest.newStatus === "failed" ? "text-red-600" : "text-yellow-600"
-              }`}>
+                  messageStatus.latest.newStatus === "failed" ? "text-red-600" : "text-yellow-600"
+                }`}>
                 {messageStatus.latest.newStatus.toUpperCase()}
               </span>
             </p>
@@ -435,7 +436,7 @@ const SendMessagePage = () => {
       ) : (
         <div className="p-4 border dark:border-dark-border dark:boder-dark-border border-gray-200 rounded-lg">
           <h3 className="text-xl font-semibold dark:text-dark-text-primary mb-4">Bulk Template Messages</h3>
-          
+
           <form onSubmit={handleBulkMessageSubmit} className="space-y-4">
             <div>
               <label className="block dark:text-dark-text-primary font-medium mb-1">Template</label>
