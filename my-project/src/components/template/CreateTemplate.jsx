@@ -297,7 +297,7 @@ const CreateTemplate = () => {
 
       // Extract all variables like {{1}}, {{user_name}}, etc.
       const variablesInText = extractVariables(plainText);
-      
+
       if (variablesInText?.length > 10) {
         ErrorToast("variables limit exceeds(10)")
         return
@@ -368,11 +368,11 @@ const CreateTemplate = () => {
     setLoading(true); // Set loading state while creating template
     try {
       console.log("Template Create Payload:", JSON.stringify(payload, null, 2));
-      const res = await api.pp("/templates", payload); // Assuming api.post is configured for /api/templates
+      const res = await api.post("/templates", payload); // Assuming api.post is configured for /api/templates
       console.log("Template created successfully:", res.data);
       setLoading(false); // Reset loading state after creation
-      alert(res.data.message || "Template created successfully!");
       navigate(-1)
+      alert(res.data.message || "Template created successfully!");
       // Optionally reset form or navigate
     } catch (error) {
       console.error(
@@ -383,6 +383,9 @@ const CreateTemplate = () => {
         `Error creating template: ${error.response?.data?.message || error.message
         }`
       );
+    } finally {
+      setLoading(false); // Reset loading state after creation
+
     }
   };
 

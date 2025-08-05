@@ -90,10 +90,13 @@
 //         </div>
 //     )
 // }
-import React, { useState } from 'react';
+
+import React, { useEffect, useState } from 'react';
 import Button from '../components/Button';
 import InputField from '../components/InputField';
 import { IoBusiness } from "react-icons/io5";
+import api from '../utils/api';
+import { ErrorToast, SuccessToast } from '../utils/Toast';
 
 export default function UserSetting() {
     const [tab, settab] = useState("business");
@@ -105,6 +108,52 @@ export default function UserSetting() {
         "accessToken": "",
         "appId": ""
     });
+    const [batchSize, setbatchSize] = useState(null)
+    const [loading, setLoading] = useState(false)
+
+
+
+    useEffect(() => {
+        fetchBatchSize();
+    }, [])
+
+    const fetchBatchSize = async () => {
+        try {
+            const res = await api.get(`/users/batch-size`);
+            console.log("res", res?.data?.data?.batch_size)
+            if (res?.data?.success) {
+                setbatchSize(res?.data?.data?.batch_size)
+            }
+        } catch (error) {
+            const msg = error.response.data.message;
+            ErrorToast(msg || "server err")
+
+        }
+    }
+
+    const updateBatchSize = async () => {
+        const payload = {
+            batch_size: batchSize
+        }
+        try {
+            setLoading(true)
+            const res = await api.put(`/users/batch-size`, payload);
+            console.log("res", res)
+            if (res?.data?.success) {
+                SuccessToast(res.data.message)
+                fetchBatchSize();
+            }
+        } catch (error) {
+            const msg = error.response.data.message;
+            ErrorToast(msg || "server err")
+
+        } finally {
+            setLoading(false)
+        }
+
+    }
+
+
 
 
 
@@ -115,6 +164,18 @@ export default function UserSetting() {
             setErrors((prev) => ({ ...prev, [key]: '' }));
         }
     }
+
+
+    const BrodSubmitHandler = (e) => {
+        // /batch-size
+        const res = api.put(`/users/batch-size`)
+        e.preventDefault();
+        if (!brodId) {
+            setbrodErr("enter the current id");
+        }
+        console.log("broddata", brodId);
+    }
+
 
     const handleSubmit = (e) => {
         const newErrors = {};
@@ -136,20 +197,12 @@ export default function UserSetting() {
         }
         console.log("dataaaaa", inpdata);
     }
-    const BrodSubmitHandler = (e) => {
-        e.preventDefault();
-        if (!brodId) {
-            setbrodErr("enter the current id");
-        }
-        console.log("broddata", brodId);
-    }
-
     return (
         <div>
             <div className='text-3xl font-bold  mb-10'>Settings</div>
             <div className=' border-gray px-3  border-b'>
                 <div className='flex text-[14px] md:text-[16px]  border-b border-gray-200 gap-6 ml-2'>
-               
+
                     <button className={` ${tab == "business" && "whitespace-nowrap py-4  px-1 border-b-2 font-medium text-sm flex items-center space-x-1 lg:space-x-2 border-primary-500 text-primary-600 hover:text-primary-600 hover:border-b-2 hover:border-primary-500"} cursor-pointer text-gray-500 hover:text-gray-700 hover:border-b-2 hover:border-gray-400 `}>Update Brodcast Detail</button>
 
                 </div>
@@ -159,9 +212,9 @@ export default function UserSetting() {
                     {
                         tab === "business" ?
                             <div className='py-6'>
-                                <InputField error={bordErr} onChange={(e) => (setBrodId(e.target.value),
-                                    setbrodErr(""))} placeholder="ex." label="Current id" />
-                                <Button onClick={BrodSubmitHandler} className='ml-auto block'>Update</Button>
+                                <InputField value={batchSize} onChange={(e) => (setbatchSize(e.target.value))}
+                                    placeholder="ex." label="BroadCaste R/s" />
+                                <Button loading={loading} onClick={() => updateBatchSize()} className='ml-auto block'>Update</Button>
                             </div> : ""
 
 

@@ -14,6 +14,7 @@ import Button from "../Button";
 import Modal from "../Modal";
 import { FiUploadCloud, FiTrash2, FiPlusCircle } from "react-icons/fi";
 import { FaImage } from "react-icons/fa";
+import CarouselPreview from "./CarosoulPreview";
 
 const TEMPLATE_CATEGORIES = [
   { label: "Marketing", value: "MARKETING" },
@@ -142,21 +143,21 @@ const CreateCarouselTemplate = () => {
 
   const handleCardRichTextChange =
     (cardId) =>
-    ({ rawHTML, formattedText, variables, variableExamples }) => {
-      setCards((prev) =>
-        prev.map((card) => {
-          if (card.id === cardId) {
-            return {
-              ...card,
-              bodyText: rawHTML,
-              bodyVariables: variables,
-              bodyVariableExamples: variableExamples,
-            };
-          }
-          return card;
-        })
-      );
-    };
+      ({ rawHTML, formattedText, variables, variableExamples }) => {
+        setCards((prev) =>
+          prev.map((card) => {
+            if (card.id === cardId) {
+              return {
+                ...card,
+                bodyText: rawHTML,
+                bodyVariables: variables,
+                bodyVariableExamples: variableExamples,
+              };
+            }
+            return card;
+          })
+        );
+      };
 
   const handleCardFieldChange = (cardId, field, value) => {
     setCards((prev) =>
@@ -472,7 +473,7 @@ const CreateCarouselTemplate = () => {
   return (
     <>
       <BackButton text="Back" />
-      <div className="md:flex w-full gap-4">
+      <div className="md:flex lg:gap-16  gap-4 relative">
         <form
           onSubmit={handleSubmit}
           className="p-2 w-full md:w-3/5 flex flex-col gap-4"
@@ -526,12 +527,11 @@ const CreateCarouselTemplate = () => {
               onChange={handleMainBodyChange}
               value={templateData.mainBodyText || ""}
               loading={loading}
-              // carousel={false}
+            // carousel={false}
             />
             <div
-              className={`text-sm mt-1 ${
-                mainBodyCharacterCount > 1024 ? "text-red-500" : "text-gray-500"
-              }`}
+              className={`text-sm mt-1 ${mainBodyCharacterCount > 1024 ? "text-red-500" : "text-gray-500"
+                }`}
             >
               Characters: {mainBodyCharacterCount}/1024
               {mainBodyCharacterCount > 1024 && " - Exceeds WhatsApp limit"}
@@ -666,10 +666,8 @@ const CreateCarouselTemplate = () => {
               {loading ? "Creating..." : "Create Carousel Template"}
             </Button>
           </div>
-        </form>
-        <div className="p-2 w-full md:w-2/5 md:block hidden">
-          {/* Preview Section - Placeholder for now, full carousel preview is complex */}
-
+        </form> {/* <div className="p-2 w-full md:w-2/5 md:block hidden">
+ 
             <h2 className="text-xl font-semibold mb-4">
               Carousel Preview (Conceptual)
             </h2>
@@ -744,7 +742,10 @@ const CreateCarouselTemplate = () => {
                 ))}
               </div>
             </div>
-          </div>
+          </div> */}
+        <div className="flex justify-center items-center h-screen sticky top-12 right-2">
+          <CarouselPreview templateData={templateData} cards={cards} />
+        </div>
       </div>
       <Modal
         isOpen={showWhyModal}
