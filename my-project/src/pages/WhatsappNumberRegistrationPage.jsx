@@ -17,6 +17,8 @@ import PhoneNumberCard from '../components/PhoneNumberCard';
 import { ErrorToast, SuccessToast } from '../utils/Toast';
 import { useTranslation } from 'react-i18next';
 import { validateBusinessProfile } from '../utils/validation';
+import Celebrations from '../components/Celebrations';
+import Confetti from 'react-confetti-boom';
 
 const WhatsappNumberRegistrationPage = () => {
     const { user } = useAuth();
@@ -42,6 +44,7 @@ const WhatsappNumberRegistrationPage = () => {
         accessToken: '',
         metaAppId: ""
     });
+    const [showConfetti,setShowConfetti] = useState(false);
 
     const [isAddBusinessModalOpen, setIsAddBusinessModalOpen] = useState(false);
 const handlecloasemodel=()=>{
@@ -216,6 +219,7 @@ const handlecloasemodel=()=>{
             });
 
             if (projectRes.data.success) {
+                 setShowConfetti(true);
                 SuccessToast('WhatsApp number connected successfully!');
             }
 
@@ -226,7 +230,7 @@ const handlecloasemodel=()=>{
             });
 
             // Redirect after short delay
-            setTimeout(() => navigate('/projects'), 1500);
+            setTimeout(() => navigate('/projects'), 3500);
 
         } catch (error) {
             ErrorToast(`Error connecting WhatsApp number: ${error.response?.data?.message || 'Failed to connect number.'}`);
@@ -469,7 +473,10 @@ const handlecloasemodel=()=>{
                     </div>
                 </form>
             </Modal>
+            {showConfetti ? <Celebrations setShowConfetti={setShowConfetti} showConfetti={showConfetti}/> :""}
+      
         </div>
+        
     );
 };
 
