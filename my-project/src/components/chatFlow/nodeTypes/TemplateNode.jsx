@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import BaseNode from './BaseNode';
 import axios from 'axios';
 import { getAllTemplates } from '../../../apis/TemplateApi';
+import CustomPaginationSelect from '../../CustomPaginationSelect';
 
 const TemplateNode = ({ data, id }) => {
     const [templates, setTemplates] = useState([]);
@@ -66,6 +67,16 @@ const TemplateNode = ({ data, id }) => {
                 <p className="text-red-500 text-sm">{error}</p>
             )}
 
+            {/* <CustomPaginationSelect
+                options={templates}
+                labelKey="name"
+                value={data?.selectedTemplateId || ''}
+                pageSize={20}
+                onChange={handleChange}
+
+
+            /> */}
+
             {!loading && !error && (
                 <select
                     className="nodrag bg-secondary-50 w-full px-2 py-1 border border-gray-300 rounded"
@@ -89,6 +100,7 @@ const TemplateNode = ({ data, id }) => {
             body={body}
             footer="Sends selected template to user"
         />
+
     );
 };
 

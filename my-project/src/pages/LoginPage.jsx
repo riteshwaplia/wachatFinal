@@ -4,11 +4,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import Card from '../components/Card';
 import InputField from '../components/InputField';
 import Button from '../components/Button';
-import Alert from '../components/Alert';
 import { useAuth } from '../context/AuthContext';
-import { RiMessage3Line } from "react-icons/ri";
 import { CiLogin } from "react-icons/ci";
-import { LuMessagesSquare } from "react-icons/lu";
 import { loginValidation } from '../utils/validation'; // ✅ import validation
 import { ErrorToast, SuccessToast } from '../utils/Toast'; // ✅ optional toast for better UX
 import ForgotPassword from '../components/login/ForgotPassword';
@@ -16,7 +13,6 @@ import { useTranslation } from 'react-i18next';
 import { Fingerprint, KeyRound } from 'lucide-react';
 import { useTenant } from '../context/TenantContext';
 import AutoSlider from '../components/features/Slider';
-import logo from '../assets/sabnode_logo_fade.gif';
 import LogoAnimation from '../components/LogoAnimation';
 
 const LoginPage = () => {

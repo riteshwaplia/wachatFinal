@@ -65,7 +65,7 @@ const LiveChatPage = () => {
   // Data fetching
   const fetchTemplates = async () => {
     try {
-      const res = await api.get("/templates", {
+      const res = await api.get("/templates/plain", {
         ...config,
         params: { businessProfileId },
       });
@@ -552,6 +552,40 @@ const LiveChatPage = () => {
       </div>
     );
   };
+const CallPermissionReply = ({ contactName, waId, replyData, timestamp }) => {
+  const { response, response_source, expiration_timestamp } = replyData;
+
+  const isAccepted = response === "accept";
+  const date = new Date(timestamp * 1000).toLocaleString();
+  const expiry = new Date(expiration_timestamp * 1000).toLocaleString();
+
+  return (
+    <div className={`w-full max-w-sm rounded-xl p-4 mb-3 border ${isAccepted ? "bg-green-50 border-green-400" : "bg-red-50 border-red-400"}`}>
+      <div className="flex justify-between items-center">
+        <div className="font-semibold text-sm">{contactName || waId}</div>
+        <div className="text-xs text-gray-500">{date}</div>
+      </div>
+
+      <div className="mt-2">
+        {isAccepted ? (
+          <div className="text-green-700 text-sm">
+            Accepted call permission ✅
+            <div className="text-gray-600 text-xs mt-1">
+              Expires at: {expiry}
+            </div>
+          </div>
+        ) : (
+          <div className="text-red-700 text-sm">
+            Missed or declined call ❌
+            <div className="text-gray-600 text-xs mt-1">
+              Source: {response_source}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 
   // Render message status icon
   const renderStatusIcon = (status) => {
@@ -572,50 +606,77 @@ const LiveChatPage = () => {
   };
 
   // Render message content based on type
-  const renderMessageContent = (msg) => {
-    switch (msg.type) {
-      case "text":
-        return <p>{msg.message.body}</p>;
-      case "template":
-        return <p className="font-semibold">Template: {msg.message.name}</p>;
-      case "image":
-      case "document":
-      case "video":
-      case "audio":
+const renderMessageContent = (msg) => {
+  switch (msg.type) {
+    case "text":
+      return <p>{msg.message.body}</p>;
+
+    case "template":
+      return <p className="font-semibold">Template: {msg.message.name}</p>;
+
+    case "call_permission_reply":
+    case "interactive":
+      // Ensure it's actually a call permission reply
+      if (
+        msg.message?.call_permission_reply ||
+        msg.call_permission_reply
+      ) {
+        const replyData = msg.message?.call_permission_reply || msg.call_permission_reply;
+
         return (
-          <div>
-            <p className="font-semibold">{msg.type.toUpperCase()}</p>
-            {msg.message.link && (
-              <a
-                href={msg.message.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-200 underline break-all"
-              >
-                {msg.message.link.substring(0, 30)}...
-              </a>
-            )}
-            {msg.message.id && (
-              <button
-                onClick={() => handleDownloadMedia(msg.message.id)}
-                className="text-blue-500 underline text-sm"
-              >
-                Download
-              </button>
-            )}
-            {msg.message.caption && (
-              <p className="text-sm italic">{msg.message.caption}</p>
-            )}
-          </div>
+          <CallPermissionReply
+            contactName={msg.from}
+            waId={msg.from}
+            timestamp={Math.floor(new Date(msg.sentAt).getTime() / 1000)}
+            replyData={{
+              response: replyData.response,
+              response_source: replyData.response_source,
+              expiration_timestamp: replyData.expiration_timestamp,
+            }}
+          />
         );
-      default:
-        return (
-          <p className="italic text-sm">
-            [Unsupported Message Type: {msg.type}]
-          </p>
-        );
-    }
-  };
+      }
+      return <p className="italic text-sm">[Unsupported interactive message]</p>;
+
+    case "image":
+    case "document":
+    case "video":
+    case "audio":
+      return (
+        <div>
+          <p className="font-semibold">{msg.type.toUpperCase()}</p>
+          {msg.message.link && (
+            <a
+              href={msg.message.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-200 underline break-all"
+            >
+              {msg.message.link.substring(0, 30)}...
+            </a>
+          )}
+          {msg.message.id && (
+            <button
+              onClick={() => handleDownloadMedia(msg.message.id)}
+              className="text-blue-500 underline text-sm"
+            >
+              Download
+            </button>
+          )}
+          {msg.message.caption && (
+            <p className="text-sm italic">{msg.message.caption}</p>
+          )}
+        </div>
+      );
+
+    default:
+      return (
+        <p className="italic text-sm">
+          [Unsupported Message Type: {msg.type}]
+        </p>
+      );
+  }
+};
 
   return (
     <div className="md:flex md:h-[calc(100vh-120px)] bg-white rounded-lg shadow-md mt-8 overflow-hidden">
