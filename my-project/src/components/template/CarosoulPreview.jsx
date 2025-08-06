@@ -49,9 +49,9 @@ const defaultCards = [
   }
 ];
 
-export default function CarouselPreview({ 
-  templateData = defaultTemplateData, 
-  cards = defaultCards 
+export default function CarouselPreview({
+  templateData = defaultTemplateData,
+  cards = defaultCards
 }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
@@ -127,17 +127,20 @@ export default function CarouselPreview({
   }, []);
 
   return (
-    <div className="flex justify-center items-center min-h-screen  p-4">
-      <div className="w-full max-w-[400px] mx-auto">
-        {/* iPhone Style Container */}
-        <div className="bg-black rounded-[3rem] p-3 shadow-2xl max-w-sm mx-auto lg:max-w-4xl">
+    <div className="flex justify-center items-center     p-6">
+      <div className="max-w-[350px] max-h-[700px]  mx-auto">
+        <div
+
+          className="bg-black  rounded-[3rem] p-3 shadow-2xl w-full"
+
+        >
           <div className="bg-white rounded-[2.5rem] overflow-hidden relative">
             {/* Dynamic Island */}
             <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-32 h-6 bg-black rounded-full z-20"></div>
-            
+
             {/* Status Bar */}
             <div className="flex justify-between items-center px-6 pt-12 pb-2 bg-gray-50">
-              <span className="text-sm font-semibold">{}</span>
+              <span className="text-sm font-semibold">{ }</span>
               <div className="flex items-center gap-1">
                 <div className="w-4 h-2 bg-black rounded-sm"></div>
                 <div className="w-6 h-3 border border-black rounded-sm">
@@ -153,7 +156,7 @@ export default function CarouselPreview({
                   <span className="text-green-600 font-bold text-xs">WA</span>
                 </div>
                 <div>
-                  <h2 className="text-white font-semibold text-sm">Business Store</h2>
+                  {/* <h2 className="text-white font-semibold text-sm">Business Store</h2> */}
                   <p className="text-green-100 text-xs">Online</p>
                 </div>
               </div>
@@ -163,33 +166,43 @@ export default function CarouselPreview({
             </div>
 
             {/* Main Content Area */}
-            <div className="bg-gradient-to-b from-green-50 to-white min-h-[600px] relative overflow-hidden">
+            {/* <div  className="bg-gradient-to-b from-green-50 to-white min-h-[600px] relative overflow-hidden"> */}
+            <div
+              style={{
+                backgroundImage: "url('https://i.pinimg.com/736x/8c/98/99/8c98994518b575bfd8c949e91d20548b.jpg')",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+              }}
+              className="bg-black rounded-[3rem] min-h-[500px]  shadow-2xl max-w-sm mx-auto "
+            >
+
               {/* Header Section */}
-              <div className="p-4 bg-white border-b border-gray-100">
-                <div className="text-center">
+              {/* <div className="text-center">
                   <h2 className="text-xl font-bold text-gray-800 mb-2">
                     🛍️ Carousel Preview
                   </h2>
                   <p className="text-sm text-gray-600">
                     Swipe horizontally to explore products
                   </p>
-                </div>
+                </div> */}
 
-                {/* Main Body Text */}
-                {templateData.mainBodyText && (
-                  <div className="mt-4 p-3 bg-blue-50 rounded-lg border-l-4 border-blue-400">
-                    <div
-                      className="text-sm text-gray-700"
-                      dangerouslySetInnerHTML={{
-                        __html: parseCustomMarkdown(templateData.mainBodyText),
-                      }}
-                    />
-                  </div>
-                )}
-              </div>
+              {/* Main Body Text */}
+
+
+              {templateData.mainBodyText && (
+
+                <div className="mt-4 p-3 dark:bg-dark-bg-primary bg-primary-50 rounded-lg border-l-4 border-blue-400  leading-relaxed break-all overflow-hidden">
+                  <div
+                    className="text-sm text-gray-700"
+                    dangerouslySetInnerHTML={{
+                      __html: parseCustomMarkdown(templateData.mainBodyText),
+                    }}
+                  />
+                </div>
+              )}
 
               {/* Carousel Navigation */}
-              <div className="flex justify-between items-center px-4 py-2 bg-white">
+              {/* <div className="flex justify-between items-center px-4 py-2 bg-white">
                 <button
                   onClick={handlePrevious}
                   className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors duration-200 shadow-sm"
@@ -198,7 +211,6 @@ export default function CarouselPreview({
                   <ChevronLeft size={20} className="text-gray-600" />
                 </button>
                 
-                {/* Dots Indicator */}
                 <div className="flex space-x-2">
                   {cards.map((_, index) => (
                     <button
@@ -220,10 +232,10 @@ export default function CarouselPreview({
                 >
                   <ChevronRight size={20} className="text-gray-600" />
                 </button>
-              </div>
+              </div> */}
 
               {/* Scrollable Cards Container */}
-              <div className="px-4 py-2">
+              <div className=" py-2 my-6">
                 <div
                   ref={scrollContainerRef}
                   className="flex gap-4 overflow-x-auto scrollbar-hide cursor-grab active:cursor-grabbing"
@@ -240,7 +252,7 @@ export default function CarouselPreview({
                   {cards.map((card, index) => (
                     <div
                       key={card.id}
-                      className="flex-none w-64 bg-white rounded-xl shadow-lg border border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+                      className="flex-none w-64 dark:bg-dark-bg-primary bg-primary-50 rounded-xl shadow-lg border border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
                       style={{ scrollSnapAlign: 'start' }}
                     >
                       {/* Card Header Image */}
@@ -253,7 +265,7 @@ export default function CarouselPreview({
                             draggable={false}
                           />
                         ) : (
-                          <div className="w-full h-32 bg-gradient-to-br from-gray-200 to-gray-300 rounded-t-xl flex items-center justify-center">
+                          <div className="w-full h-32 bg-gradient-to-br from-primary-300 to-gray-300 rounded-t-xl flex items-center justify-center">
                             <ImageIcon size={32} className="text-gray-400" />
                           </div>
                         )}
@@ -266,7 +278,7 @@ export default function CarouselPreview({
                       <div className="p-4">
                         <div className="mb-3">
                           <div
-                            className="text-sm text-gray-700 leading-relaxed"
+                            className="text-sm text-gray-700   leading-relaxed break-all"
                             dangerouslySetInnerHTML={{
                               __html: parseCustomMarkdown(card.bodyText),
                             }}
@@ -274,7 +286,7 @@ export default function CarouselPreview({
                         </div>
 
                         {card.footerText && (
-                          <div className="text-xs text-gray-500 mb-3 italic">
+                          <div className="text-xs text-gray-500 mb-3   leading-relaxed break-all ">
                             {card.footerText}
                           </div>
                         )}
@@ -285,11 +297,10 @@ export default function CarouselPreview({
                             {card.buttons.map((btn, btnIdx) => (
                               <button
                                 key={btnIdx}
-                                className={`w-full text-xs px-3 py-2 rounded-lg transition-colors duration-200 flex items-center justify-center gap-1 ${
-                                  btn.type === 'URL'
-                                    ? 'bg-blue-500 hover:bg-blue-600 text-white'
-                                    : 'bg-green-500 hover:bg-green-600 text-white'
-                                }`}
+                                className={`w-full text-xs px-3 py-2 rounded-lg transition-colors duration-200 flex items-center justify-center gap-1 ${btn.type === 'URL'
+                                  ? 'bg-blue-500 hover:bg-blue-600 text-'
+                                  : 'bg-green-500 hover:bg-green-600 text-white'
+                                  }`}
                               >
                                 {btn.type === 'URL' ? (
                                   <ExternalLink size={12} />
@@ -311,7 +322,7 @@ export default function CarouselPreview({
               <div className="px-4 py-2">
                 <div className="w-full bg-gray-200 rounded-full h-1">
                   <div
-                    className="bg-blue-500 h-1 rounded-full transition-all duration-300 ease-out"
+                    className="bg-primary-500 h-1 rounded-full transition-all duration-300 ease-out"
                     style={{
                       width: `${((currentIndex + 1) / cards.length) * 100}%`
                     }}

@@ -69,7 +69,7 @@ const Sidebar = () => {
 
     // Document & Interactive
     {
-      type: 'documentMessage',
+      type: 'document',
       label: 'Document',
       icon: FileText,
       color: 'primary',

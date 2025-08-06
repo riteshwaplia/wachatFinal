@@ -15,7 +15,7 @@ import { BackButton } from "../BackButton";
 import Badge from "../Badge";
 import Modal from "../Modal";
 import Button from "../Button";
-import { ErrorToast } from "../../utils/Toast";
+import { ErrorToast, SuccessToast } from "../../utils/Toast";
 
 const TEMPLATE_CATEGORIES = [
   { label: "Marketing", value: "MARKETING" },
@@ -239,7 +239,7 @@ const CreateTemplate = () => {
     const validation = validateTemplate();
     if (!validation.isValid) {
       console.error("Validation errors:", validation.errors);
-      alert("Please fix the validation errors before submitting."); // Simple alert for user
+      ErrorToast("Please fix the validation errors before submitting."); // Simple alert for user
       return;
     }
 
@@ -279,7 +279,7 @@ const CreateTemplate = () => {
             `Attempted to create a ${header.format} header without a mediaHandle.`
           );
           // Frontend validation should ideally prevent reaching here, but as a safeguard.
-          alert(`Media ID is required for ${header.format} header.`);
+          ErrorToast(`Media ID is required for ${header.format} header.`);
           return;
         }
       }
@@ -372,14 +372,14 @@ const CreateTemplate = () => {
       console.log("Template created successfully:", res.data);
       setLoading(false); // Reset loading state after creation
       navigate(-1)
-      alert(res.data.message || "Template created successfully!");
+      SuccessToast(res.data.message || "Template created successfully!");
       // Optionally reset form or navigate
     } catch (error) {
       console.error(
         "Error creating template:",
         error.response?.data || error.message
       );
-      alert(
+      ErrorToast(
         `Error creating template: ${error.response?.data?.message || error.message
         }`
       );
@@ -629,6 +629,7 @@ const CreateTemplate = () => {
             ) && (
                 <div className="space-y-2">
                   <input
+                    id="headerUpload"
                     type="file"
                     accept={
                       headerComponentInState?.format === "IMAGE"
@@ -638,21 +639,75 @@ const CreateTemplate = () => {
                           : ".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt"
                     }
                     onChange={handleHeaderContentChange}
-                    className="w-full border p-2 rounded"
+                    className="hidden"
                     disabled={loading || headerComponentInState?.mediaHandle}
                   />
-                  {headerComponentInState?.mediaHandle && (
-                    <div className="text-sm text-green-600">
-                      ✓ Media uploaded successfully
-                      {/* {headerComponentInState.mediaHandle}) */}
-                    </div>
-                  )}
+
+                  <label
+                    htmlFor="headerUpload"
+                    className={`flex flex-col items-center justify-center w-full h-32 
+      border-2 border-dashed rounded-lg cursor-pointer 
+      transition-colors duration-200
+      ${headerComponentInState?.mediaHandle
+                        ? 'border-green-500 bg-green-50'
+                        : 'border-gray-300 hover:border-primary-500 hover:bg-gray-50'}`}
+                  >
+                    {!headerComponentInState?.mediaHandle ? (
+                      <>
+                        <svg
+                          className="w-8 h-8 text-gray-400 mb-2"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth={2}
+                          viewBox="0 0 24 24"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                        </svg>
+                        <span className="text-sm text-gray-500">                           Click or drag file to upload
+                        </span>
+                        {loading && <Button loading={loading} className="text-sm bg-transparent text-gray-500">
+                          uploading
+                        </Button>}
+                      </>
+                    ) : (
+                      <span className="text-sm text-green-600 font-medium">
+                        ✓ Media uploaded successfully
+                      </span>
+                    )}
+                  </label>
+
                   {errors.headerMedia && (
-                    <div className="text-sm text-red-500 mt-1">
-                      {errors.headerMedia}
-                    </div>
+                    <div className="text-sm text-red-500 mt-1">{errors.headerMedia}</div>
                   )}
                 </div>
+
+
+                // <div className="space-y-2">
+                //   <input
+                //     type="file"
+                //     accept={
+                //       headerComponentInState?.format === "IMAGE"
+                //         ? "image/*"
+                //         : headerComponentInState?.format === "VIDEO"
+                //           ? "video/*"
+                //           : ".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt"
+                //     }
+                //     onChange={handleHeaderContentChange}
+                //     className="w-full border p-2 rounded"
+                //     disabled={loading || headerComponentInState?.mediaHandle}
+                //   />
+                //   {headerComponentInState?.mediaHandle && (
+                //     <div className="text-sm text-green-600">
+                //       ✓ Media uploaded successfully
+                //       {/* {headerComponentInState.mediaHandle}) */}
+                //     </div>
+                //   )}
+                //   {errors.headerMedia && (
+                //     <div className="text-sm text-red-500 mt-1">
+                //       {errors.headerMedia}
+                //     </div>
+                //   )}
+                // </div>
               )}
           </div>
 
@@ -704,6 +759,7 @@ const CreateTemplate = () => {
 
           <Button
             type="submit"
+            loading={loading}
             disabled={!isValid || !businessProfileId || loading} // Disable if not valid or no business profile selected
             className={`px-4 py-2 rounded text-white ${
               // Changed text-text to text-white
