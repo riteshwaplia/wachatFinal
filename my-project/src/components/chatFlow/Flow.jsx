@@ -85,44 +85,44 @@ function Flow() {
 
 
 
-  useEffect(() => {
-    function getImageNodes(nodes) {
-      return nodes
-        .filter((node) => node.type === 'image')
-        .map((node) => ({
-          nodeId: node.id,
-          imageId: node.data?.id || null,
-          imageUrl: node.data?.imageUrl || null,
-        }));
-    }
+  // useEffect(() => {
+  //   function getImageNodes(nodes) {
+  //     return nodes
+  //       .filter((node) => node.type === 'image')
+  //       .map((node) => ({
+  //         nodeId: node.id,
+  //         imageId: node.data?.id || null,
+  //         imageUrl: node.data?.imageUrl || null,
+  //       }));
+  //   }
 
-    const imageNodes = getImageNodes(nodes);
-    console.log("Image Nodes:", imageNodes);
+  //   const imageNodes = getImageNodes(nodes);
+  //   console.log("Image Nodes:", imageNodes);
 
-    const templateNode = nodes.find((node) => node.type === 'template');
-    console.log("imageNodes>>", imageNodes)
-    if (templateNode && imageNodes.length > 0) {
-      const updatedTemplateNode = {
-        ...templateNode,
-        data: {
-          ...templateNode.data,
-          imageNodes, // Embed the imageNodes
-        },
-      };
+  //   const templateNode = nodes.find((node) => node.type === 'template');
+  //   console.log("imageNodes>>", imageNodes)
+  //   if (templateNode && imageNodes.length > 0) {
+  //     const updatedTemplateNode = {
+  //       ...templateNode,
+  //       data: {
+  //         ...templateNode.data,
+  //         imageNodes, // Embed the imageNodes
+  //       },
+  //     };
 
-      // ⚠️ Check if it already has the same data to avoid infinite loop
-      const isAlreadyUpdated = JSON.stringify(templateNode.data?.imageNodes) === JSON.stringify(imageNodes);
+  //     // ⚠️ Check if it already has the same data to avoid infinite loop
+  //     const isAlreadyUpdated = JSON.stringify(templateNode.data?.imageNodes) === JSON.stringify(imageNodes);
 
-      if (!isAlreadyUpdated) {
-        setNodes((prevNodes) =>
-          prevNodes.map((n) =>
-            n.id === templateNode.id ? updatedTemplateNode : n
-          )
-        );
-      }
-    }
+  //     if (!isAlreadyUpdated) {
+  //       setNodes((prevNodes) =>
+  //         prevNodes.map((n) =>
+  //           n.id === templateNode.id ? updatedTemplateNode : n
+  //         )
+  //       );
+  //     }
+  //   }
 
-  }, [nodes]);
+  // }, [nodes]);
 
 
 

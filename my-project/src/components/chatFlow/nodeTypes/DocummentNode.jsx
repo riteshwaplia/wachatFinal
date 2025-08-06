@@ -15,6 +15,7 @@ const DocumentEditorNode = ({ data, id }) => {
     // ✅ Handle Document Upload
     const handleFileChange = async (event) => {
         const file = event.target.files?.[0];
+        const file_name = file?.name;
         if (!file) {
             ErrorToast('No document selected');
             return;
@@ -57,6 +58,7 @@ const DocumentEditorNode = ({ data, id }) => {
                 ...data,
                 documentFile: null,
                 documentUrl: null,
+                document_name: file_name,
                 documentId: uploadedId, // <-- store backend ID
             });
 

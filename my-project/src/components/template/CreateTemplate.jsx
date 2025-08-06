@@ -15,7 +15,7 @@ import { BackButton } from "../BackButton";
 import Badge from "../Badge";
 import Modal from "../Modal";
 import Button from "../Button";
-import { ErrorToast, SuccessToast } from "../../utils/Toast";
+import { ErrorToast } from "../../utils/Toast";
 
 const TEMPLATE_CATEGORIES = [
   { label: "Marketing", value: "MARKETING" },
@@ -45,6 +45,7 @@ const CreateTemplate = () => {
   const [createLoading,setCreateLoading] = useState(false);
   const variableCounter = useRef(1); // For unique variable numbering
   const [variableExamples, setVariableExamples] = useState({}); // For text header variable examples
+  const [selectedType,setSelectedType] = useState(null);
   const navigate = useNavigate(); // Assuming you have react-router's useNavigate for navigation  
   // Logic to get businessProfileId from local storage (or context)
   const [businessProfileId, setBusinessProfileId] = useState(null);
@@ -116,11 +117,14 @@ const CreateTemplate = () => {
   };
 
   const handleHeaderContentChange = async (e) => {
+    setLoading(true)
     const file = e.target.files?.[0]; // For file inputs
     const value = e.target.value; // For text inputs
 
     if (file) {
-      setLoading(true); // Set loading state while uploading
+      setLoading(true); 
+      setSelectedType(file.type);
+      // Set loading state while uploading
       setImage(URL.createObjectURL(file)); // Set preview image
       try {
         // Ensure businessProfileId and projectId are available before upload
@@ -128,6 +132,7 @@ const CreateTemplate = () => {
           console.error(
             "Missing businessProfileId or projectId for media upload."
           );
+          setLoading(false);
           // You might want to show a user-facing error here
           return;
         }
@@ -240,7 +245,7 @@ const CreateTemplate = () => {
     const validation = validateTemplate();
     if (!validation.isValid) {
       console.error("Validation errors:", validation.errors);
-      ErrorToast("Please fix the validation errors before submitting."); // Simple alert for user
+      alert("Please fix the validation errors before submitting."); // Simple alert for user
       return;
     }
 
@@ -280,7 +285,7 @@ const CreateTemplate = () => {
             `Attempted to create a ${header.format} header without a mediaHandle.`
           );
           // Frontend validation should ideally prevent reaching here, but as a safeguard.
-          ErrorToast(`Media ID is required for ${header.format} header.`);
+          alert(`Media ID is required for ${header.format} header.`);
           return;
         }
       }
@@ -373,14 +378,14 @@ const CreateTemplate = () => {
       console.log("Template created successfully:", res.data);
       setLoading(false); // Reset loading state after creation
       navigate(-1)
-      SuccessToast(res.data.message || "Template created successfully!");
+      alert(res.data.message || "Template created successfully!");
       // Optionally reset form or navigate
     } catch (error) {
       console.error(
         "Error creating template:",
         error.response?.data || error.message
       );
-      ErrorToast(
+      alert(
         `Error creating template: ${error.response?.data?.message || error.message
         }`
       );
@@ -512,7 +517,7 @@ const CreateTemplate = () => {
     <>
       {" "}
       <BackButton text="back" />
-      <div className="md:flex  w-full gap-4">
+      <div className="md:flex relative  w-full gap-4">
         <form onSubmit={handleSubmit} className="p-2 w-full md:w-3/5 flex flex-col gap-4">
           <Input
             placeholder="Template Name"
@@ -630,7 +635,6 @@ const CreateTemplate = () => {
             ) && (
                 <div className="space-y-2">
                   <input
-                    id="headerUpload"
                     type="file"
                     accept={
                       headerComponentInState?.format === "IMAGE"
@@ -640,7 +644,7 @@ const CreateTemplate = () => {
                           : ".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt"
                     }
                     onChange={handleHeaderContentChange}
-                    className="hidden"
+                    className="w-full border p-2 rounded"
                     disabled={loading || headerComponentInState?.mediaHandle}
                   />
                   {
@@ -655,37 +659,11 @@ const CreateTemplate = () => {
                     </div>
                   )}
                   {errors.headerMedia && (
-                    <div className="text-sm text-red-500 mt-1">{errors.headerMedia}</div>
+                    <div className="text-sm text-red-500 mt-1">
+                      {errors.headerMedia}
+                    </div>
                   )}
                 </div>
-
-
-                // <div className="space-y-2">
-                //   <input
-                //     type="file"
-                //     accept={
-                //       headerComponentInState?.format === "IMAGE"
-                //         ? "image/*"
-                //         : headerComponentInState?.format === "VIDEO"
-                //           ? "video/*"
-                //           : ".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt"
-                //     }
-                //     onChange={handleHeaderContentChange}
-                //     className="w-full border p-2 rounded"
-                //     disabled={loading || headerComponentInState?.mediaHandle}
-                //   />
-                //   {headerComponentInState?.mediaHandle && (
-                //     <div className="text-sm text-green-600">
-                //       ✓ Media uploaded successfully
-                //       {/* {headerComponentInState.mediaHandle}) */}
-                //     </div>
-                //   )}
-                //   {errors.headerMedia && (
-                //     <div className="text-sm text-red-500 mt-1">
-                //       {errors.headerMedia}
-                //     </div>
-                //   )}
-                // </div>
               )}
           </div>
 
@@ -751,11 +729,11 @@ const CreateTemplate = () => {
         </form>
 
         {/* Preview Section */}
-        <div className="p-2 md:w-2/5 mt-4">
-          <h2 className="text-xl font-semibold mb-4">Preview</h2>
+        <div className="p-2  sticky top-[130px]  mx-auto  mt-4 h-full">
           <TemplatePreview
             template={template}
             image={image}
+            filetype={selectedType}
             variableExamples={variableExamples}
           />
         </div>
