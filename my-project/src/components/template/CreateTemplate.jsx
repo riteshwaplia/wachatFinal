@@ -42,6 +42,7 @@ const CreateTemplate = () => {
   const id = params.id; // This 'id' is likely the projectId from the URL
   const projectId = id; // Renaming for clarity
   const [loading, setLoading] = useState(false); // For loading state
+  const [createLoading,setCreateLoading] = useState(false);
   const variableCounter = useRef(1); // For unique variable numbering
   const [variableExamples, setVariableExamples] = useState({}); // For text header variable examples
   const [selectedType,setSelectedType] = useState(null);
@@ -370,7 +371,7 @@ const CreateTemplate = () => {
       // id: id, // ID is for update, not create. Remove this for create.
       businessProfileId, // Required for template creation
     };
-    setLoading(true); // Set loading state while creating template
+   setCreateLoading(true); // Set loading state while creating template
     try {
       console.log("Template Create Payload:", JSON.stringify(payload, null, 2));
       const res = await api.post("/templates", payload); // Assuming api.post is configured for /api/templates
@@ -389,7 +390,7 @@ const CreateTemplate = () => {
         }`
       );
     } finally {
-      setLoading(false); // Reset loading state after creation
+      setCreateLoading(false); // Reset loading state after creation
 
     }
   };
@@ -648,7 +649,7 @@ const CreateTemplate = () => {
                   />
                   {
                     loading && (<div className=" inset-0 flex items-center justify-center bg-white bg-opacity-80">
-            <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+            <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
           </div>)
                   }
                   {headerComponentInState?.mediaHandle && (
@@ -714,6 +715,7 @@ const CreateTemplate = () => {
 
           <Button
             type="submit"
+            loading={createLoading}
             disabled={!isValid || !businessProfileId || loading} // Disable if not valid or no business profile selected
             className={`px-4 py-2 rounded text-white ${
               // Changed text-text to text-white

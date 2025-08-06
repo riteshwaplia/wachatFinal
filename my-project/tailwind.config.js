@@ -8,6 +8,15 @@ export default {
   ],
   theme: {
     extend: {
+      animation:{
+  confetti: 'confetti 1.3s ease-out forwards',
+      },
+      keyframes:{
+confetti: {
+          '0%': { opacity: '1', transform: 'translateY(0) rotate(0deg)' },
+          '100%': { opacity: '0', transform: 'translateY(100vh) rotate(360deg)' },
+        },
+      },
       colors: {
         // ... (Your color palette from Step 2 goes here)
         // --- Brand / Primary Colors ---

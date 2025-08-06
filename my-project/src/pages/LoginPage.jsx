@@ -16,10 +16,13 @@ import { useTranslation } from 'react-i18next';
 import { Fingerprint, KeyRound } from 'lucide-react';
 import { useTenant } from '../context/TenantContext';
 import AutoSlider from '../components/features/Slider';
+import logo from '../assets/sabnode_logo_fade.gif';
+import LogoAnimation from '../components/LogoAnimation';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [visible,setVisible] = useState(true);
   const [errorMessage, setErrorMessage] = useState({});
   const { login, authLoading, user } = useAuth(); // Get authLoading from context
   const navigate = useNavigate();
@@ -30,6 +33,13 @@ const LoginPage = () => {
 
 
   const { logoUrl } = siteConfig;
+  useEffect(()=>
+  {
+const interval =setInterval(() => {
+  setVisible((prev)=>!prev);
+}, 400);
+return () => clearInterval(interval);
+  },[])
   useEffect(() => {
     if (!authLoading && user) {
       if (user.role === "user") {
@@ -91,12 +101,16 @@ const LoginPage = () => {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">{t('verifyingSession')}</p>
-        </div>
-      </div>
+      // <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      //   <div className="text-center">
+      //     <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500 mx-auto"></div>
+      //     <p className="mt-4 text-gray-600">{t('verifyingSession')}</p>
+      //   </div>
+      // </div>
+//       <div className='flex items-center justify-center h-screen bg-white'>
+// <img src={logo} alt="loading"  className={`w-64 h-64 transition-opacity duration-100 ${visible?'opacity-100':'opacity-0'}`} />
+//       </div>
+<LogoAnimation/>
     );
   }
   return (
