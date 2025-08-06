@@ -28,29 +28,29 @@ const Sidebar = () => {
       color: 'primary',
       description: 'Send audio messages'
     },
-    {
-      type: 'interactiveMessage',
-      label: 'Interactive',
-      icon: Hand,
-      isGroup: true,
-      children: [
-        {
-          type: 'interactive_buttons',
-          label: 'Button',
-          icon: LayoutGrid,
-        },
-        {
-          type: 'interactive_list_section',
-          label: 'List Section',
-          icon: List,
-        },
-        {
-          type: 'interactive_list_row',
-          label: 'List Row',
-          icon: Rows,
-        },
-      ]
-    },
+    // {
+    //   type: 'interactiveMessage',
+    //   label: 'Interactive',
+    //   icon: Hand,
+    //   isGroup: true,
+    //   children: [
+    //     {
+    //       type: 'interactive_buttons',
+    //       label: 'Button',
+    //       icon: LayoutGrid,
+    //     },
+    //     {
+    //       type: 'interactive_list_section',
+    //       label: 'List Section',
+    //       icon: List,
+    //     },
+    //     {
+    //       type: 'interactive_list_row',
+    //       label: 'List Row',
+    //       icon: Rows,
+    //     },
+    //   ]
+    // },
 
     {
       type: 'image',
@@ -84,20 +84,20 @@ const Sidebar = () => {
     // },
 
     // Flow Control
-    {
-      type: 'sequence',
-      label: 'Sequence',
-      icon: RotateCcw,
-      color: 'primary',
-      description: 'Sequential flow'
-    },
-    {
-      type: 'sequenceAfter',
-      label: 'Sequence Message After',
-      icon: Send,
-      color: 'primary',
-      description: 'Message after sequence'
-    },
+    // {
+    //   type: 'sequence',
+    //   label: 'Sequence',
+    //   icon: RotateCcw,
+    //   color: 'primary',
+    //   description: 'Sequential flow'
+    // },
+    // {
+    //   type: 'sequenceAfter',
+    //   label: 'Sequence Message After',
+    //   icon: Send,
+    //   color: 'primary',
+    //   description: 'Message after sequence'
+    // },
 
     // Template & Team
     {
@@ -107,86 +107,79 @@ const Sidebar = () => {
       color: 'primary',
       description: 'Message templates'
     },
-    {
-      type: 'addTeam',
-      label: 'Add Team Member',
-      icon: Users,
-      color: 'primary',
-      description: 'Add team members'
-    },
+    // {
+    //   type: 'addTeam',
+    //   label: 'Add Team Member',
+    //   icon: Users,
+    //   color: 'primary',
+    //   description: 'Add team members'
+    // },
 
     // Utility
-    {
-      type: 'timeDelay',
-      label: 'Time Delay',
-      icon: Clock,
-      color: 'primary',
-      description: 'Add time delays'
-    },
+    // {
+    //   type: 'timeDelay',
+    //   label: 'Time Delay',
+    //   icon: Clock,
+    //   color: 'primary',
+    //   description: 'Add time delays'
+    // },
+    // {
+    //   type: 'subscribe',
+    //   label: 'Subscribe',
+    //   icon: UserPlus,
+    //   color: 'primary',
+    //   description: 'Subscribe user'
+    // },
+    // {
+    //   type: 'unsubscribe',
+    //   label: 'Unsubscribe',
+    //   icon: UserMinus,
+    //   color: 'primary',
+    //   description: 'Unsubscribe user'
+    // },
+    // {
+    //   type: 'setTags',
+    //   label: 'Set Tags',
+    //   icon: Tag,
+    //   color: 'primary',
+    //   description: 'Set user tags'
+    // },
+    // {
+    //   type: 'invokeFlow',
+    //   label: 'Invoke New Flow',
+    //   icon: Copy,
+    //   color: 'primary',
+    //   description: 'Invoke another flow'
+    // },
+    // {
+    //   type: 'httpApi',
+    //   label: 'HTTP API',
+    //   icon: Globe,
+    //   color: 'primary',
+    //   description: 'Make API calls'
+    // },
+    // {
+    //   type: 'webhook',
+    //   label: 'Webhook',
+    //   icon: Link,
+    //   color: 'primary',
+    //   description: 'Send webhooks'
+    // },
 
-    // User Management
-    {
-      type: 'subscribe',
-      label: 'Subscribe',
-      icon: UserPlus,
-      color: 'primary',
-      description: 'Subscribe user'
-    },
-    {
-      type: 'unsubscribe',
-      label: 'Unsubscribe',
-      icon: UserMinus,
-      color: 'primary',
-      description: 'Unsubscribe user'
-    },
-
-    // Tags & Flow
-    {
-      type: 'setTags',
-      label: 'Set Tags',
-      icon: Tag,
-      color: 'primary',
-      description: 'Set user tags'
-    },
-    {
-      type: 'invokeFlow',
-      label: 'Invoke New Flow',
-      icon: Copy,
-      color: 'primary',
-      description: 'Invoke another flow'
-    },
-
-    // API & Webhooks
-    {
-      type: 'httpApi',
-      label: 'HTTP API',
-      icon: Globe,
-      color: 'primary',
-      description: 'Make API calls'
-    },
-    {
-      type: 'webhook',
-      label: 'Webhook',
-      icon: Link,
-      color: 'primary',
-      description: 'Send webhooks'
-    },
-
-    // E-commerce
-    {
-      type: 'sendProduct',
-      label: 'Send Product',
-      icon: Package,
-      color: 'primary',
-      description: 'Send product info'
-    },
-    {
-      type: 'sendCatalog',
-      label: 'Send Catalog',
-      icon: Grid3X3,
-      color: 'primary',
-      description: 'Send product catalog'
-    }
+    // {
+    //   type: 'sendProduct',
+    //   label: 'Send Product',
+    //   icon: Package,
+    //   color: 'primary',
+    //   description: 'Send product info'
+    // },
+    // {
+    //   type: 'sendCatalog',
+    //   label: 'Send Catalog',
+    //   icon: Grid3X3,
+    //   color: 'primary',
+    //   description: 'Send product catalog'
+    // }
 
   ];
 

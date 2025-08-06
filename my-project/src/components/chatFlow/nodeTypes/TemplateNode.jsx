@@ -15,6 +15,7 @@ const TemplateNode = ({ data, id }) => {
     useEffect(() => {
         const fetchTemplates = async () => {
             try {
+                // /api/templates/plain
                 const response = await getAllTemplates()
                 console.log("getAllTemplates", response)
                 setTemplates(response || []);
@@ -40,6 +41,7 @@ const TemplateNode = ({ data, id }) => {
                 selectedTemplateId: selectedId,
                 selectedTemplateName: selectedTemplate ? selectedTemplate.name : '',
                 selectedTemplateLanguage: selectedTemplate ? selectedTemplate.language : '',
+                //passs here image id 
 
             });
 

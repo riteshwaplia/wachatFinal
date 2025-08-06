@@ -67,10 +67,14 @@ const ImageEditorNode = ({ data, id }) => {
       return;
     }
 
+    // ✅ Create local preview immediately
+    const localPreview = URL.createObjectURL(file);
+    setPreviewUrl(localPreview);
+
     setUploading(true);
 
     const formData = new FormData();
-    formData.append('file', file); // ✅ only the file
+    formData.append('file', file);
 
     try {
       const response = await api.post(
@@ -88,14 +92,14 @@ const ImageEditorNode = ({ data, id }) => {
         throw new Error('No file ID returned from server');
       }
 
-      // ✅ Save ID to state and pass it back
-      setPreviewUrl(''); // no preview
+      // ✅ Keep preview, store ID in data
       setManualUrl('');
 
       data.onChange?.(id, {
         ...data,
         imageFile: null,
-        id: uploadedId, // <-- this is now ID instead of URL
+        id: uploadedId, // store ID
+        imageUrl: localPreview, // local preview for UI
       });
 
       SuccessToast('Image uploaded successfully');
@@ -106,6 +110,7 @@ const ImageEditorNode = ({ data, id }) => {
       setUploading(false);
     }
   };
+
 
 
   const handleManualUrlSubmit = () => {
@@ -189,7 +194,7 @@ const ImageEditorNode = ({ data, id }) => {
             <img
               src={previewUrl}
               alt="Preview"
-              className="w-full max-h-44 object-contain border rounded"
+              className="w-full h-20 object-contain border rounded"
             />
             <button
               onClick={handleRemoveImage}
@@ -210,6 +215,7 @@ const ImageEditorNode = ({ data, id }) => {
       title="Image Editor"
       body={body}
       footer={uploading ? 'Uploading...' : 'Edit images'}
+
     />
   );
 };

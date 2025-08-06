@@ -59,7 +59,7 @@ export const uploadMedaiData = async (file, businessProfileId, projectId) => {
 
 export const getAllTemplates = async () => {
   try {
-    const res = await api.get("/templates", {
+    const res = await api.get("/templates/plain", {
       params: {
         businessProfileId: businessProfileId,
       },

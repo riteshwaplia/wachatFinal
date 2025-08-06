@@ -218,17 +218,17 @@ const handleInputChange = (e) => {
 
   // Only for title and description
   if (name === 'title' || name === 'description') {
-    // ✅ Remove invalid characters (anything except letters, numbers, and spaces)
-    const hasInvalidChars = /[^a-zA-Z0-9 ]/.test(value);
-    sanitizedValue = value.replace(/[^a-zA-Z0-9 ]/g, '');
+    // ✅ Allow letters, numbers, spaces, and underscores
+    const hasInvalidChars = /[^a-zA-Z0-9 _]/.test(value);
+    sanitizedValue = value.replace(/[^a-zA-Z0-9 _]/g, '');
 
     // Update form data with sanitized value
     setFormData((prev) => ({ ...prev, [name]: sanitizedValue }));
 
-    // Show error only if the user tried to type a special character
+    // Show error only if the user typed a disallowed character
     setErrors((prev) => ({
       ...prev,
-      [name]: hasInvalidChars ? 'Special characters are not allowed' : '',
+      [name]: hasInvalidChars ? 'Only letters, numbers, spaces, and underscores are allowed' : '',
     }));
   } else {
     // For other fields, just update normally
