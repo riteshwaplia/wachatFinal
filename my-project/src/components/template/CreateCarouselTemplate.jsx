@@ -15,7 +15,6 @@ import Modal from "../Modal";
 import { FiUploadCloud, FiTrash2, FiPlusCircle } from "react-icons/fi";
 import { FaImage } from "react-icons/fa";
 import CarouselPreview from "./CarosoulPreview";
-import { ErrorToast, SuccessToast } from "../../utils/Toast";
 
 const TEMPLATE_CATEGORIES = [
   { label: "Marketing", value: "MARKETING" },
@@ -35,7 +34,6 @@ const CreateCarouselTemplate = () => {
   const [businessProfileId, setBusinessProfileId] = useState(null);
   const [showWhyModal, setShowWhyModal] = useState(false);
   const [mainBodyCharacterCount, setMainBodyCharacterCount] = useState(0);
-  const [uploadStatus, setUploadStatus] = useState({});
 
   // State for validation errors
   const [validationErrors, setValidationErrors] = useState({});
@@ -85,7 +83,7 @@ const CreateCarouselTemplate = () => {
     if (project?.businessProfileId?._id) {
       setBusinessProfileId(project.businessProfileId._id);
     } else {
-      ErrorToast("Please select a project with a linked Business Profile.");
+      alert("Please select a project with a linked Business Profile.");
       navigate("/projects");
     }
   }, [navigate]);
@@ -116,7 +114,7 @@ const CreateCarouselTemplate = () => {
 
   const handleAddCard = () => {
     if (cards.length >= 10) {
-      ErrorToast("You can add a maximum of 10 carousel cards.");
+      alert("You can add a maximum of 10 carousel cards.");
       return;
     }
     setCards((prev) => [
@@ -137,7 +135,7 @@ const CreateCarouselTemplate = () => {
 
   const handleRemoveCard = (cardId) => {
     if (cards.length <= 2) {
-      ErrorToast("A carousel template must have at least 2 cards.");
+      alert("A carousel template must have at least 2 cards.");
       return;
     }
     setCards((prev) => prev.filter((card) => card.id !== cardId));
@@ -177,7 +175,7 @@ const CreateCarouselTemplate = () => {
     if (!file) return;
 
     if (!file.type.startsWith("image/jpeg")) {
-      ErrorToast(
+      alert(
         "Only JPG images are supported for carousel card headers. Please upload a .jpg or .jpeg file."
       );
       e.target.value = "";
@@ -185,15 +183,11 @@ const CreateCarouselTemplate = () => {
     }
 
     if (!businessProfileId || !projectId) {
-      ErrorToast("Missing businessProfileId or projectId for media upload.");
+      alert("Missing businessProfileId or projectId for media upload.");
       return;
     }
 
-    // setLoading(true);
-    setUploadStatus((prev) => ({
-      ...prev,
-      [cardId]: { loading: true, success: false },
-    }));
+    setLoading(true);
     handleCardFieldChange(cardId, "headerImageFile", file);
     handleCardFieldChange(cardId, "headerImageUrl", URL.createObjectURL(file));
 
@@ -210,27 +204,17 @@ const CreateCarouselTemplate = () => {
           "headerMediaHandle",
           uploadResponse.data.id
         );
-        setUploadStatus((prev) => ({
-          ...prev,
-          [cardId]: { loading: false, success: true },
-        }));
-        SuccessToast("Image uploaded successfully for card header!");
+        alert("Image uploaded successfully for card header!");
       } else {
-        ErrorToast(`Image upload failed: ${uploadResponse.message}`);
-
+        alert(`Image upload failed: ${uploadResponse.message}`);
         handleCardFieldChange(cardId, "headerMediaHandle", "");
         handleCardFieldChange(cardId, "headerImageUrl", "");
       }
     } catch (error) {
       setLoading(false);
-      ErrorToast(`Error during image upload: ${error.message}`);
+      alert(`Error during image upload: ${error.message}`);
       handleCardFieldChange(cardId, "headerMediaHandle", "");
       handleCardFieldChange(cardId, "headerImageUrl", "");
-    } finally {
-      setUploadStatus((prev) => ({
-        ...prev,
-        [cardId]: { loading: false, success: false },
-      }));
     }
   };
 
@@ -354,7 +338,7 @@ const CreateCarouselTemplate = () => {
     const validation = validateCarouselTemplate();
     if (!validation.isValid) {
       setValidationErrors(validation.errors);
-      ErrorToast("Please fix the validation errors before submitting.");
+      alert("Please fix the validation errors before submitting.");
       return;
     } else {
       setValidationErrors({});
@@ -472,15 +456,15 @@ const CreateCarouselTemplate = () => {
       const res = await createCarouselTemplateApi(payload);
       setLoading(false);
       if (res.success) {
-        SuccessToast(res.message || "Carousel template created successfully!");
+        alert(res.message || "Carousel template created successfully!");
         navigate(-1);
       } else {
-        ErrorToast(`Error creating carousel template: ${res.message}`);
+        alert(`Error creating carousel template: ${res.message}`);
       }
     } catch (error) {
       setLoading(false);
       console.error("Error creating carousel template:", error);
-      ErrorToast(`Error creating carousel template: ${error.message}`);
+      alert(`Error creating carousel template: ${error.message}`);
     }
   };
 
@@ -489,10 +473,10 @@ const CreateCarouselTemplate = () => {
   return (
     <>
       <BackButton text="Back" />
-      <div className="md:flex lg:gap-16  gap-4 relative w-full">
+      <div className="md:flex lg:gap-16  gap-4 relative">
         <form
           onSubmit={handleSubmit}
-          className="p-2 w-full md:w-4/6 flex flex-col gap-4"
+          className="p-2 w-full md:w-3/5 flex flex-col gap-4"
         >
           <h1 className="text-2xl font-bold mb-4">Create Carousel Template</h1>
 
@@ -592,7 +576,6 @@ const CreateCarouselTemplate = () => {
                   <label className="block font-semibold mb-1">
                     Header Image (JPG only)
                   </label>
-
                   <div className="flex items-center space-x-2">
                     <input
                       type="file"
@@ -600,20 +583,14 @@ const CreateCarouselTemplate = () => {
                       onChange={(e) => handleCardHeaderImageUpload(card.id, e)}
                       className="hidden"
                       id={`header-image-input-${card.id}`}
-                      disabled={uploadStatus[card.id]?.loading}
+                      disabled={loading}
                     />
-
                     <label
                       htmlFor={`header-image-input-${card.id}`}
-                      className={`cursor-pointer font-bold py-2 px-4 rounded-md inline-flex items-center
-      ${uploadStatus[card.id]?.loading
-                          ? 'bg-gray-400 cursor-not-allowed'
-                          : 'bg-blue-500 hover:bg-blue-600 text-white'}`}
+                      className="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md inline-flex items-center"
                     >
-                      <FiUploadCloud className="mr-2" />
-                      {uploadStatus[card.id]?.loading ? 'Uploading...' : 'Upload Image'}
+                      <FiUploadCloud className="mr-2" /> Upload Image
                     </label>
-
                     {card.headerImageUrl && (
                       <div className="w-20 h-20 overflow-hidden rounded-md border border-gray-300 flex-shrink-0">
                         <img
@@ -623,29 +600,13 @@ const CreateCarouselTemplate = () => {
                         />
                       </div>
                     )}
-
-                    {uploadStatus[card.id]?.success && (
-                      <span className="text-green-600 text-sm ml-2">✓ Uploaded successfully</span>
-                    )}
                   </div>
-
-
-                  {/* Upload Status Messages */}
-                  {loading && (
-                    <div className="text-sm text-blue-500 mt-1">Uploading image...</div>
-                  )}
-                  {!loading && card.headerImageUrl && (
-                    <div className="text-sm text-green-600 mt-1">✓ Image uploaded successfully</div>
-                  )}
-
-                  {/* Field Error */}
                   {errors[`card_${index}`]?.header && (
                     <div className="text-sm text-red-500 mt-1">
                       {errors[`card_${index}`].header}
                     </div>
                   )}
                 </div>
-
 
                 <div className="mb-4">
                   <label className="block font-semibold mb-1">
@@ -699,7 +660,6 @@ const CreateCarouselTemplate = () => {
           <div className="mt-4">
             <Button
               type="submit"
-              loading={loading}
               disabled={loading || !isValid}
               className="w-full"
             >
@@ -783,7 +743,7 @@ const CreateCarouselTemplate = () => {
               </div>
             </div>
           </div> */}
-        <div className=" md:w-2/6 h-screen sticky top-12 ">
+        <div className="flex justify-center items-center h-screen sticky top-12 right-2">
           <CarouselPreview templateData={templateData} cards={cards} />
         </div>
       </div>
