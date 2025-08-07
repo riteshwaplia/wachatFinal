@@ -91,6 +91,16 @@ const AudioEditorNode = ({ data, id }) => {
     const body = (
         <div className="space-y-2">
             {/* Upload Button */}
+
+            <button
+                style={{ position: 'absolute', top: 2, right: 2, zIndex: 10 }}
+                onClick={() => data.onDelete?.(id)}
+                className="text-red-600 hover:text-red-800 primary-100 hover:primary-200 rounded-full w-4 h-4 flex items-center justify-center text-sm font-bold opacity-80 hover:opacity-100 transition-opacity duration-200"
+                title="Delete Node"
+                disabled={uploading}
+            >
+                &#x2715;
+            </button>
             <input
                 type="file"
                 accept="audio/*"

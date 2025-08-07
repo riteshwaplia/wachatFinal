@@ -51,17 +51,19 @@ const FlowsPage = () => {
   }, []);
 
   const openDeleteModal = (flowId) => {
+    console.log("flowid", flowId)
     setSelectedFlowId(flowId);
     setIsModalOpen(true);
   };
 
   // ✅ Delete flow
   const handleDelete = async (flowId) => {
+    console.log("flowId>>>>>>", flowId)
     if (!flowId) return;
 
     try {
       setDeleting(true);
-      const res = await api.delete(`/projects/${projectId}/flows/${flowId}`);
+      const res = await api.delete(`/projects/${id}/flows/${flowId}`);
 
       if (res.status === 200 || res.status === 204) {
         SuccessToast("Flow deleted successfully!");

@@ -20,16 +20,8 @@ import api from '../../utils/api';
 import { getFlowByIdApi, updateFlowApi } from '../../apis/FlowApi';
 
 
-const idCounters = {
-  node: 1, // Start from node_1
-};
 
-const getId = (type = 'node') => {
-  if (!idCounters[type]) {
-    idCounters[type] = 1; // Start from 1 for new types
-  }
-  return `${type}_${idCounters[type]++}`;
-};
+
 
 
 function Flow() {
@@ -46,14 +38,7 @@ function Flow() {
   const [flowUpdate, setFlowUpdate] = useState('')
 
   const [nodes, setNodes] = useState([
-    {
-      id: 'node_0',
-      type: 'text',
-      position: { x: 100, y: 150 },
-      data: {
-        label: 'Welcome to the bot',
-      },
-    },
+
   ]);
 
 
@@ -71,7 +56,7 @@ function Flow() {
         const flow = res.data;
 
         const { nodes, edges, ...rest } = flow;
-        console.log("nodes", nodes)
+
         setNodes(nodes || []);
         setEdges(edges || []);
         setFlowUpdate(rest); // optional: if you want to keep name/description/etc
@@ -83,46 +68,21 @@ function Flow() {
     fetchFlow();
   }, [flowId]);
 
+  const getId = (type = 'node', existingIdsSet = new Set()) => {
+    console.log("existingIdsSet>>>>>>>>>>>>>>>>>>>>>", existingIdsSet)
+    let index = 1;
+    let newId = `${type}_${index}`;
+
+    while (existingIdsSet.has(newId)) {
+      index++;
+      newId = `${type}_${index}`;
+    }
+
+    return newId;
+  };
 
 
-  // useEffect(() => {
-  //   function getImageNodes(nodes) {
-  //     return nodes
-  //       .filter((node) => node.type === 'image')
-  //       .map((node) => ({
-  //         nodeId: node.id,
-  //         imageId: node.data?.id || null,
-  //         imageUrl: node.data?.imageUrl || null,
-  //       }));
-  //   }
 
-  //   const imageNodes = getImageNodes(nodes);
-  //   console.log("Image Nodes:", imageNodes);
-
-  //   const templateNode = nodes.find((node) => node.type === 'template');
-  //   console.log("imageNodes>>", imageNodes)
-  //   if (templateNode && imageNodes.length > 0) {
-  //     const updatedTemplateNode = {
-  //       ...templateNode,
-  //       data: {
-  //         ...templateNode.data,
-  //         imageNodes, // Embed the imageNodes
-  //       },
-  //     };
-
-  //     // ⚠️ Check if it already has the same data to avoid infinite loop
-  //     const isAlreadyUpdated = JSON.stringify(templateNode.data?.imageNodes) === JSON.stringify(imageNodes);
-
-  //     if (!isAlreadyUpdated) {
-  //       setNodes((prevNodes) =>
-  //         prevNodes.map((n) =>
-  //           n.id === templateNode.id ? updatedTemplateNode : n
-  //         )
-  //       );
-  //     }
-  //   }
-
-  // }, [nodes]);
 
 
 
@@ -204,63 +164,70 @@ function Flow() {
     if (!type || !reactFlowWrapper.current) return;
 
     const bounds = reactFlowWrapper.current.getBoundingClientRect();
+
     const position = {
       x: event.clientX - bounds.left,
       y: event.clientY - bounds.top,
     };
+    console.log("nodes inside", nodes)
+    console.log("currentNodeIds Set(0) {size: 0}", nodes)
 
+    const currentNodeIds = new Set(nodes.map((node) => node.id));
+    console.log("currentNodeIds", currentNodeIds)
+    const id = getId('node', currentNodeIds);
 
-    const id = getId(); // Assuming getId() is declared globally
+    // Generate a unique new ID
+    console.log("getidiidididi", id)
     const newNodeData = (() => {
       switch (type) {
-        case 'interactive_buttons':
-          return {
-            header: 'Your Header Content',
-            message: 'Choose an option:',
-            footer: 'Optional footer content',
-            buttons: [
-              {
-                id: `btn-0`,
-                title: 'Button 1',
-              },
-            ],
-            meta: {
-              delay: 0,
-              tags: [],
-              conditions: [],
-            },
-            onChange: handleNodeDataChange,
-          };
+        // case 'interactive_buttons':
+        //   return {
+        //     header: 'Your Header Content',
+        //     message: 'Choose an option:',
+        //     footer: 'Optional footer content',
+        //     buttons: [
+        //       {
+        //         id: `btn-0`,
+        //         title: 'Button 1',
+        //       },
+        //     ],
+        //     meta: {
+        //       delay: 0,
+        //       tags: [],
+        //       conditions: [],
+        //     },
+        //     onChange: handleNodeDataChange,
+        //   };
 
-        case 'interactive_list_section':
-          return {
-            sectionTitle: 'Section 1',
-            sectionId: id,
-            previewRows: [],
-            meta: {
-              delay: 0,
-              tags: [],
-              conditions: [],
-            },
-            onChange: handleNodeDataChange,
-          };
+        // case 'interactive_list_section':
+        //   return {
+        //     sectionTitle: 'Section 1',
+        //     sectionId: id,
+        //     previewRows: [],
+        //     meta: {
+        //       delay: 0,
+        //       tags: [],
+        //       conditions: [],
+        //     },
+        //     onChange: handleNodeDataChange,
+        //   };
 
-        case 'interactive_list_row': {
-          const sectionNode = nodes.find((n) => n.type === 'interactive_list_section');
-          const sectionId = sectionNode?.id || '';
+        // case 'interactive_list_row': {
+        //   const sectionNode = nodes.find((n) => n.type === 'interactive_list_section');
+        //   const sectionId = sectionNode?.id || '';
 
-          return {
-            title: 'Row Title',
-            description: 'Row description',
-            sectionId,
-            meta: {
-              delay: 0,
-              tags: [],
-              conditions: [],
-            },
-            onChange: handleNodeDataChange,
-          };
-        }
+        //   return {
+        //     title: 'Row Title',
+        //     description: 'Row description',
+        //     sectionId,
+        //     meta: {
+        //       delay: 0,
+        //       tags: [],
+        //       conditions: [],
+        //     },
+        //     onChange: handleNodeDataChange,
+        //   };
+        // }
 
         default:
           return {
@@ -286,8 +253,10 @@ function Flow() {
       data: newNodeData,
     };
 
+    console.log("newNode", newNode)
+
     setNodes((nds) => nds.concat(newNode));
-  }, [handleNodeDataChange]);
+  }, [handleNodeDataChange, nodes]);
 
 
 
@@ -346,7 +315,7 @@ function Flow() {
       </div>
 
       {/* Main Content + Node Editor (Center + Right) */}
-      <div className="flex flex-grow h-full">
+      <div className="flex flex-grow h-[85vh]">
         {/* Center Panel (Flow Canvas + Toolbar) */}
         <div className="flex w-full flex-col bg-gray-200 flex-grow ">
           {/* Toolbar */}
@@ -386,6 +355,8 @@ function Flow() {
               nodeTypes={nodeTypes}
               edgeTypes={edgeTypes}
               fitView
+
+
             >
               <Background />
               <Controls />
@@ -418,11 +389,11 @@ function Flow() {
 
         {selectedNode && (
           <div className="w-80 border-l bg-bg h-full overflow-auto">
-            <NodeEditorPanel
+            {/* <NodeEditorPanel
               allNodes={nodes}
               selectedNode={selectedNode}
               updateNode={updateNode}
-            />
+            /> */}
           </div>
         )}
       </div>

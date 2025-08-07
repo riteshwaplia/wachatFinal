@@ -31,6 +31,7 @@ const TemplateNode = ({ data, id }) => {
     }, []);
 
     // ✅ Check if a template requires an image
+    
     const requiresImage = (template) => {
         return template?.components?.some(
             (component) => component.type === 'HEADER' && component.format === 'IMAGE'
@@ -41,7 +42,7 @@ const TemplateNode = ({ data, id }) => {
     const handleChange = useCallback(
         (e) => {
             const selectedId = e.target.value;
-            const selectedTemplate = templates.find((t) => t._id === selectedId);
+            const selectedTemplate = templates?.find((t) => t._id === selectedId);
 
             // Reset preview if template changes
             setPreviewUrl('');
@@ -159,7 +160,7 @@ const TemplateNode = ({ data, id }) => {
                                         accept="image/*"
                                         onChange={handleImageUpload}
                                         disabled={uploading}
-                                        className="hidden"
+                                        className="hidden "
                                     />
                                 </label>
                             ) : (
@@ -167,7 +168,7 @@ const TemplateNode = ({ data, id }) => {
                                     <img
                                         src={previewUrl}
                                         alt="Preview"
-                                        className="w-full max-h-40 object-contain border rounded-lg"
+                                        className="w-full max-h-30 object-contain border rounded-lg"
                                     />
                                     <button
                                         onClick={handleRemoveImage}

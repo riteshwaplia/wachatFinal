@@ -288,7 +288,12 @@ const TemplatePage = () => {
         <select
           id="template"
           value={templateType}
-          onChange={(e) => setTemplateType(e.target.value)}
+          // onChange={(e) => setTemplateType(e.target.value)}
+          onChange={(e) => {
+            setTemplateType(e.target.value);
+            setPage(1);
+          }}
+
           className="w-full sm:w-auto px-4 py-2 border border-gray-300 dark:border-gray-600 
                rounded-lg bg-white dark:bg-dark-surface text-gray-700 dark:text-gray-200
                focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none
