@@ -47,6 +47,9 @@ function Flow() {
   const flowId = searchParams.get('flowId');
 
 
+ 
+
+
   useEffect(() => {
     if (!flowId) return;
 
@@ -315,7 +318,7 @@ function Flow() {
       </div>
 
       {/* Main Content + Node Editor (Center + Right) */}
-      <div className="flex flex-grow h-[85vh]">
+      <div className="flex flex-grow h-[100vh]">
         {/* Center Panel (Flow Canvas + Toolbar) */}
         <div className="flex w-full flex-col bg-gray-200 flex-grow ">
           {/* Toolbar */}
@@ -346,12 +349,17 @@ function Flow() {
                 },
               }))}
               edges={edges}
+              onInit={(instance) => {
+                setTimeout(() => {
+                  instance.fitView({ padding: 0.2 });
+                }, 0);
+              }}
               onNodeClick={onNodeClick}
               onNodesDelete={onNodesDelete}
               onNodesChange={onNodesChange}
               onEdgesChange={onEdgesChange}
               onConnect={onConnect}
-              onInit={setReactFlowInstance}
+              // onInit={setReactFlowInstance}
               nodeTypes={nodeTypes}
               edgeTypes={edgeTypes}
               fitView
@@ -387,15 +395,15 @@ function Flow() {
         )}
 
 
-        {selectedNode && (
+        {/* {selectedNode && (
           <div className="w-80 border-l bg-bg h-full overflow-auto">
-            {/* <NodeEditorPanel
+            <NodeEditorPanel
               allNodes={nodes}
               selectedNode={selectedNode}
               updateNode={updateNode}
-            /> */}
+            />
           </div>
-        )}
+        )} */}
       </div>
     </div>
 

@@ -44,6 +44,7 @@ import UserProfileLayout from './layout/userProfileLayout';
 import CreateCarouselTemplate from './components/template/CreateCarouselTemplate';
 import SendCarosualTemplate from './components/broadcasting/SendCarosualTemplate';
 import NotFoundPage from './pages/NotFoundPage';
+import FlowLayout from './layout/FlowLayout';
 
 
 const AdminRoute = ({ children }) => (
@@ -55,6 +56,12 @@ const AdminRoute = ({ children }) => (
 const SuperAdminRoute = ({ children }) => (
   <ProtectedRoute roles={["super_admin"]}>
     <AdminLayout>{children}</AdminLayout>
+  </ProtectedRoute>
+);
+
+const FlowRoute = ({ children }) => (
+  <ProtectedRoute roles={["user"]}>
+    <FlowLayout>{children}</FlowLayout>
   </ProtectedRoute>
 );
 
@@ -237,12 +244,16 @@ function AppContent() {
           path="/project/:id/flow-builder"
 
 
-          element={<UserRoute sidebar={false}>
+          element={<FlowRoute sidebar={false}>
             <Flow />
-          </UserRoute>}
+          </FlowRoute>}
 
         />
-        <Route path="/project/:projectId/flow-builder/:flowId" element={<Flow />} /> For editing existing flow
+        <Route path="/project/:projectId/flow-builder/:flowId" 
+        element={
+        <FlowRoute sidebar={false}>
+          <Flow />
+        </FlowRoute>} /> For editing existing flow
 
         <Route
           path="/project/:id/flows"
