@@ -19,7 +19,7 @@ const CustomSelect = ({
   return (
     <div className="flex flex-col gap-1">
       {label && (
-        <label className="text-sm font-medium text-text">
+        <label className="text-sm font-medium text-text dark:text-dark-text-primary">
           {label} {required && <span className="text-red-500">*</span>}
         </label>
       )}
@@ -32,19 +32,20 @@ const CustomSelect = ({
         isMulti={isMulti}
         isDisabled={disabled}
         name={name}
-        className={`w-full  rounded-md border 
+        className={`w-full dark:bg-dark-surface   rounded-md border 
             ${error
             ? "border-error focus:ring-error focus:border-error"
             : success
               ? "border-success focus:ring-success focus:border-success"
-              : "border-border focus:ring-primary focus:border-primary transition-all"
+              : "border-gray-200 focus:ring-primary focus:border-primary transition-all"
           } ${disabled
             ? "bg-gray-100 dark:bg-gray-800 cursor-not-allowed"
-            : "bg-card"
-          } text-text placeholder-gray-400 focus:outline-none bg-inputbg focus:ring-2 focus:ring-button transition-colors`}
+            : "border-gray-300 dark:border-gray-300"
+          } text-black placeholder-gray-400 focus:outline-none bg-inputbg focus:ring-2 focus:ring-button transition-colors`}
 
         classNamePrefix={`custom-select`}
       />
+      {error && <p className="text-red-500 text-sm">{error}</p>}
     </div>
   );
 };

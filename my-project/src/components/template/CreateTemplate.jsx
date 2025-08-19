@@ -15,6 +15,7 @@ import { BackButton } from "../BackButton";
 import Badge from "../Badge";
 import Modal from "../Modal";
 import Button from "../Button";
+import { ErrorToast } from "../../utils/Toast";
 
 const TEMPLATE_CATEGORIES = [
   { label: "Marketing", value: "MARKETING" },
@@ -41,9 +42,11 @@ const CreateTemplate = () => {
   const id = params.id; // This 'id' is likely the projectId from the URL
   const projectId = id; // Renaming for clarity
   const [loading, setLoading] = useState(false); // For loading state
+  const [createLoading,setCreateLoading] = useState(false);
   const variableCounter = useRef(1); // For unique variable numbering
   const [variableExamples, setVariableExamples] = useState({}); // For text header variable examples
-const navigate = useNavigate(); // Assuming you have react-router's useNavigate for navigation  
+  const [selectedType,setSelectedType] = useState(null);
+  const navigate = useNavigate(); // Assuming you have react-router's useNavigate for navigation  
   // Logic to get businessProfileId from local storage (or context)
   const [businessProfileId, setBusinessProfileId] = useState(null);
   useEffect(() => {
@@ -114,11 +117,14 @@ const navigate = useNavigate(); // Assuming you have react-router's useNavigate 
   };
 
   const handleHeaderContentChange = async (e) => {
+    setLoading(true)
     const file = e.target.files?.[0]; // For file inputs
     const value = e.target.value; // For text inputs
 
     if (file) {
-      setLoading(true); // Set loading state while uploading
+      setLoading(true); 
+      setSelectedType(file.type);
+      // Set loading state while uploading
       setImage(URL.createObjectURL(file)); // Set preview image
       try {
         // Ensure businessProfileId and projectId are available before upload
@@ -126,6 +132,7 @@ const navigate = useNavigate(); // Assuming you have react-router's useNavigate 
           console.error(
             "Missing businessProfileId or projectId for media upload."
           );
+          setLoading(false);
           // You might want to show a user-facing error here
           return;
         }
@@ -297,6 +304,11 @@ const navigate = useNavigate(); // Assuming you have react-router's useNavigate 
       // Extract all variables like {{1}}, {{user_name}}, etc.
       const variablesInText = extractVariables(plainText);
 
+      if (variablesInText?.length > 10) {
+        ErrorToast("variables limit exceeds(10)")
+        return
+      }
+
       if (variablesInText.length > 0) {
         // Create example values only for each variable
         const exampleValues = variablesInText.map(
@@ -359,14 +371,14 @@ const navigate = useNavigate(); // Assuming you have react-router's useNavigate 
       // id: id, // ID is for update, not create. Remove this for create.
       businessProfileId, // Required for template creation
     };
-    setLoading(true); // Set loading state while creating template
+   setCreateLoading(true); // Set loading state while creating template
     try {
       console.log("Template Create Payload:", JSON.stringify(payload, null, 2));
       const res = await api.post("/templates", payload); // Assuming api.post is configured for /api/templates
       console.log("Template created successfully:", res.data);
       setLoading(false); // Reset loading state after creation
-      alert(res.data.message || "Template created successfully!");
       navigate(-1)
+      alert(res.data.message || "Template created successfully!");
       // Optionally reset form or navigate
     } catch (error) {
       console.error(
@@ -374,10 +386,12 @@ const navigate = useNavigate(); // Assuming you have react-router's useNavigate 
         error.response?.data || error.message
       );
       alert(
-        `Error creating template: ${
-          error.response?.data?.message || error.message
+        `Error creating template: ${error.response?.data?.message || error.message
         }`
       );
+    } finally {
+      setCreateLoading(false); // Reset loading state after creation
+
     }
   };
 
@@ -410,6 +424,8 @@ const navigate = useNavigate(); // Assuming you have react-router's useNavigate 
     if (!template.language) errors.language = "Language is required.";
 
     // Body validation
+
+
     if (
       !bodyComponent?.text ||
       bodyComponent.text.replace(/<[^>]*>/g, "").trim() === ""
@@ -501,8 +517,8 @@ const navigate = useNavigate(); // Assuming you have react-router's useNavigate 
     <>
       {" "}
       <BackButton text="back" />
-      <div className="md:flex  w-full gap-4">
-        <form onSubmit={handleSubmit} className="p-2 w-3/5 flex flex-col gap-4">
+      <div className="md:flex relative  w-full gap-4">
+        <form onSubmit={handleSubmit} className="p-2 w-full md:w-3/5 flex flex-col gap-4">
           <Input
             placeholder="Template Name"
             label="Template Name "
@@ -572,11 +588,10 @@ const navigate = useNavigate(); // Assuming you have react-router's useNavigate 
                       ? insertVariable
                       : undefined
                   }
-                  className={`px-2 py-1 rounded text-sm mt-2 ${
-                    extractVariables(headerComponentInState.text).length === 0
-                      ? "bg-blue-600 text-white hover:bg-blue-700"
-                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  }`}
+                  className={`px-2 py-1 rounded text-sm mt-2 ${extractVariables(headerComponentInState.text).length === 0
+                    ? "bg-blue-600 text-white hover:bg-blue-700"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    }`}
                   type="button"
                   disabled={
                     loading ||
@@ -618,33 +633,38 @@ const navigate = useNavigate(); // Assuming you have react-router's useNavigate 
             {["DOCUMENT", "IMAGE", "VIDEO"].includes(
               headerComponentInState?.format || ""
             ) && (
-              <div className="space-y-2">
-                <input
-                  type="file"
-                  accept={
-                    headerComponentInState?.format === "IMAGE"
-                      ? "image/*"
-                      : headerComponentInState?.format === "VIDEO"
-                      ? "video/*"
-                      : ".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt"
+                <div className="space-y-2">
+                  <input
+                    type="file"
+                    accept={
+                      headerComponentInState?.format === "IMAGE"
+                        ? "image/*"
+                        : headerComponentInState?.format === "VIDEO"
+                          ? "video/*"
+                          : ".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt"
+                    }
+                    onChange={handleHeaderContentChange}
+                    className="w-full border p-2 rounded"
+                    disabled={loading || headerComponentInState?.mediaHandle}
+                  />
+                  {
+                    loading && (<div className=" inset-0 flex items-center justify-center bg-white bg-opacity-80">
+            <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          </div>)
                   }
-                  onChange={handleHeaderContentChange}
-                  className="w-full border p-2 rounded"
-                  disabled={loading || headerComponentInState?.mediaHandle}
-                />
-                {headerComponentInState?.mediaHandle && (
-                  <div className="text-sm text-green-600">
-                    ✓ Media uploaded successfully
-                    {/* {headerComponentInState.mediaHandle}) */}
-                  </div>
-                )}
-                {errors.headerMedia && (
-                  <div className="text-sm text-red-500 mt-1">
-                    {errors.headerMedia}
-                  </div>
-                )}
-              </div>
-            )}
+                  {headerComponentInState?.mediaHandle && (
+                    <div className="text-sm text-green-600">
+                      ✓ Media uploaded successfully
+                      {/* {headerComponentInState.mediaHandle}) */}
+                    </div>
+                  )}
+                  {errors.headerMedia && (
+                    <div className="text-sm text-red-500 mt-1">
+                      {errors.headerMedia}
+                    </div>
+                  )}
+                </div>
+              )}
           </div>
 
           {/* Body Section */}
@@ -663,9 +683,8 @@ const navigate = useNavigate(); // Assuming you have react-router's useNavigate 
               loading={loading}
             />
             <div
-              className={`text-sm mt-1 ${
-                characterCount > 1024 ? "text-red-500" : "text-gray-500"
-              }`}
+              className={`text-sm mt-1 ${characterCount > 1024 ? "text-red-500" : "text-gray-500"
+                }`}
             >
               Characters: {characterCount}/1024
               {characterCount > 1024 && " - Exceeds WhatsApp limit"}
@@ -696,24 +715,25 @@ const navigate = useNavigate(); // Assuming you have react-router's useNavigate 
 
           <Button
             type="submit"
+            loading={createLoading}
             disabled={!isValid || !businessProfileId || loading} // Disable if not valid or no business profile selected
             className={`px-4 py-2 rounded text-white ${
               // Changed text-text to text-white
               isValid && businessProfileId
                 ? "bg-green-600 hover:bg-green-700"
                 : "bg-gray-400 cursor-not-allowed"
-            }`}
+              }`}
           >
             Create Template
           </Button>
         </form>
 
         {/* Preview Section */}
-        <div className="p-2 md:w-2/5 mt-4">
-          <h2 className="text-xl font-semibold mb-4">Preview</h2>
+        <div className="p-2  sticky top-[130px]  mx-auto  mt-4 h-full">
           <TemplatePreview
             template={template}
             image={image}
+            filetype={selectedType}
             variableExamples={variableExamples}
           />
         </div>

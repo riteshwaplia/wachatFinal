@@ -1,18 +1,30 @@
 // src/components/Navbar.jsx
 import React from 'react';
 import PropTypes from 'prop-types';
+import { useTenant } from '../context/TenantContext';
+import { useTranslation } from 'react-i18next';
+
+// Simple dark mode toggle using DOM manipulation
+
 
 const Navbar = ({ links = [], brandName = 'Your Brand' }) => {
+
+  const { siteConfig } = useTenant(); // Access siteConfig
+  const { t, i18n } = useTranslation();
+
+  const { logoUrl, name } = siteConfig;
+
   return (
     <nav className="bg-primary-700 text-white shadow-md">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         {/* Brand/Logo */}
         <a href="/" className="text-2xl font-bold font-heading text-white hover:text-primary-100 transition-colors">
-          {brandName}
+          {logoUrl || "Sabnode"}
+
         </a>
 
         {/* Navigation Links */}
-        <div className="hidden md:flex items-center space-x-6">
+        <div className="hidden md:flex items-center ">
           {links.map((link) => (
             <a
               key={link.href}
@@ -24,6 +36,21 @@ const Navbar = ({ links = [], brandName = 'Your Brand' }) => {
           ))}
         </div>
 
+        {/* Language Selector */}
+        <div className="flex items-center ml-4">
+          <select
+            value={i18n.language || 'en'}
+            onChange={e => i18n.changeLanguage(e.target.value)}
+            className="text-black px-2 py-1 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500"
+          >
+            <option value="en">English</option>
+            <option value="hi">हिन्दी</option>
+            <option value="es">Español</option>
+            <option value="fr">Français</option>
+          </select>
+          {/* Night Mode Toggle Button */}
+
+        </div>
         {/* Mobile menu button (hidden for now, but placeholder) */}
         <div className="md:hidden">
           <button className="text-white hover:text-primary-100">

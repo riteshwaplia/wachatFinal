@@ -15,11 +15,17 @@ import EmptyState from '../components/EmptyState';
 import BusinessProfileCard from '../components/BusinessProfileCard';
 import PhoneNumberCard from '../components/PhoneNumberCard';
 import { ErrorToast, SuccessToast } from '../utils/Toast';
+import { useTranslation } from 'react-i18next';
+import { validateBusinessProfile } from '../utils/validation';
+import Celebrations from '../components/Celebrations';
+import Confetti from 'react-confetti-boom';
 
 const WhatsappNumberRegistrationPage = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
-
+    const { t } = useTranslation();
+    const [errors, setErrors] = useState({});
+    const [loading, setLoading] = useState(false);
     // State management
     const [state, setState] = useState({
         businessProfiles: [],
@@ -36,11 +42,24 @@ const WhatsappNumberRegistrationPage = () => {
         name: '',
         wabaId: '',
         accessToken: '',
-        metaAppId: ""
+        metaAppId: '',
+        catalogAccess: '',
+        businessPortfolioId: '',
+
     });
+    const [showConfetti, setShowConfetti] = useState(false);
 
     const [isAddBusinessModalOpen, setIsAddBusinessModalOpen] = useState(false);
-
+    const handlecloasemodel = () => {
+        setIsAddBusinessModalOpen(false);
+        setFormData({
+            name: '',
+            wabaId: '',
+            accessToken: '',
+            metaAppId: ''
+        });
+        setErrors({});
+    }
     // Helper function to update state
     const updateState = (updates) => {
         setState(prev => ({ ...prev, ...updates }));
@@ -112,13 +131,13 @@ const WhatsappNumberRegistrationPage = () => {
 
             if (res.data.success) {
                 updateState({
-                phoneNumbers: res.data.data || [],
-                isFetchingNumbers: false,
-                message: res.data.message || (res.data.data?.length
-                    ? `${res.data.data.length} numbers found`
-                    : 'No numbers found'),
-                messageType: res.data.data?.length ? 'success' : 'info'
-            });
+                    phoneNumbers: res.data.data || [],
+                    isFetchingNumbers: false,
+                    message: res.data.message || (res.data.data?.length
+                        ? `${res.data.data.length} numbers found`
+                        : 'No numbers found'),
+                    messageType: res.data.data?.length ? 'success' : 'info'
+                });
                 SuccessToast('Successfully fetched phone numbers');
             }
         } catch (error) {
@@ -135,14 +154,21 @@ const WhatsappNumberRegistrationPage = () => {
     // --- Create New Business Profile ---
     const createBusinessProfile = async (e) => {
         e.preventDefault();
+        const validationErrors = validateBusinessProfile(formData);
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors);
+            return;
+        }
         updateState({ isLoading: true });
-
+        setLoading(true)
         try {
             const res = await api.post('/users/business-profiles', {
                 name: formData.name,
                 metaBusinessId: formData.wabaId,
                 metaAccessToken: formData.accessToken,
-                metaAppId: formData.metaAppId
+                metaAppId: formData.metaAppId,
+                businessPortfolioId: formData.businessPortfolioId,
+                catalogAccess: formData.catalogAccess
             });
             if (res.data.success) {
                 SuccessToast('Business profile created successfully!');
@@ -167,6 +193,8 @@ const WhatsappNumberRegistrationPage = () => {
                 message: `Error creating business profile: ${error.response?.data?.message || 'Failed to create profile.'}`,
                 messageType: 'error'
             });
+        } finally {
+            setLoading(false)
         }
     };
 
@@ -192,10 +220,11 @@ const WhatsappNumberRegistrationPage = () => {
                 metaPhoneNumberID: numberData.id,
                 whatsappNumber: numberData.display_phone_number,
                 activePlan: 'Standard',
-                planDuration: 365
+                planDuration: "365"
             });
 
             if (projectRes.data.success) {
+                setShowConfetti(true);
                 SuccessToast('WhatsApp number connected successfully!');
             }
 
@@ -206,7 +235,7 @@ const WhatsappNumberRegistrationPage = () => {
             });
 
             // Redirect after short delay
-            setTimeout(() => navigate('/projects'), 1500);
+            setTimeout(() => navigate('/projects'), 3500);
 
         } catch (error) {
             ErrorToast(`Error connecting WhatsApp number: ${error.response?.data?.message || 'Failed to connect number.'}`);
@@ -222,12 +251,33 @@ const WhatsappNumberRegistrationPage = () => {
     // Handle form changes
     const handleFormChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+
+        // ✅ Allow letters, numbers, spaces, @, and _
+        const isValid = /^[a-zA-Z0-9@_ ]*$/.test(value);
+
+        if (!isValid) {
+            // ❌ Set error for that field
+            setErrors((prev) => ({
+                ...prev,
+                [name]: "Special characters are not allowed",
+            }));
+            return; // Prevent invalid character from updating state
+        }
+
+        // ✅ Update form data
+        setFormData((prev) => ({ ...prev, [name]: value }));
+
+        // ✅ Clear error if input is now valid
+        if (errors[name]) {
+            setErrors((prev) => ({ ...prev, [name]: "" }));
+        }
     };
+
+
 
     // Loading state
     if (state.isLoading && !state.businessProfiles.length && !isAddBusinessModalOpen) {
-        return <LoadingSpinner fullPage message="Loading business profiles..." />;
+        return <LoadingSpinner fullPage message={t('loadingBusinessProfiles')} />;
     }
 
     return (
@@ -235,11 +285,11 @@ const WhatsappNumberRegistrationPage = () => {
             {/* Header Section */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
                 <div>
-                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-                        WhatsApp Business Integration
+                    <h1 className="text-2xl dark:text-dark-text-primary sm:text-3xl font-bold text-gray-900">
+                        {t('whatsappBusinessIntegration')}
                     </h1>
                     <p className="mt-1 text-gray-600">
-                        Connect your WhatsApp Business Account to manage phone numbers
+                        {t('connectYourWhatsappBusinessAccount')}
                     </p>
                 </div>
                 <Button
@@ -249,7 +299,7 @@ const WhatsappNumberRegistrationPage = () => {
                     className="mt-4 md:mt-0"
                 >
                     <ChevronLeft className="h-4 w-4 mr-2" />
-                    Back to Projects
+                    {t('backToProjects')}
                 </Button>
             </div>
 
@@ -274,19 +324,19 @@ const WhatsappNumberRegistrationPage = () => {
                         className="w-full"
                         icon={<PlusCircle size={18} className="mr-2" />}
                     >
-                        Add Business Profile
+                        {t('addBusinessProfile')}
                     </Button>
 
                     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
                         <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
                             <Building size={18} className="text-primary-600 mr-2" />
-                            Your Business Profiles
+                            {t('yourBusinessProfiles')}
                         </h2>
 
                         {state.businessProfiles.length === 0 ? (
                             <EmptyState
-                                title="No Business Profiles"
-                                description="Add your first business profile to get started"
+                                title={t('noBusinessProfiles')}
+                                description={t('addYourFirstBusinessProfile')}
                                 icon={<Building size={24} className="text-gray-400" />}
                             />
                         ) : (
@@ -298,6 +348,7 @@ const WhatsappNumberRegistrationPage = () => {
                                         isSelected={state.selectedProfile?._id === profile._id}
                                         isFetching={state.isFetchingNumbers && state.selectedProfile?._id === profile._id}
                                         onClick={() => fetchPhoneNumbers(profile)}
+                                        fetchBusinessProfiles={() => fetchBusinessProfiles()}
                                     />
                                 ))}
                             </div>
@@ -311,7 +362,7 @@ const WhatsappNumberRegistrationPage = () => {
                         <div className="flex justify-between items-center mb-4">
                             <h2 className="text-lg font-semibold text-gray-800 flex items-center">
                                 <Phone size={18} className="text-primary-600 mr-2" />
-                                WhatsApp Numbers
+                                {t('whatsappNumbers')}
                             </h2>
                             {state.selectedProfile && (
                                 <span className="text-sm text-gray-600">
@@ -321,7 +372,7 @@ const WhatsappNumberRegistrationPage = () => {
                         </div>
 
                         {state.isFetchingNumbers && !state.phoneNumbers.length ? (
-                            <LoadingSpinner message="Fetching WhatsApp numbers..." className="py-8" />
+                            <LoadingSpinner message={t('fetchingWhatsappNumbers')} className="py-8" />
                         ) : state.phoneNumbers.length > 0 ? (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {state.phoneNumbers.map(number => (
@@ -336,11 +387,11 @@ const WhatsappNumberRegistrationPage = () => {
                         ) : (
                             <EmptyState
                                 title={state.selectedProfile
-                                    ? "No WhatsApp Numbers Found"
-                                    : "Select a Business Profile"}
+                                    ? t('noWhatsappNumbersFound')
+                                    : t('selectBusinessProfile')}
                                 description={state.selectedProfile
-                                    ? "No phone numbers available for this business account"
-                                    : "Choose a business profile from the left to view associated numbers"}
+                                    ? t('noPhoneNumbersAvailable')
+                                    : t('chooseBusinessProfileToViewNumbers')}
                                 icon={<Phone size={24} className="text-gray-400" />}
                             />
                         )}
@@ -349,55 +400,71 @@ const WhatsappNumberRegistrationPage = () => {
             </div>
 
             {/* Add Business Profile Modal */}
-            <Modal
+            {/* <Modal
                 isOpen={isAddBusinessModalOpen}
-                onClose={() => setIsAddBusinessModalOpen(false)}
-                title="Add Business Profile"
+                onClose={() => handlecloasemodel()}
+                title={t('addBusinessProfile')}
                 size="md"
             >
                 <form onSubmit={createBusinessProfile} className="space-y-4">
                     <InputField
-                        label="Business Name"
+                        label={t('businessName')}
                         name="name"
                         value={formData.name}
                         onChange={handleFormChange}
-                        placeholder="e.g., My Main Business"
-                        required
+                        placeholder={t('businessNamePlaceholder')}
+                        maxlength={50}
+                        error={errors.name}
+                        helperText={errors.name}
+
                     />
                     <InputField
-                        label="WhatsApp Business Account ID"
+                        label={t('whatsappBusinessAccountId')}
                         name="wabaId"
+                        type='number'
                         value={formData.wabaId}
                         onChange={handleFormChange}
-                        placeholder="e.g., 123456789012345"
-                        required
+                        placeholder={t('whatsappBusinessAccountIdPlaceholder')}
+                        maxlength={60}
+                        error={errors.wabaId}
+                        helperText={errors.wabaId}
+
                     />
                     <InputField
-                        label="WhatsApp Business App ID"
+                        label={t('whatsappBusinessAppId')}
                         name="metaAppId"
                         value={formData.metaAppId}
+                         type='number'
                         onChange={handleFormChange}
-                        placeholder="e.g., 123456789012345"
-                        required
+                        placeholder={t('whatsappBusinessAppIdPlaceholder')}
+                        maxlength={60}
+                        error={errors.metaAppId}
+                        helperText={errors.metaAppId}
+
                     />
                     <InputField
-                        label="Meta Access Token"
+                        label={t('metaAccessToken')}
                         name="accessToken"
                         type="password"
                         value={formData.accessToken}
                         onChange={handleFormChange}
-                        placeholder="Bearer EAAI..."
-                        required
+                        placeholder={t('metaAccessTokenPlaceholder')}
+                        error={errors.accessToken}
+                        helperText={errors.accessToken}
+
+                    // maxlength={500}
                     />
                     <div className="flex justify-end space-x-3 pt-2">
                         <Button
                             type="button"
                             variant="outline"
-                            onClick={() => setIsAddBusinessModalOpen(false)}
+                            onClick={() => handlecloasemodel()}
                         >
-                            Cancel
+                            {t('cancel')}
                         </Button>
+
                         <Button
+                            loading={loading}
                             type="submit"
                             variant="primary"
                             disabled={state.isLoading}
@@ -406,12 +473,150 @@ const WhatsappNumberRegistrationPage = () => {
                             {state.isLoading ? (
                                 <LoadingSpinner size="sm" color="white" className="mr-2" />
                             ) : null}
-                            {state.isLoading ? 'Creating...' : 'Create Profile'}
+                            {state.isLoading ? t('creating') : t('createProfile')}
+                        </Button>
+                    </div>
+                </form>
+            </Modal> */}
+            <Modal
+                isOpen={isAddBusinessModalOpen}
+                onClose={() => handlecloasemodel()}
+                title={t('addBusinessProfile')}
+                size="md"
+            >
+                <form onSubmit={createBusinessProfile} className="space-y-4">
+                    <InputField
+                        label={t('businessName')}
+                        name="name"
+                        value={formData.name}
+                        onChange={handleFormChange}
+                        placeholder={t('businessNamePlaceholder')}
+                        maxlength={50}
+                        error={errors.name}
+                        helperText={errors.name}
+                    />
+                    <InputField
+                        label={t('whatsappBusinessAccountId')}
+                        name="wabaId"
+                        type='number'
+                        value={formData.wabaId}
+                        onChange={handleFormChange}
+                        placeholder={t('whatsappBusinessAccountIdPlaceholder')}
+                        maxlength={60}
+                        error={errors.wabaId}
+                        helperText={errors.wabaId}
+                    />
+                    <InputField
+                        label={t('whatsappBusinessAppId')}
+                        name="metaAppId"
+                        value={formData.metaAppId}
+                        type='number'
+                        onChange={handleFormChange}
+                        placeholder={t('whatsappBusinessAppIdPlaceholder')}
+                        maxlength={60}
+                        error={errors.metaAppId}
+                        helperText={errors.metaAppId}
+                    />
+
+                    {/* Toggle for Catalog Mode */}
+                    <div className="flex items-center">
+                        <label htmlFor="catalog-toggle" className="mr-3 text-sm font-medium text-gray-700">
+                            {t('enableCatalog')}
+                        </label>
+                        <button
+                            type="button"
+                            onClick={() => setFormData({
+                                ...formData,
+                                catalogAccess: !formData.catalogAccess
+                            })}
+                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${formData.catalogAccess ? 'bg-primary-600' : 'bg-gray-300'
+                                }`}
+                        >
+                            <span
+                                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${formData.catalogAccess ? 'translate-x-6' : 'translate-x-1'
+                                    }`}
+                            />
+                        </button>
+                    </div>
+
+
+                    {/* Show these fields only when catalog is enabled */}
+                    {formData.catalogAccess ? (
+                        <>
+                            <InputField
+                                label={t('businessPortfolioId')}
+                                name="businessPortfolioId"
+                                type='number'
+                                value={formData.businessPortfolioId}
+                                onChange={handleFormChange}
+                                placeholder={t('businessPortfolioIdPlaceholder')}
+                                error={errors.businessPortfolioId}
+                                helperText={errors.businessPortfolioId}
+                            />
+
+                            <InputField
+                                label={t('metaAccessToken')}
+                                name="accessToken"
+                                type="password"
+                                value={formData.accessToken}
+                                onChange={handleFormChange}
+                                placeholder={t('metaAccessTokenPlaceholder')}
+                                error={errors.accessToken}
+                                helperText={errors.accessToken}
+                            />
+                            {/* <InputField
+                                label={t('systemUserToken')}
+                                name="systemUserToken"
+                                type="password"
+                                value={formData.systemUserToken}
+                                onChange={handleFormChange}
+                                placeholder={t('systemUserTokenPlaceholder')}
+                                error={errors.systemUserToken}
+                                helperText={errors.systemUserToken}
+                            /> */}
+                        </>
+                    ) : (
+                        /* Show regular access token when catalog is disabled */
+                        <InputField
+                            label={t('metaAccessToken')}
+                            name="accessToken"
+                            type="password"
+                            value={formData.accessToken}
+                            onChange={handleFormChange}
+                            placeholder={t('metaAccessTokenPlaceholder')}
+                            error={errors.accessToken}
+                            helperText={errors.accessToken}
+                        />
+                    )}
+
+                    <div className="flex justify-end space-x-3 pt-2">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => handlecloasemodel()}
+                        >
+                            {t('cancel')}
+                        </Button>
+
+                        <Button
+                            loading={loading}
+                            type="submit"
+                            variant="primary"
+                            disabled={state.isLoading}
+                            className="min-w-[120px]"
+                        >
+                            {state.isLoading ? (
+                                <LoadingSpinner size="sm" color="white" className="mr-2" />
+                            ) : null}
+                            {state.isLoading ? t('creating') : t('createProfile')}
                         </Button>
                     </div>
                 </form>
             </Modal>
+            {showConfetti ? <Celebrations setShowConfetti={setShowConfetti} showConfetti={showConfetti} /> : ""}
+
         </div>
+
     );
 };
 

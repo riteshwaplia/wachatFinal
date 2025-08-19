@@ -90,12 +90,13 @@ const DynamicButtonsBuilder = ({ onChange }) => {
   };
 
   return (
-    <div className="p-4 border rounded space-y-4">
+    <div className="p-4 border rounded space-y-4 border-dark-border">
       <h2 className="text-lg font-bold">Button Builder</h2>
 
       <select
         id="buttonType"
-        className="bg-white p-3 pr-8 rounded-lg border-2 border-gray-100 text-gray-800 font-medium 
+        className="bg-white p-3 dark:text-dark-text-primary
+ dark:bg-dark-surface pr-8 rounded-lg border-2 border-gray-100 text-gray-800 font-medium 
             shadow-sm hover:border-primary-400 focus:border-primary-500 focus:ring-2 
             focus:ring-primary-200 transition-all duration-200 cursor-pointer
             w-full max-w-xs appearance-none"
@@ -118,15 +119,16 @@ const DynamicButtonsBuilder = ({ onChange }) => {
           label="Quick Replies"
           className="text-sm text-gray-500 font-medium border-t border-gray-100"
         >
-          <option
+          {/* <option
             value={validButtonTypes.QUICK_REPLY}
             className="py-2 px-3 hover:bg-primary-50 hover:text-primary-700 transition-colors"
           >
-            <span className="flex items-center gap-2">
-              <span className="text-lg">📝</span>
-              <span>Quick Reply</span>
-            </span>
-          </option>
+          
+            Quick Reply
+          </option> */}
+          <option value={validButtonTypes.QUICK_REPLY}>
+  📝 Quick Reply
+</option>
         </optgroup>
 
         <optgroup
@@ -137,19 +139,15 @@ const DynamicButtonsBuilder = ({ onChange }) => {
             value={validButtonTypes.URL}
             className="py-2 px-3 hover:bg-primary-50 hover:text-primary-700 transition-colors"
           >
-            <span className="flex items-center gap-2">
-              <span className="text-lg">🌐</span>
-              <span>Visit Website</span>
-            </span>
+            🌐 Visit Website
+            
           </option>
           <option
             value={validButtonTypes.PHONE_NUMBER}
             className="py-2 px-3 hover:bg-primary-50 hover:text-primary-700 transition-colors"
           >
-            <span className="flex items-center gap-2">
-              <span className="text-lg">📞</span>
-              <span>Call Phone</span>
-            </span>
+           📞 Call Phone
+            
           </option>
         </optgroup>
       </select>

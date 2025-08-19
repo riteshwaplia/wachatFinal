@@ -29,9 +29,32 @@ import LiveChatPage from './pages/LiveChatPage';
 import BulkMessagingDashboard from './pages/BroadCasting';
 import SendMessagePage from './components/broadcasting/SendBulkMessage';
 import AllComponents from './components/AllComponets';
+<<<<<<< HEAD
 import Flow from './components/chatFlow/Flow';
 import FlowsPage from './pages/FlowsPage';
 import { Toaster } from 'react-hot-toast';
+=======
+import { Toaster } from 'react-hot-toast';
+import TemplateDetail from './components/template/TemplateDetail';
+import Flow from './components/chatFlow/Flow';
+import FlowsPage from './pages/FlowsPage';
+import ProfilePage from './pages/ProfilePage';
+import UserSetting from './pages/UserSetting';
+import UpdatePassword from './components/UpdatePassword';
+import TeamMembers from './pages/TeamMember';
+import LandingPage from './pages/LandingPage';
+import AddTeamMembers from './components/AddTeamMembers';
+import UserProfileLayout from './layout/userProfileLayout';
+import CreateCarouselTemplate from './components/template/CreateCarouselTemplate';
+import SendCarosualTemplate from './components/broadcasting/SendCarosualTemplate';
+import NotFoundPage from './pages/NotFoundPage';
+import FlowLayout from './layout/FlowLayout';
+import CataLog from './components/catalogs/AddCatalogue';
+import { Provider } from 'react-redux';
+import { store } from './store/store';
+import CataLogPage from './components/catalogs/CataLogPage';
+
+>>>>>>> main
 
 const AdminRoute = ({ children }) => (
   <ProtectedRoute roles={["super_admin", "tenant_admin"]}>
@@ -42,6 +65,12 @@ const AdminRoute = ({ children }) => (
 const SuperAdminRoute = ({ children }) => (
   <ProtectedRoute roles={["super_admin"]}>
     <AdminLayout>{children}</AdminLayout>
+  </ProtectedRoute>
+);
+
+const FlowRoute = ({ children }) => (
+  <ProtectedRoute roles={["user"]}>
+    <FlowLayout>{children}</FlowLayout>
   </ProtectedRoute>
 );
 
@@ -108,6 +137,7 @@ function AppContent() {
 
   return (
     <>
+<<<<<<< HEAD
       <Routes>
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage />} />
@@ -180,6 +210,82 @@ function AppContent() {
         />
 
         <Route
+=======
+
+
+      <Routes>
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route
+          path="/admin/dashboard"
+          element={
+            <AdminRoute>
+              <HomePage />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/admin-dashboard"
+          element={
+            <AdminRoute>
+              <AdminDashboardPage />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/add-tenant-admin"
+          element={
+            <SuperAdminRoute>
+              <SuperAdminDashboard />
+            </SuperAdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/users"
+          element={
+            <AdminRoute>
+              <TenantUsersPage />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/tenant-settings"
+          element={
+            <AdminRoute>
+              <TenantSettingsPage />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/add-whatsapp-number"
+          element={
+            <UserRoute sidebar={false}>
+              <WhatsappNumberRegistrationPage />
+            </UserRoute>
+          }
+        />
+        <Route
+          path="/projects"
+          element={
+            <UserRoute sidebar={false}>
+              <ProjectManagementPage />
+            </UserRoute>
+          }
+        />
+        <Route
+          path="/project/:id/dashboard"
+          element={<ProjectRouteWrapper component={ProjectDashboard} />}
+        />
+        <Route
+          path="/project/:id/project-details"
+          element={<ProjectRouteWrapper component={ProjectDetail} />}
+        />
+
+        <Route
+>>>>>>> main
           path="/project/:id/group"
           element={<ProjectRouteWrapper component={GroupPage} />}
         />
@@ -196,6 +302,17 @@ function AppContent() {
           element={<ProjectRouteWrapper component={CreateTemplate} />}
         />
         <Route
+<<<<<<< HEAD
+=======
+          path="/project/:id/templates/create/carousel-templates"
+          element={<ProjectRouteWrapper component={CreateCarouselTemplate} />}
+        />
+        <Route
+          path="/project/:id/templates/:templateId"
+          element={<ProjectRouteWrapper component={TemplateDetail} />}
+        />
+        <Route
+>>>>>>> main
           path="/project/:id/broadcasting"
           element={<ProjectRouteWrapper component={BulkMessagingDashboard} />}
         />
@@ -204,6 +321,13 @@ function AppContent() {
           element={<ProjectRouteWrapper component={SendMessagePage} />}
         />
         <Route
+<<<<<<< HEAD
+=======
+          path="/project/:id/broadcasting/send-bulk/carosual-template"
+          element={<ProjectRouteWrapper component={SendCarosualTemplate} />}
+        />
+        <Route
+>>>>>>> main
           path="/project/:id/chat"
           element={<ProjectRouteWrapper component={LiveChatPage} />}
         />
@@ -211,18 +335,147 @@ function AppContent() {
           path="/project/:id/flow-builder"
 
 
+<<<<<<< HEAD
           element={<UserRoute sidebar={false}>
             <Flow />
           </UserRoute>}
 
         />
         <Route path="/project/:projectId/flow-builder/:flowId" element={<Flow />} /> For editing existing flow
+=======
+          element={<FlowRoute sidebar={false}>
+            <Flow />
+          </FlowRoute>}
+
+        />
+        <Route path="/project/:projectId/flow-builder/:flowId"
+          element={
+            <FlowRoute sidebar={false}>
+              <Flow />
+            </FlowRoute>} /> For editing existing flow
+>>>>>>> main
 
         <Route
           path="/project/:id/flows"
           element={<ProjectRouteWrapper component={FlowsPage} />}
         />
+<<<<<<< HEAD
         {/* <Route path="/projects/:projectId/flow-builder" element={<FlowBuilder />} /> */}
+=======
+
+        {/* <Route path="/projects/:projectId/flow-builder" element={<FlowBuilder />} />
+            <Route path="/projects/:projectId/flow-builder/:flowId" element={<FlowBuilder />} /> For editing existing flow */}
+
+
+        {/* //user profile and settings */}
+        <Route
+          path="/user/profile"
+          element={
+            <UserProfileLayout>
+              <ProfilePage />
+            </UserProfileLayout>
+          }
+        />
+        <Route
+          path="/user/update-password"
+          element={
+            <UserProfileLayout>
+              <UpdatePassword />
+            </UserProfileLayout>
+          }
+        />
+
+        <Route
+          path="/project/:id/setting"
+          element={
+            <UserLayout>
+              <UserSetting />
+            </UserLayout>
+          }
+        />
+
+
+        {/* catalogue mangement here */}
+        <Route
+          path="/project/:id/catalogues"
+          element={
+            <UserLayout>
+              <CataLogPage />
+            </UserLayout>
+          }
+        />
+
+        <Route
+          path="/project/:id/catalogues/:id"
+          element={
+            <UserLayout>
+              <CataLogPage />
+            </UserLayout>
+          }
+        />
+        {/* <Route
+
+
+        {/* //user profile and settings */}
+        {/* /project/688737673803284e7d52e8ea/user-profile */}
+        <Route
+          path="/user-profile"
+          element={
+            <UserProfileLayout>
+              <ProfilePage />
+            </UserProfileLayout>
+          }
+        />
+        <Route
+          path="/update-password"
+          element={
+            <UserProfileLayout>
+              <UpdatePassword />
+            </UserProfileLayout>
+          }
+        />
+
+        <Route
+          path="/project/:id/user-setting"
+          element={
+            <UserProfileLayout>
+              <UserSetting />
+            </UserProfileLayout>
+          }
+        />
+        {/* <Route
+        path="/user/setting"
+        element={<ProjectRouteWrapper component={UserSetting} />}
+      /> */}
+
+
+        <Route path="/" element={<LandingPage />} />
+
+        <Route
+          path="/team/members"
+          element={
+
+            <UserRoute >
+              <TeamMembers />
+            </UserRoute>
+
+          }
+        />
+        <Route
+          path="/add/teammembers"
+          element={
+
+            <UserRoute >
+              <AddTeamMembers />
+            </UserRoute>
+
+          }
+        />
+
+
+
+
+>>>>>>> main
         <Route
           path="/"
           element={<Navigate to={isLoggedIn ? "/dashboard" : "/login"} replace />} // ✅ safe now
@@ -234,6 +487,7 @@ function AppContent() {
         <Route
           path="*"
           element={
+<<<<<<< HEAD
             <div className="min-h-screen bg-gray-50 flex items-center justify-center text-center">
               <div className="p-8 bg-white rounded-xl shadow-lg">
                 <h2 className="text-2xl font-bold text-gray-800 mb-4">404 - Page Not Found</h2>
@@ -247,12 +501,24 @@ function AppContent() {
 
       <Toaster
         position="top-right"
+=======
+            <NotFoundPage />
+          }
+        />
+      </Routes>
+      <Toaster
+        position="bottom-right"
+>>>>>>> main
         reverseOrder={false}
         toastOptions={{
 
           duration: 4000,
         }}
       />
+<<<<<<< HEAD
+=======
+    </>
+>>>>>>> main
 
     </>
   );
@@ -261,13 +527,17 @@ function AppContent() {
 
 function App() {
   return (
+
     <Router>
       <TenantProvider>
-        <AuthProvider>
-          <AppContent />
-        </AuthProvider>
+        <Provider store={store}>
+          <AuthProvider>
+            <AppContent />
+          </AuthProvider>
+        </Provider>
       </TenantProvider>
     </Router>
+
   );
 }
 

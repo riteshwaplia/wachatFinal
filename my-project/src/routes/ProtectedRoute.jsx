@@ -1,10 +1,13 @@
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Loader from '../components/Loader'; // Make sure you have this component
+import { useEffect, useRef } from 'react';
+import { ErrorToast } from '../utils/Toast';
 // import ErrorMessage from '../components/'; // Make sure you have this component
 
 const ProtectedRoute = ({ children, roles = [] }) => {
   const { isLoggedIn, loading, user } = useAuth(); // ✅ Get `user`
+
 
   if (loading) {
     return (

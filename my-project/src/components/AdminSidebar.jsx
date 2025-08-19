@@ -9,6 +9,7 @@ const AdminSidebar = () => {
     const location = useLocation();
     const { user } = useAuth();
     const { siteConfig } = useTenant(); // Access siteConfig
+    const { logoUrl } = siteConfig; // Destructure logoUrl from siteConfig    
 
     const navItems = [
         { label: 'Dashboard', path: '/admin/admin-dashboard', icon: <LayoutDashboard size={18} /> },
@@ -26,17 +27,29 @@ const AdminSidebar = () => {
 
     return (
         <aside className="bg-white w-64 min-h-screen shadow-lg fixed top-0 left-0 flex flex-col p-4 border-r border-gray-100 z-30">
-            <h2 className="text-xl font-bold font-heading text-primary-700 mb-6">{siteConfig?.websiteName || 'Admin Panel'}</h2>
+            {/* <h2 className="text-xl font-bold font-heading text-primary-700 mb-6">{siteConfig?.websiteName || 'Admin Panel'}</h2> */}
+            <Link to="/" className="flex items-center">
+                {/* <span className="text-xl font-bold font-heading text-primary-700 hover:text-primary-600 transition-colors"> */}
+                {logoUrl ? (
+                    <img
+                        src={logoUrl}
+                        alt="Company Logo"
+                        className="w-auto h-12"
+                    />
+                ) : (
+                    "SabNode"
+                )}
+                {/* </span> */}
+            </Link>
             <nav className="flex flex-col space-y-2">
                 {navItems.map((item) => (
                     <Link
                         key={item.path}
                         to={item.path}
-                        className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-200 ${
-                            isActive(item.path)
-                                ? 'bg-primary-50 text-primary-700 font-semibold shadow-sm' // Active state with custom colors
-                                : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' // Inactive state
-                        }`}
+                        className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-200 ${isActive(item.path)
+                            ? 'bg-primary-50 text-primary-700 font-semibold shadow-sm' // Active state with custom colors
+                            : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' // Inactive state
+                            }`}
                     >
                         {item.icon}
                         <span>{item.label}</span>

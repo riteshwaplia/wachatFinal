@@ -9,6 +9,9 @@ import ErrorMessage from '../ErrorMessage'; // Assuming correct path
 import { useProject } from '../../context/ProjectProvider'; // If you still use this context
 import Card from '../Card'; // Assuming correct path
 import WhatsAppBusinessProfileCard from './WhatsAppBusinessProfileCard'; // NEW: Import the new component
+import { useTranslation } from 'react-i18next';
+
+import { ErrorToast, SuccessToast } from '../../utils/Toast';
 
 const ProjectDetail = () => {
   const { id } = useParams(); // This is projectId
@@ -22,7 +25,8 @@ const ProjectDetail = () => {
   const [loadingUpdateProfile, setLoadingUpdateProfile] = useState(false);
   const [errorUpdateProfile, setErrorUpdateProfile] = useState(null);
   const [successUpdateProfile, setSuccessUpdateProfile] = useState(null);
-
+  
+  const { t } = useTranslation();
 
   const fetchProjectDetails = async () => {
     try {
@@ -37,7 +41,7 @@ const ProjectDetail = () => {
       if (response.data.success) {
         setProjectData(response.data.data);
       } else {
-        setError(response.data.message || 'Failed to fetch project details.');
+        setError(response.data.message || t('Failed to fetch project details.'));
       }
     } catch (err) {
       console.error('Failed to fetch project:', err.response?.data || err.message);
@@ -50,31 +54,47 @@ const ProjectDetail = () => {
   // Function to handle updating WhatsApp Business Profile
   const handleUpdateWhatsappProfile = async (profileData) => {
     setLoadingUpdateProfile(true);
-    setErrorUpdateProfile(null);
-    setSuccessUpdateProfile(null);
+
     try {
-      const response = await api.put(`/project/${id}/whatsapp-business-profile`, profileData, {
-        headers: {
-          Authorization: `Bearer ${token}`
+      const response = await api.put(
+        `/project/${id}/whatsapp-business-profile`,
+        profileData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
         }
-      });
-      if (response.data.success) {
-        setSuccessUpdateProfile(response.data.message || 'WhatsApp Business Profile updated successfully!');
-        // Re-fetch project details to get the latest data from the database
+      );
+
+      const { success, message } = response.data;
+
+      if (success) {
+        SuccessToast(message || 'WhatsApp Business Profile updated successfully!', { autoClose: 3000 });
+
+        // ✅ Re-fetch project details to get the latest data
         await fetchProjectDetails();
       } else {
-        setErrorUpdateProfile(response.data.message || 'Failed to update WhatsApp Business Profile.');
+        // ✅ Show proper error toast
+        ErrorToast(
+          message?.includes('Session has expired')
+            ? 'Your session has expired. Please reconnect your WhatsApp account.'
+            : message || 'Failed to update WhatsApp Business Profile.',
+          { autoClose: 3000 }
+        );
       }
+
     } catch (err) {
       console.error('Error updating WhatsApp Business Profile:', err.response?.data || err.message);
-      setErrorUpdateProfile(err.response?.data?.message || 'Failed to update WhatsApp Business Profile.');
+
+      const errMsg = err.response?.data?.message || 'Failed to update WhatsApp Business Profile.';
+      ErrorToast(
+        errMsg.includes('Session has expired')
+          ? 'Your session has expired. Please reconnect your WhatsApp account.'
+          : errMsg,
+        { autoClose: 3000 }
+      );
     } finally {
       setLoadingUpdateProfile(false);
-      // Clear success/error messages after a few seconds
-      setTimeout(() => {
-        setSuccessUpdateProfile(null);
-        setErrorUpdateProfile(null);
-      }, 5000);
     }
   };
 
@@ -91,89 +111,89 @@ const ProjectDetail = () => {
     <div className="space-y-6 p-6"> {/* Added padding for better layout */}
       {/* Header with back button */}
       <div className="flex items-center space-x-4 mb-6">
-        <Link to="/projects" className="text-gray-600 hover:text-gray-800">
+        {/* <Link to="/projects" className="text-gray-600 hover:text-gray-800">
           <FiArrowLeft size={24} />
-        </Link>
-        <h1 className="text-3xl font-bold text-gray-800">Project Details</h1>
+        </Link> */}
+        <h1 className="text-3xl font-bold text-gray-800 dark:text-dark-text-primary">{t("Project Details")}</h1>
       </div>
 
 
       {/* Project Header */}
-        <div className="bg-indigo-600 px-6 py-4 text-white rounded-t-lg shadow-md"> {/* Changed color to indigo for consistency */}
-          <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold font-heading">{projectData.name}</h1>
-            <div className="flex space-x-2">
-              <button
+      <div className="bg-indigo-600 dark:bg-dark-surface px-6 py-4 text-white rounded-t-lg shadow-md"> {/* Changed color to indigo for consistency */}
+        <div className="flex justify-between items-center">
+          <h1 className="text-2xl font-bold font-heading">{projectData.name}</h1>
+          <div className="flex space-x-2">
+            {/* <button
                 onClick={() => navigate(`/projects/${id}/edit`)} 
                 className="p-2 rounded-full hover:bg-indigo-700 transition-colors"
                 aria-label="Edit project"
               >
                 <FiEdit size={18} />
-              </button>
-              {/* Add delete button if desired */}
-            </div>
-          </div>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {projectData.isWhatsappVerified && (
-              <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full"> {/* Changed colors */}
-                WhatsApp Verified
-              </span>
-            )}
-            <span className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded-full">
-              {projectData.businessProfileId?.name || 'No Business Profile'} {/* Display Business Profile Name */}
-            </span>
-            <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full"> {/* Changed colors */}
-              {projectData.activePlan || 'No plan'}
-            </span>
+              </button> */}
+            {/* Add delete button if desired */}
           </div>
         </div>
+        <div className="mt-2 flex flex-wrap gap-2">
+          {projectData.isWhatsappVerified && (
+            <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full"> {/* Changed colors */}
+              WhatsApp Verified
+            </span>
+          )}
+          <span className="bg-gray-100 text-gray-800 dark:text-dark-text-primary text-xs px-2 py-1 rounded-full">
+            {projectData.businessProfileId?.name || 'No Business Profile'} {/* Display Business Profile Name */}
+          </span>
+          <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full"> {/* Changed colors */}
+            {projectData.activePlan || 'No plan'}
+          </span>
+        </div>
+      </div>
 
-        {/* WhatsApp Business Profile Card */}
-        {projectData && (
-          <WhatsAppBusinessProfileCard
-            project={projectData}
-            onUpdateProfile={handleUpdateWhatsappProfile}
-            loadingUpdate={loadingUpdateProfile}
-            errorUpdate={errorUpdateProfile}
-          />
-        )}
-        {successUpdateProfile && (
-          <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
-            <strong className="font-bold">Success!</strong>
-            <span className="block sm:inline"> {successUpdateProfile}</span>
-          </div>
-        )}
-        {errorUpdateProfile && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-            <strong className="font-bold">Error!</strong>
-            <span className="block sm:inline"> {errorUpdateProfile}</span>
-          </div>
-        )}
+      {/* WhatsApp Business Profile Card */}
+      {projectData && (
+        <WhatsAppBusinessProfileCard
+          project={projectData}
+          onUpdateProfile={handleUpdateWhatsappProfile}
+          loadingUpdate={loadingUpdateProfile}
+          errorUpdate={errorUpdateProfile}
+        />
+      )}
+      {successUpdateProfile && (
+        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+          <strong className="font-bold">Success!</strong>
+          <span className="block sm:inline"> {successUpdateProfile}</span>
+        </div>
+      )}
+      {errorUpdateProfile && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+          <strong className="font-bold">Error!</strong>
+          <span className="block sm:inline"> {errorUpdateProfile}</span>
+        </div>
+      )}
 
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Project Information */}
         <div className="lg:col-span-2 space-y-6">
-          <Card title="Project Information">
+          <Card title={t("Project Information")}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-4">
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Assistant Name</p>
-                  <p className="text-gray-800">{projectData.assistantName || 'Not specified'}</p>
+                  <p className="text-sm font-medium text-gray-500">{t('Assistant Name')}</p>
+                  <p className="text-gray-800 dark:text-dark-text-secondary">{projectData.assistantName || 'Not specified'}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-500">WhatsApp Number</p>
-                  <p className="text-gray-800">{projectData.whatsappNumber || 'Not specified'}</p>
+                  <p className="text-sm font-medium text-gray-500">{t('WhatsApp Number')}</p>
+                  <p className="text-gray-800 dark:text-dark-text-secondary">{projectData.whatsappNumber || 'Not specified'}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Meta Phone Number ID</p>
-                  <p className="text-gray-800">{projectData.metaPhoneNumberID || 'Not specified'}</p>
+                  <p className="text-sm font-medium text-gray-500">{t('Meta Phone Number ID')}</p>
+                  <p className="text-gray-800 dark:text-dark-text-secondary">{projectData.metaPhoneNumberID || 'Not specified'}</p>
                 </div>
               </div>
               <div className="space-y-4">
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Created At</p>
-                  <p className="text-gray-800">
+                  <p className="text-sm font-medium text-gray-500">{t('Created At')}</p>
+                  <p className="text-gray-800 dark:text-dark-text-secondary">
                     {new Date(projectData.createdAt).toLocaleDateString('en-US', {
                       year: 'numeric',
                       month: 'long',
@@ -182,8 +202,8 @@ const ProjectDetail = () => {
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Last Updated</p>
-                  <p className="text-gray-800">
+                  <p className="text-sm font-medium text-gray-500">{t('Last Updated')}</p>
+                  <p className="text-gray-800 dark:text-dark-text-secondary">
                     {new Date(projectData.updatedAt).toLocaleDateString('en-US', {
                       year: 'numeric',
                       month: 'long',
@@ -198,24 +218,24 @@ const ProjectDetail = () => {
 
         {/* Quick Actions */}
         <div className="space-y-4">
-          <Card title="Subscription Details">
+          <Card title={t("Subscription Details")}>
             <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Active Plan</p>
-                  <p className="text-gray-800">{projectData.activePlan || 'No active plan'}</p>
+                  <p className="text-sm font-medium text-gray-500">{t('Active Plan')}</p>
+                  <p className="text-gray-800 dark:text-dark-text-secondary">{projectData.activePlan || 'No active plan'}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Plan Duration</p>
-                  <p className="text-gray-800">{projectData.planDuration || 0} days</p>
+                  <p className="text-sm font-medium text-gray-500">{t('Plan Duration')}</p>
+                  <p className="text-gray-800 dark:text-dark-text-secondary">{projectData.planDuration || 0} days</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Business Profile Name</p>
-                  <p className="text-gray-800">{projectData.businessProfileId?.name || 'Not linked'}</p>
+                  <p className="text-sm font-medium text-gray-500">{t('Business Profile Name')}</p>
+                  <p className="text-gray-800 dark:text-dark-text-secondary">{projectData.businessProfileId?.name || 'Not linked'}</p>
                 </div>
             </div>
           </Card>
 
-          <Card title="Project Status">
+          {/* <Card title="Project Status">
             <div className="space-y-4">
               <div>
                 <p className="text-sm font-medium text-gray-500">WhatsApp Status</p>
@@ -242,7 +262,7 @@ const ProjectDetail = () => {
                 <p className="text-xs text-gray-500 mt-1">85% - Good</p>
               </div>
             </div>
-          </Card>
+          </Card> */}
         </div>
       </div>
     </div>

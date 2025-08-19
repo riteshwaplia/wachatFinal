@@ -354,19 +354,23 @@
 
 // export default WhatsAppBusinessProfileCard;
 // client/src/components/ProjectDetail/WhatsAppBusinessProfileCard.js
+
 import React, { useState, useEffect } from 'react';
 import { FiEdit2, FiExternalLink, FiCheck, FiX, FiUploadCloud } from 'react-icons/fi';
 import { FaWhatsapp } from 'react-icons/fa';
 import InputField from '../InputField'; // Assuming this is a reusable input component
 import Avatar from '../Avatar'; // Assuming this is a reusable Avatar component
 import { uploadMedaiData } from '../../apis/TemplateApi'; // For media upload
+import { useTranslation } from 'react-i18next';
+import { validateWhatsAppBusinessProfile } from '../../utils/validation';
 
 const WhatsAppBusinessProfileCard = ({ project, onUpdateProfile, loadingUpdate, errorUpdate }) => {
+  const  { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const [form, setForm] = useState({});
   const [mediaUploadLoading, setMediaUploadLoading] = useState(false);
   const [mediaUploadError, setMediaUploadError] = useState(null);
-
+  const [errors, setError] = useState({})
   // Initialize form state when project prop changes or on first load
   useEffect(() => {
     if (project) {
@@ -433,6 +437,14 @@ const WhatsAppBusinessProfileCard = ({ project, onUpdateProfile, loadingUpdate, 
   const handleSave = () => {
     // Call the parent's update function with the form data
     // Only send fields that are part of Meta's API payload
+
+    const validationErrors = validateWhatsAppBusinessProfile(form);
+    console.log("validationErrors", validationErrors)
+    if (Object.keys(validationErrors).length > 0) {
+      setError(validationErrors); // Show errors in form
+      return;
+    }
+
     const payload = {
       about: form.about,
       address: form.address,
@@ -464,9 +476,9 @@ const WhatsAppBusinessProfileCard = ({ project, onUpdateProfile, loadingUpdate, 
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-200">
+    <div className="bg-white rounded-2xl shadow-md p-6 border dark:bg-dark-surface dark:border-dark-border border-gray-200">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-semibold text-[#111b21]">WhatsApp Business Profile</h2>
+        <h2 className="text-xl font-semibold dark:text-dark-text-primary text-[#111b21]">{t("WhatsApp Business Profile")}</h2>
         {isEditing ? (
           <div className="flex space-x-2">
             <button
@@ -524,7 +536,7 @@ const WhatsAppBusinessProfileCard = ({ project, onUpdateProfile, loadingUpdate, 
         </div>
 
         {/* Business Info */}
-        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-[#111b21]">
+        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-[#111b21] dark:text-dark-text-secondary">
           {isEditing ? (
             <>
               <InputField
@@ -532,6 +544,8 @@ const WhatsAppBusinessProfileCard = ({ project, onUpdateProfile, loadingUpdate, 
                 value={form.about}
                 onChange={(e) => handleChange('about', e.target.value)}
                 maxLength={139} // Meta's limit
+                error={errors.about}
+                helperText={errors.about}
               />
               <div>
                 <label className="block text-sm font-medium text-[#54656f] mb-1">
@@ -576,44 +590,52 @@ const WhatsAppBusinessProfileCard = ({ project, onUpdateProfile, loadingUpdate, 
                 label="Description"
                 value={form.description}
                 onChange={(e) => handleChange('description', e.target.value)}
+                error={errors.description}
+                helperText={errors.description}
               />
               <InputField
                 label="Address"
                 value={form.address}
                 onChange={(e) => handleChange('address', e.target.value)}
+                  error={errors.address}
+                helperText={errors.address}
               />
               <InputField
                 label="Email"
                 value={form.email}
                 onChange={(e) => handleChange('email', e.target.value)}
                 type="email"
+                 error={errors.email}
+                helperText={errors.email}
               />
               <InputField
                 label="Websites (comma-separated)"
                 value={form.websites?.join(', ')}
                 onChange={handleWebsitesChange}
+                 error={errors.websites}
+                helperText={errors.websites}
               />
             </>
           ) : (
             <>
               <div>
-                <p className="font-medium text-[#54656f]">About</p>
+                <p className="font-medium text-[#54656f] dark:text-dark-text-primary">{t('About')}</p>
                 <p>{project?.about || 'No about information'}</p>
               </div>
               <div>
-                <p className="font-medium text-[#54656f]">Industry</p>
+                <p className="font-medium text-[#54656f] dark:text-dark-text-primary">{t('Industry')}</p>
                 <p>{project?.vertical || 'Not specified'}</p>
               </div>
               <div>
-                <p className="font-medium text-[#54656f]">Description</p>
+                <p className="font-medium text-[#54656f] dark:text-dark-text-primary">{t('Description')}</p>
                 <p>{project?.description || 'No description provided'}</p>
               </div>
               <div>
-                <p className="font-medium text-[#54656f]">Address</p>
+                <p className="font-medium text-[#54656f] dark:text-dark-text-primary">{t('Address')}</p>
                 <p>{project?.address || 'No address provided'}</p>
               </div>
               <div>
-                <p className="font-medium text-[#54656f]">Email</p>
+                <p className="font-medium text-[#54656f] dark:text-dark-text-primary">{t('Email')}</p>
                 {project?.email ? (
                   <a href={`mailto:${project.email}`} className="text-[#25D366] hover:underline">
                     {project.email}
@@ -623,7 +645,7 @@ const WhatsAppBusinessProfileCard = ({ project, onUpdateProfile, loadingUpdate, 
                 )}
               </div>
               <div>
-                <p className="font-medium text-[#54656f]">Websites</p>
+                <p className="font-medium text-[#54656f] dark:text-dark-text-primary">{t('Websites')}</p>
                 {project?.websites?.length > 0 ? (
                   project.websites.map((url, i) => (
                     <a
@@ -645,8 +667,14 @@ const WhatsAppBusinessProfileCard = ({ project, onUpdateProfile, loadingUpdate, 
         </div>
       </div>
 
-      {/* WhatsApp Badge */}
-      <div className="mt-6 pt-4 border-t border-[#e9edef] flex flex-col md:flex-row justify-between items-center gap-4">
+
+    </div>
+  );
+};
+
+export default WhatsAppBusinessProfileCard;
+{/* WhatsApp Badge */ }
+{/* <div className="mt-6 pt-4 border-t border-[#e9edef] flex flex-col md:flex-row justify-between items-center gap-4">
         <div className="flex items-center gap-2">
           <div className="bg-[#25D366] w-7 h-7 rounded-full flex items-center justify-center">
             <FaWhatsapp className="text-white text-lg" />
@@ -659,9 +687,4 @@ const WhatsAppBusinessProfileCard = ({ project, onUpdateProfile, loadingUpdate, 
         <button className="bg-[#25D366] text-white px-4 py-2 rounded-md hover:bg-[#128C7E] transition-all text-sm">
           Contact Business
         </button>
-      </div>
-    </div>
-  );
-};
-
-export default WhatsAppBusinessProfileCard;
+      </div> */}

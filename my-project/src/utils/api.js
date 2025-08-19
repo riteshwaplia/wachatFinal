@@ -63,9 +63,9 @@ api.interceptors.response.use(
           // This is critical for authentication.
           // If it's a token expiry, you might try to refresh the token.
           // For now, let's just log out the user or redirect to login.
-          localStorage.removeItem('authToken'); // Clear expired/invalid token
+          // localStorage.removeItem('authToken'); // Clear expired/invalid token
           // You might trigger a global logout action here
-          window.location.href = '/login'; // Redirect to login page
+          // window.location.href = '/login'; // Redirect to login page
           break;
         case 403:
           console.error('Forbidden (403): You do not have permission:', data.message || data);
