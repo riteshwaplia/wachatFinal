@@ -7,6 +7,7 @@ import { IoMdSend } from "react-icons/io";
 import Button from "../Button";
 import toast from "react-hot-toast";
 import { useNavigate } from 'react-router-dom';
+import CusLoadMoreSelect from '../CustomPaginationSelect';
 
 
 
@@ -46,6 +47,8 @@ export default function GroupWiseBroadcasting() {
     const newSelectedFields = headerField ? [headerField, ...fieldValues] : [...fieldValues];
     const [isLoading, setIsLoading] = useState({ uploading: false });
     const [imageId, setImageId] = useState("");
+    const isDark = localStorage.getItem('theme');
+    console.log("dark", isDark)
 
     console.log("newSelectedFields???????????", newSelectedFields);
     console.log("fieldvalues", fieldValues)
@@ -61,6 +64,8 @@ export default function GroupWiseBroadcasting() {
             setBusinessProfileId(parsedProject?.businessProfileId?._id || null);
         }
     }, []);
+
+    console.log("templates", templates)
 
 
     // useEffect(() => {
@@ -208,11 +213,12 @@ export default function GroupWiseBroadcasting() {
                 value: group._id,
                 label: group.title,
             }));
-            setGroupOptions(options); // ✅ set using state
+            setGroupOptions(options);
         }
     }, [groups]);
 
     console.log("grop********************", groupOptions);
+    console.log("selectedTemplate", selectedTemplate)
 
     const FieldOptions = fields.map(field => ({
         value: field.label,
@@ -389,6 +395,10 @@ export default function GroupWiseBroadcasting() {
             return null;
         }
     };
+    console.log("tttt", groupOptions)
+    console.log('sfdsf', singleMessageTemplateName); // gives "68919019f6d083c0310c432e"
+
+
     return (
         <div className='p-4'>
             <div className='text-primary-500 text-2xl mb-4 font-semibold hover:underline'>Send Templates Groupvise</div>
@@ -398,6 +408,19 @@ export default function GroupWiseBroadcasting() {
                 placeholder='Select Groupname'
 
             />
+            {/* <CusLoadMoreSelect
+                options={groupOptions}
+                labelKey="label"
+                isDark={isDark}
+                value={selectedGroups}
+                // valueKey="_id"
+                pageSize={10}
+                onChange={(opt) => setSelectedGroups(opt)}
+
+                placeholder='Select Groupname'
+
+            /> */}
+
 
 
 
@@ -433,7 +456,7 @@ export default function GroupWiseBroadcasting() {
             )}
 
             <label className='mt-3 block  dark:text-dark-text-primary' htmlFor="">Template name</label>
-            <select
+            {/* <select
                 className="mt-1 block  mb-5 w-full dark:bg-dark-surface dark:text-dark-text-primary border border-gray-300 rounded-md shadow-sm p-2"
                 required
                 value={singleMessageTemplateName}
@@ -445,7 +468,20 @@ export default function GroupWiseBroadcasting() {
                         {tpl.name} ({tpl.language}) - {tpl.metaStatus}
                     </option>
                 ))}
-            </select>
+            </select> */}
+
+            <CusLoadMoreSelect
+                options={templates}
+                labelKey="name"
+                // valueKey='_id'
+                isDark={isDark}
+                pageSize={10}
+                value={singleMessageTemplateName}
+                onChange={(val) => setSingleMessageTemplateName(val.label)}
+                placeholder="Select a Template"
+            />
+
+
             {renderHeaderImageUpload()}
             {headerExamples.length > 0 && (
                 <CustomSelect options={FieldOptions} label="Select field for header" placeholder='Select fields' onChange={(e) => setHeaderField(e.value)} />

@@ -11,6 +11,7 @@ export const nodeTypes = {
   interactive_list_row: React.lazy(() => import('./InteractiveListRow')),
   template: React.lazy(() => import('./TemplateNode')),
   video: React.lazy(() => import('./VideoNode')),
+  document: React.lazy(() => import('./DocummentNode'))
 };
 
 // Define custom edge type if using something other than default bezier/straight/step edges

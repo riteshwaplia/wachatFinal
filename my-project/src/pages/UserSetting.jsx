@@ -97,12 +97,14 @@ import InputField from '../components/InputField';
 import { IoBusiness } from "react-icons/io5";
 import api from '../utils/api';
 import { ErrorToast, SuccessToast } from '../utils/Toast';
+import { useParams } from 'react-router-dom';
 
 export default function UserSetting() {
     const [tab, settab] = useState("business");
     const [brodId, setBrodId] = useState("");
     const [bordErr, setbrodErr] = useState("");
     const [errors, setErrors] = useState({});
+    const { id } = useParams()
     const [inpdata, setinpData] = useState({
         "businessId": "",
         "accessToken": "",
@@ -119,7 +121,7 @@ export default function UserSetting() {
 
     const fetchBatchSize = async () => {
         try {
-            const res = await api.get(`/users/batch-size`);
+            const res = await api.get(`project/${id}/batch-size`);
             console.log("res", res?.data?.data?.batch_size)
             if (res?.data?.success) {
                 setbatchSize(res?.data?.data?.batch_size)
@@ -137,7 +139,7 @@ export default function UserSetting() {
         }
         try {
             setLoading(true)
-            const res = await api.put(`/users/batch-size`, payload);
+            const res = await api.put(`/project/${id}/batch-size`, payload);
             console.log("res", res)
             if (res?.data?.success) {
                 SuccessToast(res.data.message)
