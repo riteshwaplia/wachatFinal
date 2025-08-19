@@ -89,36 +89,36 @@ const AddCustomFieldModal = ({ isOpen, onClose, onSuccess, fields }) => {
       {fields ? (<>
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <Modal isOpen={isOpen} onClose={onClose} title="Custom Fields">
-<div className='max-h-[80vh] overflow-y-auto'>
-     <form className="space-y-4">
-              {fields.map((field, index) => (
-                <div key={index} className="flex flex-col">
-                  <label className="text-sm font-medium text-gray-700 mb-1">
-                    {field.label}
-                  </label>
-                  <input
-                    disabled={true}
-                    type={field.type}
-                    placeholder={field.label}
-                    className="border border-gray-300 dark:bg-dark-surface rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  />
-                </div>
+            <div className='max-h-[80vh] overflow-y-auto'>
+              <form className="space-y-4">
+                {fields.map((field, index) => (
+                  <div key={index} className="flex flex-col">
+                    <label className="text-sm font-medium text-gray-700 mb-1">
+                      {field.label}
+                    </label>
+                    <input
+                      disabled={true}
+                      type={field.type}
+                      placeholder={field.label}
+                      className="border border-gray-300 dark:bg-dark-surface rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    />
+                  </div>
 
 
-              ))}
-              {fields.length === 0 && <><p>No any custom fields exist</p></>}
-            </form>
+                ))}
+                {fields.length === 0 && <><p>No any custom fields exist</p></>}
+              </form>
 
-            <div className="flex justify-end mt-6">
-              <button
-                onClick={onClose}
-                className="px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700 transition"
+              <div className="flex justify-end mt-6">
+                <button
+                  onClick={onClose}
+                  className="px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700 transition"
 
-              >
-                Close
-              </button>
+                >
+                  Close
+                </button>
+              </div>
             </div>
-</div>
           </Modal>
           {/* <div className="bg-white dark:bg-dark-surface rounded-xl shadow-lg p-6 w-full max-w-md max-h-[80vh] overflow-y-auto">
             <h2 className="text-xl dark:text-dark-text-primary font-semibold mb-4 dark:text-dark-text-primary text-center">Custom Fields</h2>

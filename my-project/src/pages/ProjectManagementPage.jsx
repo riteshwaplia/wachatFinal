@@ -177,6 +177,7 @@ const ProjectManagementPage = () => {
     }
   };
 
+
   useEffect(() => {
     if (!authLoading && user) {
       // Only fetch data when auth is verified and user exists

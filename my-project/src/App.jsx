@@ -45,6 +45,10 @@ import CreateCarouselTemplate from './components/template/CreateCarouselTemplate
 import SendCarosualTemplate from './components/broadcasting/SendCarosualTemplate';
 import NotFoundPage from './pages/NotFoundPage';
 import FlowLayout from './layout/FlowLayout';
+import CataLog from './components/catalogs/AddCatalogue';
+import { Provider } from 'react-redux';
+import { store } from './store/store';
+import CataLogPage from './components/catalogs/CataLogPage';
 
 
 const AdminRoute = ({ children }) => (
@@ -249,11 +253,11 @@ function AppContent() {
           </FlowRoute>}
 
         />
-        <Route path="/project/:projectId/flow-builder/:flowId" 
-        element={
-        <FlowRoute sidebar={false}>
-          <Flow />
-        </FlowRoute>} /> For editing existing flow
+        <Route path="/project/:projectId/flow-builder/:flowId"
+          element={
+            <FlowRoute sidebar={false}>
+              <Flow />
+            </FlowRoute>} /> For editing existing flow
 
         <Route
           path="/project/:id/flows"
@@ -287,6 +291,26 @@ function AppContent() {
           element={
             <UserLayout>
               <UserSetting />
+            </UserLayout>
+          }
+        />
+
+
+        {/* catalogue mangement here */}
+        <Route
+          path="/project/:id/catalogues"
+          element={
+            <UserLayout>
+              <CataLogPage />
+            </UserLayout>
+          }
+        />
+
+        <Route
+          path="/project/:id/catalogues/:id"
+          element={
+            <UserLayout>
+              <CataLogPage />
             </UserLayout>
           }
         />
@@ -368,7 +392,7 @@ function AppContent() {
         />
       </Routes>
       <Toaster
-        position="top-right"
+        position="bottom-right"
         reverseOrder={false}
         toastOptions={{
 
@@ -386,9 +410,11 @@ function App() {
 
     <Router>
       <TenantProvider>
-        <AuthProvider>
-          <AppContent />
-        </AuthProvider>
+        <Provider store={store}>
+          <AuthProvider>
+            <AppContent />
+          </AuthProvider>
+        </Provider>
       </TenantProvider>
     </Router>
 

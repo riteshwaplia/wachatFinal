@@ -485,6 +485,11 @@ body {
 /*        RESPONSIVE         */
 /* ========================= */
 
+.scrollbar-track-gray-100::-webkit-scrollbar {
+  height: 8px;
+}
+
+
 /* Small screens (Mobile) */
 @media (max-width: 480px) {
   .btn {

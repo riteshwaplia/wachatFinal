@@ -5,7 +5,7 @@ import api from "../utils/api";
 const project = localStorage.getItem("currentProject")
   ? JSON.parse(localStorage.getItem("currentProject"))
   : null;
-const businessProfileId = project?.businessProfileId._id || null;
+const businessProfileId = project?.businessProfileId?._id || null;
 export const createTemplateApi = async (data) => {
   const id = data.id;
   try {
@@ -88,3 +88,5 @@ export const createCarouselTemplateApi = async (carouselTemplateData) => {
     };
   }
 };
+
+

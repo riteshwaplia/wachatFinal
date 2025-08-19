@@ -42,21 +42,24 @@ const WhatsappNumberRegistrationPage = () => {
         name: '',
         wabaId: '',
         accessToken: '',
-        metaAppId: ""
+        metaAppId: '',
+        catalogAccess: '',
+        businessPortfolioId: '',
+
     });
-    const [showConfetti,setShowConfetti] = useState(false);
+    const [showConfetti, setShowConfetti] = useState(false);
 
     const [isAddBusinessModalOpen, setIsAddBusinessModalOpen] = useState(false);
-const handlecloasemodel=()=>{
-    setIsAddBusinessModalOpen(false);
-    setFormData({
-        name: '',
-        wabaId: '',
-        accessToken: '',
-        metaAppId: ''
-    });
-    setErrors({});
-}
+    const handlecloasemodel = () => {
+        setIsAddBusinessModalOpen(false);
+        setFormData({
+            name: '',
+            wabaId: '',
+            accessToken: '',
+            metaAppId: ''
+        });
+        setErrors({});
+    }
     // Helper function to update state
     const updateState = (updates) => {
         setState(prev => ({ ...prev, ...updates }));
@@ -163,7 +166,9 @@ const handlecloasemodel=()=>{
                 name: formData.name,
                 metaBusinessId: formData.wabaId,
                 metaAccessToken: formData.accessToken,
-                metaAppId: formData.metaAppId
+                metaAppId: formData.metaAppId,
+                businessPortfolioId: formData.businessPortfolioId,
+                catalogAccess: formData.catalogAccess
             });
             if (res.data.success) {
                 SuccessToast('Business profile created successfully!');
@@ -219,7 +224,7 @@ const handlecloasemodel=()=>{
             });
 
             if (projectRes.data.success) {
-                 setShowConfetti(true);
+                setShowConfetti(true);
                 SuccessToast('WhatsApp number connected successfully!');
             }
 
@@ -395,7 +400,7 @@ const handlecloasemodel=()=>{
             </div>
 
             {/* Add Business Profile Modal */}
-            <Modal
+            {/* <Modal
                 isOpen={isAddBusinessModalOpen}
                 onClose={() => handlecloasemodel()}
                 title={t('addBusinessProfile')}
@@ -472,11 +477,146 @@ const handlecloasemodel=()=>{
                         </Button>
                     </div>
                 </form>
+            </Modal> */}
+            <Modal
+                isOpen={isAddBusinessModalOpen}
+                onClose={() => handlecloasemodel()}
+                title={t('addBusinessProfile')}
+                size="md"
+            >
+                <form onSubmit={createBusinessProfile} className="space-y-4">
+                    <InputField
+                        label={t('businessName')}
+                        name="name"
+                        value={formData.name}
+                        onChange={handleFormChange}
+                        placeholder={t('businessNamePlaceholder')}
+                        maxlength={50}
+                        error={errors.name}
+                        helperText={errors.name}
+                    />
+                    <InputField
+                        label={t('whatsappBusinessAccountId')}
+                        name="wabaId"
+                        type='number'
+                        value={formData.wabaId}
+                        onChange={handleFormChange}
+                        placeholder={t('whatsappBusinessAccountIdPlaceholder')}
+                        maxlength={60}
+                        error={errors.wabaId}
+                        helperText={errors.wabaId}
+                    />
+                    <InputField
+                        label={t('whatsappBusinessAppId')}
+                        name="metaAppId"
+                        value={formData.metaAppId}
+                        type='number'
+                        onChange={handleFormChange}
+                        placeholder={t('whatsappBusinessAppIdPlaceholder')}
+                        maxlength={60}
+                        error={errors.metaAppId}
+                        helperText={errors.metaAppId}
+                    />
+
+                    {/* Toggle for Catalog Mode */}
+                    <div className="flex items-center">
+                        <label htmlFor="catalog-toggle" className="mr-3 text-sm font-medium text-gray-700">
+                            {t('enableCatalog')}
+                        </label>
+                        <button
+                            type="button"
+                            onClick={() => setFormData({
+                                ...formData,
+                                catalogAccess: !formData.catalogAccess
+                            })}
+                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${formData.catalogAccess ? 'bg-primary-600' : 'bg-gray-300'
+                                }`}
+                        >
+                            <span
+                                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${formData.catalogAccess ? 'translate-x-6' : 'translate-x-1'
+                                    }`}
+                            />
+                        </button>
+                    </div>
+
+
+                    {/* Show these fields only when catalog is enabled */}
+                    {formData.catalogAccess ? (
+                        <>
+                            <InputField
+                                label={t('businessPortfolioId')}
+                                name="businessPortfolioId"
+                                type='number'
+                                value={formData.businessPortfolioId}
+                                onChange={handleFormChange}
+                                placeholder={t('businessPortfolioIdPlaceholder')}
+                                error={errors.businessPortfolioId}
+                                helperText={errors.businessPortfolioId}
+                            />
+
+                            <InputField
+                                label={t('metaAccessToken')}
+                                name="accessToken"
+                                type="password"
+                                value={formData.accessToken}
+                                onChange={handleFormChange}
+                                placeholder={t('metaAccessTokenPlaceholder')}
+                                error={errors.accessToken}
+                                helperText={errors.accessToken}
+                            />
+                            {/* <InputField
+                                label={t('systemUserToken')}
+                                name="systemUserToken"
+                                type="password"
+                                value={formData.systemUserToken}
+                                onChange={handleFormChange}
+                                placeholder={t('systemUserTokenPlaceholder')}
+                                error={errors.systemUserToken}
+                                helperText={errors.systemUserToken}
+                            /> */}
+                        </>
+                    ) : (
+                        /* Show regular access token when catalog is disabled */
+                        <InputField
+                            label={t('metaAccessToken')}
+                            name="accessToken"
+                            type="password"
+                            value={formData.accessToken}
+                            onChange={handleFormChange}
+                            placeholder={t('metaAccessTokenPlaceholder')}
+                            error={errors.accessToken}
+                            helperText={errors.accessToken}
+                        />
+                    )}
+
+                    <div className="flex justify-end space-x-3 pt-2">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => handlecloasemodel()}
+                        >
+                            {t('cancel')}
+                        </Button>
+
+                        <Button
+                            loading={loading}
+                            type="submit"
+                            variant="primary"
+                            disabled={state.isLoading}
+                            className="min-w-[120px]"
+                        >
+                            {state.isLoading ? (
+                                <LoadingSpinner size="sm" color="white" className="mr-2" />
+                            ) : null}
+                            {state.isLoading ? t('creating') : t('createProfile')}
+                        </Button>
+                    </div>
+                </form>
             </Modal>
-            {showConfetti ? <Celebrations setShowConfetti={setShowConfetti} showConfetti={showConfetti}/> :""}
-      
+            {showConfetti ? <Celebrations setShowConfetti={setShowConfetti} showConfetti={showConfetti} /> : ""}
+
         </div>
-        
+
     );
 };
 

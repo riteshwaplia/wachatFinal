@@ -16,6 +16,7 @@ import {
   StepForward
 } from 'lucide-react';
 import { useTenant } from '../context/TenantContext';
+import { GrCatalog } from 'react-icons/gr';
 
 const UserSidebar = ({ isOpen, onToggle, isOff }) => {
   const location = useLocation();
@@ -71,6 +72,11 @@ const UserSidebar = ({ isOpen, onToggle, isOff }) => {
         label: 'Live Chat',
         path: `/project/${id}/chat`,
         icon: <MessageSquare size={18} />
+      },
+      {
+        label: 'Catalogue',
+        path: `/project/${id}/catalogues`,
+        icon: <GrCatalog size={18} />
       },
       {
         label: 'flow builder',

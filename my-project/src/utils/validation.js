@@ -153,3 +153,19 @@ export const validateWhatsAppBusinessProfile = (formData) => {
 
     return errors;
 };
+
+
+
+export const cataLogValidation = (formData) => {
+    let newErrors = {};
+
+    if (!formData.name || formData.name.length < 3) {
+        newErrors.name = "Name is required and must be at least 3 characters";
+    }
+    // if (!formData.accessToken || formData.accessToken.length < 20) {
+    //     newErrors.accessToken = "Access Token is required (min 20 chars)";
+    // }
+
+    // setErrors(newErrors);
+    return newErrors;
+};
