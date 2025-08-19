@@ -559,6 +559,10 @@ const CallPermissionReply = ({ contactName, waId, replyData, timestamp }) => {
   const date = new Date(timestamp * 1000).toLocaleString();
   const expiry = new Date(expiration_timestamp * 1000).toLocaleString();
 
+  const handleCallNow = () => {
+    window.open(`tel:${waId}`, "_self");
+  };
+
   return (
     <div className={`w-full max-w-sm rounded-xl p-4 mb-3 border ${isAccepted ? "bg-green-50 border-green-400" : "bg-red-50 border-red-400"}`}>
       <div className="flex justify-between items-center">
@@ -580,12 +584,19 @@ const CallPermissionReply = ({ contactName, waId, replyData, timestamp }) => {
             <div className="text-gray-600 text-xs mt-1">
               Source: {response_source}
             </div>
+            <button
+              onClick={handleCallNow}
+              className="mt-2 px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
+            >
+              📞 Call Now
+            </button>
           </div>
         )}
       </div>
     </div>
   );
 };
+
 
   // Render message status icon
   const renderStatusIcon = (status) => {
@@ -616,7 +627,6 @@ const renderMessageContent = (msg) => {
 
     case "call_permission_reply":
     case "interactive":
-      // Ensure it's actually a call permission reply
       if (
         msg.message?.call_permission_reply ||
         msg.call_permission_reply
@@ -669,6 +679,24 @@ const renderMessageContent = (msg) => {
         </div>
       );
 
+    case "order":
+      const items = msg.message?.product_items || [];
+      return (
+        <div className="border border-blue-300 rounded-lg p-3 bg-blue-50 text-sm">
+          <p className="font-semibold mb-2">🛒 Order Received</p>
+          {items.map((item, i) => (
+            <div key={i} className="mb-1 pl-2">
+              <div>Retailer ID: <span className="font-medium">{item.product_retailer_id}</span></div>
+              <div>Quantity: {item.quantity}</div>
+              <div>Price: {item.item_price} {item.currency}</div>
+            </div>
+          ))}
+          <div className="text-xs text-gray-500 mt-2">
+            Catalog ID: {msg.message.catalog_id}
+          </div>
+        </div>
+      );
+
     default:
       return (
         <p className="italic text-sm">
@@ -677,6 +705,7 @@ const renderMessageContent = (msg) => {
       );
   }
 };
+
 
   return (
     <div className="md:flex md:h-[calc(100vh-120px)] bg-white rounded-lg shadow-md mt-8 overflow-hidden">

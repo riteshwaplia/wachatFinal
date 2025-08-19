@@ -363,6 +363,7 @@ import Avatar from '../Avatar'; // Assuming this is a reusable Avatar component
 import { uploadMedaiData } from '../../apis/TemplateApi'; // For media upload
 import { useTranslation } from 'react-i18next';
 import { validateWhatsAppBusinessProfile } from '../../utils/validation';
+import api from '../../utils/api';
 
 const WhatsAppBusinessProfileCard = ({ project, onUpdateProfile, loadingUpdate, errorUpdate }) => {
   const  { t } = useTranslation();
@@ -381,7 +382,7 @@ const WhatsAppBusinessProfileCard = ({ project, onUpdateProfile, loadingUpdate, 
         email: project.email || '',
         websites: project.websites || [],
         vertical: project.vertical || '',
-        profile_picture_handle: '', // This will hold the 'h' value from Meta after upload
+        profile_picture: '', // This will hold the 'h' value from Meta after upload
         profilePictureUrl: project.profilePictureUrl || '', // Current display URL
       });
     }
@@ -398,40 +399,54 @@ const WhatsAppBusinessProfileCard = ({ project, onUpdateProfile, loadingUpdate, 
     handleChange('websites', websitesArray);
   };
 
-  const handleProfilePictureUpload = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
 
-    // NEW: Client-side validation for JPG
-    if (!file.type.startsWith('image/jpeg')) {
-      setMediaUploadError("Only JPG images are supported for WhatsApp Business Profile pictures. Please upload a .jpg or .jpeg file.");
-      e.target.value = ''; // Clear the input field
-      return;
+const handleProfilePictureUpload = async (e) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  // Validate file type
+  if (!file.type.startsWith('image/jpeg')) {
+    setMediaUploadError("Only JPG images are supported.");
+    e.target.value = '';
+    return;
+  }
+
+  // Validate project ID
+  if (!project?._id) {
+    setMediaUploadError("Project ID is missing.");
+    return;
+  }
+
+  setMediaUploadLoading(true);
+  setMediaUploadError(null);
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    const { data: uploadResponse } = await api.post(
+      `/projects/${project._id}/messages/upload-media`,
+      formData,
+      { headers: { "Content-Type": "multipart/form-data" } }
+    );
+
+    if (uploadResponse?.success && uploadResponse?.data.id) {
+      setForm(prev => ({
+        ...prev,
+        profile_picture: { id: uploadResponse.data.id }, // ✅ Correct structure
+        profilePictureUrl: URL.createObjectURL(file),
+      }));
+      console.log("Updated form:", { ...form, profile_picture: { id: uploadResponse.data.id } });
+    } else {
+      setMediaUploadError(uploadResponse.message || "Upload failed.");
     }
+  } catch (err) {
+    setMediaUploadError(err.message || "Upload error.");
+  } finally {
+    setMediaUploadLoading(false);
+  }
+};
 
-    if (!project?.businessProfileId?._id || !project?._id) {
-      setMediaUploadError("Project ID or Business Profile ID is missing. Cannot upload profile picture.");
-      return;
-    }
-
-    setMediaUploadLoading(true);
-    setMediaUploadError(null);
-
-    try {
-      const uploadResponse = await uploadMedaiData(file, project.businessProfileId._id, project._id);
-      if (uploadResponse.success) {
-        setForm((prev) => ({ ...prev, profile_picture_handle: uploadResponse.id })); // Store the 'h' value
-        // Note: We don't update profilePictureUrl here directly, it will be updated
-        // after the main profile update API call and re-fetch of project data.
-      } else {
-        setMediaUploadError(uploadResponse.message || "Profile picture upload failed.");
-      }
-    } catch (err) {
-      setMediaUploadError(err.message || "Error during profile picture upload.");
-    } finally {
-      setMediaUploadLoading(false);
-    }
-  };
 
 
   const handleSave = () => {
@@ -453,7 +468,7 @@ const WhatsAppBusinessProfileCard = ({ project, onUpdateProfile, loadingUpdate, 
       websites: form.websites,
       vertical: form.vertical,
       // Only include profile_picture_handle if a new one was uploaded
-      ...(form.profile_picture_handle && { profile_picture_handle: form.profile_picture_handle })
+      ...(form.profile_picture && { profile_picture: form.profile_picture })
     };
     onUpdateProfile(payload);
     setIsEditing(false); // Assume successful update will re-fetch and close
@@ -468,7 +483,7 @@ const WhatsAppBusinessProfileCard = ({ project, onUpdateProfile, loadingUpdate, 
       email: project.email || '',
       websites: project.websites || [],
       vertical: project.vertical || '',
-      profile_picture_handle: '', // Clear any pending handle
+      profile_picture: '', // Clear any pending handle
       profilePictureUrl: project.profilePictureUrl || '', // Revert to original URL
     });
     setIsEditing(false);

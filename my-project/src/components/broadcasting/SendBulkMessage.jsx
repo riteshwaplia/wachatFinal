@@ -8,6 +8,11 @@ import * as XLSX from 'xlsx';
 import GroupWiseBroadcasting from "./GroupWiseBroadcasting";
 import { toast } from "react-hot-toast";
 
+// Import react-datepicker components and styles
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { setHours, setMinutes } from 'date-fns'; // For setting default time in date picker
+
 const VITE_SOCKET_IO_URL = import.meta.env.VITE_SOCKET_IO_URL || 'http://localhost:5001';
 const socket = io(VITE_SOCKET_IO_URL, { transports: ["websocket", "polling"] });
 
@@ -17,6 +22,7 @@ const cleanTemplateComponents = (components) => {
     const parsedComponents = typeof components === 'string' ? JSON.parse(components) : components;
     return parsedComponents.map(component => {
       if (component.parameters) {
+        // Ensure parameters are correctly formatted for Meta API
         component.parameters = component.parameters.map(({ format, ...param }) => param);
       }
       return component;
@@ -48,6 +54,15 @@ const SendMessagePage = () => {
   const [expectedColumns, setExpectedColumns] = useState([]);
   const [mismatchedHeaders, setMismatchedHeaders] = useState([]);
   const [imageId, setImageId] = useState("");
+
+  // Scheduling state
+  const [isScheduled, setIsScheduled] = useState(false);
+  const [scheduleType, setScheduleType] = useState('one-time'); // 'one-time' or 'recurring'
+  const [scheduledDateTime, setScheduledDateTime] = useState(
+    setHours(setMinutes(new Date(), 0), new Date().getHours() + 1) // Default to next hour
+  );
+  const [recurrencePattern, setRecurrencePattern] = useState('daily'); // 'daily', 'weekly', 'monthly', 'custom'
+  const [customCronExpression, setCustomCronExpression] = useState('');
 
   const [templates, setTemplates] = useState([]);
   const [messageStatus, setMessageStatus] = useState({
@@ -107,7 +122,7 @@ const SendMessagePage = () => {
         socket.emit("leaveRoom", `project-${projectId}`);
       };
     }
-  }, [token, projectId, navigate, businessProfileId]);
+  }, [token, projectId, navigate, businessProfileId, user]); // Added user to dependencies
 
   useEffect(() => {
     if (bulkTemplateName && templates.length) {
@@ -193,9 +208,47 @@ const SendMessagePage = () => {
       components: cleanedComponents
     }));
 
+    // Add scheduling data if enabled
+    if (isScheduled) {
+      if (scheduleType === 'one-time') {
+        if (!scheduledDateTime || scheduledDateTime <= new Date()) {
+          toast.error("Please select a valid future date and time for one-time scheduling.");
+          setIsLoading(prev => ({ ...prev, sending: false }));
+          return;
+        }
+        formData.append("scheduledTime", scheduledDateTime.toISOString());
+      } else if (scheduleType === 'recurring') {
+        let cronString = '';
+        switch (recurrencePattern) {
+          case 'daily':
+            cronString = '0 0 * * *'; // Every day at midnight
+            break;
+          case 'weekly':
+            cronString = '0 0 * * 0'; // Every Sunday at midnight
+            break;
+          case 'monthly':
+            cronString = '0 0 1 * *'; // First day of every month at midnight
+            break;
+          case 'custom':
+            if (!customCronExpression) {
+              toast.error("Please provide a custom cron expression.");
+              setIsLoading(prev => ({ ...prev, sending: false }));
+              return;
+            }
+            cronString = customCronExpression;
+            break;
+          default:
+            toast.error("Please select a valid recurrence pattern.");
+            setIsLoading(prev => ({ ...prev, sending: false }));
+            return;
+        }
+        formData.append("recurrence", cronString);
+      }
+    }
+
     try {
       const res = await api.post(
-        `/projects/${projectId}/messages/bulk-messages`,
+        `/projects/${projectId}/bulk-send`, // Corrected endpoint as per multi-tenant backend
         formData,
         {
           headers: {
@@ -209,7 +262,7 @@ const SendMessagePage = () => {
       setBulkContactsFile(null);
       setBulkTemplateName("");
       document.getElementById("bulkContactsFile").value = "";
-      navigate(-1)
+      // navigate(-1); // Removed direct navigation, let user see success message
     } catch (error) {
       setBulkContactsFile(null);
       setBulkTemplateName("");
@@ -218,7 +271,7 @@ const SendMessagePage = () => {
       console.error("Bulk send error:", error);
     } finally {
       setIsLoading(prev => ({ ...prev, sending: false }));
-      navigate(-1)
+      // navigate(-1); // Removed direct navigation, let user see success message
     }
   };
 
@@ -375,7 +428,7 @@ const SendMessagePage = () => {
   };
 
   return (
-    <div className="space-y-6 p-6"> {/* Added padding for better layout */}
+    <div className="space-y-6 p-6">
       <div className="flex border-b mb-6">
         <button
           className={`py-2 px-4 font-medium ${activeTab === "group" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-500"
@@ -463,17 +516,6 @@ const SendMessagePage = () => {
 
             {renderHeaderImageUpload()}
 
-            {/* <div>
-              <label className="block dark:text-dark-text-primary font-medium mb-1">Template Components</label>
-              <textarea
-                className="w-full border dark:text-dark-text-primary dark:bg-dark-surface dark:border-dark-border rounded-md p-2 font-mono text-sm h-32"
-                value={bulkTemplateComponents}
-                onChange={(e) => setBulkTemplateComponents(e.target.value)}
-                placeholder="JSON components will auto-populate when template is selected"
-                readOnly={!!bulkTemplateName}
-              />
-            </div> */}
-
             {renderTemplatePreview()}
 
             <div>
@@ -505,12 +547,116 @@ const SendMessagePage = () => {
               )}
             </div>
 
+            {/* Scheduling Section */}
+            <div className="border p-4 rounded-md space-y-3 dark:border-dark-border dark:bg-dark-surface">
+              <label className="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="form-checkbox h-5 w-5 text-blue-600"
+                  checked={isScheduled}
+                  onChange={(e) => setIsScheduled(e.target.checked)}
+                />
+                <span className="text-lg font-semibold dark:text-dark-text-primary">Schedule Message</span>
+              </label>
+
+              {isScheduled && (
+                <div className="space-y-4 mt-3">
+                  <div className="flex items-center space-x-4">
+                    <label className="flex items-center">
+                      <input
+                        type="radio"
+                        name="scheduleType"
+                        value="one-time"
+                        checked={scheduleType === 'one-time'}
+                        onChange={() => setScheduleType('one-time')}
+                        className="form-radio h-4 w-4 text-blue-600"
+                      />
+                      <span className="ml-2 dark:text-dark-text-primary">One-time Schedule</span>
+                    </label>
+                    <label className="flex items-center">
+                      <input
+                        type="radio"
+                        name="scheduleType"
+                        value="recurring"
+                        checked={scheduleType === 'recurring'}
+                        onChange={() => setScheduleType('recurring')}
+                        className="form-radio h-4 w-4 text-blue-600"
+                      />
+                      <span className="ml-2 dark:text-dark-text-primary">Recurring Schedule</span>
+                    </label>
+                  </div>
+
+                  {scheduleType === 'one-time' && (
+                    <div>
+                      <label className="block font-medium text-gray-700 dark:text-dark-text-primary mb-1">
+                        Select Date and Time
+                      </label>
+                      <DatePicker
+                        selected={scheduledDateTime}
+                        onChange={(date) => setScheduledDateTime(date)}
+                        showTimeSelect
+                        dateFormat="Pp"
+                        minDate={new Date()} // Cannot select past dates
+                        className="w-full border dark:bg-dark-surface dark:text-dark-text-primary rounded-md p-2"
+                      />
+                    </div>
+                  )}
+
+                  {scheduleType === 'recurring' && (
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block font-medium text-gray-700 dark:text-dark-text-primary mb-1">
+                          Recurrence Pattern
+                        </label>
+                        <select
+                          className="w-full border dark:bg-dark-surface dark:text-dark-text-primary rounded-md p-2"
+                          value={recurrencePattern}
+                          onChange={(e) => setRecurrencePattern(e.target.value)}
+                        >
+                          <option value="daily">Daily (Every day at midnight)</option>
+                          <option value="weekly">Weekly (Every Sunday at midnight)</option>
+                          <option value="monthly">Monthly (First day of month at midnight)</option>
+                          <option value="custom">Custom Cron Expression</option>
+                        </select>
+                      </div>
+
+                      {recurrencePattern === 'custom' && (
+                        <div>
+                          <label className="block font-medium text-gray-700 dark:text-dark-text-primary mb-1">
+                            Custom Cron Expression
+                          </label>
+                          <input
+                            type="text"
+                            className="w-full border dark:bg-dark-surface dark:text-dark-text-primary rounded-md p-2"
+                            placeholder="e.g., 0 0 * * *"
+                            value={customCronExpression}
+                            onChange={(e) => setCustomCronExpression(e.target.value)}
+                          />
+                          <p className="text-sm text-gray-500 mt-1">
+                            Learn more about cron expressions:{" "}
+                            <a
+                              href="https://crontab.guru/"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-500 hover:underline"
+                            >
+                              crontab.guru
+                            </a>
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
             <button
               type="submit"
               className="w-full bg-primary-500 text-white py-2 rounded-md hover:bg-blue-700 disabled:opacity-50"
               disabled={isLoading.sending || isLoading.uploading || mismatchedHeaders.length > 0}
             >
-              {isLoading.sending ? "Sending..." : "Send Bulk Messages"}
+              {isLoading.sending ? "Processing..." : (isScheduled ? "Schedule Bulk Messages" : "Send Bulk Messages")}
             </button>
           </form>
         </div>
