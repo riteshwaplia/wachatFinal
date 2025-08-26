@@ -41,25 +41,31 @@ const CreateTemplate = () => {
   const params = useParams();
   const id = params.id; // This 'id' is likely the projectId from the URL
   const projectId = id; // Renaming for clarity
+  const templateId = params?.templateId; // This is the templateId if provided in the URL
   const [loading, setLoading] = useState(false); // For loading state
-  const [createLoading,setCreateLoading] = useState(false);
+  const [createLoading, setCreateLoading] = useState(false);
   const variableCounter = useRef(1); // For unique variable numbering
   const [variableExamples, setVariableExamples] = useState({}); // For text header variable examples
-  const [selectedType,setSelectedType] = useState(null);
-  const navigate = useNavigate(); // Assuming you have react-router's useNavigate for navigation  
+  const [selectedType, setSelectedType] = useState(null);
+  const navigate = useNavigate(); // Assuming you have react-router's useNavigate for navigation
   // Logic to get businessProfileId from local storage (or context)
+  console.log("templateId", templateId);
   const [businessProfileId, setBusinessProfileId] = useState(null);
+  const [bodyText, setBodyText] = useState(null); // For body text input
+
+  const [image, setImage] = useState(null); // For previewing uploaded image
+
   useEffect(() => {
     const project = localStorage.getItem("currentProject")
       ? JSON.parse(localStorage.getItem("currentProject"))
       : null;
     if (project?.businessProfileId?._id) {
       setBusinessProfileId(project.businessProfileId._id);
+    } else {
+      alert("Please select a project with a linked Business Profile.");
+      navigate("/projects");
     }
-  }, []);
-
-  const [image, setImage] = useState(null); // For previewing uploaded image
-
+  }, [navigate]);
   const [template, setTemplate] = useState({
     name: "",
     language: "",
@@ -73,7 +79,7 @@ const CreateTemplate = () => {
       },
       {
         type: "BODY",
-        text: "Hello", // Rich text / plain text body
+        text: `${bodyText}`, // Rich text / plain text body
         variables: [], // Array of variable names/indices extracted from text
       },
       {
@@ -88,7 +94,72 @@ const CreateTemplate = () => {
   });
 
   const [characterCount, setCharacterCount] = useState(0); // For body text character count
+  const getTemplateData = async (templateId) => {
+    try {
+      setLoading(true);
+      const response = await api.get(`/admintemplate/${templateId}`);
+      const templateData = response.data.data;
 
+      // Properly update the template state with fetched data
+      setTemplate((prev) => ({
+        ...prev,
+        name: templateData.name || "",
+        language: templateData.language || "",
+        category: templateData.category || "MARKETING",
+        components:
+          templateData.components?.map((component) => {
+            // Map the API response to our component structure
+            if (component.type === "HEADER") {
+              return {
+                type: "HEADER",
+                format: component.format || "",
+                text: component.text || "",
+                mediaHandle: "",
+              };
+            } else if (component.type === "BODY") {
+              setBodyText(component.text || ""); // Set initial body text
+              return {
+                type: "BODY",
+                text: component.text || "",
+                variables: component.variables || [],
+              };
+            } else if (component.type === "FOOTER") {
+              return {
+                type: "FOOTER",
+                text: component.text || "",
+              };
+            } else if (component.type === "BUTTONS") {
+              return {
+                type: "BUTTONS",
+                buttons: component.buttons || [],
+              };
+            }
+            return component;
+          }) || prev.components,
+      }));
+
+      // Handle image preview for media headers
+      if (
+        templateData.components?.[0]?.format === "IMAGE" ||
+        templateData.components?.[0]?.format === "VIDEO"
+      ) {
+        // setImage(null);
+        setSelectedType(templateData.components[0].format.toLowerCase());
+      }
+    } catch (error) {
+      console.error("Error fetching template data:", error);
+      ErrorToast("Failed to load template data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (templateId) {
+      getTemplateData(templateId);
+    }
+  }, [templateId]);
+  console.log("template", template, "bodytext", bodyText);
   const handleInputChange = (field, value) => {
     setTemplate((prev) => ({
       ...prev,
@@ -117,12 +188,12 @@ const CreateTemplate = () => {
   };
 
   const handleHeaderContentChange = async (e) => {
-    setLoading(true)
+    setLoading(true);
     const file = e.target.files?.[0]; // For file inputs
     const value = e.target.value; // For text inputs
 
     if (file) {
-      setLoading(true); 
+      setLoading(true);
       setSelectedType(file.type);
       // Set loading state while uploading
       setImage(URL.createObjectURL(file)); // Set preview image
@@ -305,8 +376,8 @@ const CreateTemplate = () => {
       const variablesInText = extractVariables(plainText);
 
       if (variablesInText?.length > 10) {
-        ErrorToast("variables limit exceeds(10)")
-        return
+        ErrorToast("variables limit exceeds(10)");
+        return;
       }
 
       if (variablesInText.length > 0) {
@@ -371,13 +442,13 @@ const CreateTemplate = () => {
       // id: id, // ID is for update, not create. Remove this for create.
       businessProfileId, // Required for template creation
     };
-   setCreateLoading(true); // Set loading state while creating template
+    setCreateLoading(true); // Set loading state while creating template
     try {
       console.log("Template Create Payload:", JSON.stringify(payload, null, 2));
       const res = await api.post("/templates", payload); // Assuming api.post is configured for /api/templates
       console.log("Template created successfully:", res.data);
       setLoading(false); // Reset loading state after creation
-      navigate(-1)
+      navigate(-1);
       alert(res.data.message || "Template created successfully!");
       // Optionally reset form or navigate
     } catch (error) {
@@ -386,12 +457,12 @@ const CreateTemplate = () => {
         error.response?.data || error.message
       );
       alert(
-        `Error creating template: ${error.response?.data?.message || error.message
+        `Error creating template: ${
+          error.response?.data?.message || error.message
         }`
       );
     } finally {
       setCreateLoading(false); // Reset loading state after creation
-
     }
   };
 
@@ -424,7 +495,6 @@ const CreateTemplate = () => {
     if (!template.language) errors.language = "Language is required.";
 
     // Body validation
-
 
     if (
       !bodyComponent?.text ||
@@ -512,13 +582,17 @@ const CreateTemplate = () => {
   };
 
   const [showWhyModal, setShowWhyModal] = useState(false);
-
+  console.log("buutton", buttonsComponentInState);
+  console.log("btm isue",isValid ,businessProfileId ,loading)
   return (
     <>
       {" "}
       <BackButton text="back" />
       <div className="md:flex relative  w-full gap-4">
-        <form onSubmit={handleSubmit} className="p-2 w-full md:w-3/5 flex flex-col gap-4">
+        <form
+          onSubmit={handleSubmit}
+          className="p-2 w-full md:w-3/5 flex flex-col gap-4"
+        >
           <Input
             placeholder="Template Name"
             label="Template Name "
@@ -588,10 +662,11 @@ const CreateTemplate = () => {
                       ? insertVariable
                       : undefined
                   }
-                  className={`px-2 py-1 rounded text-sm mt-2 ${extractVariables(headerComponentInState.text).length === 0
-                    ? "bg-blue-600 text-white hover:bg-blue-700"
-                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                    }`}
+                  className={`px-2 py-1 rounded text-sm mt-2 ${
+                    extractVariables(headerComponentInState.text).length === 0
+                      ? "bg-blue-600 text-white hover:bg-blue-700"
+                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  }`}
                   type="button"
                   disabled={
                     loading ||
@@ -633,38 +708,38 @@ const CreateTemplate = () => {
             {["DOCUMENT", "IMAGE", "VIDEO"].includes(
               headerComponentInState?.format || ""
             ) && (
-                <div className="space-y-2">
-                  <input
-                    type="file"
-                    accept={
-                      headerComponentInState?.format === "IMAGE"
-                        ? "image/*"
-                        : headerComponentInState?.format === "VIDEO"
-                          ? "video/*"
-                          : ".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt"
-                    }
-                    onChange={handleHeaderContentChange}
-                    className="w-full border p-2 rounded"
-                    disabled={loading || headerComponentInState?.mediaHandle}
-                  />
-                  {
-                    loading && (<div className=" inset-0 flex items-center justify-center bg-white bg-opacity-80">
-            <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-          </div>)
+              <div className="space-y-2">
+                <input
+                  type="file"
+                  accept={
+                    headerComponentInState?.format === "IMAGE"
+                      ? "image/*"
+                      : headerComponentInState?.format === "VIDEO"
+                      ? "video/*"
+                      : ".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt"
                   }
-                  {headerComponentInState?.mediaHandle && (
-                    <div className="text-sm text-green-600">
-                      ✓ Media uploaded successfully
-                      {/* {headerComponentInState.mediaHandle}) */}
-                    </div>
-                  )}
-                  {errors.headerMedia && (
-                    <div className="text-sm text-red-500 mt-1">
-                      {errors.headerMedia}
-                    </div>
-                  )}
-                </div>
-              )}
+                  onChange={handleHeaderContentChange}
+                  className="w-full border p-2 rounded"
+                  disabled={loading || headerComponentInState?.mediaHandle}
+                />
+                {loading && (
+                  <div className=" inset-0 flex items-center justify-center bg-white bg-opacity-80">
+                    <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                  </div>
+                )}
+                {headerComponentInState?.mediaHandle && (
+                  <div className="text-sm text-green-600">
+                    ✓ Media uploaded successfully
+                    {/* {headerComponentInState.mediaHandle}) */}
+                  </div>
+                )}
+                {errors.headerMedia && (
+                  <div className="text-sm text-red-500 mt-1">
+                    {errors.headerMedia}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Body Section */}
@@ -674,17 +749,22 @@ const CreateTemplate = () => {
             <label className="block font-semibold mb-1">
               Body <span className="text-rose-400">* </span>
             </label>
-            <RichTextEditor
-              label="Body *"
-              onChange={handleBodyChange}
-              value={template.components.find((c) => c.type === "BODY")?.text}
-              error={errors.body}
-              maxLength={1024} // Enforce max length visually
-              loading={loading}
-            />
+            {loading ? (
+              "x"
+            ) : (
+              <RichTextEditor
+                label="Body *"
+                onChange={handleBodyChange}
+                value={template.components.find((c) => c.type === "BODY")?.text}
+                error={errors.body}
+                maxLength={1024} // Enforce max length visually
+                loading={loading}
+              />
+            )}
             <div
-              className={`text-sm mt-1 ${characterCount > 1024 ? "text-red-500" : "text-gray-500"
-                }`}
+              className={`text-sm mt-1 ${
+                characterCount > 1024 ? "text-red-500" : "text-gray-500"
+              }`}
             >
               Characters: {characterCount}/1024
               {characterCount > 1024 && " - Exceeds WhatsApp limit"}
@@ -704,15 +784,19 @@ const CreateTemplate = () => {
           />
 
           {/* Buttons Section */}
-          <DynamicButtonsBuilder
-            buttons={buttonsComponentInState?.buttons || []}
-            onChange={handleButtonsChange}
-            error={errors.buttons}
-          />
+          {loading ? (
+            ""
+          ) : (
+            <DynamicButtonsBuilder
+              button={buttonsComponentInState?.buttons || []}
+              onChange={handleButtonsChange}
+              error={errors.buttons}
+            />
+          )}
           {errors.buttons && (
             <div className="text-sm text-red-500 mt-1">{errors.buttons}</div>
           )}
-
+          {/* Submit Button */}
           <Button
             type="submit"
             loading={createLoading}
@@ -722,7 +806,7 @@ const CreateTemplate = () => {
               isValid && businessProfileId
                 ? "bg-green-600 hover:bg-green-700"
                 : "bg-gray-400 cursor-not-allowed"
-              }`}
+            }`}
           >
             Create Template
           </Button>

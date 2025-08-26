@@ -1,7 +1,7 @@
 // src/components/AdminSidebar.jsx
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, Settings, Building } from 'lucide-react'; // Ensure lucide-react is installed
+import { LayoutDashboard, Users, Settings, Building, Terminal } from 'lucide-react'; // Ensure lucide-react is installed
 import { useAuth } from '../context/AuthContext';
 import { useTenant } from '../context/TenantContext';
 
@@ -19,10 +19,9 @@ const AdminSidebar = () => {
             : []),
         { label: 'Users', path: '/admin/users', icon: <Users size={18} /> },
         { label: 'Tenant Settings', path: '/admin/tenant-settings', icon: <Settings size={18} /> },
-        // Add more admin-specific navigation items as needed
+        { label: 'Template manage', path: '/admin/manage-templates', icon: <Terminal size={18} /> },
     ];
 
-    // Function to check if the current path is active
     const isActive = (path) => location.pathname === path;
 
     return (

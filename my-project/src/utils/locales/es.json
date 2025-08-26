@@ -210,5 +210,6 @@
 "Description":"Descripción",
 "Address":"Dirección",
 "Email":"Correo electrónico",
-"Websites":"Sitios web"
+"Websites":"Sitios web",
+"sendmessage":"Enviar mensaje"
 } 

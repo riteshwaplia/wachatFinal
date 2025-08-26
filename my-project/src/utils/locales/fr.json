@@ -211,5 +211,6 @@
 "Description":"Description",
 "Address":"Adresse",
 "Email":"Courriel",
-"Websites":"Sites web"
+"Websites":"Sites web",
+"sendmessage":"Envoyer un message"
 } 

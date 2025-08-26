@@ -266,7 +266,7 @@ const TemplatePage = () => {
             Sync Templates
           </Button>
 
-          <Button
+          {/* <Button
             variant="primary"
             onClick={() => navigate(`/project/${projectId}/templates/create`)}
             className="w-full sm:w-auto"
@@ -280,6 +280,14 @@ const TemplatePage = () => {
             className="w-full sm:w-auto"
           >
             Carousel Template
+          </Button> */}
+
+           <Button
+            variant="primary"
+            onClick={() => navigate(`/project/${projectId}/templates/template-group`)}
+            className="w-full sm:w-auto"
+          >
+          + Create Template
           </Button>
         </div>
       </div>

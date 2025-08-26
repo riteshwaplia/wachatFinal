@@ -44,6 +44,13 @@ import UserProfileLayout from './layout/userProfileLayout';
 import CreateCarouselTemplate from './components/template/CreateCarouselTemplate';
 import SendCarosualTemplate from './components/broadcasting/SendCarosualTemplate';
 import NotFoundPage from './pages/NotFoundPage';
+import TemplateManage from './admin/template/TemplateManage';
+import AdminCreateTemplate from './admin/template/AdminCreateTemplate';
+import TemplateGroupPage from './pages/TemplateGroupPage';
+import SendTemplateMessage from './components/template/SendTemplateMessage';
+import Catalogue from './pages/Catalogue';
+import InvestmentPlatform from './pages/InvestmentPlatform';
+import AdminDashboard from './pages/AdminDashboard';
 
 
 const AdminRoute = ({ children }) => (
@@ -167,6 +174,34 @@ function AppContent() {
             </AdminRoute>
           }
         />
+        <Route
+          path="/admin/manage-templates"
+          element={
+            <AdminRoute>
+              <TemplateManage />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/manage-templates/create"
+          element={
+            <AdminRoute>
+              <AdminCreateTemplate />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/manage-templates/edit/:templateId"
+          element={
+            <AdminRoute>
+              <AdminCreateTemplate />
+            </AdminRoute>
+          }
+        />
+
+
+
+
 
         <Route
           path="/add-whatsapp-number"
@@ -202,11 +237,25 @@ function AppContent() {
           element={<ProjectRouteWrapper component={ContactPage} />}
         />
         <Route
+          path="/project/:id/contacts/:contactid"
+          element={<ProjectRouteWrapper component={SendTemplateMessage} />}
+        />
+        <Route
           path="/project/:id/templates"
           element={<ProjectRouteWrapper component={TemplatePage} />}
         />
         <Route
+          path="/project/:id/templates/template-group"
+          element={<ProjectRouteWrapper component={TemplateGroupPage} />}
+        />
+        <Route
           path="/project/:id/templates/create"
+          element={<ProjectRouteWrapper component={CreateTemplate} />}
+        />
+            {/* navigate(`project/${templateId}/${projectId}/templates/create`); */}
+
+        <Route
+          path="/project/:id/templates/create/:templateId"
           element={<ProjectRouteWrapper component={CreateTemplate} />}
         />
         <Route
@@ -229,6 +278,12 @@ function AppContent() {
           path="/project/:id/broadcasting/send-bulk/carosual-template"
           element={<ProjectRouteWrapper component={SendCarosualTemplate} />}
         />
+        <Route
+          path="/project/:id/catalogue"
+          element={<ProjectRouteWrapper component={Catalogue} />}
+        />
+
+{/* /project/${id}/catalogue */}
         <Route
           path="/project/:id/chat"
           element={<ProjectRouteWrapper component={LiveChatPage} />}
@@ -348,6 +403,14 @@ function AppContent() {
         <Route
           path="/allcomponents"
           element={<AllComponents />} // ✅ safe now
+        />
+        <Route
+          path="/invest"
+          element={<InvestmentPlatform />} // ✅ safe now
+        />
+        <Route
+          path="/admin"
+          element={<AdminDashboard/>} // ✅ safe now
         />
         <Route
           path="*"

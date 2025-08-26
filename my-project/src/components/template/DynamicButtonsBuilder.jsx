@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { MobileNumber } from "../MobileNumber";
 
-const DynamicButtonsBuilder = ({ onChange }) => {
-  const [buttons, setButtons] = useState([]);
+const DynamicButtonsBuilder = ({button, onChange }) => {
+  const [buttons, setButtons] = useState( button || []);
   const [phone, setPhone] = useState("");
 
   const validButtonTypes = {

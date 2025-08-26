@@ -69,6 +69,7 @@ const SendMessagePage = () => {
     latest: null,
     recent: []
   });
+  const [sendMode, setSendMode] = useState('send-now'); // 'send-now' or 'schedule'
 
   const project = JSON.parse(localStorage.getItem("currentProject")) || "";
   const businessProfileId = project?.businessProfileId?._id || null;
@@ -181,7 +182,7 @@ const SendMessagePage = () => {
     reader.readAsArrayBuffer(file);
   };
 
-  const handleBulkMessageSubmit = async (e) => {
+ const handleBulkMessageSubmit = async (e) => {
     e.preventDefault();
 
     if (!bulkContactsFile) {
@@ -208,47 +209,22 @@ const SendMessagePage = () => {
       components: cleanedComponents
     }));
 
-    // Add scheduling data if enabled
-    if (isScheduled) {
-      if (scheduleType === 'one-time') {
+    try {
+      let endpoint = `/projects/${projectId}/messages/bulk-messages`;
+      
+      if (sendMode === 'schedule') {
         if (!scheduledDateTime || scheduledDateTime <= new Date()) {
-          toast.error("Please select a valid future date and time for one-time scheduling.");
+          toast.error("Please select a valid future date and time");
           setIsLoading(prev => ({ ...prev, sending: false }));
           return;
         }
-        formData.append("scheduledTime", scheduledDateTime.toISOString());
-      } else if (scheduleType === 'recurring') {
-        let cronString = '';
-        switch (recurrencePattern) {
-          case 'daily':
-            cronString = '0 0 * * *'; // Every day at midnight
-            break;
-          case 'weekly':
-            cronString = '0 0 * * 0'; // Every Sunday at midnight
-            break;
-          case 'monthly':
-            cronString = '0 0 1 * *'; // First day of every month at midnight
-            break;
-          case 'custom':
-            if (!customCronExpression) {
-              toast.error("Please provide a custom cron expression.");
-              setIsLoading(prev => ({ ...prev, sending: false }));
-              return;
-            }
-            cronString = customCronExpression;
-            break;
-          default:
-            toast.error("Please select a valid recurrence pattern.");
-            setIsLoading(prev => ({ ...prev, sending: false }));
-            return;
-        }
-        formData.append("recurrence", cronString);
+        
+        endpoint = `/projects/${projectId}/messages/schedule-bulk`;
+        formData.append("scheduledAt", scheduledDateTime.toISOString());
       }
-    }
 
-    try {
       const res = await api.post(
-        `/projects/${projectId}/bulk-send`, // Corrected endpoint as per multi-tenant backend
+        endpoint,
         formData,
         {
           headers: {
@@ -258,20 +234,28 @@ const SendMessagePage = () => {
         }
       );
 
-      toast.success(res.data.message || "Bulk messages initiated");
+      toast.success(res.data.message || 
+        (sendMode === 'schedule' 
+          ? "Messages scheduled successfully" 
+          : "Bulk messages initiated")
+      );
+      
+      // Reset form
       setBulkContactsFile(null);
       setBulkTemplateName("");
       document.getElementById("bulkContactsFile").value = "";
-      // navigate(-1); // Removed direct navigation, let user see success message
     } catch (error) {
       setBulkContactsFile(null);
       setBulkTemplateName("");
       document.getElementById("bulkContactsFile").value = "";
-      toast.error(error.response?.data?.message || "Failed to send bulk messages");
-      console.error("Bulk send error:", error);
+      toast.error(error.response?.data?.message || 
+        (sendMode === 'schedule' 
+          ? "Failed to schedule messages" 
+          : "Failed to send bulk messages")
+      );
+      console.error("Error:", error);
     } finally {
       setIsLoading(prev => ({ ...prev, sending: false }));
-      // navigate(-1); // Removed direct navigation, let user see success message
     }
   };
 
@@ -490,7 +474,7 @@ const SendMessagePage = () => {
         <div className="p-4 border dark:border-dark-border dark:boder-dark-border border-gray-200 rounded-lg">
           <h3 className="text-xl font-semibold dark:text-dark-text-primary mb-4">Bulk Template Messages</h3>
 
-          <form onSubmit={handleBulkMessageSubmit} className="space-y-4">
+      <form onSubmit={handleBulkMessageSubmit} className="space-y-4">
             <div>
               <label className="block dark:text-dark-text-primary font-medium mb-1">Template</label>
               <select
@@ -548,116 +532,56 @@ const SendMessagePage = () => {
             </div>
 
             {/* Scheduling Section */}
-            <div className="border p-4 rounded-md space-y-3 dark:border-dark-border dark:bg-dark-surface">
-              <label className="flex items-center space-x-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="form-checkbox h-5 w-5 text-blue-600"
-                  checked={isScheduled}
-                  onChange={(e) => setIsScheduled(e.target.checked)}
-                />
-                <span className="text-lg font-semibold dark:text-dark-text-primary">Schedule Message</span>
-              </label>
+ <div className="flex items-center justify-between border p-4 rounded-md dark:border-dark-border dark:bg-dark-surface">
+          <div className="flex items-center space-x-4">
+            <span className="font-medium dark:text-dark-text-primary">Send Mode:</span>
+            <button
+              type="button"
+              className={`px-4 py-2 rounded-md ${sendMode === 'send-now' ? 'bg-blue-600 text-white' : 'bg-gray-200 dark:bg-dark-surface dark:text-dark-text-primary'}`}
+              onClick={() => setSendMode('send-now')}
+            >
+              Send Now
+            </button>
+            <button
+              type="button"
+              className={`px-4 py-2 rounded-md ${sendMode === 'schedule' ? 'bg-blue-600 text-white' : 'bg-gray-200 dark:bg-dark-surface dark:text-dark-text-primary'}`}
+              onClick={() => setSendMode('schedule')}
+            >
+              Schedule
+            </button>
+          </div>
 
-              {isScheduled && (
-                <div className="space-y-4 mt-3">
-                  <div className="flex items-center space-x-4">
-                    <label className="flex items-center">
-                      <input
-                        type="radio"
-                        name="scheduleType"
-                        value="one-time"
-                        checked={scheduleType === 'one-time'}
-                        onChange={() => setScheduleType('one-time')}
-                        className="form-radio h-4 w-4 text-blue-600"
-                      />
-                      <span className="ml-2 dark:text-dark-text-primary">One-time Schedule</span>
-                    </label>
-                    <label className="flex items-center">
-                      <input
-                        type="radio"
-                        name="scheduleType"
-                        value="recurring"
-                        checked={scheduleType === 'recurring'}
-                        onChange={() => setScheduleType('recurring')}
-                        className="form-radio h-4 w-4 text-blue-600"
-                      />
-                      <span className="ml-2 dark:text-dark-text-primary">Recurring Schedule</span>
-                    </label>
+        
+  {sendMode === 'schedule' && (
+            <div className="flex-1 ml-4  w-full">
+              <label className="block font-medium text-gray-700 dark:text-dark-text-primary mb-1">
+                Scheduled Date & Time
+              </label>
+              <DatePicker
+                selected={scheduledDateTime}
+                onChange={(date) => setScheduledDateTime(date)}
+                showTimeSelect
+                timeFormat="HH:mm"
+                timeIntervals={15}
+                dateFormat="MMMM d, yyyy h:mm aa"
+                minDate={new Date()}
+                className="w-full border dark:bg-dark-surface dark:text-dark-text-primary rounded-md p-2"
+              />
+            </div>
+          )}
                   </div>
 
-                  {scheduleType === 'one-time' && (
-                    <div>
-                      <label className="block font-medium text-gray-700 dark:text-dark-text-primary mb-1">
-                        Select Date and Time
-                      </label>
-                      <DatePicker
-                        selected={scheduledDateTime}
-                        onChange={(date) => setScheduledDateTime(date)}
-                        showTimeSelect
-                        dateFormat="Pp"
-                        minDate={new Date()} // Cannot select past dates
-                        className="w-full border dark:bg-dark-surface dark:text-dark-text-primary rounded-md p-2"
-                      />
-                    </div>
-                  )}
-
-                  {scheduleType === 'recurring' && (
-                    <div className="space-y-3">
-                      <div>
-                        <label className="block font-medium text-gray-700 dark:text-dark-text-primary mb-1">
-                          Recurrence Pattern
-                        </label>
-                        <select
-                          className="w-full border dark:bg-dark-surface dark:text-dark-text-primary rounded-md p-2"
-                          value={recurrencePattern}
-                          onChange={(e) => setRecurrencePattern(e.target.value)}
-                        >
-                          <option value="daily">Daily (Every day at midnight)</option>
-                          <option value="weekly">Weekly (Every Sunday at midnight)</option>
-                          <option value="monthly">Monthly (First day of month at midnight)</option>
-                          <option value="custom">Custom Cron Expression</option>
-                        </select>
-                      </div>
-
-                      {recurrencePattern === 'custom' && (
-                        <div>
-                          <label className="block font-medium text-gray-700 dark:text-dark-text-primary mb-1">
-                            Custom Cron Expression
-                          </label>
-                          <input
-                            type="text"
-                            className="w-full border dark:bg-dark-surface dark:text-dark-text-primary rounded-md p-2"
-                            placeholder="e.g., 0 0 * * *"
-                            value={customCronExpression}
-                            onChange={(e) => setCustomCronExpression(e.target.value)}
-                          />
-                          <p className="text-sm text-gray-500 mt-1">
-                            Learn more about cron expressions:{" "}
-                            <a
-                              href="https://crontab.guru/"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-blue-500 hover:underline"
-                            >
-                              crontab.guru
-                            </a>
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-
-            <button
-              type="submit"
-              className="w-full bg-primary-500 text-white py-2 rounded-md hover:bg-blue-700 disabled:opacity-50"
-              disabled={isLoading.sending || isLoading.uploading || mismatchedHeaders.length > 0}
-            >
-              {isLoading.sending ? "Processing..." : (isScheduled ? "Schedule Bulk Messages" : "Send Bulk Messages")}
-            </button>
+        <button
+          type="submit"
+          className="w-full bg-primary-500 text-white py-2 rounded-md hover:bg-blue-700 disabled:opacity-50"
+          disabled={isLoading.sending || isLoading.uploading || mismatchedHeaders.length > 0}
+        >
+          {isLoading.sending 
+            ? "Processing..." 
+            : sendMode === 'schedule' 
+              ? "Schedule Messages" 
+              : "Send Messages Now"}
+        </button>
           </form>
         </div>
       )}
