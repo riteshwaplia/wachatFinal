@@ -1,57 +1,64 @@
+import React, { useEffect } from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+  useParams,
+} from "react-router-dom";
+import "./index.css";
 
-import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useParams } from 'react-router-dom';
-import './index.css';
+import { TenantProvider, useTenant } from "./context/TenantContext";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 
-import { TenantProvider, useTenant } from './context/TenantContext';
-import { AuthProvider, useAuth } from './context/AuthContext';
-
-import RegisterPage from './pages/RegisterPage';
-import LoginPage from './pages/LoginPage';
-import HomePage from './pages/HomePage'; // For logged-in users
-import Loader from './components/Loader';
-import WhatsappNumberRegistrationPage from './pages/WhatsappNumberRegistrationPage';
-import ProjectManagementPage from './pages/ProjectManagementPage';
-import AdminDashboardPage from './pages/admin/AdminDashboardPage';
-import ProtectedRoute from './routes/ProtectedRoute';
-import SuperAdminDashboard from './pages/admin/SuperAdminDashboard';
-import TenantUsersPage from './pages/admin/TenantUsersPage';
-import TenantSettingsPage from './pages/admin/TenantSettingsPage';
-import UserLayout from './layout/UserLayout';
-import AdminLayout from './layout/AdminLayout';
-import ProjectDashboard from './components/ProjectDashboard/ProjectDashboard';
-import ContactPage from './pages/ContactPage';
-import { ProjectProvider } from './context/ProjectProvider';
-import ProjectDetail from './components/ProjectDashboard/ProjectDetail';
-import GroupPage from './pages/GroupPage';
-import TemplatePage from './pages/TemplatePage';
-import CreateTemplate from './components/template/CreateTemplate';
-import LiveChatPage from './pages/LiveChatPage';
-import BulkMessagingDashboard from './pages/BroadCasting';
-import SendMessagePage from './components/broadcasting/SendBulkMessage';
-import AllComponents from './components/AllComponets';
-import { Toaster } from 'react-hot-toast';
-import TemplateDetail from './components/template/TemplateDetail';
-import Flow from './components/chatFlow/Flow';
-import FlowsPage from './pages/FlowsPage';
-import ProfilePage from './pages/ProfilePage';
-import UserSetting from './pages/UserSetting';
-import UpdatePassword from './components/UpdatePassword';
-import TeamMembers from './pages/TeamMember';
-import LandingPage from './pages/LandingPage';
-import AddTeamMembers from './components/AddTeamMembers';
-import UserProfileLayout from './layout/userProfileLayout';
-import CreateCarouselTemplate from './components/template/CreateCarouselTemplate';
-import SendCarosualTemplate from './components/broadcasting/SendCarosualTemplate';
-import NotFoundPage from './pages/NotFoundPage';
-import TemplateManage from './admin/template/TemplateManage';
-import AdminCreateTemplate from './admin/template/AdminCreateTemplate';
-import TemplateGroupPage from './pages/TemplateGroupPage';
-import SendTemplateMessage from './components/template/SendTemplateMessage';
-import Catalogue from './pages/Catalogue';
-import InvestmentPlatform from './pages/InvestmentPlatform';
-import AdminDashboard from './pages/AdminDashboard';
-
+import RegisterPage from "./pages/RegisterPage";
+import LoginPage from "./pages/LoginPage";
+import HomePage from "./pages/HomePage"; // For logged-in users
+import Loader from "./components/Loader";
+import WhatsappNumberRegistrationPage from "./pages/WhatsappNumberRegistrationPage";
+import ProjectManagementPage from "./pages/ProjectManagementPage";
+import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
+import ProtectedRoute from "./routes/ProtectedRoute";
+import SuperAdminDashboard from "./pages/admin/SuperAdminDashboard";
+import TenantUsersPage from "./pages/admin/TenantUsersPage";
+import TenantSettingsPage from "./pages/admin/TenantSettingsPage";
+import UserLayout from "./layout/UserLayout";
+import AdminLayout from "./layout/AdminLayout";
+import ProjectDashboard from "./components/ProjectDashboard/ProjectDashboard";
+import ContactPage from "./pages/ContactPage";
+import { ProjectProvider } from "./context/ProjectProvider";
+import ProjectDetail from "./components/ProjectDashboard/ProjectDetail";
+import GroupPage from "./pages/GroupPage";
+import TemplatePage from "./pages/TemplatePage";
+import CreateTemplate from "./components/template/CreateTemplate";
+import LiveChatPage from "./pages/LiveChatPage";
+import BulkMessagingDashboard from "./pages/BroadCasting";
+import SendMessagePage from "./components/broadcasting/SendBulkMessage";
+import AllComponents from "./components/AllComponets";
+import { Toaster } from "react-hot-toast";
+import TemplateDetail from "./components/template/TemplateDetail";
+import Flow from "./components/chatFlow/Flow";
+import FlowsPage from "./pages/FlowsPage";
+import ProfilePage from "./pages/ProfilePage";
+import UserSetting from "./pages/UserSetting";
+import UpdatePassword from "./components/UpdatePassword";
+import TeamMembers from "./pages/TeamMember";
+import LandingPage from "./pages/LandingPage";
+import AddTeamMembers from "./components/AddTeamMembers";
+import UserProfileLayout from "./layout/userProfileLayout";
+import CreateCarouselTemplate from "./components/template/CreateCarouselTemplate";
+import SendCarosualTemplate from "./components/broadcasting/SendCarosualTemplate";
+import NotFoundPage from "./pages/NotFoundPage";
+import TemplateManage from "./admin/template/TemplateManage";
+import AdminCreateTemplate from "./admin/template/AdminCreateTemplate";
+import TemplateGroupPage from "./pages/TemplateGroupPage";
+import SendTemplateMessage from "./components/template/SendTemplateMessage";
+import Catalogue from "./pages/CataloguePage";
+import InvestmentPlatform from "./pages/InvestmentPlatform";
+import AdminDashboard from "./pages/AdminDashboard";
+import CataloguePage from "./pages/CataloguePage";
+import ProductPage from "./components/catalogue/ProductPage";
+import AddProductPage from "./components/catalogue/AddProductPage";
 
 const AdminRoute = ({ children }) => (
   <ProtectedRoute roles={["super_admin", "tenant_admin"]}>
@@ -117,9 +124,15 @@ function AppContent() {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center text-center">
         <div className="p-8 bg-white rounded-xl shadow-lg">
-          <h2 className="text-2xl font-bold text-error mb-4">Error Loading Site</h2>
-          <p className="text-gray-700">Failed to fetch site configuration. Please try again later.</p>
-          <p className="text-gray-500 text-sm mt-2">({tenantError.message || 'Unknown error'})</p>
+          <h2 className="text-2xl font-bold text-error mb-4">
+            Error Loading Site
+          </h2>
+          <p className="text-gray-700">
+            Failed to fetch site configuration. Please try again later.
+          </p>
+          <p className="text-gray-500 text-sm mt-2">
+            ({tenantError.message || "Unknown error"})
+          </p>
         </div>
       </div>
     );
@@ -127,8 +140,6 @@ function AppContent() {
 
   return (
     <>
-
-
       <Routes>
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage />} />
@@ -156,7 +167,6 @@ function AppContent() {
             </SuperAdminRoute>
           }
         />
-
         <Route
           path="/admin/users"
           element={
@@ -165,7 +175,6 @@ function AppContent() {
             </AdminRoute>
           }
         />
-
         <Route
           path="/admin/tenant-settings"
           element={
@@ -198,11 +207,6 @@ function AppContent() {
             </AdminRoute>
           }
         />
-
-
-
-
-
         <Route
           path="/add-whatsapp-number"
           element={
@@ -227,7 +231,6 @@ function AppContent() {
           path="/project/:id/project-details"
           element={<ProjectRouteWrapper component={ProjectDetail} />}
         />
-
         <Route
           path="/project/:id/group"
           element={<ProjectRouteWrapper component={GroupPage} />}
@@ -252,8 +255,7 @@ function AppContent() {
           path="/project/:id/templates/create"
           element={<ProjectRouteWrapper component={CreateTemplate} />}
         />
-            {/* navigate(`project/${templateId}/${projectId}/templates/create`); */}
-
+        {/* navigate(`project/${templateId}/${projectId}/templates/create`); */}
         <Route
           path="/project/:id/templates/create/:templateId"
           element={<ProjectRouteWrapper component={CreateTemplate} />}
@@ -280,34 +282,39 @@ function AppContent() {
         />
         <Route
           path="/project/:id/catalogue"
-          element={<ProjectRouteWrapper component={Catalogue} />}
+          element={<ProjectRouteWrapper component={CataloguePage} />}
         />
-
-{/* /project/${id}/catalogue */}
+        <Route
+          path="/project/:id/catalogue/:catelogueId/products"
+          element={<ProjectRouteWrapper component={ProductPage} />}
+        />
+        <Route
+          path="/project/:id/catalogue/:catelogueId/products/add-product"
+          element={<ProjectRouteWrapper component={AddProductPage} />}
+        />
         <Route
           path="/project/:id/chat"
           element={<ProjectRouteWrapper component={LiveChatPage} />}
         />
         <Route
           path="/project/:id/flow-builder"
-
-
-          element={<UserRoute sidebar={false}>
-            <Flow />
-          </UserRoute>}
-
+          element={
+            <UserRoute sidebar={false}>
+              <Flow />
+            </UserRoute>
+          }
         />
-        <Route path="/project/:projectId/flow-builder/:flowId" element={<Flow />} /> For editing existing flow
-
+        <Route
+          path="/project/:projectId/flow-builder/:flowId"
+          element={<Flow />}
+        />{" "}
+        {/* For editing existing flow */}
         <Route
           path="/project/:id/flows"
           element={<ProjectRouteWrapper component={FlowsPage} />}
         />
-
         {/* <Route path="/projects/:projectId/flow-builder" element={<FlowBuilder />} />
             <Route path="/projects/:projectId/flow-builder/:flowId" element={<FlowBuilder />} /> For editing existing flow */}
-
-
         {/* //user profile and settings */}
         <Route
           path="/user/profile"
@@ -325,7 +332,6 @@ function AppContent() {
             </UserProfileLayout>
           }
         />
-
         <Route
           path="/project/:id/setting"
           element={
@@ -355,7 +361,6 @@ function AppContent() {
             </UserProfileLayout>
           }
         />
-
         <Route
           path="/project/:id/user-setting"
           element={
@@ -368,37 +373,28 @@ function AppContent() {
         path="/user/setting"
         element={<ProjectRouteWrapper component={UserSetting} />}
       /> */}
-
-
         <Route path="/" element={<LandingPage />} />
-
         <Route
           path="/team/members"
           element={
-
-            <UserRoute >
+            <UserRoute>
               <TeamMembers />
             </UserRoute>
-
           }
         />
         <Route
           path="/add/teammembers"
           element={
-
-            <UserRoute >
+            <UserRoute>
               <AddTeamMembers />
             </UserRoute>
-
           }
         />
-
-
-
-
         <Route
           path="/"
-          element={<Navigate to={isLoggedIn ? "/dashboard" : "/login"} replace />} // ✅ safe now
+          element={
+            <Navigate to={isLoggedIn ? "/dashboard" : "/login"} replace />
+          } // ✅ safe now
         />
         <Route
           path="/allcomponents"
@@ -410,32 +406,23 @@ function AppContent() {
         />
         <Route
           path="/admin"
-          element={<AdminDashboard/>} // ✅ safe now
+          element={<AdminDashboard />} // ✅ safe now
         />
-        <Route
-          path="*"
-          element={
-            <NotFoundPage />
-          }
-        />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
       <Toaster
         position="top-right"
         reverseOrder={false}
         toastOptions={{
-
           duration: 4000,
         }}
       />
     </>
-
   );
 }
 
-
 function App() {
   return (
-
     <Router>
       <TenantProvider>
         <AuthProvider>
@@ -443,10 +430,7 @@ function App() {
         </AuthProvider>
       </TenantProvider>
     </Router>
-
   );
 }
 
 export default App;
-
-
