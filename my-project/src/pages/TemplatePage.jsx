@@ -31,7 +31,7 @@ const TemplatePage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [templateToDelete, setTemplateToDelete] = useState(null);
   const [isSyncing, setIsSyncing] = useState(false);
-  const [templateType, setTemplateType] = useState('')
+  const [templateType, setTemplateType] = useState("");
   const project = localStorage.getItem("currentProject")
     ? JSON.parse(localStorage.getItem("currentProject"))
     : null;
@@ -57,7 +57,7 @@ const TemplatePage = () => {
           businessProfileId,
           page,
           limit: 6,
-          type: type // adjust per row/column size
+          type: type, // adjust per row/column size
         },
       });
 
@@ -197,7 +197,7 @@ const TemplatePage = () => {
       //   config
       // );
       await api.delete(`/templates/${templateToDelete._id}`, {
-        data: { businessProfileId }
+        data: { businessProfileId },
       });
       setMessage({ text: "Template deleted successfully!", type: "success" });
       setTemplateToDelete(null);
@@ -218,18 +218,20 @@ const TemplatePage = () => {
     });
   };
   const handleDelete = async (template) => {
-    const confirmed = window.confirm(`Are you sure you want to delete "${template.name}"?`);
+    const confirmed = window.confirm(
+      `Are you sure you want to delete "${template.name}"?`
+    );
     if (!confirmed) return;
 
     try {
       const res = await api.delete(`/templates/${template._id}`, {
-        data: { businessProfileId }
+        data: { businessProfileId },
       });
 
       console.log("Template deleted:", res.data);
       onDelete(template._id); // Notify parent to remove it from UI
     } catch (error) {
-      console.error('Error deleting template:', error);
+      console.error("Error deleting template:", error);
       alert("Failed to delete template.");
     }
   };
@@ -241,7 +243,9 @@ const TemplatePage = () => {
     );
 
   return (
-    <div className="space-y-6 p-6"> {/* Added padding for better layout */}
+    <div className="space-y-6 p-6">
+      {" "}
+      {/* Added padding for better layout */}
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
         {/* Left section */}
@@ -257,6 +261,7 @@ const TemplatePage = () => {
         {/* Right section - Buttons */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full md:w-auto">
           <Button
+            size="sm"
             variant="secondary"
             onClick={handleSyncTemplates}
             loading={isSyncing}
@@ -281,18 +286,40 @@ const TemplatePage = () => {
           >
             Carousel Template
           </Button> */}
-
-           <Button
-            variant="primary"
-            onClick={() => navigate(`/project/${projectId}/templates/template-group`)}
+          <Button
+            size="sm"
+            variant="accent"
+            onClick={() =>
+              navigate(`/project/${projectId}/templates/template-group`)
+            }
             className="w-full sm:w-auto"
           >
-          + Create Template
+            Template library
+          </Button>
+          <Button
+            size="sm"
+            variant="primary"
+            onClick={() => navigate(`/project/${projectId}/templates/create`)}
+            className="w-full sm:w-auto"
+          >
+            + Create Template
+          </Button>
+
+          <Button
+            size="sm"
+            variant="primary"
+            onClick={() =>
+              navigate(
+                `/project/${projectId}/templates/create/carousel-templates`
+              )
+            }
+            className="w-full sm:w-auto"
+          >
+            + Carousel Template
           </Button>
         </div>
       </div>
       <div className="w-full flex justify-end items-end sm:w-auto">
-
         <select
           id="template"
           value={templateType}
@@ -307,16 +334,12 @@ const TemplatePage = () => {
           <option value="carousel">Carousel Template</option>
         </select>
       </div>
-
-
-
       {/* Message Alert */}
       {message.text && (
         <Alert variant={message.type} className="mb-6">
           {message.text}
         </Alert>
       )}
-
       {/* Templates Grid */}
       {isLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -350,7 +373,6 @@ const TemplatePage = () => {
               handleSyncTemplates={() => handleSyncTemplates()}
             />
           ))}
-
         </div>
       )}
       {totalPages > 1 && (
@@ -368,9 +390,7 @@ const TemplatePage = () => {
           <Button
             variant="secondary"
             disabled={page === totalPages}
-            onClick={() =>
-              setPage((prev) => Math.min(prev + 1, totalPages))
-            }
+            onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
           >
             Next
           </Button>
@@ -415,14 +435,6 @@ const Tooltip = ({ children, content }) => {
     </div>
   );
 };
-
-
-
-
-
-
-
-
 
 // import React, { useState, useEffect } from "react";
 // import api from "../utils/api";
@@ -621,7 +633,7 @@ const Tooltip = ({ children, content }) => {
 //       //   config
 //       // );
 //       await api.delete(`/templates/${templateToDelete._id}`, {
-//       data: { businessProfileId } 
+//       data: { businessProfileId }
 //     });
 //       setMessage({ text: "Template deleted successfully!", type: "success" });
 //       setTemplateToDelete(null);
@@ -647,7 +659,7 @@ const Tooltip = ({ children, content }) => {
 
 //   try {
 //     const res = await api.delete(`/templates/${template._id}`, {
-//       data: { businessProfileId } 
+//       data: { businessProfileId }
 //     });
 
 //     console.log("Template deleted:", res.data);

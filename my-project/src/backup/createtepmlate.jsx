@@ -29,7 +29,6 @@ const HEADER_TYPES = [
   { label: "Document", value: "DOCUMENT" },
   { label: "Image", value: "IMAGE" },
   { label: "Video", value: "VIDEO" },
-  { label: "Product", value: "PRODUCT" },
 ];
 
 // NOTE: PROJECTS array is hardcoded, typically these would be fetched dynamically.
@@ -55,32 +54,6 @@ const CreateTemplate = () => {
   const [bodyText, setBodyText] = useState(null); // For body text input
 
   const [image, setImage] = useState(null); // For previewing uploaded image
-  // state for catalog toggle
-  const [isCatalogTemplate, setIsCatalogTemplate] = useState(false);
-
-  // toggle catalog mode
-  const toggleCatalogTemplate = (checked) => {
-    setIsCatalogTemplate(checked);
-
-    setTemplate((prev) => {
-      const updatedComponents = [...prev.components];
-      const header = updatedComponents.find((c) => c.type === "HEADER");
-
-      if (checked) {
-        // force PRODUCT header
-        header.format = "PRODUCT";
-        header.text = "";
-        header.mediaHandle = "";
-      } else {
-        // reset back to None when unchecked
-        header.format = "";
-        header.text = "";
-        header.mediaHandle = "";
-      }
-
-      return { ...prev, components: updatedComponents };
-    });
-  };
 
   useEffect(() => {
     const project = localStorage.getItem("currentProject")
@@ -377,19 +350,13 @@ const CreateTemplate = () => {
           headerComponent.example = {
             header_handle: header.mediaHandle, // Meta expects string ID directly
           };
-        } else if (["IMAGE", "VIDEO", "DOCUMENT"].includes(header.format)) {
-          if (header.mediaHandle) {
-            headerComponent.mediaHandle = header.mediaHandle;
-            headerComponent.example = {
-              header_handle: header.mediaHandle,
-            };
-          } else {
-            alert(`Media ID is required for ${header.format} header.`);
-            return;
-          }
-        } else if (header.format === "PRODUCT") {
-          // ✅ PRODUCT header needs no mediaHandle or text
-          // Just push it as is
+        } else {
+          console.warn(
+            `Attempted to create a ${header.format} header without a mediaHandle.`
+          );
+          // Frontend validation should ideally prevent reaching here, but as a safeguard.
+          // alert(`Media ID is required for ${header.format} header.`);
+          // return;
         }
       }
       finalComponents.push(headerComponent);
@@ -480,7 +447,7 @@ const CreateTemplate = () => {
       const res = await api.post("/templates", payload); // Assuming api.post is configured for /api/templates
       console.log("Template created successfully:", res.data);
       setLoading(false); // Reset loading state after creation
-      navigate(`/project/${projectId}/templates`);
+      navigate(-1);
       alert(res.data.message || "Template created successfully!");
       // Optionally reset form or navigate
     } catch (error) {
@@ -615,7 +582,7 @@ const CreateTemplate = () => {
 
   const [showWhyModal, setShowWhyModal] = useState(false);
   console.log("buutton", buttonsComponentInState);
-  console.log("btm isue", isValid, businessProfileId, loading);
+  console.log("btm isue",isValid ,businessProfileId ,loading)
   return (
     <>
       {" "}
@@ -625,19 +592,6 @@ const CreateTemplate = () => {
           onSubmit={handleSubmit}
           className="p-2 w-full md:w-3/5 flex flex-col gap-4"
         >
-          {/* Catalog Template Toggle */}
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              id="catalogTemplate"
-              checked={isCatalogTemplate}
-              onChange={(e) => toggleCatalogTemplate(e.target.checked)}
-            />
-            <label htmlFor="catalogTemplate" className="text-sm font-medium">
-              Is Catalog Template
-            </label>
-          </div>
-
           <Input
             placeholder="Template Name"
             label="Template Name "
@@ -682,17 +636,13 @@ const CreateTemplate = () => {
           <div className="space-y-4">
             <CustomSelect
               label="Select Header Type"
-             options={
-    isCatalogTemplate
-      ? HEADER_TYPES.filter((h) => ["", "TEXT", "PRODUCT"].includes(h.value))
-      : HEADER_TYPES
-  }
+              options={HEADER_TYPES}
               placeholder="Select Header Type"
               value={HEADER_TYPES.find(
                 (opt) => opt.value === headerComponentInState?.format
               )}
               onChange={handleHeaderTypeChange}
-              disabled={loading} // lock if catalog template
+              disabled={loading}
             />
 
             {headerComponentInState?.format === "TEXT" && (
@@ -904,4 +854,4 @@ const CreateTemplate = () => {
   );
 };
 
-export default CreateTemplate;
+export default CreateTemplate1;

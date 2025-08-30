@@ -59,6 +59,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import CataloguePage from "./pages/CataloguePage";
 import ProductPage from "./components/catalogue/ProductPage";
 import AddProductPage from "./components/catalogue/AddProductPage";
+import CreateCatalogTemplate from "./components/template/CreateCatalogTemplate";
 
 const AdminRoute = ({ children }) => (
   <ProtectedRoute roles={["super_admin", "tenant_admin"]}>
@@ -255,6 +256,10 @@ function AppContent() {
           path="/project/:id/templates/create"
           element={<ProjectRouteWrapper component={CreateTemplate} />}
         />
+        {/* <Route
+          path="/project/:id/templates/create/catelogue"
+          element={<ProjectRouteWrapper component={CreateCatalogTemplate} />}
+        /> */}
         {/* navigate(`project/${templateId}/${projectId}/templates/create`); */}
         <Route
           path="/project/:id/templates/create/:templateId"
