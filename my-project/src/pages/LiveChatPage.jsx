@@ -141,79 +141,78 @@ const LiveChatPage = () => {
     }
   };
 
-  console.log("message type",messageType,fileInputRef)
+  console.log("message type", messageType, fileInputRef);
   const handleFileUpload = async (e) => {
-  const file = e.target.files?.[0];
-  if (!file) return;
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-  const fileType = file.type;
+    const fileType = file.type;
 
-  // File type mapping
-  const typeMapping = {
-    image: ["image/jpeg", "image/png"],
-    document: [
-      "application/pdf",
-      "application/msword",
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      "application/vnd.ms-excel",
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      "application/vnd.ms-powerpoint",
-      "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-      "text/plain",
-    ],
-    audio: ["audio/mpeg", "audio/ogg", "audio/amr", "audio/wav"],
-    video: ["video/mp4", "video/3gpp"],
-  };
+    // File type mapping
+    const typeMapping = {
+      image: ["image/jpeg", "image/png"],
+      document: [
+        "application/pdf",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "application/vnd.ms-excel",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "application/vnd.ms-powerpoint",
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+        "text/plain",
+      ],
+      audio: ["audio/mpeg", "audio/ogg", "audio/amr", "audio/wav"],
+      video: ["video/mp4", "video/3gpp"],
+    };
 
-  // Determine message type from MIME
-  let detectedType = null;
-  for (const [key, types] of Object.entries(typeMapping)) {
-    if (types.includes(fileType)) {
-      detectedType = key;
-      break;
-    }
-  }
-
-  if (!detectedType) {
-    toast.error(
-      "Only JPEG, PNG, PDF, audio (MP3/WAV), or video (MP4/3GPP) files are allowed"
-    );
-    return;
-  }
-
-  if (file.size > 25 * 1024 * 1024) {
-    toast.error("File size exceeds 25MB limit");
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append("file", file);
-
-  try {
-    setIsLoading((prev) => ({ ...prev, media: true }));
-    const res = await api.post(
-      `/projects/${projectId}/messages/upload-media`,
-      formData,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
+    // Determine message type from MIME
+    let detectedType = null;
+    for (const [key, types] of Object.entries(typeMapping)) {
+      if (types.includes(fileType)) {
+        detectedType = key;
+        break;
       }
-    );
+    }
 
-    setMessageType(detectedType); // ✅ Automatically update message type
-    setMediaFile(file);
-    setUploadedMediaData(res.data.data);
-    toast.success("Media uploaded successfully");
-  } catch (err) {
-    console.error("Upload failed:", err);
-    toast.error("Failed to upload media");
-  } finally {
-    setIsLoading((prev) => ({ ...prev, media: false }));
-  }
-};
+    if (!detectedType) {
+      toast.error(
+        "Only JPEG, PNG, PDF, audio (MP3/WAV), or video (MP4/3GPP) files are allowed"
+      );
+      return;
+    }
 
+    if (file.size > 25 * 1024 * 1024) {
+      toast.error("File size exceeds 25MB limit");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      setIsLoading((prev) => ({ ...prev, media: true }));
+      const res = await api.post(
+        `/projects/${projectId}/messages/upload-media`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      setMessageType(detectedType); // ✅ Automatically update message type
+      setMediaFile(file);
+      setUploadedMediaData(res.data.data);
+      toast.success("Media uploaded successfully");
+    } catch (err) {
+      console.error("Upload failed:", err);
+      toast.error("Failed to upload media");
+    } finally {
+      setIsLoading((prev) => ({ ...prev, media: false }));
+    }
+  };
 
   const clearMedia = () => {
     setMediaFile(null);
@@ -422,23 +421,59 @@ const LiveChatPage = () => {
 
     // Message handlers
     const handleNewInboundMessage = (data) => {
+      const { message, conversation, contact } = data;
+
+      // Update conversation preview
       setConversations((prev) => {
         const existingConvIndex = prev.findIndex(
-          (conv) => conv._id === data.conversation._id
+          (c) => c._id === conversation._id
         );
+
+        let previewText;
+        switch (message.type) {
+          case "text":
+            previewText = message.message.body;
+            break;
+          case "image":
+            previewText = message.message.caption || "[Image]";
+            break;
+          case "video":
+            previewText = message.message.caption || "[Video]";
+            break;
+          case "document":
+            previewText = message.message.filename || "[Document]";
+            break;
+          case "audio":
+            previewText = "[Audio]";
+            break;
+          case "sticker":
+            previewText = "[Sticker]";
+            break;
+          case "location":
+            previewText = "[Location]";
+            break;
+          case "contacts":
+            previewText = "[Contact Card]";
+            break;
+          case "interactive":
+            previewText = message.message.title || "[Interactive Reply]";
+            break;
+          case "order":
+            previewText = "[Order]";
+            break;
+          default:
+            previewText = `[${message.type}]`;
+        }
 
         if (existingConvIndex > -1) {
           const updated = [...prev];
           updated[existingConvIndex] = {
             ...updated[existingConvIndex],
-            latestMessage:
-              data.message.type === "text"
-                ? data.message.message.body
-                : `[${data.message.type}]`,
-            latestMessageType: data.message.type,
-            lastActivityAt: data.message.sentAt,
+            latestMessage: previewText,
+            latestMessageType: message.type,
+            lastActivityAt: message.timestamp || new Date(),
             unreadCount:
-              selectedConversation?._id === data.conversation._id
+              selectedConversation?._id === conversation._id
                 ? 0
                 : (updated[existingConvIndex].unreadCount || 0) + 1,
           };
@@ -448,8 +483,10 @@ const LiveChatPage = () => {
         } else {
           return [
             {
-              ...data.conversation,
-              contactId: data.contact,
+              ...conversation,
+              contactId: contact,
+              latestMessage: previewText,
+              latestMessageType: message.type,
               unreadCount: 1,
             },
             ...prev,
@@ -459,8 +496,9 @@ const LiveChatPage = () => {
         }
       });
 
-      if (selectedConversation?._id === data.conversation._id) {
-        setMessages((prev) => [...prev, data.message]);
+      // Update messages in real time
+      if (selectedConversation?._id === conversation._id) {
+        setMessages((prev) => [...prev, message]);
       }
     };
 
@@ -552,51 +590,56 @@ const LiveChatPage = () => {
       </div>
     );
   };
-const CallPermissionReply = ({ contactName, waId, replyData, timestamp }) => {
-  const { response, response_source, expiration_timestamp } = replyData;
+  const CallPermissionReply = ({ contactName, waId, replyData, timestamp }) => {
+    const { response, response_source, expiration_timestamp } = replyData;
 
-  const isAccepted = response === "accept";
-  const date = new Date(timestamp * 1000).toLocaleString();
-  const expiry = new Date(expiration_timestamp * 1000).toLocaleString();
+    const isAccepted = response === "accept";
+    const date = new Date(timestamp * 1000).toLocaleString();
+    const expiry = new Date(expiration_timestamp * 1000).toLocaleString();
 
-  const handleCallNow = () => {
-    window.open(`tel:${waId}`, "_self");
+    const handleCallNow = () => {
+      window.open(`tel:${waId}`, "_self");
+    };
+
+    return (
+      <div
+        className={`w-full max-w-sm rounded-xl p-4 mb-3 border ${
+          isAccepted
+            ? "bg-green-50 border-green-400"
+            : "bg-red-50 border-red-400"
+        }`}
+      >
+        <div className="flex justify-between items-center">
+          <div className="font-semibold text-sm">{contactName || waId}</div>
+          <div className="text-xs text-gray-500">{date}</div>
+        </div>
+
+        <div className="mt-2">
+          {isAccepted ? (
+            <div className="text-green-700 text-sm">
+              Accepted call permission ✅
+              <div className="text-gray-600 text-xs mt-1">
+                Expires at: {expiry}
+              </div>
+            </div>
+          ) : (
+            <div className="text-red-700 text-sm">
+              Missed or declined call ❌
+              <div className="text-gray-600 text-xs mt-1">
+                Source: {response_source}
+              </div>
+              <button
+                onClick={handleCallNow}
+                className="mt-2 px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
+              >
+                📞 Call Now
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    );
   };
-
-  return (
-    <div className={`w-full max-w-sm rounded-xl p-4 mb-3 border ${isAccepted ? "bg-green-50 border-green-400" : "bg-red-50 border-red-400"}`}>
-      <div className="flex justify-between items-center">
-        <div className="font-semibold text-sm">{contactName || waId}</div>
-        <div className="text-xs text-gray-500">{date}</div>
-      </div>
-
-      <div className="mt-2">
-        {isAccepted ? (
-          <div className="text-green-700 text-sm">
-            Accepted call permission ✅
-            <div className="text-gray-600 text-xs mt-1">
-              Expires at: {expiry}
-            </div>
-          </div>
-        ) : (
-          <div className="text-red-700 text-sm">
-            Missed or declined call ❌
-            <div className="text-gray-600 text-xs mt-1">
-              Source: {response_source}
-            </div>
-            <button
-              onClick={handleCallNow}
-              className="mt-2 px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
-            >
-              📞 Call Now
-            </button>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
 
   // Render message status icon
   const renderStatusIcon = (status) => {
@@ -616,7 +659,107 @@ const CallPermissionReply = ({ contactName, waId, replyData, timestamp }) => {
     }
   };
 
-  // Render message content based on type
+  // // Render message content based on type
+  // const renderMessageContent = (msg) => {
+  //   switch (msg.type) {
+  //     case "text":
+  //       return <p>{msg.message.body}</p>;
+
+  //     case "template":
+  //       return <p className="font-semibold">📩 Template: {msg.message.name}</p>;
+
+  //     case "image":
+  //       return (
+  //         <div>
+  //           <img
+  //             src={msg.message.link}
+  //             alt="Image"
+  //             className="max-w-xs rounded-lg"
+  //           />
+  //           {msg.message.caption && (
+  //             <p className="text-sm">{msg.message.caption}</p>
+  //           )}
+  //         </div>
+  //       );
+
+  //     case "video":
+  //       return (
+  //         <div>
+  //           <video controls className="max-w-xs rounded-lg">
+  //             <source src={msg.message.link} type="video/mp4" />
+  //           </video>
+  //           {msg.message.caption && (
+  //             <p className="text-sm">{msg.message.caption}</p>
+  //           )}
+  //         </div>
+  //       );
+
+  //     case "audio":
+  //       return <audio controls src={msg.message.link} className="w-full" />;
+
+  //     case "document":
+  //       return (
+  //         <div>
+  //           <p>📄 {msg.message.filename || "Document"}</p>
+  //           <button
+  //             onClick={() => handleDownloadMedia(msg.message.id)}
+  //             className="text-blue-500 underline"
+  //           >
+  //             Download
+  //           </button>
+  //         </div>
+  //       );
+
+  //     case "sticker":
+  //       return (
+  //         <img
+  //           src={msg.message.link}
+  //           alt="Sticker"
+  //           className="w-20 h-20 rounded"
+  //         />
+  //       );
+
+  //     case "location":
+  //       return (
+  //         <div className="p-2 bg-blue-50 rounded-lg text-sm">
+  //           📍 Location shared: {msg.message.latitude}, {msg.message.longitude}
+  //           <a
+  //             href={`https://maps.google.com/?q=${msg.message.latitude},${msg.message.longitude}`}
+  //             target="_blank"
+  //             rel="noopener noreferrer"
+  //             className="block text-blue-500 underline mt-1"
+  //           >
+  //             View on Map
+  //           </a>
+  //         </div>
+  //       );
+
+  //     case "contacts":
+  //       return (
+  //         <div className="p-2 border rounded bg-gray-50">
+  //           👤 Contact shared:
+  //           {msg.message.map((c, i) => (
+  //             <p key={i}>{c.name?.formatted_name}</p>
+  //           ))}
+  //         </div>
+  //       );
+
+  //     case "order":
+  //       return (
+  //         <div className="border border-green-300 rounded-lg p-3 bg-green-50 text-sm">
+  //           <p className="font-semibold mb-2">🛒 Order Received</p>
+  //           {msg.message.product_items?.map((item, i) => (
+  //             <div key={i}>
+  //               {item.product_retailer_id} × {item.quantity}
+  //             </div>
+  //           ))}
+  //         </div>
+  //       );
+
+  //     default:
+  //       return <p className="italic">[Unsupported Message Type: {msg.type}]</p>;
+  //   }
+  // };
 const renderMessageContent = (msg) => {
   switch (msg.type) {
     case "text":
@@ -696,6 +839,39 @@ const renderMessageContent = (msg) => {
           </div>
         </div>
       );
+case "sticker":
+        return (
+          <img
+            src={msg.message.link}
+            alt="Sticker"
+            className="w-20 h-20 rounded"
+          />
+        );
+
+      case "location":
+        return (
+          <div className="p-2 bg-blue-50 rounded-lg text-sm">
+            📍 Location shared: {msg.message.latitude}, {msg.message.longitude}
+            <a
+              href={`https://maps.google.com/?q=${msg.message.latitude},${msg.message.longitude}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block text-blue-500 underline mt-1"
+            >
+              View on Map
+            </a>
+          </div>
+        );
+
+      case "contacts":
+        return (
+          <div className="p-2 border rounded bg-gray-50">
+            👤 Contact shared:
+            {msg.message.map((c, i) => (
+              <p key={i}>{c.name?.formatted_name}</p>
+            ))}
+          </div>
+        );
 
     default:
       return (
@@ -705,8 +881,6 @@ const renderMessageContent = (msg) => {
       );
   }
 };
-
-
   return (
     <div className="md:flex md:h-[calc(100vh-120px)] bg-white rounded-lg shadow-md mt-8 overflow-hidden">
       {/* Left Panel: Conversation List */}
@@ -870,7 +1044,14 @@ const renderMessageContent = (msg) => {
             >
               {/* Message Type Selector */}
               <div className="flex flex-wrap gap-2 mb-3">
-                {["text", "template", "image", "video", "audio","document"].map((type) => (
+                {[
+                  "text",
+                  "template",
+                  "image",
+                  "video",
+                  "audio",
+                  "document",
+                ].map((type) => (
                   <button
                     key={type}
                     type="button"
@@ -879,15 +1060,16 @@ const renderMessageContent = (msg) => {
                         ? "bg-blue-500 text-white"
                         : "bg-gray-200 hover:bg-gray-300"
                     }`}
-                   onClick={() => {
-  setMessageType(type);
-  if (["image", "video", "audio", "document"].includes(type)) {
-    setTimeout(() => {
-      fileInputRef.current?.click();
-    }, 0);
-  }
-}}
-
+                    onClick={() => {
+                      setMessageType(type);
+                      if (
+                        ["image", "video", "audio", "document"].includes(type)
+                      ) {
+                        setTimeout(() => {
+                          fileInputRef.current?.click();
+                        }, 0);
+                      }
+                    }}
                     disabled={isLoading.media}
                   >
                     {type.charAt(0).toUpperCase() + type.slice(1)}

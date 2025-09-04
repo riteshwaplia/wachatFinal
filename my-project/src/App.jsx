@@ -59,7 +59,8 @@ import AdminDashboard from "./pages/AdminDashboard";
 import CataloguePage from "./pages/CataloguePage";
 import ProductPage from "./components/catalogue/ProductPage";
 import AddProductPage from "./components/catalogue/AddProductPage";
-import CreateCatalogTemplate from "./components/template/CreateCatalogTemplate";
+import PaymentPage from "./components/order/PaymentPage";
+import SuccessPage from "./components/order/SuccessPage";
 
 const AdminRoute = ({ children }) => (
   <ProtectedRoute roles={["super_admin", "tenant_admin"]}>
@@ -395,6 +396,9 @@ function AppContent() {
             </UserRoute>
           }
         />
+
+         <Route path="/:projectId/:orderId" element={<PaymentPage />} />
+        <Route path="/success/:projectId/:orderId" element={<SuccessPage />} />
         <Route
           path="/"
           element={
