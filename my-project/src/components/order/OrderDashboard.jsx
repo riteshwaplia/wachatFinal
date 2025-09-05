@@ -3,38 +3,47 @@ import React, { useState, useEffect } from 'react';
 import OrderList from './OrderList';
 import OrderDetails from './OrderDetails';
 import PaymentPage from './PaymentPage';
-import { getOrders, getOrderDetails } from '../services/api';
+import { getOrderDetails, getOrders } from '../../apis/Order';
+import { useParams } from 'react-router-dom';
 
 const OrderDashboard = () => {
   const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
-  const [view, setView] = useState('list'); // 'list', 'details', 'payment'
+  const [view, setView] = useState("list");
   const [loading, setLoading] = useState(true);
-
+  const [error, setError] = useState(null);
+  
+  const {id: projectId} = useParams();
+console.log("projectId", projectId);
   useEffect(() => {
     fetchOrders();
-  }, []);
+  }, [projectId]);
 
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const ordersData = await getOrders();
-      setOrders(ordersData);
+      setError(null);
+      const res = await getOrders(projectId);
+      console.log("orddcbcers", res);
+
+      setOrders(res.orders);
     } catch (error) {
-      console.error('Error fetching orders:', error);
+      console.error("Error fetching orders:", error);
+      setError("Failed to load orders. Please try again.");
     } finally {
       setLoading(false);
     }
   };
-
   const handleSelectOrder = async (orderId) => {
     try {
       setLoading(true);
-      const orderDetails = await getOrderDetails(orderId);
+      setError(null);
+      const orderDetails = await getOrderDetails(projectId, orderId);
       setSelectedOrder(orderDetails);
-      setView('details');
+      setView("details");
     } catch (error) {
-      console.error('Error fetching order details:', error);
+      console.error("Error fetching order details:", error);
+      setError("Failed to load order details. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -42,12 +51,13 @@ const OrderDashboard = () => {
 
   const handlePayment = (order) => {
     setSelectedOrder(order);
-    setView('payment');
+    setView("payment");
   };
 
   const handleBackToList = () => {
     setSelectedOrder(null);
-    setView('list');
+    setView("list");
+    setError(null);
   };
 
   if (loading) {
@@ -61,6 +71,18 @@ const OrderDashboard = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold text-gray-800 mb-8">Order Management</h1>
+      
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          {error}
+          <button 
+            onClick={fetchOrders}
+            className="ml-4 text-red-800 underline"
+          >
+            Retry
+          </button>
+        </div>
+      )}
       
       {view === 'list' && (
         <OrderList 
@@ -80,12 +102,8 @@ const OrderDashboard = () => {
       
       {view === 'payment' && selectedOrder && (
         <PaymentPage 
-          order={selectedOrder} 
-          onBack={() => setView('details')}
-          onSuccess={() => {
-            setView('list');
-            fetchOrders(); // Refresh orders list
-          }}
+          order={selectedOrder}
+          onBack={handleBackToList}
         />
       )}
     </div>

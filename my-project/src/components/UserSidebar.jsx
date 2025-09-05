@@ -13,7 +13,8 @@ import {
   Phone,
   ChevronLeft,
   ChevronRight,
-  StepForward
+  StepForward,
+  ListOrdered
 } from 'lucide-react';
 import { useTenant } from '../context/TenantContext';
 import { BiCategory } from 'react-icons/bi';
@@ -77,6 +78,11 @@ const UserSidebar = ({ isOpen, onToggle, isOff }) => {
         label: 'Catalogue Management',
         path: `/project/${id}/catalogue`,
         icon: <BiCategory size={18} />
+      },
+      {
+        label: 'Orders',
+        path: `/project/${id}/orders`,
+        icon: <ListOrdered size={18} />
       },
       {
         label: 'flow builder',

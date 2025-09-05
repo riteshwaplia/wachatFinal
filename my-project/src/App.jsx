@@ -61,6 +61,8 @@ import ProductPage from "./components/catalogue/ProductPage";
 import AddProductPage from "./components/catalogue/AddProductPage";
 import PaymentPage from "./components/order/PaymentPage";
 import SuccessPage from "./components/order/SuccessPage";
+import OrderDashboard from "./components/order/OrderDashboard";
+import WhatsAppFlowBuilder from "./components/test/WhatsAppFlowBuilder";
 
 const AdminRoute = ({ children }) => (
   <ProtectedRoute roles={["super_admin", "tenant_admin"]}>
@@ -291,6 +293,10 @@ function AppContent() {
           element={<ProjectRouteWrapper component={CataloguePage} />}
         />
         <Route
+          path="/project/:id/Orders"
+          element={<ProjectRouteWrapper component={OrderDashboard} />}
+        />
+        <Route
           path="/project/:id/catalogue/:catelogueId/products"
           element={<ProjectRouteWrapper component={ProductPage} />}
         />
@@ -408,6 +414,10 @@ function AppContent() {
         <Route
           path="/allcomponents"
           element={<AllComponents />} // ✅ safe now
+        />
+        <Route
+          path="/flowbuilder" 
+          element={<WhatsAppFlowBuilder />} // ✅ safe now
         />
         <Route
           path="/invest"
