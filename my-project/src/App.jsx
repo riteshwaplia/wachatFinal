@@ -63,7 +63,7 @@ import PaymentPage from "./components/order/PaymentPage";
 import SuccessPage from "./components/order/SuccessPage";
 import OrderDashboard from "./components/order/OrderDashboard";
 import WhatsAppFlowBuilder from "./components/test/WhatsAppFlowBuilder";
-
+import MainMedia from "./pages/MainMedia";
 const AdminRoute = ({ children }) => (
   <ProtectedRoute roles={["super_admin", "tenant_admin"]}>
     <AdminLayout>{children}</AdminLayout>
@@ -414,6 +414,10 @@ function AppContent() {
         <Route
           path="/allcomponents"
           element={<AllComponents />} // ✅ safe now
+        />
+        <Route
+          path="/medialibrary"
+          element={<MainMedia />} // ✅ safe now
         />
         <Route
           path="/flowbuilder" 

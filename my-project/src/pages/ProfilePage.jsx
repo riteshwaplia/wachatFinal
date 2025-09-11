@@ -14,6 +14,10 @@ import { useEffect } from 'react';
 import toast from 'react-hot-toast';
 import api from '../utils/api';
 import axios from 'axios';
+import Modal from '../components/Modal';
+import MediaLibrary from './MediaLibrary';
+// import { useNavigate } from 'react-router-dom';
+//
 import { resolvePath, useParams } from 'react-router-dom';
 const getInitials = (name) => {
   if (!name) return '';
@@ -30,6 +34,8 @@ export default function ProfilePage() {
   const [isEditable, setIsEditable] = useState(false);
   const [data, setData] = useState({});
   const [loading, setloading] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+  
   console.log("data", data);
   const [user, setUser] = useState({
     firstName: "",
@@ -92,11 +98,12 @@ export default function ProfilePage() {
   }, [data])
   console.log("user", user)
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setProfileImage(file);
-      setPreviewImage(URL.createObjectURL(file));
-    }
+    // const file = e.target.files[0];
+    // if (file) {
+    //   setProfileImage(file);
+    //   setPreviewImage(URL.createObjectURL(file));
+    // }
+  setIsModalOpen(true);
   };
 
   console.log("userId", userId)
@@ -246,12 +253,15 @@ export default function ProfilePage() {
                 <h2 className="text-2xl font-heading text-primary-600">{user.firstName}</h2>
                 <p className="text-gray-500">User Profile</p>
               </div>
-              {isEditable && (
-                <label htmlFor="profile-upload" className="cursor-pointer absolute  top-[80px] left-[198px]  md:left-[140px] md:top-[100px] p-2 bg-gray-200 dark:bg-gray-700 rounded-full">
-                  <FaCamera size={20} className="text-gray-700 dark:text-white" />
-                  <input type="file" id="profile-upload" accept="image/*" onChange={handleImageChange} className="hidden" />
-                </label>
-              )}
+             {isEditable && (
+  <div
+    onClick={() => setIsModalOpen(true)}
+    className="cursor-pointer absolute top-[80px] left-[198px] md:left-[140px] md:top-[100px] p-2 bg-gray-200 dark:bg-gray-700 rounded-full"
+  >
+    <FaCamera size={20} className="text-gray-700 dark:text-white" />
+  </div>
+)}
+
             </div>
 
             <form onSubmit={handleSubmit} className="grid grid-cols-1 text-black md:grid-cols-2 gap-3 md:gap-6">
@@ -388,6 +398,40 @@ export default function ProfilePage() {
         </div>
       }
 
+   <Modal
+  isOpen={isModalOpen}
+  onClose={() => {
+    setIsModalOpen(false);
+  }}
+  title={"Media Library"}
+  size="lg"
+>
+ <MediaLibrary
+  onSelect={(file) => {
+    // size check
+    if (file.size && file.size > 5 * 1024 * 1024) {
+      toast.error("File must be less than or equal to 5MB");
+      return;
+    }
+
+    if (file instanceof File) {
+      // freshly uploaded file
+      setProfileImage(file);
+      setPreviewImage(URL.createObjectURL(file));
+      setUser((prev) => ({ ...prev, profilePicture: "" }));
+    } else {
+      // from library
+      setProfileImage(null);
+      setPreviewImage(file.url);
+      setUser((prev) => ({ ...prev, profilePicture: file.url }));
+    }
+
+    setIsModalOpen(false);
+  }}
+/>
+
+
+</Modal>
 
       {
         tab === "BusiDetails" &&
