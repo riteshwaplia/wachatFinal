@@ -1,6 +1,6 @@
 import React from "react";
 
-const DeleteConfirmModal = ({ catalogue, onClose, onConfirm }) => {
+const DeleteConfirmModal = ({ catalogue, onClose, onConfirm,loading }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center">
       <div className="bg-white p-6 rounded-xl shadow-md w-96">
@@ -17,7 +17,14 @@ const DeleteConfirmModal = ({ catalogue, onClose, onConfirm }) => {
             onClick={onConfirm}
             className="px-4 py-2 bg-red-600 text-white rounded"
           >
-            Delete
+              {loading ? (
+              <>
+                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                Deleteing...
+              </>
+            ) : (
+              "Delete"
+            )}
           </button>
         </div>
       </div>

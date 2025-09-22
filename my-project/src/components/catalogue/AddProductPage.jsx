@@ -1,11 +1,14 @@
 import { useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { initialCategories } from "../../data/mockData";
+import api from "../../utils/api";
+// import { initialCategories } from "../../data/mockData";
 
 const AddProductPage = () => {
-  const { catelogueId: categoryId } = useParams();
+  const { catelogueId: categoryId ,id: projectId } = useParams();
+
+
   const navigate = useNavigate();
-  const category = initialCategories.find(c => c.id === parseInt(categoryId));
+  // const category = initialCategories.find(c => c.id === parseInt(categoryId));
 
   // Meta-specific product fields
   const [newProduct, setNewProduct] = useState({
@@ -13,106 +16,93 @@ const AddProductPage = () => {
     description: "",
     price: "",
     currency: "USD",
-    brand: "",
+    // brand: "",
     availability: "in stock",
     condition: "new",
-    sku: "",
-    gtin: "",
-    mpn: "",
-    imageUrl: "",
-    status: "Active",
+    retailer_id: "",
+    // gtin: "",
+    // mpn: "",
+    image_url: "",
+    // status: "Active",
     // Meta-specific fields
-    metaTitle: "",
-    metaDescription: "",
-    metaKeywords: "",
-    ogTitle: "",
-    ogDescription: "",
-    ogImage: "",
-    twitterCard: "summary",
-    twitterTitle: "",
-    twitterDescription: "",
-    canonicalUrl: "",
-    structuredData: "",
+    // metaTitle: "",
+    // metaDescription: "",
+    // metaKeywords: "",
+    // ogTitle: "",
+    // ogDescription: "",
+    // ogImage: "",
+    // twitterCard: "summary",
+    // twitterTitle: "",
+    // twitterDescription: "",
+    // canonicalUrl: "",
+    // structuredData: "",
   });
 
   // State for adding new category
   const [showAddCategory, setShowAddCategory] = useState(false);
-  const [newCategory, setNewCategory] = useState({
-    name: "",
-    description: "",
-    slug: "",
-    metaTitle: "",
-    metaDescription: "",
-    parentCategory: "",
-  });
+  const [loading, setLoading] = useState(false);
+const [error, setError] = useState(null);
+
+  // const [newCategory, setNewCategory] = useState({
+  //   name: "",
+  //   description: "",
+  //   slug: "",
+  //   metaTitle: "",
+  //   metaDescription: "",
+  //   parentCategory: "",
+  // });
 
   const handleProductChange = (field, value) => {
     setNewProduct({ ...newProduct, [field]: value });
   };
 
-  const handleCategoryChange = (field, value) => {
-    setNewCategory({ ...newCategory, [field]: value });
-  };
+  // const handleCategoryChange = (field, value) => {
+  //   setNewCategory({ ...newCategory, [field]: value });
+  // };
 
-  const handleAddProduct = () => {
-    // Meta-specific validation
-    if (!newProduct.metaTitle) {
-      alert("Meta Title is required for SEO optimization");
-      return;
-    }
+const handleAddProduct = async () => {
+  setLoading(true);
+  setError(null);
 
-    alert(`Product ${newProduct.name} added to ${category.name}`);
-    console.log("New Product with Meta Data:", newProduct);
-
-    // Reset form
-    setNewProduct({
-      name: "",
-      description: "",
-      price: "",
-      currency: "USD",
-      brand: "",
-      availability: "in stock",
-      condition: "new",
-      sku: "",
-      gtin: "",
-      mpn: "",
-      imageUrl: "",
-      status: "Active",
-      metaTitle: "",
-      metaDescription: "",
-      metaKeywords: "",
-      ogTitle: "",
-      ogDescription: "",
-      ogImage: "",
-      twitterCard: "summary",
-      twitterTitle: "",
-      twitterDescription: "",
-      canonicalUrl: "",
-      structuredData: "",
+  try {
+    const response = await api.post(`/product/${categoryId}`, {
+      ...newProduct,
+       // category link karne ke liye
     });
-  };
 
-  const handleAddCategory = () => {
-    if (!newCategory.name || !newCategory.slug) {
-      alert("Category name and slug are required");
-      return;
-    }
+    alert(`✅ Product "${response.data.name}" added successfully!`);
+    navigate(`/project/${projectId}/catalogue/${categoryId}/products`);
+  } catch (err) {
+    console.error("Error adding product:", err);
+    setError(err.response?.data?.message || "Failed to add product");
+  } finally {
+    setLoading(false);
+  }
+};
 
-    alert(`New category "${newCategory.name}" created successfully`);
-    console.log("New Category:", newCategory);
+
+
+  // const handleAddCategory = () => {
+  //   if (!newCategory.name || !newCategory.slug) {
+  //     alert("Category name and slug are required");
+  //     return;
+  //   }
+
+  //   alert(`New category "${newCategory.name}" created successfully`);
+  //   console.log("New Category:", newCategory);
     
-    // Reset category form
-    setNewCategory({
-      name: "",
-      description: "",
-      slug: "",
-      metaTitle: "",
-      metaDescription: "",
-      parentCategory: "",
-    });
+  //   // Reset category form
+  //   setNewCategory({
+  //     name: "",
+  //     description: "",
+  //     slug: "",
+  //     metaTitle: "",
+  //     metaDescription: "",
+  //     parentCategory: "",
+  //   });
     
-    setShowAddCategory(false);
-  };
+  //   setShowAddCategory(false);
+  // };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -120,18 +110,18 @@ const AddProductPage = () => {
         <Link to={-1} className="text-blue-600 hover:text-blue-800 font-medium">
           &larr; Back to Products
         </Link>
-        <button
+        {/* <button
           onClick={() => setShowAddCategory(!showAddCategory)}
           className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
         >
-          {showAddCategory ? "Cancel Add Category" : "Add New Category"}
-        </button>
+          {showAddCategory && "Cancel Add Category" }
+        </button> */}
       </div>
 
       {showAddCategory ? (
         /* Add Category Form */
         <div className="bg-white rounded-lg p-6 shadow-md mb-6">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Add New Category</h2>
+          {/* <h2 className="text-2xl font-bold text-gray-800 mb-4">Add New Category</h2> */}
           
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
@@ -184,13 +174,13 @@ const AddProductPage = () => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
               >
                 <option value="">None (Top-level Category)</option>
-                {initialCategories.map(cat => (
+                {/* {initialCategories.map(cat => (
                   <option key={cat.id} value={cat.id}>{cat.name}</option>
-                ))}
+                ))} */}
               </select>
             </div>
 
-            <div className="border-t pt-4 mt-4">
+            {/* <div className="border-t pt-4 mt-4">
               <h3 className="text-lg font-semibold text-gray-800 mb-2">Meta Information</h3>
               
               <div>
@@ -218,7 +208,7 @@ const AddProductPage = () => {
                   placeholder="Meta description for SEO"
                 />
               </div>
-            </div>
+            </div> */}
 
             <div className="flex justify-end space-x-3 pt-2">
               <button
@@ -240,7 +230,7 @@ const AddProductPage = () => {
         /* Add Product Form */
         <>
           <h1 className="text-3xl font-bold text-gray-800 mb-4">
-            Add Product to {category.name}
+            {/* Add Product to {category.name} */}
           </h1>
 
           <div className="bg-white rounded-lg p-6 shadow-md">
@@ -308,7 +298,7 @@ const AddProductPage = () => {
                     </div>
                   </div>
 
-                  <div>
+                  {/* <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Brand
                     </label>
@@ -319,7 +309,7 @@ const AddProductPage = () => {
                       className="w-full px-3 py-2 border border-gray-300 rounded-md"
                       placeholder="Enter brand name"
                     />
-                  </div>
+                  </div> */}
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
@@ -355,17 +345,17 @@ const AddProductPage = () => {
                   <div className="grid grid-cols-3 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        SKU
+                        Retailer Id
                       </label>
                       <input
                         type="text"
-                        value={newProduct.sku}
-                        onChange={(e) => handleProductChange("sku", e.target.value)}
+                        value={newProduct.retailer_id}
+                        onChange={(e) => handleProductChange("retailer_id", e.target.value)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                        placeholder="Unique SKU"
+                        placeholder="Unique Retailer Id"
                       />
                     </div>
-                    <div>
+                    {/* <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         GTIN
                       </label>
@@ -376,8 +366,8 @@ const AddProductPage = () => {
                         className="w-full px-3 py-2 border border-gray-300 rounded-md"
                         placeholder="GTIN / Barcode"
                       />
-                    </div>
-                    <div>
+                    </div> */}
+                    {/* <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         MPN
                       </label>
@@ -388,7 +378,7 @@ const AddProductPage = () => {
                         className="w-full px-3 py-2 border border-gray-300 rounded-md"
                         placeholder="Manufacturer Part Number"
                       />
-                    </div>
+                    </div> */}
                   </div>
 
                   <div>
@@ -397,14 +387,14 @@ const AddProductPage = () => {
                     </label>
                     <input
                       type="text"
-                      value={newProduct.imageUrl}
-                      onChange={(e) => handleProductChange("imageUrl", e.target.value)}
+                      value={newProduct.image_url}
+                      onChange={(e) => handleProductChange("image_url", e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md"
                       placeholder="https://example.com/product.jpg"
                     />
                   </div>
 
-                  <div>
+                  {/* <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Status
                     </label>
@@ -418,12 +408,12 @@ const AddProductPage = () => {
                       <option value="Beta">Beta</option>
                       <option value="Archived">Archived</option>
                     </select>
-                  </div>
+                  </div> */}
                 </div>
               </div>
 
               {/* Meta Information Section */}
-              <div className="border-b pb-4">
+              {/* <div className="border-b pb-4">
                 <h2 className="text-xl font-semibold text-gray-800 mb-3">Meta Information</h2>
                 
                 <div className="space-y-4">
@@ -480,10 +470,10 @@ const AddProductPage = () => {
                     />
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               {/* Open Graph Information */}
-              <div className="border-b pb-4">
+              {/* <div className="border-b pb-4">
                 <h2 className="text-xl font-semibold text-gray-800 mb-3">Open Graph (Social Media)</h2>
                 
                 <div className="space-y-4">
@@ -526,10 +516,10 @@ const AddProductPage = () => {
                     />
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               {/* Twitter Card Information */}
-              <div className="border-b pb-4">
+              {/* <div className="border-b pb-4">
                 <h2 className="text-xl font-semibold text-gray-800 mb-3">Twitter Card</h2>
                 
                 <div className="space-y-4">
@@ -575,10 +565,10 @@ const AddProductPage = () => {
                     />
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               {/* Structured Data */}
-              <div>
+              {/* <div>
                 <h2 className="text-xl font-semibold text-gray-800 mb-3">Structured Data (Schema.org)</h2>
                 
                 <div>
@@ -593,12 +583,12 @@ const AddProductPage = () => {
                     placeholder='Paste JSON-LD code here, e.g., {"@context":"https://schema.org", ...}'
                   />
                 </div>
-              </div>
+              </div> */}
 
               {/* Buttons */}
               <div className="flex justify-end space-x-3 pt-6">
                 <Link
-                  to={`/category/${categoryId}/products`}
+                  to={`/project/${projectId}/catalogue/${categoryId}/products`}
                   className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
                 >
                   Cancel
@@ -607,7 +597,7 @@ const AddProductPage = () => {
                   onClick={handleAddProduct}
                   className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                 >
-                  Add Product
+                  {loading ? "Adding..." : "Add Product"}
                 </button>
               </div>
             </div>

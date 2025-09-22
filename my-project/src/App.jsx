@@ -59,6 +59,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import CataloguePage from "./pages/CataloguePage";
 import ProductPage from "./components/catalogue/ProductPage";
 import AddProductPage from "./components/catalogue/AddProductPage";
+import EditProductPage from "./components/catalogue/EditProductPage";
 import PaymentPage from "./components/order/PaymentPage";
 import SuccessPage from "./components/order/SuccessPage";
 import OrderDashboard from "./components/order/OrderDashboard";
@@ -304,6 +305,10 @@ function AppContent() {
           path="/project/:id/catalogue/:catelogueId/products/add-product"
           element={<ProjectRouteWrapper component={AddProductPage} />}
         />
+        <Route
+  path="/project/:id/catalogue/:catelogueId/products/edit/:productId"
+  element={<ProjectRouteWrapper component={EditProductPage} />}
+/>
         <Route
           path="/project/:id/chat"
           element={<ProjectRouteWrapper component={LiveChatPage} />}

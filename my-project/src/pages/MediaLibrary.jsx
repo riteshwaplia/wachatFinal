@@ -23,7 +23,7 @@ export default function MediaLibrary({ onSelect }) {
   const fetchMedia = async () => {
     try {
       setLoading(true);
-      const { data } = await axios.get("http://localhost:5001/api/media", {
+      const { data } = await axios.get("https://1618551e8894.ngrok-free.app/api/media", {
         headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` },
       });
       setMedia(data.data || []);
@@ -53,7 +53,7 @@ export default function MediaLibrary({ onSelect }) {
         formData.append("file", file);
 
         const { data } = await axios.post(
-          "http://localhost:5001/api/media/upload", 
+          "https://1618551e8894.ngrok-free.app/api/media/upload", 
           formData, 
           {
             headers: {
