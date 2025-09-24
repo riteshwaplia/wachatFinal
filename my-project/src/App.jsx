@@ -59,6 +59,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import CataloguePage from "./pages/CataloguePage";
 import ProductPage from "./components/catalogue/ProductPage";
 import AddProductPage from "./components/catalogue/AddProductPage";
+import DataFeeds from "./components/catalogue/DataFeeds";
 import EditProductPage from "./components/catalogue/EditProductPage";
 import PaymentPage from "./components/order/PaymentPage";
 import SuccessPage from "./components/order/SuccessPage";
@@ -304,6 +305,10 @@ function AppContent() {
         <Route
           path="/project/:id/catalogue/:catelogueId/products/add-product"
           element={<ProjectRouteWrapper component={AddProductPage} />}
+        />
+        <Route
+          path="/project/:id/catalogue/:catelogueId/products/uploadproudct"
+          element={<ProjectRouteWrapper component={DataFeeds} />}
         />
         <Route
   path="/project/:id/catalogue/:catelogueId/products/edit/:productId"

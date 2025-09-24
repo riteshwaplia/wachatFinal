@@ -137,7 +137,6 @@ const CataloguePage = () => {
 
   const fetchCatalogues = async () => {
     try {
-      // GET http://164.52.197.192:5001/api/catalog/sync/68c5440a295ebf8ea5a31919
       setLoading(true);
       const res = await api.get(
         `/catalog/${metabusinessId}?page=${page}&limit=${limit}`
