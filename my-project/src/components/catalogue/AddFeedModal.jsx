@@ -1,24 +1,52 @@
 import React, { useState } from "react";
 import Modal from "../Modal";
-
-const AddFeedModal = ({ isOpen, onClose, onAddFeed }) => {
+import api from "../../utils/api"; // your axios wrapper
+import toast from "react-hot-toast";
+import Button from "../Button";
+const AddFeedModal = ({ isOpen, onClose, onFeedCreated, catalogId ,businessProfileId}) => {
   const [form, setForm] = useState({ name: "", url: "" });
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = () => {
-    if (!form.name || !form.url) return alert("Please enter name and sheet URL");
+  const handleSubmit = async () => {
+    if (!form.name || !form.url) return toast.error("Please enter name and sheet URL");
 
-    const newFeed = {
-      id: Date.now(),
-      name: form.name,
-      url: form.url,
-      status: "inactive",
-      lastSynced: "Not synced yet",
-      nextScheduled: "Not scheduled",
-      summary: { updated: 0, notUploaded: 0, hidden: 0, removed: 0 },
-    };
+    try {
+      setLoading(true);
 
-    onAddFeed(newFeed);
-    setForm({ name: "", url: "" });
+      if (!businessProfileId) {
+        return toast.error("Business Profile ID not found in local storage");
+      }
+
+      // fixed schedule
+      const schedule = {
+        interval: "DAILY",
+        url: form.url,
+        hour: "22",
+      };
+
+      const payload = {
+        catalogId,
+        businessProfileId,
+        name: form.name,
+        schedule,
+      };
+
+      const res = await api.post("/productfeed/feed", payload);
+
+      if (res.data.success) {
+        toast.success("Feed created successfully!");
+        // onFeedCreated(res.data.data); // update UI in parent
+        setForm({ name: "", url: "" });
+        onClose();
+      } else {
+        toast.error(res.data.message || "Failed to create feed");
+      }
+    } catch (err) {
+      console.error("Error creating feed:", err);
+      toast.error(err.response?.data?.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -38,12 +66,15 @@ const AddFeedModal = ({ isOpen, onClose, onAddFeed }) => {
           onChange={(e) => setForm({ ...form, url: e.target.value })}
           className="border px-3 py-2 rounded w-full"
         />
-        <button
+        <div className="flex justify-end">
+            <Button
           onClick={handleSubmit}
-          className="bg-blue-600 text-white px-4 py-2 rounded w-full hover:bg-blue-700 transition"
+          disabled={loading}
+          variant="secondary"
         >
-          Add Feed
-        </button>
+          {loading ? "Creating..." : "Add Feed"}
+        </Button>
+        </div>
       </div>
     </Modal>
   );

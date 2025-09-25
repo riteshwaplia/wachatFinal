@@ -163,6 +163,9 @@ const CataloguePage = () => {
       const res = await api.get(
         `/catalog/sync/${metabusinessId}`
       );
+      if(res.data.success){
+        fetchCatalogues(); // refresh after sync
+      }
       SuccessToast("Catalogues synched successfully")
     } catch (err) {
       console.error(err);
