@@ -34,6 +34,7 @@ import CreateTemplate from "./components/template/CreateTemplate";
 import LiveChatPage from "./pages/LiveChatPage";
 import BulkMessagingDashboard from "./pages/BroadCasting";
 import SendMessagePage from "./components/broadcasting/SendBulkMessage";
+import ProductBroadCasting from "./components/broadcasting/ProductBroadCasting";
 import AllComponents from "./components/AllComponets";
 import { Toaster } from "react-hot-toast";
 import TemplateDetail from "./components/template/TemplateDetail";
@@ -66,6 +67,11 @@ import SuccessPage from "./components/order/SuccessPage";
 import OrderDashboard from "./components/order/OrderDashboard";
 import WhatsAppFlowBuilder from "./components/test/WhatsAppFlowBuilder";
 import MainMedia from "./pages/MainMedia";
+import MetaFlows from "./pages/MetaFlows";
+import CreateMetaFlows from "./components/metaflows/CreateMetaFlows";
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
+import DragDropDemo from "./components/metaflows/DragDropDemo";
 const AdminRoute = ({ children }) => (
   <ProtectedRoute roles={["super_admin", "tenant_admin"]}>
     <AdminLayout>{children}</AdminLayout>
@@ -291,6 +297,10 @@ function AppContent() {
           element={<ProjectRouteWrapper component={SendCarosualTemplate} />}
         />
         <Route
+          path="/project/:id/broadcasting/send-bulk/product-template"
+          element={<ProjectRouteWrapper component={ProductBroadCasting} />}
+        />
+        <Route
           path="/project/:id/catalogue"
           element={<ProjectRouteWrapper component={CataloguePage} />}
         />
@@ -311,9 +321,17 @@ function AppContent() {
           element={<ProjectRouteWrapper component={DataFeeds} />}
         />
         <Route
-  path="/project/:id/catalogue/:catelogueId/products/edit/:productId"
-  element={<ProjectRouteWrapper component={EditProductPage} />}
-/>
+          path="/project/:id/catalogue/:catelogueId/products/edit/:productId"
+          element={<ProjectRouteWrapper component={EditProductPage} />}
+        />
+        <Route
+          path="/project/:id/metaflows"
+          element={<ProjectRouteWrapper component={MetaFlows} />}
+        />
+        <Route
+          path="/project/:id/metaflows/create"
+          element={<ProjectRouteWrapper component={CreateMetaFlows} />}
+        />
         <Route
           path="/project/:id/chat"
           element={<ProjectRouteWrapper component={LiveChatPage} />}
@@ -412,8 +430,7 @@ function AppContent() {
             </UserRoute>
           }
         />
-
-         <Route path="/:projectId/:orderId" element={<PaymentPage />} />
+        <Route path="/:projectId/:orderId" element={<PaymentPage />} />
         <Route path="/success/:projectId/:orderId" element={<SuccessPage />} />
         <Route
           path="/"
@@ -426,11 +443,15 @@ function AppContent() {
           element={<AllComponents />} // ✅ safe now
         />
         <Route
+          path="/drag"
+          element={<DragDropDemo />} // ✅ safe now
+        />
+        <Route
           path="/medialibrary"
           element={<MainMedia />} // ✅ safe now
         />
         <Route
-          path="/flowbuilder" 
+          path="/flowbuilder"
           element={<WhatsAppFlowBuilder />} // ✅ safe now
         />
         <Route
@@ -459,7 +480,11 @@ function App() {
     <Router>
       <TenantProvider>
         <AuthProvider>
+              <DndProvider backend={HTML5Backend}>
+
           <AppContent />
+              </DndProvider>
+
         </AuthProvider>
       </TenantProvider>
     </Router>

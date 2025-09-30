@@ -3,7 +3,7 @@ import Modal from "../Modal";
 import api from "../../utils/api"; // your axios wrapper
 import toast from "react-hot-toast";
 import Button from "../Button";
-const AddFeedModal = ({ isOpen, onClose, onFeedCreated, catalogId ,businessProfileId}) => {
+const AddFeedModal = ({ isOpen, onClose, onFeedCreated, fetchFeeds,catalogId ,businessProfileId}) => {
   const [form, setForm] = useState({ name: "", url: "" });
   const [loading, setLoading] = useState(false);
 
@@ -35,9 +35,9 @@ const AddFeedModal = ({ isOpen, onClose, onFeedCreated, catalogId ,businessProfi
 
       if (res.data.success) {
         toast.success("Feed created successfully!");
-        // onFeedCreated(res.data.data); // update UI in parent
         setForm({ name: "", url: "" });
         onClose();
+        fetchFeeds(); // refresh feed list
       } else {
         toast.error(res.data.message || "Failed to create feed");
       }

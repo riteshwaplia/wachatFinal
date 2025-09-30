@@ -66,6 +66,9 @@ const BulkMessagingDashboard = () => {
   const createNewCarosualBroadcast = () => {
     router(`/project/${projectId}/broadcasting/send-bulk/carosual-template`);
   };
+  const createNewProdutBroadcast = () => {
+    router(`/project/${projectId}/broadcasting/send-bulk/product-template`);
+  };
   // /project/:id/broadcasting/send-/send-bulk/carosual-template
   // Close modal
   const closeModal = () => {
@@ -107,6 +110,13 @@ const BulkMessagingDashboard = () => {
             className="w-full sm:w-auto text-xs sm:text-sm px-3 py-2"
           >
             + {t('newCarouselBroadcast')}
+          </Button>
+          <Button
+          variant="secondary"
+            onClick={createNewProdutBroadcast}
+            className="w-full sm:w-auto text-xs sm:text-sm px-3 py-2"
+          >
+            + {t('newProductBroadcast')}
           </Button>
         </div>
       </div>

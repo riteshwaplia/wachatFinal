@@ -3,7 +3,7 @@ import AddFeedModal from "./AddFeedModal";
 import Button from "../Button";
 import { BackButton } from "../BackButton";
 import { useNavigate, useParams } from "react-router-dom";
-import api from "../../utils/api"; // <-- your axios wrapper
+import api from "../../utils/api";
 
 const DataFeeds = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -12,6 +12,7 @@ const DataFeeds = () => {
   const { catelogueId } = useParams();
   const [feeds, setFeeds] = useState([]);
   const [loading, setLoading] = useState(false);
+const [loadingAction, setLoadingAction] = useState(null); 
 
   // get project info
   useEffect(() => {
@@ -26,7 +27,7 @@ const DataFeeds = () => {
     }
   }, [navigate]);
 
-  // fetch feeds from API
+  // fetch feeds
   const fetchFeeds = async () => {
     try {
       setLoading(true);
@@ -45,46 +46,67 @@ const DataFeeds = () => {
   };
 
   useEffect(() => {
-    if (catelogueId) {
-      fetchFeeds();
-    }
+    if (catelogueId) fetchFeeds();
   }, [catelogueId]);
 
   const handleAddFeed = (newFeed) => {
     setFeeds([newFeed, ...feeds]);
     setIsOpen(false);
   };
-// /feed/:feedId
-  const handleRequestUpdate = async (id) => {
-    try {
-      await api.put(`/productfeed/feed/${catelogueId}/${id}`);
-      alert("Update request sent successfully!");
-      fetchFeeds();
-    } catch (err) {
-      console.error(err);
-      alert("Failed to request update");
-    }
-  };
 
-  const handleSyncNow = async (id) => {
+const handleRequestUpdate = async (id) => {
+  try {
+    setLoadingAction({ id, action: "sync" });
+    await api.put(`/productfeed/feed/${catelogueId}/${id}`);
+    alert("Update request sent successfully!");
+    fetchFeeds();
+  } catch (err) {
+    console.error(err);
+    alert("Failed to request update");
+  } finally {
+    setLoadingAction(null);
+  }
+};
+
+
+  const handleSyncNow = async () => {
     try {
+      setLoading(true);
       await api.post(`/productfeed/feed/${catelogueId}/sync`);
       alert("Sync started successfully!");
       fetchFeeds();
     } catch (err) {
       console.error(err);
       alert("Failed to sync feed");
+    } finally {
+      setLoading(false);
     }
   };
 
+  const handleDeleteFeed = async (id) => {
+  const confirmDelete = window.confirm("Are you sure you want to delete this feed?");
+  if (!confirmDelete) return;
+
+  try {
+    setLoadingAction({ id, action: "delete" });
+    await api.delete(`/productfeed/feed/${catelogueId}/${id}`);
+    fetchFeeds();
+  } catch (err) {
+    console.error(err);
+    alert("Failed to delete feed");
+  } finally {
+    setLoadingAction(null);
+  }
+};
+
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <BackButton />
         <div className="flex gap-2">
           <Button onClick={() => setIsOpen(true)}>+ Add New Feed</Button>
-          <Button variant="secondary" onClick={handleSyncNow}>
-            Refresh Feeds
+          <Button variant="secondary" onClick={handleSyncNow} disabled={loading}>
+            {loading ? "Refreshing..." : "Refresh Feeds"}
           </Button>
         </div>
       </div>
@@ -96,7 +118,7 @@ const DataFeeds = () => {
       ) : feeds.length === 0 ? (
         <p className="text-gray-500">No feeds found.</p>
       ) : (
-        <div className="space-y-4 max-h-[70vh] overflow-y-auto">
+        <div className="space-y-4 ">
           {feeds.map((feed) => (
             <div
               key={feed._id}
@@ -105,21 +127,23 @@ const DataFeeds = () => {
               {/* Header */}
               <div className="flex justify-between items-center mb-3">
                 <div>
-                  <p className="font-semibold text-lg text-gray-800">
-                    {feed.name}
-                  </p>
+                  <p className="font-semibold text-lg text-gray-800">{feed.name}</p>
                   <a
                     href={feed.schedule?.url}
                     target="_blank"
                     rel="noreferrer"
                     className="text-sm text-blue-600 hover:underline truncate block"
                   >
-                    {feed.schedule?.url}
+                    {feed.schedule?.url
+                      ? feed.schedule.url.length > 60
+                        ? feed.schedule.url.slice(0, 60) + "..."
+                        : feed.schedule.url
+                      : ""}
                   </a>
                 </div>
                 <span
                   className={`px-3 py-1 text-xs font-semibold rounded-full ${
-                    feed.status === "active"
+                    feed.status === "ACTIVE"
                       ? "bg-green-100 text-green-700"
                       : "bg-gray-100 text-gray-600"
                   }`}
@@ -157,19 +181,31 @@ const DataFeeds = () => {
 
               {/* Actions */}
               <div className="flex justify-end gap-2">
-                <Button
-                variant="accent"
-                size="sm"
-                  onClick={() => handleRequestUpdate(feed._id)}
-                >
-                  Sync products from Sheet
-                </Button>
-                {/* <button
-                  onClick={() => handleSyncNow(feed._id)}
-                  className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
-                >
-                  Sync Now
-                </button> */}
+               <Button
+  variant="accent"
+  size="sm"
+  onClick={() => handleRequestUpdate(feed._id)}
+  disabled={loadingAction?.id === feed._id && loadingAction?.action === "sync"}
+>
+  {loadingAction?.id === feed._id && loadingAction?.action === "sync"
+    ? "Updating..."
+    : "Sync products"}
+</Button>
+
+<button
+  onClick={() => handleDeleteFeed(feed._id)}
+  disabled={loadingAction?.id === feed._id && loadingAction?.action === "delete"}
+  className={`px-4 py-2 rounded text-white transition ${
+    loadingAction?.id === feed._id && loadingAction?.action === "delete"
+      ? "bg-red-400 cursor-not-allowed"
+      : "bg-red-600 hover:bg-red-700"
+  }`}
+>
+  {loadingAction?.id === feed._id && loadingAction?.action === "delete"
+    ? "Deleting..."
+    : "Delete"}
+</button>
+
               </div>
             </div>
           ))}
@@ -183,6 +219,7 @@ const DataFeeds = () => {
         onAddFeed={handleAddFeed}
         businessProfileId={businessProfileId}
         catalogId={catelogueId}
+        fetchFeeds={fetchFeeds}
       />
     </div>
   );

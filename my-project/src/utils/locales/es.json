@@ -191,6 +191,7 @@
   "recipient": "Destinatario",
   "time": "Hora",
   "broadcastDetails": "Detalles de la difusión",
+    "newProductBroadcast" : "Nueva difusión de producto",
   "createdAt": "Creado en",
   "close": "Cerrar",
 "Project Details":"Detalles del proyecto",

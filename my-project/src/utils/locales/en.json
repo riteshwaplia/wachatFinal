@@ -177,6 +177,7 @@
   "failed": "Failed",
   "recentBroadcasts": "Recent Broadcasts",
   "loadingBroadcasts": "Loading broadcasts...",
+  "newProductBroadcast" : "New Product Broadcast",
   "noBroadcastsFound": "No broadcasts found",
   "untitledBroadcast": "Untitled Broadcast",
   "recipients": "recipients",

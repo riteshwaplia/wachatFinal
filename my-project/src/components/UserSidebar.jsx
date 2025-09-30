@@ -88,6 +88,11 @@ const UserSidebar = ({ isOpen, onToggle, isOff }) => {
         label: 'flow builder',
         path: `/project/${id}/flows`,
         icon: <StepForward size={18} />
+      },
+      {
+        label: 'Meta Flows',
+        path: `/project/${id}/metaflows`,
+        icon:<ListOrdered size={18} />
       }
     ] : []),
   ];
