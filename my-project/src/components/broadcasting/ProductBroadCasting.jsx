@@ -2,95 +2,37 @@ import React, { useState, useEffect } from "react";
 import api from "../../utils/api";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import io from "socket.io-client";
-import CustomSelect from "../CustomSelect";
-import * as XLSX from 'xlsx';
-import GroupWiseBroadcasting from "./GroupWiseBroadcasting";
 import { toast } from "react-hot-toast";
-
-// Import react-datepicker components and styles
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { setHours, setMinutes } from 'date-fns'; // For setting default time in date picker
 
-const VITE_SOCKET_IO_URL = import.meta.env.VITE_SOCKET_IO_URL || 'http://localhost:5001';
-const socket = io(VITE_SOCKET_IO_URL, { transports: ["websocket", "polling"] });
-
-const cleanTemplateComponents = (components) => {
-  if (!components) return [];
-  try {
-    const parsedComponents = typeof components === 'string' ? JSON.parse(components) : components;
-    return parsedComponents.map(component => {
-      if (component.parameters) {
-        // Ensure parameters are correctly formatted for Meta API
-        component.parameters = component.parameters.map(({ format, ...param }) => param);
-      }
-      return component;
-    });
-  } catch (e) {
-    console.error("Error parsing template components:", e);
-    return [];
-  }
-};
+import * as XLSX from "xlsx";
 
 const ProductBroadCasting = () => {
   const { user, token } = useAuth();
   const { id: projectId } = useParams();
   const navigate = useNavigate();
 
-  const [isLoading, setIsLoading] = useState({
-    templates: true,
-    sending: false,
-    uploading: false
-  });
-  const [activeTab, setActiveTab] = useState("group");
-
-  // Bulk message state
-  const [bulkTemplateName, setBulkTemplateName] = useState("");
-  const [bulkTemplateLanguage, setBulkTemplateLanguage] = useState("en_US");
-  const [bulkTemplateComponents, setBulkTemplateComponents] = useState("");
+  const [sendMode, setSendMode] = useState("send-now"); 
+  const [scheduledDateTime, setScheduledDateTime] = useState(null);
   const [bulkContactsFile, setBulkContactsFile] = useState(null);
-  const [excelHeaders, setExcelHeaders] = useState([]);
-  const [expectedColumns, setExpectedColumns] = useState([]);
-  const [mismatchedHeaders, setMismatchedHeaders] = useState([]);
-  const [imageId, setImageId] = useState("");
-
-  // Scheduling state
-  const [isScheduled, setIsScheduled] = useState(false);
-  const [scheduleType, setScheduleType] = useState('one-time'); // 'one-time' or 'recurring'
-  const [scheduledDateTime, setScheduledDateTime] = useState(
-    setHours(setMinutes(new Date(), 0), new Date().getHours() + 1) // Default to next hour
-  );
-  const [recurrencePattern, setRecurrencePattern] = useState('daily'); // 'daily', 'weekly', 'monthly', 'custom'
-  const [customCronExpression, setCustomCronExpression] = useState('');
 
   const [templates, setTemplates] = useState([]);
-  const [messageStatus, setMessageStatus] = useState({
-    latest: null,
-    recent: []
-  });
-  const [sendMode, setSendMode] = useState('send-now'); // 'send-now' or 'schedule'
+  const [selectedTemplate, setSelectedTemplate] = useState("");
 
-  const project = JSON.parse(localStorage.getItem("currentProject")) || "";
-  const businessProfileId = project?.businessProfileId?._id || null;
+  const [messageType, setMessageType] = useState(""); // catalog | spm | mpm
+  const [metaCatalogId, setMetaCatalogId] = useState("");
+  const [products, setProducts] = useState([]);
+  const [selectedProductId, setSelectedProductId] = useState(""); // for SPM
+  const [thumbnailProductId, setThumbnailProductId] = useState(""); // for MPM
+  const [sections, setSections] = useState([
+    { title: "Section 1", product_items: [{ product_retailer_id: "" }] },
+  ]);
+
+  const [loading, setLoading] = useState(false);
 
   const config = {
-    headers: { Authorization: `Bearer ${token}` }
-  };
-
-  const fetchTemplates = async () => {
-    try {
-      const res = await api.get("/templates/allapprovedtemplates", {
-        ...config,
-        params: { businessProfileId }
-      });
-      setTemplates(res.data.data || []);
-    } catch (error) {
-      toast.error("Failed to load templates");
-      console.error("Template fetch error:", error);
-    } finally {
-      setIsLoading(prev => ({ ...prev, templates: false }));
-    }
+    headers: { Authorization: `Bearer ${token}` },
   };
 
   useEffect(() => {
@@ -98,50 +40,54 @@ const ProductBroadCasting = () => {
       navigate("/login", { replace: true });
       return;
     }
+    fetchTemplates();
+    fetchCatalogData();
+  }, [user]);
 
-    if (businessProfileId) {
-      fetchTemplates();
-
-      socket.emit("joinRoom", user._id);
-      socket.emit("joinRoom", `project-${projectId}`);
-
-      const handleStatusUpdate = (data) => {
-        setMessageStatus(prev => ({
-          latest: data,
-          recent: [
-            { ...data, receivedAt: new Date().toLocaleTimeString() },
-            ...prev.recent.slice(0, 4)
-          ]
-        }));
-      };
-
-      socket.on("messageStatusUpdate", handleStatusUpdate);
-
-      return () => {
-        socket.off("messageStatusUpdate", handleStatusUpdate);
-        socket.emit("leaveRoom", user._id);
-        socket.emit("leaveRoom", `project-${projectId}`);
-      };
+  const fetchTemplates = async () => {
+    try {
+      const res = await api.get("/templates/allapprovedtemplates", config);
+      setTemplates(res.data.data || []);
+    } catch (err) {
+      toast.error("Failed to load templates");
     }
-  }, [token, projectId, navigate, businessProfileId, user]); // Added user to dependencies
+  };
 
-  useEffect(() => {
-    if (bulkTemplateName && templates.length) {
-      const selectedTpl = templates.find(tpl => tpl.name === bulkTemplateName);
-      if (selectedTpl) {
-        setBulkTemplateComponents(JSON.stringify(selectedTpl.components || [], null, 2));
-        setBulkTemplateLanguage(selectedTpl.language || "en_US");
-      } else {
-        setBulkTemplateComponents("");
-        setBulkTemplateLanguage("en_US");
-      }
+  const fetchCatalogData = async () => {
+    try {
+      const res = await api.get(`/projects/${projectId}/catalog`, config);
+      setMetaCatalogId(res.data.metaCatalogId || "");
+      setProducts(res.data.products || []);
+    } catch (err) {
+      toast.error("Failed to load catalog data");
     }
-  }, [bulkTemplateName, templates]);
+  };
+
+  const handleSectionChange = (sectionIndex, field, value) => {
+    const updated = [...sections];
+    updated[sectionIndex][field] = value;
+    setSections(updated);
+  };
+
+  const handleAddSection = () => {
+    setSections([...sections, { title: "", product_items: [{ product_retailer_id: "" }] }]);
+  };
+
+  const handleAddProductToSection = (sectionIndex) => {
+    const updated = [...sections];
+    updated[sectionIndex].product_items.push({ product_retailer_id: "" });
+    setSections(updated);
+  };
+
+  const handleProductChange = (sectionIndex, productIndex, value) => {
+    const updated = [...sections];
+    updated[sectionIndex].product_items[productIndex].product_retailer_id = value;
+    setSections(updated);
+  };
 
   const handleBulkFileChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-
     setBulkContactsFile(file);
 
     const reader = new FileReader();
@@ -150,413 +96,326 @@ const ProductBroadCasting = () => {
       const workbook = XLSX.read(data, { type: "array" });
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
       const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-      const headers = json[0]?.map(h => h.toLowerCase().trim()) || [];
-
-      setExcelHeaders(headers);
-
-      try {
-        const parsed = JSON.parse(bulkTemplateComponents);
-        let expected = ["mobilenumber"];
-
-        parsed.forEach(comp => {
-          if (comp.type === "HEADER" && comp.example?.header_text) {
-            comp.example.header_text.forEach(v =>
-              expected.push(`header_${v.toLowerCase()}`)
-            );
-          }
-          if (comp.type === "BODY" && comp.example?.body_text) {
-            comp.example.body_text[0]?.forEach(v =>
-              expected.push(`body_${v.toLowerCase()}`)
-            );
-          }
-        });
-
-        setExpectedColumns(expected);
-        setMismatchedHeaders(expected.filter(col => !headers.includes(col)));
-      } catch (err) {
-        console.error("Template parsing error:", err);
-        setExpectedColumns([]);
-        setMismatchedHeaders([]);
-      }
+      const headers = json[0] || [];
+      console.log("Detected Headers:", headers);
     };
     reader.readAsArrayBuffer(file);
   };
 
- const handleBulkMessageSubmit = async (e) => {
-    e.preventDefault();
-
+  const validateForm = () => {
     if (!bulkContactsFile) {
-      toast.warning("Please select a contacts file");
-      return;
+      toast.error("Please upload a contacts file");
+      return false;
     }
 
-    let cleanedComponents;
-    try {
-      cleanedComponents = cleanTemplateComponents(bulkTemplateComponents);
-    } catch (err) {
-      toast.error("Invalid template components format");
-      return;
+    if (!selectedTemplate) {
+      toast.error("Please select a template");
+      return false;
     }
 
-    setIsLoading(prev => ({ ...prev, sending: true }));
+    if (!messageType) {
+      toast.error("Please select message type");
+      return false;
+    }
 
-    const formData = new FormData();
-    formData.append("file", bulkContactsFile);
-    formData.append("imageId", imageId);
-    formData.append("templateName", bulkTemplateName);
-    formData.append("message", JSON.stringify({
-      language: { code: bulkTemplateLanguage },
-      components: cleanedComponents
-    }));
+    if (!metaCatalogId) {
+      toast.error("Catalog ID not found");
+      return false;
+    }
 
-    try {
-      let endpoint = `/projects/${projectId}/messages/bulk-messages`;
+    // Validate specific message types
+    if (messageType === "spm" && !selectedProductId) {
+      toast.error("Please select a product for Single Product Message");
+      return false;
+    }
+
+    if (messageType === "mpm") {
+      if (!thumbnailProductId) {
+        toast.error("Please select a thumbnail product for Multi Product Message");
+        return false;
+      }
       
-      if (sendMode === 'schedule') {
-        if (!scheduledDateTime || scheduledDateTime <= new Date()) {
-          toast.error("Please select a valid future date and time");
-          setIsLoading(prev => ({ ...prev, sending: false }));
-          return;
+      // Validate sections
+      for (const section of sections) {
+        if (!section.title.trim()) {
+          toast.error("All sections must have a title");
+          return false;
         }
-        
-        endpoint = `/projects/${projectId}/messages/schedule-bulk`;
-        formData.append("scheduledAt", scheduledDateTime.toISOString());
+        for (const item of section.product_items) {
+          if (!item.product_retailer_id) {
+            toast.error("All products in sections must be selected");
+            return false;
+          }
+        }
+      }
+    }
+
+    if (sendMode === "schedule" && !scheduledDateTime) {
+      toast.error("Please select schedule date and time");
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    if (!validateForm()) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append("file", bulkContactsFile);
+      formData.append("templateName", selectedTemplate);
+      formData.append("typeofmessage", messageType);
+      formData.append("metaCatalogId", metaCatalogId);
+
+      // Add scheduling if applicable
+      if (sendMode === "schedule" && scheduledDateTime) {
+        formData.append("scheduledTime", scheduledDateTime.toISOString());
+      }
+
+      // Add message type specific data
+      if (messageType === "spm") {
+        formData.append("productId", selectedProductId);
+      }
+
+      if (messageType === "mpm") {
+        formData.append("thumbnail_product_retailer_id", thumbnailProductId);
+        formData.append("sections", JSON.stringify(sections));
       }
 
       const res = await api.post(
-        endpoint,
+        `/projects/${projectId}/messages/bulk-catalog-messages`,
         formData,
         {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`,
+          headers: { 
+            "Content-Type": "multipart/form-data", 
+            Authorization: `Bearer ${token}` 
           },
         }
       );
-
-      toast.success(res.data.message || 
-        (sendMode === 'schedule' 
-          ? "Messages scheduled successfully" 
-          : "Bulk messages initiated")
-      );
       
-      // Reset form
+      toast.success(res.data.message || "Message request sent successfully");
+      
+      // Reset form after successful submission
+      setSelectedTemplate("");
+      setMessageType("");
+      setSelectedProductId("");
+      setThumbnailProductId("");
+      setSections([{ title: "Section 1", product_items: [{ product_retailer_id: "" }] }]);
+      setScheduledDateTime(null);
       setBulkContactsFile(null);
-      setBulkTemplateName("");
-      document.getElementById("bulkContactsFile").value = "";
+      
+      // Clear file input
+      const fileInput = document.getElementById("bulkContactsFile");
+      if (fileInput) fileInput.value = "";
+
     } catch (error) {
-      setBulkContactsFile(null);
-      setBulkTemplateName("");
-      document.getElementById("bulkContactsFile").value = "";
-      toast.error(error.response?.data?.message || 
-        (sendMode === 'schedule' 
-          ? "Failed to schedule messages" 
-          : "Failed to send bulk messages")
-      );
-      console.error("Error:", error);
+      console.error("Error sending message:", error);
+      toast.error(error.response?.data?.message || "Failed to send message");
     } finally {
-      setIsLoading(prev => ({ ...prev, sending: false }));
+      setLoading(false);
     }
   };
 
-  const renderHeaderImageUpload = () => {
-    try {
-      const parsed = JSON.parse(bulkTemplateComponents);
-      const header = parsed.find(c => c.type === "HEADER" && c.format === "IMAGE");
-
-      if (!header) return null;
-
-      return (
-        <div className="mt-4">
-          <label className="block font-medium text-gray-700 mb-1">
-            Upload Header Image
-          </label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={async (e) => {
-              const file = e.target.files[0];
-              if (!file) return;
-
-              setIsLoading(prev => ({ ...prev, uploading: true }));
-
-              const formData = new FormData();
-              formData.append("file", file);
-              formData.append("type", "image");
-
-              try {
-                const res = await api.post(
-                  `/projects/${projectId}/messages/upload-media`,
-                  formData,
-                  {
-                    headers: {
-                      "Content-Type": "multipart/form-data",
-                      Authorization: `Bearer ${token}`,
-                    },
-                  }
-                );
-
-                setImageId(res.data?.id || res.data?.data.id || "");
-                const mediaHandle = res.data?.id || res.data?.data.id;
-                if (!mediaHandle) {
-                  alert("Upload succeeded but media handle missing");
-                  return;
-                }
-
-                // Update the HEADER example with new handle
-                const updatedComponents = parsed.map((comp) => {
-                  if (comp.type === "HEADER" && comp.format === "IMAGE") {
-                    return {
-                      ...comp,
-                      example: {
-                        header_handle: [mediaHandle],
-                      },
-                    };
-                  }
-                  return comp;
-                });
-
-                setBulkTemplateComponents(JSON.stringify(updatedComponents, null, 2));
-                toast.success("Image uploaded successfully");
-              } catch (error) {
-                toast.error("Image upload failed");
-                console.error("Upload error:", error);
-              } finally {
-                setIsLoading(prev => ({ ...prev, uploading: false }));
-              }
-            }}
-            className="block w-full border dark:bg-dark-surface rounded-md p-2 dark:text-dark-text-primary  bg-white"
-            disabled={isLoading.uploading}
-          />
-          <p className="text-sm text-gray-500 mt-1">
-            Required for templates with image headers
-          </p>
-        </div>
-      );
-    } catch (e) {
-      return null;
-    }
-  };
-
-  const renderTemplatePreview = () => {
-    try {
-      const parsed = JSON.parse(bulkTemplateComponents);
-      let headerVars = [];
-      let bodyVars = [];
-
-      parsed.forEach(comp => {
-        if (comp.type === "HEADER" && comp.example?.header_text) {
-          headerVars = comp.example.header_text;
-        }
-        if (comp.type === "BODY" && comp.example?.body_text) {
-          bodyVars = comp.example.body_text[0] || [];
-        }
-      });
-
-      if (headerVars.length === 0 && bodyVars.length === 0) return null;
-
-      const columns = ["mobilenumber", ...headerVars.map(v => `header_${v}`), ...bodyVars.map(v => `body_${v}`)];
-      const sampleRow = {
-        mobilenumber: "919999999999",
-        ...Object.fromEntries(headerVars.map((v, i) => [`header_${v}`, `Header${i + 1}`])),
-        ...Object.fromEntries(bodyVars.map((v, i) => [`body_${v}`, `Body${i + 1}`]))
-      };
-
-      return (
-        <div className="mt-6">
-          <h4 className="text-lg font-semibold text-gray-700 mb-2">
-            Required Excel Format
-          </h4>
-          <div className="overflow-auto border rounded-md bg-white mb-3">
-            <table className="min-w-full border-collapse">
-              <thead className="bg-gray-100">
-                <tr>
-                  {columns.map(col => (
-                    <th key={col} className="border px-3 py-2 text-sm font-medium">
-                      {col}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  {columns.map(col => (
-                    <td key={col} className="border px-3 py-2 text-sm">
-                      {sampleRow[col] || ""}
-                    </td>
-                  ))}
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <button
-            onClick={() => {
-              const csv = [columns.join(","), columns.map(c => sampleRow[c]).join(",")].join("\n");
-              const blob = new Blob([csv], { type: "text/csv" });
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement("a");
-              a.href = url;
-              a.download = "template_sample.csv";
-              a.click();
-              URL.revokeObjectURL(url);
-            }}
-            className="px-4 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-sm"
-          >
-            Download Sample CSV
-          </button>
-        </div>
-      );
-    } catch (e) {
-      return null;
+  const handleMessageTypeChange = (e) => {
+    const newType = e.target.value;
+    setMessageType(newType);
+    
+    // Reset related states when message type changes
+    if (newType !== "spm") setSelectedProductId("");
+    if (newType !== "mpm") {
+      setThumbnailProductId("");
+      setSections([{ title: "Section 1", product_items: [{ product_retailer_id: "" }] }]);
     }
   };
 
   return (
-    <div className="space-y-6 p-6">
-      <div className="flex border-b mb-6">
-        <button
-          className={`py-2 px-4 font-medium ${activeTab === "group" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-500"
-            }`}
-          onClick={() => setActiveTab("group")}
-        >
-          Group Messaging
-        </button>
-        <button
-          className={`py-2 px-4 font-medium ${activeTab === "bulk" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-500"
-            }`}
-          onClick={() => setActiveTab("bulk")}
-        >
-          Bulk Messages
-        </button>
-      </div>
+    <div className="p-6 space-y-6">
+      <h2 className="text-xl font-semibold">Bulk Catalog Messaging</h2>
 
-      <div className="mb-8 p-4 border dark:bg-dark-surface dark:border-dark-border dark:text-dark-text-primary border-blue-200 rounded-lg bg-blue-50">
-        <h3 className="text-xl font-semibold mb-3">Message Status</h3>
-        {messageStatus.latest ? (
-          <div className="space-y-2">
-            <p>
-              <span className="font-medium">To:</span> {messageStatus.latest.to}
-            </p>
-            <p>
-              <span className="font-medium">Status:</span>{" "}
-              <span className={`font-semibold ${messageStatus.latest.newStatus === "delivered" ? "text-green-600" :
-                messageStatus.latest.newStatus === "read" ? "text-blue-600" :
-                  messageStatus.latest.newStatus === "failed" ? "text-red-600" : "text-yellow-600"
-                }`}>
-                {messageStatus.latest.newStatus.toUpperCase()}
-              </span>
-            </p>
-            <p className="text-sm text-gray-600">
-              {messageStatus.latest.receivedAt || new Date().toLocaleTimeString()}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {/* File Upload */}
+        <div>
+          <label className="block font-medium mb-2">Upload Contacts File</label>
+          <input
+            type="file"
+            id="bulkContactsFile"
+            className="w-full border rounded-md p-2"
+            onChange={handleBulkFileChange}
+            accept=".csv,.xlsx,.xls"
+            required
+          />
+          <p className="text-sm text-gray-500 mt-1">
+            Supported formats: CSV, XLSX, XLS
+          </p>
+        </div>
+
+        {/* Template Selection */}
+        <div>
+          <label className="block font-medium mb-2">Template</label>
+          <select
+            className="w-full border rounded-md p-2"
+            value={selectedTemplate}
+            onChange={(e) => setSelectedTemplate(e.target.value)}
+            required
+          >
+            <option value="">Select Template</option>
+            {templates.map((tpl) => (
+              <option key={tpl._id} value={tpl.name}>
+                {tpl.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Message Type */}
+        <div>
+          <label className="block font-medium mb-2">Message Type</label>
+          <select
+            className="w-full border rounded-md p-2"
+            value={messageType}
+            onChange={handleMessageTypeChange}
+            required
+          >
+            <option value="">Select Type</option>
+            <option value="catalog">Catalog</option>
+            <option value="spm">Single Product (SPM)</option>
+            <option value="mpm">Multi Product (MPM)</option>
+          </select>
+        </div>
+
+        {/* Catalog ID Display */}
+        {metaCatalogId && (
+          <div className="p-3 bg-blue-50 rounded-md">
+            <p className="text-sm">
+              <span className="font-medium">Catalog ID:</span> {metaCatalogId}
             </p>
           </div>
-        ) : (
-          <p className="text-gray-600">Awaiting status updates...</p>
         )}
 
-        {messageStatus.recent.length > 0 && (
-          <div className="mt-4">
-            <h4 className="font-medium mb-2">Recent Updates</h4>
-            <ul className="space-y-1 text-sm">
-              {messageStatus.recent.map((update, i) => (
-                <li key={i} className="bg-white p-2 rounded border">
-                  {update.to} - {update.newStatus.toUpperCase()}
-                </li>
+        {/* SPM - Single Product Message */}
+        {messageType === "spm" && (
+          <div>
+            <label className="block font-medium mb-2">Select Product</label>
+            <select
+              className="w-full border rounded-md p-2"
+              value={selectedProductId}
+              onChange={(e) => setSelectedProductId(e.target.value)}
+              required
+            >
+              <option value="">Select Product</option>
+              {products.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
               ))}
-            </ul>
+            </select>
           </div>
         )}
-      </div>
 
-      {activeTab === "group" ? (
-        <GroupWiseBroadcasting />
-      ) : (
-        <div className="p-4 border dark:border-dark-border dark:boder-dark-border border-gray-200 rounded-lg">
-          <h3 className="text-xl font-semibold dark:text-dark-text-primary mb-4">Bulk Template Messages</h3>
-
-      <form onSubmit={handleBulkMessageSubmit} className="space-y-4">
+        {/* MPM - Multi Product Message */}
+        {messageType === "mpm" && (
+          <div className="space-y-4">
             <div>
-              <label className="block dark:text-dark-text-primary font-medium mb-1">Template</label>
+              <label className="block font-medium mb-2">Thumbnail Product</label>
               <select
-                className="w-full border dark:bg-dark-surface dark:text-dark-text-primary rounded-md p-2"
-                value={bulkTemplateName}
-                onChange={(e) => setBulkTemplateName(e.target.value)}
+                className="w-full border rounded-md p-2"
+                value={thumbnailProductId}
+                onChange={(e) => setThumbnailProductId(e.target.value)}
                 required
-                disabled={isLoading.templates}
               >
-                <option value="">Select Template</option>
-                {templates.map(tpl => (
-                  <option key={tpl._id} value={tpl.name}>
-                    {tpl.name} ({tpl.language})
+                <option value="">Select Thumbnail Product</option>
+                {products.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name}
                   </option>
                 ))}
               </select>
-              {templates.length === 0 && (
-                <p className="text-sm text-red-500 mt-1">
-                  No approved templates found
-                </p>
-              )}
+              <p className="text-sm text-gray-500 mt-1">
+                This product will be shown as the thumbnail in the message
+              </p>
             </div>
-
-            {renderHeaderImageUpload()}
-
-            {renderTemplatePreview()}
 
             <div>
-              <label className="block dark:text-dark-text-primary font-medium mb-1">Contacts File</label>
-              <input
-                type="file"
-                id="bulkContactsFile"
-                className="w-full border dark:text-dark-text-primary dark:bg-dark-surface rounded-md p-2"
-                onChange={handleBulkFileChange}
-                accept=".csv,.xlsx,.xls"
-                required
-              />
-              {excelHeaders.length > 0 && (
-                <div className="mt-3">
-                  <p className="text-sm font-medium">Detected Columns:</p>
-                  <div className="flex flex-wrap gap-2 mt-1">
-                    {excelHeaders.map(header => (
-                      <span key={header} className="bg-gray-100 px-2 py-1 rounded text-sm">
-                        {header}
-                      </span>
-                    ))}
-                  </div>
-                  {mismatchedHeaders.length > 0 && (
-                    <p className="text-sm text-red-500 mt-2">
-                      Missing columns: {mismatchedHeaders.join(", ")}
-                    </p>
-                  )}
+              <div className="flex justify-between items-center mb-3">
+                <h4 className="font-medium">Sections</h4>
+                <button
+                  type="button"
+                  className="px-3 py-1 bg-blue-500 text-white rounded-md text-sm"
+                  onClick={handleAddSection}
+                >
+                  + Add Section
+                </button>
+              </div>
+              
+              {sections.map((section, sIndex) => (
+                <div key={sIndex} className="border p-3 rounded-md mb-3">
+                  <input
+                    type="text"
+                    placeholder="Section Title"
+                    value={section.title}
+                    onChange={(e) => handleSectionChange(sIndex, "title", e.target.value)}
+                    className="w-full border rounded-md p-2 mb-2"
+                    required
+                  />
+                  {section.product_items.map((item, pIndex) => (
+                    <div key={pIndex} className="flex gap-2 mb-2">
+                      <select
+                        className="flex-1 border rounded-md p-2"
+                        value={item.product_retailer_id}
+                        onChange={(e) => handleProductChange(sIndex, pIndex, e.target.value)}
+                        required
+                      >
+                        <option value="">Select Product</option>
+                        {products.map((p) => (
+                          <option key={p.id} value={p.id}>
+                            {p.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    className="px-3 py-1 bg-gray-200 rounded-md text-sm"
+                    onClick={() => handleAddProductToSection(sIndex)}
+                  >
+                    + Add Product
+                  </button>
                 </div>
-              )}
+              ))}
             </div>
+          </div>
+        )}
 
-            {/* Scheduling Section */}
- <div className="flex items-center justify-between border p-4 rounded-md dark:border-dark-border dark:bg-dark-surface">
-          <div className="flex items-center space-x-4">
-            <span className="font-medium dark:text-dark-text-primary">Send Mode:</span>
+        {/* Scheduling */}
+        <div>
+          <label className="block font-medium mb-2">Send Mode</label>
+          <div className="flex gap-3 mt-2">
             <button
               type="button"
-              className={`px-4 py-2 rounded-md ${sendMode === 'send-now' ? 'bg-blue-600 text-white' : 'bg-gray-200 dark:bg-dark-surface dark:text-dark-text-primary'}`}
-              onClick={() => setSendMode('send-now')}
+              className={`px-4 py-2 rounded-md ${sendMode === "send-now" ? "bg-blue-600 text-white" : "bg-gray-200"}`}
+              onClick={() => setSendMode("send-now")}
             >
               Send Now
             </button>
             <button
               type="button"
-              className={`px-4 py-2 rounded-md ${sendMode === 'schedule' ? 'bg-blue-600 text-white' : 'bg-gray-200 dark:bg-dark-surface dark:text-dark-text-primary'}`}
-              onClick={() => setSendMode('schedule')}
+              className={`px-4 py-2 rounded-md ${sendMode === "schedule" ? "bg-blue-600 text-white" : "bg-gray-200"}`}
+              onClick={() => setSendMode("schedule")}
             >
               Schedule
             </button>
           </div>
-
-        
-  {sendMode === 'schedule' && (
-            <div className="flex-1 ml-4  w-full">
-              <label className="block font-medium text-gray-700 dark:text-dark-text-primary mb-1">
-                Scheduled Date & Time
-              </label>
+          {sendMode === "schedule" && (
+            <div className="mt-3">
+              <label className="block font-medium mb-2">Schedule Date & Time</label>
               <DatePicker
                 selected={scheduledDateTime}
                 onChange={(date) => setScheduledDateTime(date)}
@@ -565,26 +424,22 @@ const ProductBroadCasting = () => {
                 timeIntervals={15}
                 dateFormat="MMMM d, yyyy h:mm aa"
                 minDate={new Date()}
-                className="w-full border dark:bg-dark-surface dark:text-dark-text-primary rounded-md p-2"
+                className="w-full border rounded-md p-2"
+                placeholderText="Select date and time"
+                required
               />
             </div>
           )}
-                  </div>
+        </div>
 
         <button
           type="submit"
-          className="w-full bg-primary-500 text-white py-2 rounded-md hover:bg-blue-700 disabled:opacity-50"
-          disabled={isLoading.sending || isLoading.uploading || mismatchedHeaders.length > 0}
+          className="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 disabled:bg-gray-400"
+          disabled={loading}
         >
-          {isLoading.sending 
-            ? "Processing..." 
-            : sendMode === 'schedule' 
-              ? "Schedule Messages" 
-              : "Send Messages Now"}
+          {loading ? "Processing..." : (sendMode === "schedule" ? "Schedule Message" : "Send Now")}
         </button>
-          </form>
-        </div>
-      )}
+      </form>
     </div>
   );
 };
