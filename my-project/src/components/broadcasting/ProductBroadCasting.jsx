@@ -241,40 +241,8 @@ const ProductBroadCasting = () => {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* File Upload */}
-        <div>
-          <label className="block font-medium mb-2">Upload Contacts File</label>
-          <input
-            type="file"
-            id="bulkContactsFile"
-            className="w-full border rounded-md p-2"
-            onChange={handleBulkFileChange}
-            accept=".csv,.xlsx,.xls"
-            required
-          />
-          <p className="text-sm text-gray-500 mt-1">
-            Supported formats: CSV, XLSX, XLS
-          </p>
-        </div>
-
-        {/* Template Selection */}
-        <div>
-          <label className="block font-medium mb-2">Template</label>
-          <select
-            className="w-full border rounded-md p-2"
-            value={selectedTemplate}
-            onChange={(e) => setSelectedTemplate(e.target.value)}
-            required
-          >
-            <option value="">Select Template</option>
-            {templates.map((tpl) => (
-              <option key={tpl._id} value={tpl.name}>
-                {tpl.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Message Type */}
+        
+ {/* Message Type */}
         <div>
           <label className="block font-medium mb-2">Message Type</label>
           <select
@@ -289,8 +257,9 @@ const ProductBroadCasting = () => {
             <option value="mpm">Multi Product (MPM)</option>
           </select>
         </div>
+        {/* Template Selection */}
 
-        {/* Catalog ID Display */}
+         {/* Catalog ID Display */}
         {metaCatalogId && (
           <div className="p-3 bg-blue-50 rounded-md">
             <p className="text-sm">
@@ -393,7 +362,40 @@ const ProductBroadCasting = () => {
             </div>
           </div>
         )}
+        <div>
+          <label className="block font-medium mb-2">Template</label>
+          <select
+            className="w-full border rounded-md p-2"
+            value={selectedTemplate}
+            onChange={(e) => setSelectedTemplate(e.target.value)}
+            required
+          >
+            <option value="">Select Template</option>
+            {templates.map((tpl) => (
+              <option key={tpl._id} value={tpl.name}>
+                {tpl.name}
+              </option>
+            ))}
+          </select>
+        </div>
 
+       
+
+       
+<div>
+          <label className="block font-medium mb-2">Upload Contacts File</label>
+          <input
+            type="file"
+            id="bulkContactsFile"
+            className="w-full border rounded-md p-2"
+            onChange={handleBulkFileChange}
+            accept=".csv,.xlsx,.xls"
+            required
+          />
+          <p className="text-sm text-gray-500 mt-1">
+            Supported formats: CSV, XLSX, XLS
+          </p>
+        </div>
         {/* Scheduling */}
         <div>
           <label className="block font-medium mb-2">Send Mode</label>

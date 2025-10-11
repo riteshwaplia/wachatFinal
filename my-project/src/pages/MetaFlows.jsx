@@ -5,7 +5,7 @@ import { useParams } from "react-router-dom";
 import Button from "../components/Button";
 import Loader from "../components/Loader";
 const MetaFlows = () => {
-    const  {id} = useParams();
+  const { id } = useParams();
   const [flows, setFlows] = useState([]);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -59,15 +59,10 @@ const MetaFlows = () => {
             </p>
           </div>
           <div className="flex space-x-3">
-            <Button
-              onClick={() => navigate(`/project/${id}/metaflows/create`)}
-            >
+            <Button onClick={() => navigate(`/project/${id}/metaflows/create`)}>
               + Create Flow
             </Button>
-            <Button
-              onClick={syncFlows}
-                variant="secondary"
-            >
+            <Button onClick={syncFlows} variant="secondary">
               🔄 Sync Flows
             </Button>
           </div>
@@ -113,6 +108,29 @@ const MetaFlows = () => {
                 <p className="text-xs text-gray-400 mt-3">
                   Updated: {new Date(flow.updatedAt).toLocaleString()}
                 </p>
+                <div className="flex mt-4 space-y-2 gap-10 jutify-between w-full">
+                  <Button
+                  size="sm"
+                    variant="secondary"
+                    onClick={() =>
+                      navigate(`/project/${id}/metaflows/${flow._id}/edit`)
+                    }
+                    className="mt-2 "
+                  >
+                    Create Template
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+
+                    onClick={() =>
+                      navigate(`/project/${id}/metaflows/${flow._id}/edit`)
+                    }
+                    className="mt-3"
+                  >
+                    Edit Flow
+                  </Button>
+                </div>
               </div>
             ))}
           </div>

@@ -1765,6 +1765,7 @@ import {
   ToggleRight,
   Link2,
   Calendar,
+  List,
   CalendarDays,
   Image as ImageIcon,
   LayoutGrid,
@@ -2086,11 +2087,28 @@ import toast from "react-hot-toast";
 
 const EditComponentModal = ({ component, onSave, onDelete, onClose }) => {
   const [editedComponent, setEditedComponent] = useState(component);
-
+const validationRules = {
+  TextHeading: { max: 80, label: "Heading" },
+  TextSubheading: { max: 80, label: "Subheading" },
+  TextBody: { max: 4096, label: "Body" },
+  TextCaption: { max: 409, label: "Caption" },
+  Dropdown: { maxOptionLength: 30 },
+  RadioButtonsGroup: { maxOptionLength: 30 },
+  CheckboxGroup: { maxOptionLength: 30 },
+  ChipsSelector: { maxOptionLength: 30 },
+  TextInput: { max: 200 },
+  TextArea: { max: 2000 },
+};
   const handleChange = (updates) => {
     setEditedComponent({ ...editedComponent, ...updates });
   };
-
+const validateTextLength = (value, max, fieldName) => {
+  if (value.length > max) {
+    toast.error(`${fieldName} cannot exceed ${max} characters.`);
+    return value.slice(0, max); // auto-truncate safely
+  }
+  return value;
+};
   const handleSave = () => {
     onSave(editedComponent);
     onClose();
@@ -2162,13 +2180,16 @@ const EditComponentModal = ({ component, onSave, onDelete, onClose }) => {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Label
                 </label>
-                <input
-                  type="text"
-                  value={editedComponent.label || ""}
-                  onChange={(e) => handleChange({ label: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-                  placeholder="Enter label..."
-                />
+               <input
+  type="text"
+  value={editedComponent.label || ""}
+  onChange={(e) => {
+    const value = validateTextLength(e.target.value, 20, "Label");
+    handleChange({ label: value });
+  }}
+  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+  placeholder="Enter label..."
+/>
               </div>
 
               <div>
@@ -2183,43 +2204,46 @@ const EditComponentModal = ({ component, onSave, onDelete, onClose }) => {
                   placeholder="Enter field name..."
                 />
               </div>
+{(editedComponent.type !== "Footer" && editedComponent.type !== "NavigationList") && (
+  <div>
+    <label className="flex items-center">
+      <input
+        type="checkbox"
+        checked={editedComponent.required || false}
+        onChange={(e) => handleChange({ required: e.target.checked })}
+        className="mr-2"
+      />
+      <span className="text-sm font-medium text-gray-700">
+        Required Field
+      </span>
+    </label>
+  </div>
+)}
 
-              {editedComponent.type !== "Footer" && (
-                <div>
-                  <label className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={editedComponent.required || false}
-                      onChange={(e) =>
-                        handleChange({ required: e.target.checked })
-                      }
-                      className="mr-2"
-                    />
-                    <span className="text-sm font-medium text-gray-700">
-                      Required Field
-                    </span>
-                  </label>
-                </div>
-              )}
             </>
           )}
 
           {/* Text content for Text components */}
           {textComponents.includes(editedComponent.type) && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Text Content
-              </label>
-              <textarea
-                value={editedComponent.text || ""}
-                onChange={(e) => handleChange({ text: e.target.value })}
-                rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter text content..."
-              />
-            </div>
-          )}
-
+  <div>
+    <label className="block text-sm font-medium text-gray-700 mb-1">
+      Text Content
+    </label>
+    <textarea
+      value={editedComponent.text || ""}
+      onChange={(e) => {
+        const rule = validationRules[editedComponent.type];
+        const value = rule
+          ? validateTextLength(e.target.value, rule.max, rule.label)
+          : e.target.value;
+        handleChange({ text: value });
+      }}
+      rows={3}
+      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+      placeholder="Enter text content..."
+    />
+  </div>
+)}
           {/* Placeholder for TextInput/TextArea */}
           {/* {["TextInput", "TextArea"].includes(editedComponent.type) && (
             <div>
@@ -2510,7 +2534,226 @@ const EditComponentModal = ({ component, onSave, onDelete, onClose }) => {
     </div>
   </div>
 )}
+{editedComponent.type === "NavigationList" && (
+  <div className="space-y-6">
+    <h4 className="text-lg font-semibold">Navigation List Items</h4>
 
+    {/* Add new item button */}
+    <button
+      onClick={() => {
+        const items = editedComponent["list-items"] || [];
+        const newItem = {
+          id: `item_${items.length + 1}`,
+          "main-content": { title: "", metadata: "" },
+          end: { title: "", description: "" },
+          "on-click-action": {
+            name: "navigate",
+            next: { name: "", type: "screen" },
+            payload: {}
+          }
+        };
+        handleChange({ "list-items": [...items, newItem] });
+      }}
+      className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
+    >
+      + Add List Item
+    </button>
+
+    {(editedComponent["list-items"] || []).map((item, index) => (
+      <div
+        key={index}
+        className="border rounded-md p-4 space-y-3 bg-gray-50"
+      >
+        <h5 className="font-medium text-gray-700">Item {index + 1}</h5>
+
+        {/* Title */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Title
+          </label>
+          <input
+            type="text"
+            value={item["main-content"]?.title || ""}
+            onChange={(e) => {
+              const updated = [...(editedComponent["list-items"] || [])];
+              updated[index]["main-content"].title = e.target.value;
+              handleChange({ "list-items": updated });
+            }}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        {/* Metadata */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Metadata
+          </label>
+          <input
+            type="text"
+            value={item["main-content"]?.metadata || ""}
+            onChange={(e) => {
+              const updated = [...(editedComponent["list-items"] || [])];
+              updated[index]["main-content"].metadata = e.target.value;
+              handleChange({ "list-items": updated });
+            }}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        {/* End (price or secondary info) */}
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-sm text-gray-700 mb-1">End Title</label>
+            <input
+              type="text"
+              value={item.end?.title || ""}
+              onChange={(e) => {
+                const updated = [...(editedComponent["list-items"] || [])];
+                updated[index].end.title = e.target.value;
+                handleChange({ "list-items": updated });
+              }}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm text-gray-700 mb-1">
+              End Description
+            </label>
+            <input
+              type="text"
+              value={item.end?.description || ""}
+              onChange={(e) => {
+                const updated = [...(editedComponent["list-items"] || [])];
+                updated[index].end.description = e.target.value;
+                handleChange({ "list-items": updated });
+              }}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        </div>
+
+        {/* Navigation Action */}
+        <div>
+          <label className="block text-sm text-gray-700 mb-1">
+            Next Screen Name
+          </label>
+          <input
+            type="text"
+            value={item["on-click-action"]?.next?.name || ""}
+            onChange={(e) => {
+              const updated = [...(editedComponent["list-items"] || [])];
+              updated[index]["on-click-action"].next.name = e.target.value;
+              handleChange({ "list-items": updated });
+            }}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+            placeholder="SECOND_SCREEN"
+          />
+        </div>
+
+        {/* Delete Item */}
+        <button
+          onClick={() => {
+            const updated = (editedComponent["list-items"] || []).filter(
+              (_, i) => i !== index
+            );
+            handleChange({ "list-items": updated });
+          }}
+          className="px-3 py-1 bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition"
+        >
+          Delete Item
+        </button>
+      </div>
+    ))}
+  </div>
+)}
+
+{editedComponent.type === "PhotoPicker" && (
+  <>
+    <label className="block text-sm font-medium">Label</label>
+    <input
+      type="text"
+      value={editedComponent.label || ""}
+      onChange={(e) => handleChange({ label: e.target.value })}
+      className="w-full px-2 py-1 border rounded"
+    />
+
+    <label className="block text-sm mt-2">Description</label>
+    <textarea
+      value={editedComponent.description || ""}
+      onChange={(e) => handleChange({ description: e.target.value })}
+      className="w-full px-2 py-1 border rounded"
+    />
+
+    <div className="grid grid-cols-2 gap-2 mt-2">
+      <div>
+        <label className="block text-xs">Min Photos</label>
+        <input
+          type="number"
+          value={editedComponent["min-uploaded-photos"] || 1}
+          onChange={(e) =>
+            handleChange({ "min-uploaded-photos": parseInt(e.target.value) })
+          }
+          className="w-full px-2 py-1 border rounded"
+        />
+      </div>
+      <div>
+        <label className="block text-xs">Max Photos</label>
+        <input
+          type="number"
+          value={editedComponent["max-uploaded-photos"] || 10}
+          onChange={(e) =>
+            handleChange({ "max-uploaded-photos": parseInt(e.target.value) })
+          }
+          className="w-full px-2 py-1 border rounded"
+        />
+      </div>
+    </div>
+  </>
+)}
+
+{editedComponent.type === "DocumentPicker" && (
+  <>
+    <label className="block text-sm font-medium">Label</label>
+    <input
+      type="text"
+      value={editedComponent.label || ""}
+      onChange={(e) => handleChange({ label: e.target.value })}
+      className="w-full px-2 py-1 border rounded"
+    />
+
+    <label className="block text-sm mt-2">Description</label>
+    <textarea
+      value={editedComponent.description || ""}
+      onChange={(e) => handleChange({ description: e.target.value })}
+      className="w-full px-2 py-1 border rounded"
+    />
+
+    <div className="grid grid-cols-2 gap-2 mt-2">
+      <div>
+        <label className="block text-xs">Min Documents</label>
+        <input
+          type="number"
+          value={editedComponent["min-uploaded-documents"] || 1}
+          onChange={(e) =>
+            handleChange({ "min-uploaded-documents": parseInt(e.target.value) })
+          }
+          className="w-full px-2 py-1 border rounded"
+        />
+      </div>
+      <div>
+        <label className="block text-xs">Max Documents</label>
+        <input
+          type="number"
+          value={editedComponent["max-uploaded-documents"] || 1}
+          onChange={(e) =>
+            handleChange({ "max-uploaded-documents": parseInt(e.target.value) })
+          }
+          className="w-full px-2 py-1 border rounded"
+        />
+      </div>
+    </div>
+  </>
+)}
 
           {/* EmbeddedLink */}
 {editedComponent.type === "EmbeddedLink" && (
@@ -3862,12 +4105,12 @@ const cleanLayout = (layout) => {
         visible: true,
       },
     },
-    {
-      type: "RichText",
-      label: "Rich Text",
-      icon: Edit3,
-      config: { type: "RichText", text: "Rich text content", visible: true },
-    },
+    // {
+    //   type: "RichText",
+    //   label: "Rich Text",
+    //   icon: Edit3,
+    //   config: { type: "RichText", text: "Rich text content", visible: true },
+    // },
     {
       type: "TextInput",
       label: "Text Input",
@@ -4051,6 +4294,38 @@ const cleanLayout = (layout) => {
         visible: true,
       },
     },
+     {
+    type: "PhotoPicker",
+    label: "Photo Picker",
+    icon: ImageIcon, // your image icon import
+    config: {
+      type: "PhotoPicker",
+      name: "photo_picker",
+      label: "Upload photos",
+      description: "Please attach images about the received items",
+      "photo-source": "camera_gallery",
+      "min-uploaded-photos": 1,
+      "max-uploaded-photos": 10,
+      "max-file-size-kb": 10240,
+      visible: true,
+    },
+  },
+  {
+    type: "DocumentPicker",
+    label: "Document Picker",
+    icon: FileText, // your document icon import
+    config: {
+      type: "DocumentPicker",
+      name: "document_picker",
+      label: "Contract",
+      description: "Attach the signed copy of the contract",
+      "min-uploaded-documents": 1,
+      "max-uploaded-documents": 1,
+      "max-file-size-kb": 1024,
+      "allowed-mime-types": ["image/jpeg", "application/pdf"],
+      visible: true,
+    },
+  },
     {
       type: "Footer",
       label: "Footer Button",

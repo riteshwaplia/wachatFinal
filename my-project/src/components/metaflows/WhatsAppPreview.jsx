@@ -307,6 +307,134 @@ const renderComponent = (component, index) => {
           )}
         </div>
       );
+    case "NavigationList":
+      return (
+        <div key={index} className="mb-6">
+          <div className="bg-white rounded-lg p-3 shadow-sm max-w-[95%] rounded-tl-none">
+            <div className="space-y-2">
+              {(component["list-items"] || []).map((item, i) => (
+                <button
+                  key={i}
+                  onClick={() => {
+                    if (item["on-click-action"]?.next?.name) {
+                      const nextScreenIndex = screens.findIndex(
+                        (s) => s.name === item["on-click-action"].next.name
+                      );
+                      if (nextScreenIndex !== -1) {
+                        setTimeout(() => {
+                          setCurrentScreenIndex(nextScreenIndex);
+                        }, 400);
+                      }
+                    }
+                  }}
+                  className="w-full flex justify-between items-center border border-gray-200 rounded-lg p-3 text-left hover:bg-gray-50 transition-colors"
+                >
+                  {/* Start Section (optional image or icon) */}
+                  {item.start?.image && (
+                    <img
+                      src={`data:image/png;base64,${item.start.image}`}
+                      alt={item.start["alt-text"] || ""}
+                      className="w-10 h-10 rounded-md mr-3 object-cover"
+                    />
+                  )}
+
+                  {/* Main Content */}
+                  <div className="flex-1">
+                    <div className="text-[14px] font-medium text-gray-800">
+                      {item["main-content"]?.title || "Untitled Item"}
+                    </div>
+                    {item["main-content"]?.metadata && (
+                      <div className="text-[12px] text-gray-500">
+                        {item["main-content"].metadata}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* End Section */}
+                  {(item.end?.title || item.end?.description) && (
+                    <div className="text-right ml-3">
+                      {item.end?.title && (
+                        <div className="text-[13px] font-semibold text-gray-800">
+                          {item.end.title}
+                        </div>
+                      )}
+                      {item.end?.description && (
+                        <div className="text-[11px] text-gray-500">
+                          {item.end.description}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+case "PhotoPicker":
+  return (
+    <div key={index} className="mb-6">
+      <label className="block text-[14px] text-gray-700 mb-2">
+        {component.label}
+      </label>
+      <p className="text-[12px] text-gray-500 mb-2">
+        {component.description || "Please attach images about the received items. Add 1 to 10 photos. Max file size 10 MB. Minimum 1 photo required."}
+      </p>
+
+      <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 bg-white">
+        {formData[component.name]?.length > 0 ? (
+          <div className="flex flex-wrap gap-3">
+            {formData[component.name].map((file, idx) => (
+              <img
+                key={idx}
+                src={URL.createObjectURL(file)}
+                alt={`upload-${idx}`}
+                className="w-20 h-20 object-cover rounded-md border border-gray-200"
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="flex justify-center items-center text-gray-400 text-4xl h-40">
+            📷
+          </div>
+        )}
+
+        {/* Camera-only icon button */}
+       
+      </div>
+    </div>
+  );
+
+case "DocumentPicker":
+  return (
+    <div key={index} className="mb-6">
+      <label className="block text-[14px] text-gray-700 mb-2">
+        {component.label}
+      </label>
+      <p className="text-[12px] text-gray-500 mb-2">
+        {component.description || "Please capture the documents using your camera."}
+      </p>
+
+      <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 bg-white">
+        {formData[component.name]?.length > 0 ? (
+          <div className="flex flex-wrap gap-3">
+            {formData[component.name].map((file, idx) => (
+              <div key={idx} className="w-20 h-20 flex justify-center items-center bg-gray-100 rounded-md border border-gray-200 text-3xl">
+                📄
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="flex justify-center items-center text-gray-400 text-4xl h-40">
+            📎
+          </div>
+        )}
+
+        {/* Camera-only icon button */}
+       
+      </div>
+    </div>
+  );
 
     case "Image":
       return (
