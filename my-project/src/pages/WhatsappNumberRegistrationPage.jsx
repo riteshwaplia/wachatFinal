@@ -19,7 +19,7 @@ import { useTranslation } from 'react-i18next';
 import { validateBusinessProfile } from '../utils/validation';
 import Celebrations from '../components/Celebrations';
 import Confetti from 'react-confetti-boom';
-
+import { toast } from 'react-hot-toast';
 const WhatsappNumberRegistrationPage = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
@@ -157,6 +157,11 @@ const WhatsappNumberRegistrationPage = () => {
         const validationErrors = validateBusinessProfile(formData);
         if (Object.keys(validationErrors).length > 0) {
             setErrors(validationErrors);
+            return;
+        }
+        if(formData.catalogAccess){
+            formData.businessPortfolioId = ''
+            toast.error("Please add Business Portfolio ID")
             return;
         }
         updateState({ isLoading: true });

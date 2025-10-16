@@ -213,5 +213,6 @@
 "Address":"Adresse",
 "Email":"Courriel",
 "Websites":"Sites web",
-"sendmessage":"Envoyer un message"
+"sendmessage":"Envoyer un message",
+"filterByDate":"Filtrer par date"
 } 

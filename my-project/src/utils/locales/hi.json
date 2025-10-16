@@ -213,6 +213,6 @@
    "Address":"पता",
    "Email":"ईमेल",
    "Websites":"वेबसाइटें",
-  "sendmessage":"संदेश भेजें"
-
+  "sendmessage":"संदेश भेजें",
+"filterByDate":"तिथि द्वारा फ़िल्टर करें"
 } 

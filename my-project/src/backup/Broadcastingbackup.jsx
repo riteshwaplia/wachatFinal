@@ -95,7 +95,7 @@ const SendMessagePage = () => {
       // Use projectDetails.businessProfileId._id for fetching templates
       // Ensure projectDetails is loaded before this call
 
-      const templatesRes = await api.get("/templates/allapprovedtemplates", { // Use api directly with /api/
+      const templatesRes = await api.get("/templates/templates-regular", { // Use api directly with /api/
         ...config,
         params: {
           businessProfileId: businessProfileId,

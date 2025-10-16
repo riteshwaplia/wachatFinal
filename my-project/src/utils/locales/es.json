@@ -212,5 +212,6 @@
 "Address":"Dirección",
 "Email":"Correo electrónico",
 "Websites":"Sitios web",
-"sendmessage":"Enviar mensaje"
+"sendmessage":"Enviar mensaje",
+"filterByDate":"Filtrar por fecha"
 } 

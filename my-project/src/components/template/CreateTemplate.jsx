@@ -16,12 +16,13 @@ import Badge from "../Badge";
 import Modal from "../Modal";
 import Button from "../Button";
 import { ErrorToast } from "../../utils/Toast";
-
+import InstructionBox from "../InstructionBox";
 const TEMPLATE_CATEGORIES = [
   { label: "Marketing", value: "MARKETING" },
   { label: "Utility", value: "UTILITY" },
   // { label: "Authentication", value: "AUTHENTICATION" },
 ];
+import { instructionSets } from "../../utils/instructionSets"; // Adjust path as needed
 
 const HEADER_TYPES = [
   { label: "None", value: "" },
@@ -620,13 +621,16 @@ const CreateTemplate = () => {
     <>
       {" "}
       <BackButton text="back" />
+
+
+
       <div className="md:flex relative  w-full gap-4">
         <form
           onSubmit={handleSubmit}
           className="p-2 w-full md:w-3/5 flex flex-col gap-4"
         >
           {/* Catalog Template Toggle */}
-          <div className="flex items-center gap-2">
+          {/* <div className="flex items-center gap-2">
             <input
               type="checkbox"
               id="catalogTemplate"
@@ -636,8 +640,76 @@ const CreateTemplate = () => {
             <label htmlFor="catalogTemplate" className="text-sm font-medium">
               Is Catalog Template
             </label>
-          </div>
+          </div> */}
+  <div className="mt-6 p-3 bg-gray-50 dark:bg-dark-background rounded-lg">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <label className="text-sm font-medium text-gray-900 dark:text-dark-text-primary">
+                      Catalog Template
+                    </label>
+                    <p className="text-xs text-gray-500 mt-1">
+                      For product messages
+                    </p>
+                  </div>
+                  <div className="relative inline-block w-12 h-6">
+                    <input
+                      type="checkbox"
+                      id="catalogTemplate"
+                      checked={isCatalogTemplate}
+                      onChange={(e) => toggleCatalogTemplate(e.target.checked)}
+                      className="sr-only"
+                    />
+                    <label
+                      htmlFor="catalogTemplate"
+                      className={`block w-12 h-6 rounded-full transition-colors cursor-pointer ${
+                        isCatalogTemplate ? 'bg-blue-600' : 'bg-gray-300'
+                      }`}
+                    >
+                      <span
+                        className={`absolute top-1 left-1 bg-white w-4 h-4 rounded-full transition-transform ${
+                          isCatalogTemplate ? 'transform translate-x-6' : ''
+                        }`}
+                      />
+                    </label>
+                  </div>
+                </div>
+              </div>
+              {isCatalogTemplate && (
+  <>
+    <InstructionBox
+     title="🛍️ WhatsApp Catalog Template Guidelines"
+    points= {[
+      "✅ Used for promoting your full product catalog.",
+      "✅ <strong>Header:</strong> None (Catalog templates don’t use headers).",
+      "✅ <strong>Body:</strong> Required. Use text variables like {{1}} for personalization.",
+      "✅ <strong>Footer:</strong> Optional short text like 'Thanks for shopping with us!'.",
+      "✅ <strong>Buttons:</strong> Must include one  button type (e.g., <em> catalog</em>).",
 
+      ]}
+    />
+
+      <InstructionBox
+       title= "📦 Single Product Template Instructions"
+    points={ [
+      "✅ Used to highlight a <strong>specific product</strong> from your catalog.",
+      "✅ <strong>Header:</strong> Must have a <code>format: 'product'</code> to link the catalog product.",
+      "✅ <strong>Body:</strong> Include product details or message; can use variables like {{1}}, {{2}}.",
+      "✅ <strong>Footer:</strong> Optional short note (e.g., 'Limited stock available!').",
+      "✅ <strong>Buttons:</strong> Include one  (Single Product ) button ",
+        ]}
+      />
+
+      <InstructionBox
+        title= "🧩 Multi Product (Carousel) Template Instructions"
+    points={ [
+      "✅ Used to show <strong>multiple products</strong> from your catalog (carousel style).",
+      "✅ <strong>Header:</strong> Optional. Can include <code>TEXT</code> with personalization (e.g., 'Hey {{1}}!').",
+      "✅ <strong>Body:</strong> Main message body, can include variables and promotional text.",
+      "✅ <strong>Buttons:</strong> Must use one  (Multi Product ) ",
+        ]}
+      />
+  </>
+)}
           <Input
             placeholder="Template Name"
             label="Template Name "
@@ -753,7 +825,16 @@ const CreateTemplate = () => {
                   ))}
               </div>
             )}
-
+{template.components.find((c) => c.type === "HEADER")?.format === "TEXT" && (
+  <InstructionBox
+    title="Header Text Guidelines"
+    points={[
+      "Use concise header text (max 60 characters).",
+      "If using {{1}} variable, provide an example to help Meta understand the content.",
+      "Example: 'Hello {{1}}, your order is ready!' → Example: 'Hello Ritesh, your order is ready!'",
+    ]}
+  />
+)}
             {["DOCUMENT", "IMAGE", "VIDEO"].includes(
               headerComponentInState?.format || ""
             ) && (
@@ -790,6 +871,19 @@ const CreateTemplate = () => {
               </div>
             )}
           </div>
+{["IMAGE", "VIDEO", "DOCUMENT"].includes(
+  template.components.find((c) => c.type === "HEADER")?.format || ""
+) && (
+  <InstructionBox
+    title="Media Header Guidelines"
+    points={[
+      "Upload a clear and relevant image/video/document that represents your message.",
+      "Avoid generic stock images or logos without context.",
+      "Meta may reject templates if media content seems unrelated to the message body.",
+      "Ensure file size is under 5MB for images and 16MB for videos.",
+    ]}
+  />
+)}
 
           {/* Body Section */}
           <div className="w-full">
@@ -846,6 +940,17 @@ const CreateTemplate = () => {
             <div className="text-sm text-red-500 mt-1">{errors.buttons}</div>
           )}
           {/* Submit Button */}
+          {template.components.find((c) => c.type === "BUTTONS")?.buttons?.length > 0 && (
+  <InstructionBox
+    title="Buttons Guidelines"
+    points={[
+      "Button text must be concise (20 characters max).",
+      "Avoid overly generic labels like 'Click Here'. Use 'View Order', 'Track Now', etc.",
+      "For URL buttons, include example links (e.g., https://example.com/order).",
+      "For phone buttons, provide a valid country code (e.g., +91XXXXXXXXXX).",
+    ]}
+  />
+)}
           <Button
             type="submit"
             loading={createLoading}

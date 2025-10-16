@@ -1,18 +1,24 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import api from "../utils/api";
-import { useParams } from "react-router-dom";
 import Button from "../components/Button";
 import Loader from "../components/Loader";
+// import CreateTemplateFromFlowModal from "./component/metaflows/CreateTemplateFromFlowModal"; // 👈 new import
+import CreateTemplateFromFlowModal from "../components/metaflows/CreateTemplateFromFlowModal"; // 👈 new import
 const MetaFlows = () => {
   const { id } = useParams();
   const [flows, setFlows] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedFlow, setSelectedFlow] = useState(null);
+
   const navigate = useNavigate();
+
   const project = localStorage.getItem("currentProject")
     ? JSON.parse(localStorage.getItem("currentProject"))
     : null;
   const businessProfileId = project?.businessProfileId._id || null;
+
   // ✅ Fetch Flows from backend
   const fetchFlows = async () => {
     try {
@@ -47,6 +53,20 @@ const MetaFlows = () => {
     if (businessProfileId) fetchFlows();
   }, [businessProfileId]);
 
+  // ✅ Handle opening modal with flow data
+  const handleCreateTemplate = (flow) => {
+    setSelectedFlow({
+      name: flow.name || "new_flow_template",
+      language: "en_US",
+      category: "MARKETING",
+      businessProfileId: businessProfileId,
+      bodyText: flow.bodyText || "Hi {{1}}, welcome to our store! Tap below to explore our special offers.",
+      flowId: flow.metaFlowId || "",
+      buttonText: "View Offers",
+    });
+    setShowModal(true);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
@@ -67,6 +87,7 @@ const MetaFlows = () => {
             </Button>
           </div>
         </header>
+
         {/* Flows List */}
         {loading ? (
           <Loader />
@@ -108,27 +129,14 @@ const MetaFlows = () => {
                 <p className="text-xs text-gray-400 mt-3">
                   Updated: {new Date(flow.updatedAt).toLocaleString()}
                 </p>
-                <div className="flex mt-4 space-y-2 gap-10 jutify-between w-full">
+
+                <div className="flex mt-4 justify-between w-full">
                   <Button
-                  size="sm"
+                    size="sm"
                     variant="secondary"
-                    onClick={() =>
-                      navigate(`/project/${id}/metaflows/${flow._id}/edit`)
-                    }
-                    className="mt-2 "
+                    onClick={() => handleCreateTemplate(flow)}
                   >
                     Create Template
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-
-                    onClick={() =>
-                      navigate(`/project/${id}/metaflows/${flow._id}/edit`)
-                    }
-                    className="mt-3"
-                  >
-                    Edit Flow
                   </Button>
                 </div>
               </div>
@@ -136,6 +144,14 @@ const MetaFlows = () => {
           </div>
         )}
       </div>
+
+      {/* 🧩 Create Template Modal */}
+      <CreateTemplateFromFlowModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        prefillData={selectedFlow}
+        onSuccess={fetchFlows}
+      />
     </div>
   );
 };

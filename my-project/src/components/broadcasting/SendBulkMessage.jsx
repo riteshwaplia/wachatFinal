@@ -80,7 +80,7 @@ const SendMessagePage = () => {
 
   const fetchTemplates = async () => {
     try {
-      const res = await api.get("/templates/allapprovedtemplates", {
+      const res = await api.get("/templates/templates-regular", {
         ...config,
         params: { businessProfileId }
       });

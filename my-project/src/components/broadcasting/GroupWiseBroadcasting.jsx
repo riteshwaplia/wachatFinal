@@ -187,7 +187,7 @@ export default function GroupWiseBroadcasting() {
     useEffect(() => {
         const fetchTemplatesAndContacts = async () => {
             try {
-                const templatesRes = await api.get("templates/allapprovedtemplates", {
+                const templatesRes = await api.get("templates/templates-regular", {
                     ...config,
                     params: {
                         businessProfileId: businessProfileId,

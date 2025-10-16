@@ -72,6 +72,7 @@ import CreateMetaFlows from "./components/metaflows/CreateMetaFlows";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import DragDropDemo from "./components/metaflows/DragDropDemo";
+import BroadcastDetails from "./components/broadcasting/BroadcastDetails";
 const AdminRoute = ({ children }) => (
   <ProtectedRoute roles={["super_admin", "tenant_admin"]}>
     <AdminLayout>{children}</AdminLayout>
@@ -287,6 +288,10 @@ function AppContent() {
         <Route
           path="/project/:id/broadcasting"
           element={<ProjectRouteWrapper component={BulkMessagingDashboard} />}
+        /> 
+        <Route
+          path="/project/:id/broadcasting/bulk-send-jobs/:broadcastId"
+          element={<ProjectRouteWrapper component={BroadcastDetails} />}
         />
         <Route
           path="/project/:id/broadcasting/send-bulk"

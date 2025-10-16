@@ -1773,6 +1773,7 @@ import {
 } from "lucide-react";
 import Button from "../Button";
 import toast from "react-hot-toast";
+import InstructionPanel from "./InstructionPanel";
 // Modal Component for Editing
 // const EditComponentModal = ({ component, onSave, onDelete, onClose }) => {
 //   const [editedComponent, setEditedComponent] = useState(component);
@@ -2099,6 +2100,135 @@ const validationRules = {
   TextInput: { max: 200 },
   TextArea: { max: 2000 },
 };
+
+// ✅ Validation rules before saving
+const validateBeforeSave = () => {
+  const type = editedComponent.type;
+
+  // Common required field validation
+  if (shouldShowLabelName && !editedComponent.label?.trim()) {
+    toast.error("Label is required.");
+    return false;
+  }
+
+  if (shouldShowLabelName && !editedComponent.name?.trim()) {
+    toast.error("Field name is required.");
+    return false;
+  }
+
+  // Component-type-specific validation
+  switch (type) {
+    case "TextHeading":
+    case "TextSubheading":
+    case "TextBody":
+    case "TextCaption":
+      if (!editedComponent.text?.trim()) {
+        toast.error(`${type.replace("Text", "")} cannot be empty.`);
+        return false;
+      }
+      break;
+
+    case "Image":
+      if (!editedComponent.src) {
+        toast.error("Please upload or provide an image (Base64 or URL).");
+        return false;
+      }
+      if (editedComponent.width <= 0 || editedComponent.height <= 0) {
+        toast.error("Image width and height must be greater than zero.");
+        return false;
+      }
+      break;
+
+    case "Dropdown":
+    case "RadioButtonsGroup":
+    case "CheckboxGroup":
+    case "ChipsSelector":
+      if (!editedComponent["data-source"] || editedComponent["data-source"].length === 0) {
+        toast.error("Please add at least one option.");
+        return false;
+      }
+      break;
+
+    case "Footer":
+      if (!editedComponent.label?.trim()) {
+        toast.error("Footer button label is required.");
+        return false;
+      }
+      break;
+
+    case "OptIn":
+      if (!editedComponent.label?.trim()) {
+        toast.error("Opt-in label is required.");
+        return false;
+      }
+      if (!editedComponent.name?.trim()) {
+        toast.error("Opt-in name is required.");
+        return false;
+      }
+      break;
+
+    case "EmbeddedLink":
+      if (!editedComponent.text?.trim()) {
+        toast.error("Embedded link text is required.");
+        return false;
+      }
+      const action = editedComponent["on-click-action"]?.name;
+      if (action === "open_url" && !editedComponent["on-click-action"]?.url?.trim()) {
+        toast.error("URL is required for 'Open URL' action.");
+        return false;
+      }
+      if (action === "navigate" && !editedComponent["on-click-action"]?.next?.name?.trim()) {
+        toast.error("Next screen name is required for 'Navigate' action.");
+        return false;
+      }
+      break;
+
+    case "NavigationList":
+      if (!editedComponent["list-items"] || editedComponent["list-items"].length === 0) {
+        toast.error("Add at least one navigation list item.");
+        return false;
+      }
+      for (const [index, item] of editedComponent["list-items"].entries()) {
+        if (!item["main-content"].title?.trim()) {
+          toast.error(`Item ${index + 1}: Title is required.`);
+          return false;
+        }
+        if (!item["on-click-action"]?.next?.name?.trim()) {
+          toast.error(`Item ${index + 1}: Next screen name is required.`);
+          return false;
+        }
+      }
+      break;
+
+    case "PhotoPicker":
+      if (!editedComponent.label?.trim()) {
+        toast.error("Photo picker label is required.");
+        return false;
+      }
+      if (!editedComponent["max-uploaded-photos"] || editedComponent["max-uploaded-photos"] < 1) {
+        toast.error("Max uploaded photos must be at least 1.");
+        return false;
+      }
+      break;
+
+    case "DocumentPicker":
+      if (!editedComponent.label?.trim()) {
+        toast.error("Document picker label is required.");
+        return false;
+      }
+      if (!editedComponent["max-uploaded-documents"] || editedComponent["max-uploaded-documents"] < 1) {
+        toast.error("Max uploaded documents must be at least 1.");
+        return false;
+      }
+      break;
+
+    default:
+      break;
+  }
+
+  return true; // ✅ all validations passed
+};
+
   const handleChange = (updates) => {
     setEditedComponent({ ...editedComponent, ...updates });
   };
@@ -2110,9 +2240,11 @@ const validateTextLength = (value, max, fieldName) => {
   return value;
 };
   const handleSave = () => {
-    onSave(editedComponent);
-    onClose();
-  }; // 🧩 Image uploader — converts to Base64 and updates component config
+  if (!validateBeforeSave()) return; // stop if invalid
+  onSave(editedComponent);
+  onClose();
+};
+// 🧩 Image uploader — converts to Base64 and updates component config
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -4521,9 +4653,31 @@ const cleanLayout = (layout) => {
                 {/* <p className="text-sm text-gray-600 mb-4">
                   See how your flow will appear to users in WhatsApp
                 </p> */}
-                <div className="h-[600px]">
-                  <WhatsAppPreview screens={screens} flowName={flowName} />
-                </div>
+               {/* Right - WhatsApp Preview & Instructions */}
+<div className="col-span-4 space-y-6">
+    <div className="bg-white rounded-lg shadow-sm border p-4 sticky top-[px]">
+    <h2 className="text-lg font-semibold mb-2">Instructions</h2>
+<InstructionPanel
+  selectedComponent={selectedComponent}
+  screenComponents={
+    selectedComponent
+      ? screens.find((s) => s.id === selectedComponent.screenId)?.components || []
+      : []
+  }
+/>
+  </div>
+  {/* WhatsApp Preview */}
+  <div className="bg-white rounded-lg shadow-sm border p-4 sticky top-6">
+    <h2 className="text-lg font-semibold mb-4">WhatsApp Preview</h2>
+    <div className="h-[400px]">
+      <WhatsAppPreview screens={screens} flowName={flowName} />
+    </div>
+  </div>
+
+  {/* Dynamic Instructions */}
+
+</div>
+
               </div>
             </div>
           </div>

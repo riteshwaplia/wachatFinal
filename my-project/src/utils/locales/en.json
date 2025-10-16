@@ -212,6 +212,19 @@
 "Email":"Email",
 "Websites":"Websites",
 "contacts":"contacts",
-"sendmessage":"Send Message"
+"sendmessage":"Send Message",
+"filterByDate":"Filter by Date",
+  "today": "Today",
+  "yesterday": "Yesterday",
+  "7days": "Last 7 Days",
+  "30days": "Last 30 Days",
+  "custom": "Custom",
+  "exportCSV": "Export CSV",
+  "jobDetails": "Job Details",
+  "startTime": "Start Time",
+  "errorMessage": "Error Message",
+  "noMessagesFound": "No messages found",
+  "broadcastNotFound": "Broadcast not found",
+  "completed_with_errors": "Completed with errors"
 
 } 

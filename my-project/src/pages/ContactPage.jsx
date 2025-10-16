@@ -680,10 +680,10 @@ const ContactPage = () => {
     if (!finalSelectedGroups || finalSelectedGroups.length === 0) {
       newErrors.groups = "please select group first";
     }
-    if (!columnMapping.Name) newErrors.name = "please select the fields first";
-    if (!columnMapping.Email) newErrors.name = "please select the fields first";
-    if (!columnMapping.mobileNumber)
-      newErrors.name = "please select the fields first";
+    // if (!columnMapping.Name) newErrors.name = "please select the fields first";
+    // if (!columnMapping.Email) newErrors.name = "please select the fields first";
+    // if (!columnMapping.mobileNumber)
+    //   newErrors.name = "please select the fields first";
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -1108,13 +1108,13 @@ const ContactPage = () => {
                               scope="col"
                               className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                             >
-                              {t("contact")}
+                              {t("profile")}
                             </th>
                             <th
                               scope="col"
                               className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                             >
-                              {t("details")}
+                              {t("contact")} {t("info")}
                             </th>
                             <th
                               scope="col"
@@ -1122,12 +1122,12 @@ const ContactPage = () => {
                             >
                               {t("groups")}
                             </th>
-                            <th
+                            {/* <th
                               scope="col"
                               className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                             >
                               {t("sendmessage")}
-                            </th>
+                            </th> */}
                             <th
                               scope="col"
                               className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
@@ -1192,7 +1192,7 @@ const ContactPage = () => {
                                   )}
                                 </div>
                               </td>
-                              <td className="px-6 py-4 whitespace-nowrap">
+                              {/* <td className="px-6 py-4 whitespace-nowrap">
                                 <div className="flex items-center">
                                   <div className="flex-shrink-0 h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center">
                                     <FaWhatsapp className="h-5 w-5 text-primary-600" />
@@ -1206,7 +1206,7 @@ const ContactPage = () => {
                                     </button>
                                   </div>
                                 </div>
-                              </td>
+                              </td> */}
                               <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <div className="flex justify-end space-x-2">
                                   <Button
@@ -1597,9 +1597,9 @@ const ContactPage = () => {
                         <th className="px-4 py-2 text-left font-medium text-gray-500 uppercase">
                           {t("phone")}
                         </th>
-                        <th className="px-4 py-2 text-left font-medium text-gray-500 uppercase">
+                        {/* <th className="px-4 py-2 text-left font-medium text-gray-500 uppercase">
                           {t("groups")}
-                        </th>
+                        </th> */}
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y dark:divide-dark-border  dark:text-dark-text-primary divide-gray-200 dark:bg-dark-surface">
@@ -1609,16 +1609,16 @@ const ContactPage = () => {
 
                         <td className="px-4 py-2">+1234567890</td>
 
-                        <td className="px-4 py-2">
+                        {/* <td className="px-4 py-2">
                           60c72b2f...8765,60c72b3a...1234
-                        </td>
+                        </td> */}
                       </tr>
                       <tr>
                         <td className="px-4 py-2">Jane Smith</td>
                         <td className="px-4 py-2">jane@example.com</td>
                         <td className="px-4 py-2">+1987654321</td>
 
-                        <td className="px-4 py-2">60c72b3a...1234</td>
+                        {/* <td className="px-4 py-2">60c72b3a...1234</td> */}
                       </tr>
                     </tbody>
                   </table>

@@ -39,6 +39,7 @@ const TemplatePage = () => {
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+const [metaStatus, setMetaStatus] = useState("");
 
   // Form state
 
@@ -57,7 +58,10 @@ const TemplatePage = () => {
           businessProfileId,
           page,
           limit: 6,
-          type: type, // adjust per row/column size
+          type: type, 
+                  metaStatus, // ✅ include new filter
+
+          // adjust per row/column size
         },
       });
 
@@ -88,7 +92,7 @@ const TemplatePage = () => {
     } else if (!user) {
       navigate("/login");
     }
-  }, [user, token, projectId, page, templateType]);
+  }, [user, token, projectId, page, templateType, metaStatus]); // ✅ added metaStatus
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -319,7 +323,7 @@ const TemplatePage = () => {
           </Button>
         </div>
       </div>
-      <div className="w-full flex justify-end items-end sm:w-auto">
+      {/* <div className="w-full flex justify-end items-end sm:w-auto">
         <select
           id="template"
           value={templateType}
@@ -333,7 +337,40 @@ const TemplatePage = () => {
           <option value="regular">Regular Template</option>
           <option value="carousel">Carousel Template</option>
         </select>
-      </div>
+      </div> */}
+      <div className="flex flex-col sm:flex-row justify-end gap-3 items-end w-full sm:w-auto">
+  {/* Template Type Filter */}
+  <select
+    id="template-type"
+    value={templateType}
+    onChange={(e) => setTemplateType(e.target.value)}
+    className="w-full sm:w-auto px-4 py-2 border border-gray-300 dark:border-gray-600 
+         rounded-lg bg-white dark:bg-dark-surface text-gray-700 dark:text-gray-200
+         focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none
+         transition-colors"
+  >
+    <option value="">All Types</option>
+    <option value="regular">Regular Template</option>
+    <option value="carousel">Carousel Template</option>
+  </select>
+
+  {/* Meta Status Filter */}
+  <select
+    id="meta-status"
+    value={metaStatus}
+    onChange={(e) => setMetaStatus(e.target.value)}
+    className="w-full sm:w-auto px-4 py-2 border border-gray-300 dark:border-gray-600 
+         rounded-lg bg-white dark:bg-dark-surface text-gray-700 dark:text-gray-200
+         focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none
+         transition-colors"
+  >
+    <option value="">All Status</option>
+    <option value="APPROVED">Approved</option>
+    <option value="PENDING">Pending</option>
+    <option value="REJECTED">Rejected</option>
+  </select>
+</div>
+
       {/* Message Alert */}
       {message.text && (
         <Alert variant={message.type} className="mb-6">
