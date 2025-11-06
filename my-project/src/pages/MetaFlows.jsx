@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import api from "../utils/api";
 import Button from "../components/Button";
 import Loader from "../components/Loader";
+import { toast } from "react-hot-toast";
 // import CreateTemplateFromFlowModal from "./component/metaflows/CreateTemplateFromFlowModal"; // 👈 new import
 import CreateTemplateFromFlowModal from "../components/metaflows/CreateTemplateFromFlowModal"; // 👈 new import
 const MetaFlows = () => {
@@ -47,6 +48,17 @@ const MetaFlows = () => {
     } finally {
       setLoading(false);
     }
+  };
+  // /api/metaflows/:businessProfileId/:metaFlowId
+  const deleteFlows = async (metaFlowId) => {
+    try {
+      const res = await api.delete(`/metaflows/${businessProfileId}/${metaFlowId}`);
+      if (res.data.success) {
+        toast.success("Flow deleted successfully"); }
+    } catch (err) {
+      toast.error(err.message || "Error deleting flow");
+      console.error("Error deelete flows:", err.response?.data || err.message);
+    } 
   };
 
   useEffect(() => {
@@ -137,6 +149,13 @@ const MetaFlows = () => {
                     onClick={() => handleCreateTemplate(flow)}
                   >
                     Create Template
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="text"
+                    onClick={() => deleteFlows(flow.metaFlowId)}
+                  >
+                    Delete Flow
                   </Button>
                 </div>
               </div>

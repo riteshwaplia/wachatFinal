@@ -343,78 +343,83 @@ const SendMessagePage = () => {
     }
   };
 
-  const renderTemplatePreview = () => {
-    try {
-      const parsed = JSON.parse(bulkTemplateComponents);
-      let headerVars = [];
-      let bodyVars = [];
+const renderTemplatePreview = () => {
+  try {
+    const parsed = JSON.parse(bulkTemplateComponents);
+    let variableCount = 0;
 
-      parsed.forEach(comp => {
-        if (comp.type === "HEADER" && comp.example?.header_text) {
-          headerVars = comp.example.header_text;
-        }
-        if (comp.type === "BODY" && comp.example?.body_text) {
-          bodyVars = comp.example.body_text[0] || [];
-        }
-      });
+    // Count total {{1}}, {{2}} placeholders across all components
+    parsed.forEach(comp => {
+      const matches = comp.text?.match(/{{(\d+)}}/g);
+      if (matches) variableCount = Math.max(variableCount, ...matches.map(v => parseInt(v.match(/\d+/)[0])));
+    });
 
-      if (headerVars.length === 0 && bodyVars.length === 0) return null;
-
-      const columns = ["mobilenumber", ...headerVars.map(v => `header_${v}`), ...bodyVars.map(v => `body_${v}`)];
-      const sampleRow = {
-        mobilenumber: "919999999999",
-        ...Object.fromEntries(headerVars.map((v, i) => [`header_${v}`, `Header${i + 1}`])),
-        ...Object.fromEntries(bodyVars.map((v, i) => [`body_${v}`, `Body${i + 1}`]))
-      };
-
-      return (
-        <div className="mt-6">
-          <h4 className="text-lg font-semibold text-gray-700 mb-2">
-            Required Excel Format
-          </h4>
-          <div className="overflow-auto border rounded-md bg-white mb-3">
-            <table className="min-w-full border-collapse">
-              <thead className="bg-gray-100">
-                <tr>
-                  {columns.map(col => (
-                    <th key={col} className="border px-3 py-2 text-sm font-medium">
-                      {col}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  {columns.map(col => (
-                    <td key={col} className="border px-3 py-2 text-sm">
-                      {sampleRow[col] || ""}
-                    </td>
-                  ))}
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <button
-            onClick={() => {
-              const csv = [columns.join(","), columns.map(c => sampleRow[c]).join(",")].join("\n");
-              const blob = new Blob([csv], { type: "text/csv" });
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement("a");
-              a.href = url;
-              a.download = "template_sample.csv";
-              a.click();
-              URL.revokeObjectURL(url);
-            }}
-            className="px-4 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-sm"
-          >
-            Download Sample CSV
-          </button>
-        </div>
-      );
-    } catch (e) {
-      return null;
+    // Define required columns
+    const columns = ["countrycode", "mobilenumber"];
+    for (let i = 1; i <= variableCount; i++) {
+      columns.push(`variable_${i}`);
     }
-  };
+
+    // Create a sample row
+    const sampleRow = {
+      countrycode: "91",
+      mobilenumber: "9876543210",
+    };
+    for (let i = 1; i <= variableCount; i++) {
+      sampleRow[`variable_${i}`] = `Example_${i}`;
+    }
+
+    return (
+      <div className="mt-6">
+        <h4 className="text-lg font-semibold text-gray-700 mb-2">
+          Required Excel Format
+        </h4>
+        <div className="overflow-auto border rounded-md bg-white mb-3">
+          <table className="min-w-full border-collapse">
+            <thead className="bg-gray-100">
+              <tr>
+                {columns.map(col => (
+                  <th key={col} className="border px-3 py-2 text-sm font-medium text-gray-700">
+                    {col}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                {columns.map(col => (
+                  <td key={col} className="border px-3 py-2 text-sm">
+                    {sampleRow[col] || ""}
+                  </td>
+                ))}
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <button
+          onClick={() => {
+            const csv = [columns.join(","), columns.map(c => sampleRow[c]).join(",")].join("\n");
+            const blob = new Blob([csv], { type: "text/csv" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "bulk_template_sample.csv";
+            a.click();
+            URL.revokeObjectURL(url);
+          }}
+          className="px-4 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-sm"
+        >
+          Download Sample CSV
+        </button>
+      </div>
+    );
+  } catch (e) {
+    console.error("Error parsing bulkTemplateComponents:", e);
+    return null;
+  }
+};
+
 
   return (
     <div className="space-y-6 p-6">
