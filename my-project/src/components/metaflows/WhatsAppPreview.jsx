@@ -9,8 +9,8 @@ const WhatsAppPreview = ({ screens, flowName }) => {
 
   if (!currentScreen) {
     return (
-      <div className="bg-[#efeae2] rounded-2xl p-4 h-full flex items-center justify-center">
-        <div className="text-center text-gray-500">
+      <div className="bg-[#efeae2] dark:bg-gray-900 rounded-2xl p-4 h-full flex items-center justify-center">
+        <div className="text-center text-gray-500 dark:text-gray-300">
           <div className="text-4xl mb-2">💬</div>
           <p>No screens to preview</p>
           <p className="text-sm mt-2">Add screens to see WhatsApp preview</p>
@@ -50,8 +50,8 @@ const renderComponent = (component, index) => {
     case "TextHeading":
       return (
         <div key={index} className="mb-1">
-          <div className="bg-white rounded-lg   max-w-[95%] rounded-tl-none">
-            <div className="text-2xl font-bold text-gray-800 whitespace-pre-wrap leading-relaxed">
+          <div className="bg-white dark:bg-gray-800 rounded-lg   max-w-[95%] rounded-tl-none">
+            <div className="text-2xl font-bold text-gray-800 dark:text-gray-100 whitespace-pre-wrap leading-relaxed">
               {component.text}
             </div>
           </div>
@@ -61,8 +61,8 @@ const renderComponent = (component, index) => {
     case "TextSubheading":
       return (
         <div key={index} className="mb-1">
-          <div className="bg-white   max-w-[95%] rounded-tl-none">
-            <div className="text-lg font-semibold text-gray-800 whitespace-pre-wrap leading-relaxed">
+          <div className="bg-white dark:bg-gray-800   max-w-[95%] rounded-tl-none">
+            <div className="text-lg font-semibold text-gray-800 dark:text-gray-100 whitespace-pre-wrap leading-relaxed">
               {component.text}
             </div>
           </div>
@@ -72,8 +72,8 @@ const renderComponent = (component, index) => {
     case "TextBody":
       return (
         <div key={index} className="mb-1">
-          <div className="bg-white   max-w-[95%] rounded-tl-none">
-            <div className="text-base text-gray-700 whitespace-pre-wrap leading-relaxed">
+          <div className="bg-white dark:bg-gray-800   max-w-[95%] rounded-tl-none">
+            <div className="text-base text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
               {component.text}
             </div>
           </div>
@@ -83,8 +83,8 @@ const renderComponent = (component, index) => {
     case "TextCaption":
       return (
         <div key={index} className="mb-1">
-          <div className="bg-white  max-w-[95%] rounded-tl-none">
-            <div className="text-sm text-gray-600 whitespace-pre-wrap leading-relaxed">
+          <div className="bg-white dark:bg-gray-800  max-w-[95%] rounded-tl-none">
+            <div className="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
               {component.text}
             </div>
           </div>
@@ -94,8 +94,8 @@ const renderComponent = (component, index) => {
     case "RichText":
       return (
         <div key={index} className="mb-4">
-          <div className="bg-white  max-w-[95%] rounded-tl-none">
-            <div className="text-base text-gray-700 whitespace-pre-wrap leading-relaxed">
+          <div className="bg-white dark:bg-gray-800  max-w-[95%] rounded-tl-none">
+            <div className="text-base text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
               {component.text}
             </div>
           </div>
@@ -114,11 +114,11 @@ const renderComponent = (component, index) => {
             type={component["input-type"] || "text"}
             value={formData[component.name] || ""}
             onChange={(e) => handleInputChange(component.name, e.target.value)}
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-[14px]"
+            className="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-[14px] bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
             placeholder={component.helperText || `Enter ${component.label.toLowerCase()}...`}
           />
           {component.helperText && (
-            <div className="text-[12px] text-gray-500 mt-1 px-1">
+            <div className="text-[12px] text-gray-500 dark:text-gray-400 mt-1 px-1">
               {component.helperText}
             </div>
           )}
@@ -137,10 +137,10 @@ const renderComponent = (component, index) => {
               value={formData[component.name] || ""}
               onChange={(e) => handleInputChange(component.name, e.target.value)}
               rows={4}
-              className="w-full p-3 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-[14px]"
+              className="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-[14px] bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
               placeholder={component.helperText || "Type your message..."}
             />
-            <div className="absolute bottom-2 right-2 text-[12px] text-gray-400">
+            <div className="absolute bottom-2 right-2 text-[12px] text-gray-400 dark:text-gray-500">
               {formData[component.name]?.length || 0} / 600
             </div>
           </div>
@@ -158,7 +158,7 @@ const renderComponent = (component, index) => {
           <select
             value={formData[component.name] || ""}
             onChange={(e) => handleInputChange(component.name, e.target.value)}
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-[14px] bg-white"
+            className="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-[14px] bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
           >
             <option value="">Select an option</option>
             {component.options && component.options.map((option, optIndex) => (
@@ -179,7 +179,7 @@ const renderComponent = (component, index) => {
           </div>
           <div className="space-y-2">
             {component.options && component.options.map((option, optIndex) => (
-              <label key={optIndex} className="flex items-center gap-3 p-3 bg-white rounded-lg cursor-pointer hover:bg-gray-50">
+              <label key={optIndex} className="flex items-center gap-3 p-3 bg-white dark:bg-gray-800 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
                 <input
                   type="radio"
                   name={component.name}
@@ -187,7 +187,7 @@ const renderComponent = (component, index) => {
                   onChange={() => handleInputChange(component.name, option)}
                   className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500"
                 />
-                <span className="text-[14px] text-gray-800">{option}</span>
+                <span className="text-[14px] text-gray-800 dark:text-gray-200">{option}</span>
               </label>
             ))}
           </div>
@@ -203,14 +203,14 @@ const renderComponent = (component, index) => {
           </div>
           <div className="space-y-2">
             {component.options && component.options.map((option, optIndex) => (
-              <label key={optIndex} className="flex items-center gap-3 p-3 bg-white rounded-lg cursor-pointer hover:bg-gray-50">
+              <label key={optIndex} className="flex items-center gap-3 p-3 bg-white dark:bg-gray-800 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
                 <input
                   type="checkbox"
                   checked={selectedOptions[component.name]?.includes(option) || false}
                   onChange={() => handleCheckboxChange(component.name, option)}
                   className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
                 />
-                <span className="text-[14px] text-gray-800">{option}</span>
+                <span className="text-[14px] text-gray-800 dark:text-gray-200">{option}</span>
               </label>
             ))}
           </div>
@@ -233,7 +233,7 @@ const renderComponent = (component, index) => {
                 className={`px-4 py-2 rounded-full border text-[14px] transition-colors ${
                   selectedOptions[component.name]?.includes(option)
                     ? "bg-blue-500 text-white border-blue-500"
-                    : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                    : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
                 }`}
               >
                 {option}
@@ -247,7 +247,7 @@ const renderComponent = (component, index) => {
     case "OptIn":
       return (
         <div key={index} className="mb-6">
-          <label className="flex items-start gap-3 p-3 bg-white rounded-lg cursor-pointer hover:bg-gray-50">
+          <label className="flex items-start gap-3 p-3 bg-white dark:bg-gray-800 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
             <input
               type="checkbox"
               checked={formData[component.name] || false}
@@ -255,11 +255,11 @@ const renderComponent = (component, index) => {
               className="w-4 h-4 mt-0.5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
             />
             <div className="flex-1">
-              <div className="text-[14px] text-gray-800 mb-1">
+              <div className="text-[14px] text-gray-800 dark:text-gray-200 mb-1">
                 {component.label}
                 {component.required && <span className="text-red-500 ml-1">*</span>}
               </div>
-              <div className="text-[12px] text-gray-500">
+              <div className="text-[12px] text-gray-500 dark:text-gray-400">
                 {component.helperText || "Managed by the business. Learn more"}
               </div>
             </div>
@@ -270,8 +270,8 @@ const renderComponent = (component, index) => {
     case "EmbeddedLink":
       return (
         <div key={index} className="mb-4">
-          <div className="bg-white rounded-lg p-4 shadow-sm max-w-[95%] rounded-tl-none">
-            <div className="text-[14px] text-gray-800 mb-2">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm max-w-[95%] rounded-tl-none">
+            <div className="text-[14px] text-gray-800 dark:text-gray-200 mb-2">
               {component.label}
             </div>
             <a
@@ -374,14 +374,14 @@ const renderComponent = (component, index) => {
 case "PhotoPicker":
   return (
     <div key={index} className="mb-6">
-      <label className="block text-[14px] text-gray-700 mb-2">
+      <label className="block text-[14px] text-gray-700 dark:text-gray-300 mb-2">
         {component.label}
       </label>
-      <p className="text-[12px] text-gray-500 mb-2">
+      <p className="text-[12px] text-gray-500 dark:text-gray-400 mb-2">
         {component.description || "Please attach images about the received items. Add 1 to 10 photos. Max file size 10 MB. Minimum 1 photo required."}
       </p>
 
-      <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 bg-white">
+      <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-white dark:bg-gray-800">
         {formData[component.name]?.length > 0 ? (
           <div className="flex flex-wrap gap-3">
             {formData[component.name].map((file, idx) => (
@@ -389,12 +389,12 @@ case "PhotoPicker":
                 key={idx}
                 src={URL.createObjectURL(file)}
                 alt={`upload-${idx}`}
-                className="w-20 h-20 object-cover rounded-md border border-gray-200"
+                className="w-20 h-20 object-cover rounded-md border border-gray-200 dark:border-gray-600"
               />
             ))}
           </div>
         ) : (
-          <div className="flex justify-center items-center text-gray-400 text-4xl h-40">
+          <div className="flex justify-center items-center text-gray-400 dark:text-gray-500 text-4xl h-40">
             📷
           </div>
         )}
@@ -408,24 +408,24 @@ case "PhotoPicker":
 case "DocumentPicker":
   return (
     <div key={index} className="mb-6">
-      <label className="block text-[14px] text-gray-700 mb-2">
+      <label className="block text-[14px] text-gray-700 dark:text-gray-300 mb-2">
         {component.label}
       </label>
-      <p className="text-[12px] text-gray-500 mb-2">
+      <p className="text-[12px] text-gray-500 dark:text-gray-400 mb-2">
         {component.description || "Please capture the documents using your camera."}
       </p>
 
-      <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 bg-white">
+      <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-white dark:bg-gray-800">
         {formData[component.name]?.length > 0 ? (
           <div className="flex flex-wrap gap-3">
             {formData[component.name].map((file, idx) => (
-              <div key={idx} className="w-20 h-20 flex justify-center items-center bg-gray-100 rounded-md border border-gray-200 text-3xl">
+              <div key={idx} className="w-20 h-20 flex justify-center items-center bg-gray-100 dark:bg-gray-700 rounded-md border border-gray-200 dark:border-gray-600 text-3xl">
                 📄
               </div>
             ))}
           </div>
         ) : (
-          <div className="flex justify-center items-center text-gray-400 text-4xl h-40">
+          <div className="flex justify-center items-center text-gray-400 dark:text-gray-500 text-4xl h-40">
             📎
           </div>
         )}
@@ -463,7 +463,7 @@ case "DocumentPicker":
 
         />
               ) : null}
-              <div className={`text-gray-500 text-sm ${component.src ? 'hidden' : 'block'}`}>
+              <div className={`text-gray-500 dark:text-gray-400 text-sm ${component.src ? 'hidden' : 'block'}`}>
                 🖼️ Image: {component.src || "No image URL provided"}
               </div>
             </div>
@@ -496,8 +496,8 @@ case "DocumentPicker":
     default:
       return (
         <div key={index} className="mb-4">
-          <div className="bg-white rounded-lg p-4 shadow-sm max-w-[85%] rounded-tl-none">
-            <div className="text-[14px] text-gray-800">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm max-w-[85%] rounded-tl-none">
+            <div className="text-[14px] text-gray-800 dark:text-gray-200">
               {component.type}: {component.label}
             </div>
           </div>
@@ -508,7 +508,7 @@ case "DocumentPicker":
   const formChildren = currentScreen?.layout?.children?.[0]?.children || [];
 
   return (
-    <div className="bg-[#fff] rounded-2xl overflow-hidden h-full flex flex-col max-w-md mx-auto shadow-lg">
+    <div className="bg-[#fff] dark:bg-gray-900 rounded-2xl overflow-hidden h-full flex flex-col max-w-md mx-auto shadow-lg text-gray-900 dark:text-gray-100">
       {/* WhatsApp Header */}
       <div className="bg-[#008069] text-white p-4">
         <div className="flex items-center gap-3">
@@ -540,9 +540,9 @@ case "DocumentPicker":
       </div>
 
       {/* Chat Area */}
-      <div className="flex-1 p-4 overflow-y-auto bg-[#fff] bg-opacity-50">
+      <div className="flex-1 p-4 overflow-y-auto bg-[#fff] dark:bg-gray-900 bg-opacity-50">
         {/* Date */}
-        <div className="text-center text-gray-500 text-[12px] mb-6">
+        <div className="text-center text-gray-500 dark:text-gray-400 text-[12px] mb-6">
           Today, 10:24 AM
         </div>
 
@@ -571,9 +571,9 @@ case "DocumentPicker":
       </div>
 
       {/* Navigation Controls */}
-      <div className="bg-white p-4 border-t border-gray-200">
+      <div className="bg-white dark:bg-gray-900 p-4 border-t border-gray-200 dark:border-gray-800">
         <div className="flex justify-between items-center mb-2">
-          <div className="text-gray-600 text-[13px]">
+          <div className="text-gray-600 dark:text-gray-400 text-[13px]">
             Screen {currentScreenIndex + 1} of {screens.length}
           </div>
           <div className="flex gap-2">
@@ -582,7 +582,7 @@ case "DocumentPicker":
                 setCurrentScreenIndex(Math.max(0, currentScreenIndex - 1))
               }
               disabled={currentScreenIndex === 0}
-              className="px-3 py-1.5 bg-gray-200 text-gray-700 rounded text-[12px] disabled:opacity-50 hover:bg-gray-300 transition-colors"
+              className="px-3 py-1.5 bg-gray-200 text-gray-700 dark:bg-gray-800 dark:text-gray-200 rounded text-[12px] disabled:opacity-50 hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors"
             >
               ← Previous
             </button>
@@ -605,7 +605,7 @@ case "DocumentPicker":
             setFormData({});
             setSelectedOptions({});
           }}
-          className="w-full py-2 bg-gray-100 text-gray-700 rounded text-[12px] hover:bg-gray-200 transition-colors"
+          className="w-full py-2 bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-200 rounded text-[12px] hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
         >
           Reset Preview
         </button>

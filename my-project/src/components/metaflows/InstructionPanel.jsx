@@ -74,8 +74,8 @@ const InstructionPanel = ({ selectedComponent, screenComponents }) => {
     console.log("selectedComponent:", selectedComponent);
   if (!selectedComponent)
     return (
-      <div className="text-gray-500 text-sm text-center py-4">
-        <Info className="mx-auto mb-2 text-gray-400" />
+      <div className="text-gray-500 dark:text-gray-400 text-sm text-center py-4">
+        <Info className="mx-auto mb-2 text-gray-400 dark:text-gray-500" />
         Select a component to view relevant setup instructions.
       </div>
     );
@@ -126,9 +126,9 @@ const InstructionPanel = ({ selectedComponent, screenComponents }) => {
   }
 
   return (
-    <div className="p-4 space-y-4">
+    <div className="p-4 space-y-4 text-gray-900 dark:text-gray-100">
          {warnings.length > 0 && (
-        <div className="bg-red-50 border border-red-200 text-red-700 text-sm p-3 rounded-lg">
+        <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 text-red-700 dark:text-red-300 text-sm p-3 rounded-lg">
           <div className="flex items-center gap-2 mb-1">
             <AlertTriangle size={16} />
             <span className="font-semibold">Warnings</span>
@@ -146,10 +146,10 @@ const InstructionPanel = ({ selectedComponent, screenComponents }) => {
         <h2 className="text-lg font-semibold">{info.title}</h2>
       </div>
 
-      <p className="text-sm text-gray-600">{info.description}</p>
+      <p className="text-sm text-gray-600 dark:text-gray-300">{info.description}</p>
 
       {info.tips.length > 0 && (
-        <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
+        <ul className="list-disc list-inside text-sm text-gray-700 dark:text-gray-300 space-y-1">
           {info.tips.map((tip, i) => (
             <li key={i}>{tip}</li>
           ))}

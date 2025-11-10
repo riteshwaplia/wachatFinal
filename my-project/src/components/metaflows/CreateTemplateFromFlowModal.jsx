@@ -74,16 +74,16 @@ console.log('prefillData:', prefillData);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="🧩 Create Template from Flow" size="md">
-      <div className="space-y-4">
+      <div className="space-y-4 text-gray-900 dark:text-gray-100">
         {/* Template Name */}
         <div>
-          <label className="block text-sm font-medium text-gray-700">Template Name</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Template Name</label>
           <input
             type="text"
             name="name"
             value={form.name}
             onChange={(e) => handleInputChange("name", e.target.value)}
-            className="w-full border rounded-lg p-2 mt-1"
+            className="w-full border border-gray-300 dark:border-gray-700 rounded-lg p-2 mt-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
           />
           {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
         </div>
@@ -102,12 +102,12 @@ console.log('prefillData:', prefillData);
 
         {/* Category */}
         <div>
-          <label className="block text-sm font-medium text-gray-700">Category</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Category</label>
           <select
             name="category"
             value={form.category}
             onChange={(e) => handleInputChange("category", e.target.value)}
-            className="w-full border rounded-lg p-2 mt-1"
+            className="w-full border border-gray-300 dark:border-gray-700 rounded-lg p-2 mt-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
           >
             <option value="MARKETING">MARKETING</option>
             <option value="UTILITY">UTILITY</option>
@@ -117,26 +117,26 @@ console.log('prefillData:', prefillData);
 
         {/* Body Text */}
         <div>
-          <label className="block text-sm font-medium text-gray-700">Body Text</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Body Text</label>
           <textarea
             name="bodyText"
             value={form.bodyText}
             onChange={(e) => handleInputChange("bodyText", e.target.value)}
             rows={3}
-            className="w-full border rounded-lg p-2 mt-1"
+            className="w-full border border-gray-300 dark:border-gray-700 rounded-lg p-2 mt-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
           />
           {errors.bodyText && <p className="text-red-500 text-xs mt-1">{errors.bodyText}</p>}
         </div>
 
         {/* Button Text */}
         <div>
-          <label className="block text-sm font-medium text-gray-700">Button Text</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Button Text</label>
           <input
             type="text"
             name="buttonText"
             value={form.buttonText}
             onChange={(e) => handleInputChange("buttonText", e.target.value)}
-            className="w-full border rounded-lg p-2 mt-1"
+            className="w-full border border-gray-300 dark:border-gray-700 rounded-lg p-2 mt-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
           />
         </div>
 
@@ -144,7 +144,7 @@ console.log('prefillData:', prefillData);
         <div className="flex justify-end space-x-3 pt-4">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700"
+            className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
           >
             Cancel
           </button>

@@ -111,10 +111,10 @@ const TemplateGroupPage = () => {
   return (
     <>
       <BackButton text="back" />
-      <div className="template-user flex h-screen">
+      <div className="template-user flex h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100">
         {/* Sidebar */}
-        <div className="template-sidebar w-64 bg-gray-100 p-4 border-r flex flex-col">
-          <h2 className="text-lg font-semibold mb-4">Categories</h2>
+        <div className="template-sidebar w-64 bg-gray-100 dark:bg-gray-900 p-4 border-r dark:border-gray-700 flex flex-col">
+          <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">Categories</h2>
 
           {loading.categories ? (
             <div className="flex justify-center py-4">
@@ -128,7 +128,7 @@ const TemplateGroupPage = () => {
                     className={`flex justify-between items-center px-3 py-2 rounded-md cursor-pointer ${
                       selectedCategory?._id === cat._id
                         ? "bg-blue-500 text-white"
-                        : "bg-white hover:bg-gray-200"
+                        : "bg-white dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-100"
                     }`}
                     onClick={() => setSelectedCategory(cat)}
                   >
@@ -149,9 +149,9 @@ const TemplateGroupPage = () => {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 p-6 overflow-y-auto">
+        <div className="flex-1 p-6 overflow-y-auto bg-gray-50 dark:bg-gray-900">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               {selectedCategory?.name || "Select Category"} Templates
             </h2>
             <div className="flex space-x-2">
@@ -174,7 +174,7 @@ const TemplateGroupPage = () => {
           </div>
 
           {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            <div className="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-200 px-4 py-3 rounded mb-4">
               {error}
               <button
                 className="float-right font-bold text-red-800"
@@ -201,7 +201,7 @@ const TemplateGroupPage = () => {
   {filteredTemplates.map((tpl) => (
     <div
       key={tpl._id}
-      className="template-card border rounded-lg shadow-md p-4 bg-white flex flex-col justify-between hover:shadow-lg transition-shadow relative overflow-hidden group"
+      className="template-card border border-gray-200 dark:border-gray-700 rounded-lg shadow-md p-4 bg-white dark:bg-gray-800 flex flex-col justify-between hover:shadow-lg dark:hover:shadow-xl transition-shadow relative overflow-hidden group"
     >
       {/* Tag with improved styling */}
       <div className="absolute top-3 right-3 z-10">
@@ -256,7 +256,7 @@ const TemplateGroupPage = () => {
       </div>
 
       {/* WhatsApp-style Preview */}
-      <div className="bg-[#e5ddd5] rounded-lg p-3 mt-6">
+      <div className="bg-[#e5ddd5] dark:bg-gray-700 rounded-lg p-3 mt-6">
         {tpl.components.map((c, idx) => {
           if (c.type === "HEADER") {
             return (
@@ -270,7 +270,7 @@ const TemplateGroupPage = () => {
                     className="rounded-lg max-h-40 object-cover w-full"
                   />
                 ) : (
-                  <p className="font-semibold text-gray-800">
+                  <p className="font-semibold text-gray-800 dark:text-gray-100">
                     {c.text}
                   </p>
                 )}
@@ -282,7 +282,7 @@ const TemplateGroupPage = () => {
             return (
               <p
                 key={idx}
-                className="text-gray-900 text-sm mb-2 whitespace-pre-line"
+                className="text-gray-900 dark:text-gray-100 text-sm mb-2 whitespace-pre-line"
               >
                 {c.text}
               </p>
@@ -291,7 +291,7 @@ const TemplateGroupPage = () => {
 
           if (c.type === "FOOTER") {
             return (
-              <p key={idx} className="text-gray-500 text-xs mt-2">
+              <p key={idx} className="text-gray-500 dark:text-gray-300 text-xs mt-2">
                 {c.text}
               </p>
             );
@@ -327,7 +327,7 @@ const TemplateGroupPage = () => {
           Use this Template
         </button>
         <button
-          className="flex items-center px-3 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 text-sm font-medium transition-colors duration-200"
+          className="flex items-center px-3 py-2 bg-gray-100 dark:bg-gray-800 dark:text-gray-100 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 text-sm font-medium transition-colors duration-200"
           onClick={() => handlePreviewTemplate(tpl)}
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
@@ -360,11 +360,11 @@ const TemplateGroupPage = () => {
         size="lg"
       >
         {previewModal.template && (
-          <div className="p-4">
-            <h3 className="text-lg font-semibold mb-4">{previewModal.template.name}</h3>
+          <div className="p-4 bg-white dark:bg-gray-900">
+            <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">{previewModal.template.name}</h3>
             
             {/* WhatsApp-style Preview */}
-            <div className="bg-[#e5ddd5] rounded-lg p-4 mb-4">
+            <div className="bg-[#e5ddd5] dark:bg-gray-700 rounded-lg p-4 mb-4">
               {previewModal.template.components.map((c, idx) => {
                 if (c.type === "HEADER") {
                   return (
@@ -379,7 +379,7 @@ const TemplateGroupPage = () => {
                           className="rounded-lg max-h-60 object-cover w-full"
                         />
                       ) : (
-                        <p className="font-semibold text-gray-800 text-lg">
+                        <p className="font-semibold text-gray-800 dark:text-gray-100 text-lg">
                           {c.text}
                         </p>
                       )}
@@ -391,7 +391,7 @@ const TemplateGroupPage = () => {
                   return (
                     <p
                       key={idx}
-                      className="text-gray-900 text-base mb-3 whitespace-pre-line"
+                      className="text-gray-900 dark:text-gray-100 text-base mb-3 whitespace-pre-line"
                     >
                       {c.text}
                     </p>
@@ -400,7 +400,7 @@ const TemplateGroupPage = () => {
 
                 if (c.type === "FOOTER") {
                   return (
-                    <p key={idx} className="text-gray-500 text-sm mt-3">
+                    <p key={idx} className="text-gray-500 dark:text-gray-300 text-sm mt-3">
                       {c.text}
                     </p>
                   );
@@ -429,16 +429,16 @@ const TemplateGroupPage = () => {
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <div className="bg-gray-100 p-3 rounded">
-                <h4 className="font-medium mb-2">Template Details</h4>
+              <div className="bg-gray-100 dark:bg-gray-800 p-3 rounded">
+                <h4 className="font-medium mb-2 text-gray-900 dark:text-gray-100">Template Details</h4>
                 <p><strong>Name:</strong> {previewModal.template.name}</p>
                 <p><strong>Language:</strong> {previewModal.template.language}</p>
                 <p><strong>Category:</strong> {previewModal.template.category}</p>
               </div>
               
-              <div className="bg-gray-100 p-3 rounded">
-                <h4 className="font-medium mb-2">Components</h4>
-                <ul className="text-sm">
+              <div className="bg-gray-100 dark:bg-gray-800 p-3 rounded">
+                <h4 className="font-medium mb-2 text-gray-900 dark:text-gray-100">Components</h4>
+                <ul className="text-sm text-gray-800 dark:text-gray-200">
                   {previewModal.template.components.map((comp, idx) => (
                     <li key={idx} className="mb-1">
                       {comp.type}: {comp.format || comp.text?.substring(0, 30) + '...'}

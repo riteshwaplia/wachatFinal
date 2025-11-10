@@ -10,7 +10,7 @@ const DragDropDemo = () => {
   };
 
   return (
-    <div className="p-6">
+    <div className="p-6 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-lg">
       <h1 className="text-xl font-bold mb-4">React DnD Example</h1>
 
       <div className="flex space-x-4">

@@ -302,9 +302,9 @@ const validateExcelHeaders = (headers) => {
         <h3 className="text-lg font-semibold mb-4">Carousel Preview</h3>
         <div className="flex overflow-x-auto gap-4 pb-4">
           {carousel.cards.map((card, index) => (
-            <div key={index} className="min-w-[300px] border rounded-lg overflow-hidden bg-white shadow">
+            <div key={index} className="min-w-[300px] border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-gray-800 shadow">
               {cardMediaHandles[index] ? (
-                <div className="h-40 bg-gray-200 flex items-center justify-center">
+                <div className="h-40 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
                   <img 
                     src={`https://graph.facebook.com/v19.0/${cardMediaHandles[index]}`} 
                     alt={`Card ${index + 1}`}
@@ -312,7 +312,7 @@ const validateExcelHeaders = (headers) => {
                   />
                 </div>
               ) : (
-                <div className="h-40 bg-gray-200 flex items-center justify-center text-gray-500">
+                <div className="h-40 bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-300">
                   Image Preview (Upload Required)
                 </div>
               )}
@@ -322,10 +322,10 @@ const validateExcelHeaders = (headers) => {
                   type="file"
                   accept="image/*"
                   onChange={(e) => handleImageUpload(e.target.files[0], index)}
-                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                  className="block w-full text-sm text-gray-500 dark:text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                   disabled={isLoading.uploading}
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-500 dark:text-gray-300 mt-1">
                   {cardMediaHandles[index] ? "Image uploaded" : "Image required"}
                 </p>
                 
@@ -337,7 +337,7 @@ const validateExcelHeaders = (headers) => {
                         <p className="text-sm font-medium mb-1">Body Parameters:</p>
                         <ul className="space-y-1">
                           {comp.example.body_text[0].map((param, paramIndex) => (
-                            <li key={paramIndex} className="text-sm text-gray-600">
+                            <li key={paramIndex} className="text-sm text-gray-600 dark:text-gray-300">
                               <span className="font-medium">Param {paramIndex + 1}:</span> {param}
                             </li>
                           ))}
@@ -384,16 +384,16 @@ const validateExcelHeaders = (headers) => {
     return (
       <div className="mt-6">
         <h3 className="text-lg font-semibold mb-2">Excel File Requirements</h3>
-      <div className="bg-gray-50 p-4 rounded border">
+      <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded border border-gray-200 dark:border-gray-700">
         <p className="font-medium mb-2">Required Columns:</p>
         <ul className="grid grid-cols-2 md:grid-cols-3 gap-2">
           {requiredColumns.map((col, index) => (
-            <li key={index} className="bg-white px-3 py-1 rounded text-sm border">
+            <li key={index} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 px-3 py-1 rounded text-sm">
               {col}
             </li>
           ))}
         </ul>
-        <p className="text-sm text-gray-600 mt-3">
+        <p className="text-sm text-gray-600 dark:text-gray-300 mt-3">
           Note: Images are uploaded separately above, not through the Excel file.
         </p>
       </div>
@@ -406,7 +406,7 @@ const validateExcelHeaders = (headers) => {
                 <span 
                   key={index} 
                   className={`px-3 py-1 rounded text-sm border ${
-                    requiredColumns.includes(header) ? 'bg-green-50 border-green-200' : 'bg-gray-50'
+                    requiredColumns.includes(header) ? 'bg-green-50 border-green-200' : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600'
                   }`}
                 >
                   {header}
@@ -482,7 +482,7 @@ const validateExcelHeaders = (headers) => {
 
   if (isLoading.templates) {
     return (
-      <div className="flex justify-center items-center h-64">
+      <div className="flex justify-center items-center h-64 text-gray-800 dark:text-gray-100">
         <LoadingSpinner />
         <span className="ml-2">Loading templates...</span>
       </div>
@@ -490,7 +490,7 @@ const validateExcelHeaders = (headers) => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-6 bg-white rounded-lg shadow-md mt-8">
+    <div className="max-w-6xl mx-auto p-6 bg-white dark:bg-gray-900 rounded-lg shadow-md mt-8 text-gray-900 dark:text-gray-100">
       <h2 className="text-2xl font-bold mb-6">Send Carousel Template Messages</h2>
       
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -498,7 +498,7 @@ const validateExcelHeaders = (headers) => {
           <div>
             <label className="block font-medium mb-1">Select Template</label>
             <select
-              className="w-full border rounded-md p-2"
+              className="w-full border border-gray-300 dark:border-gray-700 rounded-md p-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
               value={templateName}
               onChange={(e) => setTemplateName(e.target.value)}
               required
@@ -521,7 +521,7 @@ const validateExcelHeaders = (headers) => {
             <label className="block font-medium mb-1">Template Language</label>
             <input
               type="text"
-              className="w-full border rounded-md p-2 bg-gray-100"
+              className="w-full border border-gray-300 dark:border-gray-700 rounded-md p-2 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100"
               value={templateLanguage}
               readOnly
             />
@@ -537,12 +537,12 @@ const validateExcelHeaders = (headers) => {
               <input
                 type="file"
                 id="contactsFile"
-                className="w-full border rounded-md p-2"
+                className="w-full border border-gray-300 dark:border-gray-700 rounded-md p-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 onChange={handleFileChange}
                 accept=".csv,.xlsx,.xls"
                 required
               />
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-sm text-gray-500 dark:text-gray-300 mt-1">
                 File should contain phone numbers and body parameters (no images needed)
               </p>
             </div>
@@ -570,15 +570,15 @@ const validateExcelHeaders = (headers) => {
       </form>
 
       {jobStatus && (
-        <div className="mt-8 p-4 border border-blue-200 rounded-lg bg-blue-50">
+        <div className="mt-8 p-4 border border-blue-200 dark:border-blue-900 rounded-lg bg-blue-50 dark:bg-blue-900/30">
           <h3 className="text-xl font-semibold mb-3">Bulk Send Job Status</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-white p-3 rounded border">
-              <p className="text-sm text-gray-600">Job ID</p>
+            <div className="bg-white dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-700">
+              <p className="text-sm text-gray-600 dark:text-gray-300">Job ID</p>
               <p className="font-medium">{jobStatus.bulkSendJobId}</p>
             </div>
-            <div className="bg-white p-3 rounded border">
-              <p className="text-sm text-gray-600">Status</p>
+            <div className="bg-white dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-700">
+              <p className="text-sm text-gray-600 dark:text-gray-300">Status</p>
               <p className={`font-medium ${
                 jobStatus.status === 'completed' ? 'text-green-600' : 
                 jobStatus.status === 'failed' ? 'text-red-600' : 'text-yellow-600'
@@ -586,8 +586,8 @@ const validateExcelHeaders = (headers) => {
                 {jobStatus.status}
               </p>
             </div>
-            <div className="bg-white p-3 rounded border">
-              <p className="text-sm text-gray-600">Progress</p>
+            <div className="bg-white dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-700">
+              <p className="text-sm text-gray-600 dark:text-gray-300">Progress</p>
               <p className="font-medium">
                 {jobStatus.totalSent} / {jobStatus.totalSent + jobStatus.totalFailed} sent
               </p>

@@ -80,13 +80,13 @@ const MetaFlows = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 p-6 text-gray-900 dark:text-gray-100">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <header className="mb-8 flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Meta Flows</h1>
-            <p className="text-gray-600">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Meta Flows</h1>
+            <p className="text-gray-600 dark:text-gray-300">
               Manage your WhatsApp automation flows
             </p>
           </div>
@@ -104,20 +104,20 @@ const MetaFlows = () => {
         {loading ? (
           <Loader />
         ) : flows.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-lg shadow">
-            <p className="text-gray-500">No flows found. Create or sync now.</p>
+          <div className="text-center py-12 bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-800">
+            <p className="text-gray-500 dark:text-gray-400">No flows found. Create or sync now.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {flows.map((flow) => (
               <div
                 key={flow._id}
-                className="bg-white rounded-lg shadow p-5 hover:shadow-md transition"
+                className="bg-white dark:bg-gray-900 rounded-lg shadow p-5 hover:shadow-md transition border border-gray-200 dark:border-gray-800"
               >
-                <h3 className="text-lg font-semibold text-gray-900">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                   {flow.name}
                 </h3>
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-sm text-gray-500 dark:text-gray-300 mt-1">
                   Meta ID: {flow.metaFlowId || "N/A"}
                 </p>
 
@@ -125,20 +125,20 @@ const MetaFlows = () => {
                   <span
                     className={`px-2 py-1 text-xs rounded-full ${
                       flow.status === "DRAFT"
-                        ? "bg-yellow-100 text-yellow-700"
+                        ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300"
                         : flow.status === "PUBLISHED"
-                        ? "bg-green-100 text-green-700"
-                        : "bg-red-100 text-red-700"
+                        ? "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300"
+                        : "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300"
                     }`}
                   >
                     {flow.status}
                   </span>
-                  <span className="text-xs text-gray-600">
+                  <span className="text-xs text-gray-600 dark:text-gray-400">
                     {flow.categories?.join(", ")}
                   </span>
                 </div>
 
-                <p className="text-xs text-gray-400 mt-3">
+                <p className="text-xs text-gray-400 dark:text-gray-500 mt-3">
                   Updated: {new Date(flow.updatedAt).toLocaleString()}
                 </p>
 
